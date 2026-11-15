@@ -2,7 +2,7 @@ using aspnetproject.Infrastructure.Dtos.Users;
 
 namespace aspnetproject.Infrastructure.Dtos.Moderation;
 
-// What an administrator sees of a comment under review. Used by the report list, and meant for the moderation queue to reuse.
+// What an administrator sees of a comment under review. Shared by the report list and the moderation queue.
 public class CommentSnapshotDto
 {
     public int    Id      { get; set; }

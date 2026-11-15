@@ -75,6 +75,11 @@ public static class RateLimitConfig
         public const string DeletePost = "DeletePost";
         #endregion
 
+        #region Reports
+        public const string CreateReport     = "CreateReport";
+        public const string AdminReadReports = "AdminReadReports";
+        #endregion
+
         #region Users
         public const string AdminCreateUser  = "AdminCreateUser";
         public const string ReadUserProfile  = "ReadUserProfile";
@@ -225,6 +230,14 @@ public static class RateLimitConfig
 
             options.AddPolicy(Policies.DeletePost, httpContext =>
                 PerUserSlidingWindow(httpContext, 20, TimeSpan.FromHours(1)));
+            #endregion
+
+            #region Reports
+            options.AddPolicy(Policies.CreateReport, httpContext =>
+                PerUserSlidingWindow(httpContext, 20, TimeSpan.FromHours(1)));
+
+            options.AddPolicy(Policies.AdminReadReports, httpContext =>
+                PerUserSlidingWindow(httpContext, 120, TimeSpan.FromMinutes(1)));
             #endregion
 
             #region Users

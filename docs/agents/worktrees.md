@@ -23,10 +23,27 @@ Pick tickets that touch different files. The ticket's "What to build" names the 
 ## Finish a lane
 
 1. In the worktree, commit on `worktree-<name>`.
-2. In the main checkout, on `master`: `git merge --no-ff worktree-<name>`.
+2. In the main checkout, on `master`: `git merge --no-ff worktree-<name>`. A worktree session can do this itself: see "Merging from a worktree session" below.
 3. Run the full suite on `master` once both lanes are merged, since each lane was tested only against its own base.
 4. Push `master`.
 5. Exit the worktree session. Claude Code asks whether to keep or remove the worktree. Deleting the branch is a separate step that the owner confirms.
+
+### Merging from a worktree session
+
+A session inside a worktree can do the merge itself. Git will not check out `master` in the worktree, because the main checkout already has it checked out, but no checkout is needed: run the commands in the main checkout's folder (the repo root, two levels above `.claude/worktrees/<name>/`), by `cd`-ing there or with `git -C <repo root>`. All worktrees share one repository, so the lane's commits are already visible there. Steps:
+
+1. Make sure the main checkout is clean (`git -C <repo root> status`). If it is not, stop and ask the owner: those are someone else's changes.
+2. `git merge --no-ff --no-commit worktree-<name>`, so you can fix things before the merge commit.
+3. Resolve conflicts (below), then build and run the full suite **from the main checkout's `backend/`**. That uses the main test database, `TestSocialMediaWebApiDb`. If an IDE holds a file under `obj/` and the build fails with an `IOException`, add `--artifacts-path <scratch folder>` to `dotnet build` and `dotnet test`.
+4. Commit the merge, push `master`, and report what conflicted and how each conflict was resolved.
+
+**Conflicts between parallel lanes.** The lane that merges first should add a dated note under `## Comments` in its ticket for whoever merges the other lane. The note says which files will conflict, which side to keep, and which change git will *not* flag (for example an `.Include()` that a shared mapper now needs). Read that note before you resolve anything. Typical cases:
+
+- Two lanes add the same new file (add/add): take one side whole with `git checkout --theirs <file>` or `--ours`, then re-add the other side's lines by hand.
+- Two lanes add a bullet in the same README or doc spot: keep both.
+- Something neither the ticket notes nor the docs settle: stop and ask the owner.
+
+Comments that say a shape is "meant for ticket X to reuse" go stale once X is merged; update them. This Windows machine has no Python, so script edits with `sed` or use the Edit tool.
 
 A worktree's test database stays behind. Drop it when the lane is done:
 

@@ -3,7 +3,7 @@ using aspnetproject.Infrastructure.Dtos.Users;
 
 namespace aspnetproject.Infrastructure.Dtos.Moderation;
 
-// What an administrator sees of a post under review. Used by the report list, and meant for the moderation queue to reuse.
+// What an administrator sees of a post under review. Shared by the report list and the moderation queue.
 public class PostSnapshotDto
 {
     public int    Id          { get; set; }

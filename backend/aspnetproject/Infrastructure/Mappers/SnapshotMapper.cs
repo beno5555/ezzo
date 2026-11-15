@@ -1,10 +1,11 @@
 using aspnetproject.Data.Models;
 using aspnetproject.Infrastructure.Dtos.Moderation;
+using aspnetproject.Infrastructure.Dtos.Reports;
 using aspnetproject.Infrastructure.Dtos.Users;
 
 namespace aspnetproject.Infrastructure.Mappers;
 
-// An administrator's view of content under review. Used by the report list, and meant for the moderation queue to reuse.
+// An administrator's view of content under review. Shared by the report list and the moderation queue.
 public static class SnapshotMapper
 {
     /// <summary>
@@ -46,6 +47,17 @@ public static class SnapshotMapper
             PostTitle  = comment.Post!.PostTitle,
             UploadedAt = comment.CreatedAt,
             IsHidden   = comment.IsHidden
+        };
+    }
+
+    // The real username even for a deactivated or soft-deleted account: the administrator must know whom the report is about.
+    public static UserSnapshotDto ToUserSnapshot(User user)
+    {
+        return new UserSnapshotDto
+        {
+            Id       = user.Id,
+            Username = user.Username,
+            Bio      = user.Bio
         };
     }
 }
