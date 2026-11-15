@@ -305,12 +305,59 @@ export class MyProfilePage implements OnInit {
 
 ### Styling
 
-- **Temporary:** the styling toolset and the visual identity are decided in a separate design session, before the first page is built. Until then, install no UI kit and no CSS framework. Replace this line with the chosen toolset.
-- Use exactly one styling toolset. Never mix kits or icon sets.
-- Colours, type sizes and spacing come from one token file. Write no literal values in component styles.
+`DESIGN.md` at the repo root is the visual brief: the design tokens, their values and how to apply them. Read it before you edit a template or a style.
+
+- **Temporary:** Tailwind, Angular CDK, the icon package, the token file, `frontend/CLAUDE.md`, the check for literal values and the screenshot script are installed by the foundation ticket. Until it lands, write no styles. Delete this line in that ticket.
+
+**Toolset**
+
+- Tailwind v4 gives every look, and Angular CDK gives behaviour: overlays, dialogs, menus, focus trapping (ADR 0007). Install no component kit.
+- Icons come from `@lucide/angular` and from nowhere else.
+- Fonts are served by the app. Load nothing from another origin.
+
+**Design tokens**
+
+- Always write **design token** for a named styling value. A bare "token" means an access, refresh or reset token.
+- A design token is named for its role (`surface-page`, `ink-strong`, `accent`), never for its shade.
+- The design tokens live in the Tailwind theme block, which the build reads, and in `DESIGN.md`. Change a design token in both in the same commit.
+- Write no literal colour, size or space: no hex code and no bracketed Tailwind value (`p-[13px]`).
+- Light and dark are two sets of values for the same names. A component never names a theme: write no `dark:` class.
+- Until the product's name is settled, no component carries a brand metaphor. The brand lives in design token values and the logo component.
+
+**Where styles go**
+
+- Tailwind classes go in the template. A look that is used twice becomes a component in `shared/`.
+- Never build a class with `@apply`. A component's `.css` file stays nearly empty.
 - Write no global element styles beyond a reset.
-- The typeface must cover Latin, Cyrillic and Georgian.
-- Reusable UI lives in `shared/`.
+
+**Type**
+
+- Every font role's stack must cover Latin, Cyrillic and Georgian. The body role uses one family that covers all three; the display role may pair a Latin face with one Georgian partner.
+- Do not carry meaning with capital letters. Georgian has none in everyday writing.
+
+**Responsive**
+
+- Fluid by default: maximum widths, never fixed widths; rows wrap; images shrink.
+- Write the phone layout first. The shell changes at 768 px (`md:`).
+- A page with a real second column (chat, the admin panel) may change again at 1024 px (`lg:`). No other breakpoint is used.
+- Nothing scrolls sideways at 360 px. On a phone, the rows of an admin table become stacked cards.
+- Check every page at 360, 768 and 1280 px, in both themes, when you build it.
+
+**Motion and accessibility**
+
+- Motion only answers a user's action, lasts at most 200 ms and is off under `prefers-reduced-motion`.
+- Text contrast is at least 4.5 to 1 in both themes. Keyboard focus is always visible. A touch target is at least 44 px high on a phone.
+
+**Profile pictures**
+
+- One `Avatar` component in `shared/` shows a user's profile picture everywhere. Without a picture it draws the default: the user's initials on a disc.
+- The disc's colour is one of the eight disc design tokens, chosen by the user's id. A username in two parts gives both first letters; any other gives its first two letters. An unavailable account gets the grey disc with no letters.
+
+**When a design skill and these documents disagree**
+
+- Neither wins automatically. Report the conflict with both arguments, and the owner decides on the merits.
+- If the skill's advice is taken, change the document, so every page follows it. Never follow the skill on one page only.
+- When the owner is away, follow the document and record the conflict in the ticket.
 
 ### Tests and linting
 
