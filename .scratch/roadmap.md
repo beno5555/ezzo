@@ -51,6 +51,10 @@ Settled on 2026-11-14:
 
 Dates are the day a step should finish.
 
+**Overdue, as of Mon 16.** Step 4 is overdue: its pages could not start, because they wait for the foundation tickets of step 1 and for frontend ticket 06. Steps 5 to 8 each wait for the step before, so each will be late by as much as step 4 is, and their dates no longer hold.
+
+**Steps 4 to 8 are crucial.** They are the pages, and the pages are the commitment in `webcity-documentation.md`. No page can be dropped or traded for an item under Last in line. Every day lost here is taken from the buffer (Tue 24) first and from the items under Last in line after that. The path that decides the finish date is: the foundation tickets → frontend ticket 06 → 07 → the pages, joined at 07 by 04 → 05. Work on that path comes before anything else.
+
 1. [ ] **Design, in four parts.** The name was still open, so the session fixed the structure and left the brand for later.
    - [x] **Mon 16 (planned for Sat 14, two days late): the design session.** Output: ADR 0007, `DESIGN.md` with a neutral provisional skin, and the Styling rules in the conventions skill's TypeScript reference.
    - [ ] **The foundation ticket,** which the owner writes with `/to-tickets`. Wherever a ticket says it waits for the design session, it now waits for this ticket. It installs Tailwind, CDK and the icon package; adds the token file with the neutral skin in light and dark, and the fonts; builds the theme store, its switch and the first-paint check against a flash of the wrong theme; builds the `Avatar` and `Button` components; adds the Playwright screenshot script, the Playwright MCP server in `.mcp.json` (on trial), `frontend/CLAUDE.md` and the check for literal values; installs Impeccable and starts the trial of its hook. Ticket 07 gains the theme switch in the menu.
@@ -65,16 +69,15 @@ Dates are the day a step should finish.
    - Frontend ticket 01, the three small backend changes the pages need: four reserved usernames, the joined date removed from the public user shape, and the time the username was last changed added to the user's own shape.
    - Readiness 07 (the real client IP behind a proxy) matters only if the demo moves to a host.
    - Done: readiness 06, 08 and 09, openapi-document 01 and message-editing 01.
-4. [ ] **Mon 16: shell and auth.** Lazy-loaded feature areas, the HTTP interceptor with automatic refresh, session restore, route guards for signed-in users and administrators, and the pages: register, sign in, password reset, account reactivation.
-   - The pages of this step could not start on Mon 16: they wait for the foundation ticket and ticket 06. The dates of steps 4 to 8 are the owner's to move.
+4. [ ] **Mon 16, overdue, crucial: shell and auth.** Lazy-loaded feature areas, the HTTP interceptor with automatic refresh, session restore, route guards for signed-in users and administrators, and the pages: register, sign in, password reset, account reactivation.
    - Backend, already done: **images** and **likes** (gaps A and B), which changed the post and message contracts. Ticket 02 (photos on a new post) still awaits the owner's review; 05 (likes) and 06 (photos in a message) are done. Only ticket 04 (remove a photo from a post) is open.
-5. [ ] **Tue 17: feed, posts and comments.** Feed with pagination, create a post with photos, edit and delete, like, comment, edit and delete a comment, report a post or comment.
+5. [ ] **Tue 17, will be late, crucial: feed, posts and comments.** Feed with pagination, create a post with photos, edit and delete, like, comment, edit and delete a comment, report a post or comment.
    - Backend, already done: **feed ranking** (gap C, ticket 08).
-6. [ ] **Wed 18: profile, friends and search.** Profile page (bio, posts, friends), edit profile, user search, friend requests (send, accept, decline, remove; the three lists), account settings (deactivate, delete, digest opt-out), the guest view.
+6. [ ] **Wed 18, will be late, crucial: profile, friends and search.** Profile page (bio, posts, friends), edit profile, user search, friend requests (send, accept, decline, remove; the three lists), account settings (deactivate, delete, digest opt-out), the guest view.
    - Backend, already done: **typing on the hub** (gap D, ticket 07).
-7. [ ] **Fri 20: chat and live notifications.** The SignalR service and the central state (signals) for the session, conversations, online friends and unread count. Conversation list with last message, conversation with photos, edit and delete, seen, typing, presence and last active. Toasts for a new message, comment, like and a friend coming online.
+7. [ ] **Fri 20, will be late, crucial: chat and live notifications.** The SignalR service and the central state (signals) for the session, conversations, online friends and unread count. Conversation list with last message, conversation with photos, edit and delete, seen, typing, presence and last active. Toasts for a new message, comment, like and a friend coming online.
    - Backend alongside: what is left of gaps E and F, which is ticket 12 (an administrator decides a report) and ticket 13 (statistics). Logs, the account list, hiding content, the moderation queue and the reports list are done (tickets 03, 09, 10 and 11).
-8. [ ] **Sat 21: admin panel.** Users (create, edit, deactivate, restore, delete, grant and remove the administrator role), delete any post or comment, logs, statistics, the reports list, the moderation queue.
+8. [ ] **Sat 21, will be late, crucial: admin panel.** Users (create, edit, deactivate, restore, delete, grant and remove the administrator role), delete any post or comment, logs, statistics, the reports list, the moderation queue.
 9. [ ] **Mon 23: n8n.** One day for the plumbing and two workflows, one day for the other four.
    - Sun 22: gap G, then the transactional-email and exception-alert workflows.
    - Mon 23: AI moderation, report handling, weekly digest, birthday notifications.
