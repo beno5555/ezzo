@@ -168,10 +168,10 @@ Every class carries a role word, because the CLI no longer adds `Component` or `
 ### DTO types and constants
 
 - One `type` per file, named exactly as the backend DTO it mirrors, so one search finds both halves. `AppResult` and its `ok` and `fail` helpers share one file.
-- Backend enums arrive as numbers. Mirror each as an `as const` object with the same values:
+- Backend enums travel as text: the name of the member (`"Pending"`), in responses and in requests. Mirror each as an `as const` object whose values are those names:
 
 ```ts
-export const FriendshipStatus = { Pending: 0, Accepted: 1, Declined: 2 } as const;
+export const FriendshipStatus = { Pending: 'Pending', Accepted: 'Accepted', Declined: 'Declined' } as const;
 export type FriendshipStatus = (typeof FriendshipStatus)[keyof typeof FriendshipStatus];
 ```
 
