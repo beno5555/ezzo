@@ -3,6 +3,8 @@ export const LIMITS = {
   // backend/aspnetproject/Common/ProjectConstants/Constants.cs
   users: {
     usernameMaxLength: 100,
+    passwordMinLength: 6,
+    passwordMaxLength: 100,
   },
   // backend/aspnetproject/Common/ProjectConstants/Constants.cs, the bounds of Infrastructure/Queries/PageQuery.cs
   paging: {

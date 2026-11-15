@@ -1,1 +1,11 @@
+<!-- A bare session bar that proves sign-in and sign-out. Ticket 07's shell replaces it. -->
+<header>
+  @if (user(); as signedInUser) {
+    <span>Signed in as {{ signedInUser.username }}</span>
+    <button type="button" (click)="signOut()">Sign out</button>
+  } @else {
+    <a [routerLink]="signInAddress">Sign in</a>
+  }
+</header>
+
 <router-outlet />

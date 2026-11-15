@@ -15,16 +15,16 @@ Decisions are under "Addresses" and "Auth pages" in `.scratch/frontend/spec.md`,
 
 **Blocked by:** 02 (The Angular app starts, reaches the backend through the proxy, and CI checks it)
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Difficulty:** tricky: an auth boundary, with concurrent refreshes inside one tab and across tabs, and a cookie that must survive the proxy.
 
-- [ ] In the running app, a user signs in, reloads, and is still signed in (the refresh cookie survives the dev proxy)
-- [ ] With two tabs open, both stay signed in after each has refreshed
-- [ ] Signing out clears the session, and a reload stays signed out
-- [ ] The token is never written to `localStorage` or `sessionStorage`
-- [ ] The decoder is unit-tested for the four claim names, for `role` missing, as a string and as an array, and for a base64url, UTF-8 payload
-- [ ] The interceptor is unit-tested: a `401` leads to one refresh and one retry; two simultaneous `401`s lead to one refresh; a failed refresh clears the session; sign in and refresh are never retried
-- [ ] Each guard is unit-tested, including the remembered return address and the refusal of a return address outside the app
-- [ ] A signed-in user who opens the sign-in address is sent to the home address
-- [ ] A user without the administrator role who opens an admin address is turned away
+- [x] In the running app, a user signs in, reloads, and is still signed in (the refresh cookie survives the dev proxy)
+- [x] With two tabs open, both stay signed in after each has refreshed
+- [x] Signing out clears the session, and a reload stays signed out
+- [x] The token is never written to `localStorage` or `sessionStorage`
+- [x] The decoder is unit-tested for the four claim names, for `role` missing, as a string and as an array, and for a base64url, UTF-8 payload
+- [x] The interceptor is unit-tested: a `401` leads to one refresh and one retry; two simultaneous `401`s lead to one refresh; a failed refresh clears the session; sign in and refresh are never retried
+- [x] Each guard is unit-tested, including the remembered return address and the refusal of a return address outside the app
+- [x] A signed-in user who opens the sign-in address is sent to the home address
+- [x] A user without the administrator role who opens an admin address is turned away

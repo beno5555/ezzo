@@ -1,0 +1,20 @@
+<h1>Sign in</h1>
+
+<form [formGroup]="form" (ngSubmit)="signIn()">
+  <label for="uniqueIdentifier">Username or email</label>
+  <input
+    id="uniqueIdentifier"
+    type="text"
+    autocomplete="username"
+    formControlName="uniqueIdentifier"
+  />
+
+  <label for="password">Password</label>
+  <input id="password" type="password" autocomplete="current-password" formControlName="password" />
+
+  @if (failureMessage(); as message) {
+    <p role="alert">{{ message }}</p>
+  }
+
+  <button type="submit" [disabled]="form.invalid || isSubmitting()">Sign in</button>
+</form>
