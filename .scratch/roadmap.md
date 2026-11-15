@@ -47,11 +47,11 @@ Dates are the day a step should finish.
    - The scaffold of `frontend/` (dev proxy for `/api` and `/hubs`, lint, CI) and the plumbing are the first tickets of the frontend spec. They do not wait for this session; every page ticket does.
 2. [ ] **Write the tickets, one group at a time.** For each group the owner runs `/to-spec` and then `/to-tickets` in a session that already holds the context, because `/to-spec` only writes down what the conversation has settled.
    - Done 2026-11-14: the backend gaps A to F, as 13 tickets in `.scratch/documented-backend-features/issues/`. Tickets 01, 02 and 03 can start at once; the longest chain is 02 → 05 → 08 → 09 → 11 → 12.
-   - Done 2026-11-15: the frontend spec, `.scratch/frontend/spec.md`, written from the owner's answers in the spec session. Next, the owner confirms its test seams and runs `/to-tickets` in that session.
+   - Done 2026-11-15: the frontend, as a spec (`.scratch/frontend/spec.md`) and 24 tickets in `.scratch/frontend/issues/`. Tickets 01 and 02 can start at once, and 01 to 05 need nothing from the design session; 06 onward wait for it. The longest chain is 02 → 04 → 05 → 07 → 09 → 11 → 13 → 14.
    - By Fri 20: n8n, gaps G and H with the six workflows.
 3. [ ] **Any time, in parallel: the open backend tickets.**
    - Documented-backend-features 04 (remove a photo from a post), 12 (an administrator decides a report) and 13 (statistics). The frontend shows "Coming soon" on whatever depends on one that is still open when its page is built.
-   - The three small backend changes in the frontend spec: four reserved usernames, the joined date removed from the public user shape, and the time the username was last changed added to the user's own shape.
+   - Frontend ticket 01, the three small backend changes the pages need: four reserved usernames, the joined date removed from the public user shape, and the time the username was last changed added to the user's own shape.
    - Readiness 07 (the real client IP behind a proxy) matters only if the demo moves to a host.
    - Done: readiness 06, 08 and 09, openapi-document 01 and message-editing 01.
 4. [ ] **Mon 16: shell and auth.** Lazy-loaded feature areas, the HTTP interceptor with automatic refresh, session restore, route guards for signed-in users and administrators, and the pages: register, sign in, password reset, account reactivation.

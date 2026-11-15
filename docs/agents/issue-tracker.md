@@ -8,7 +8,11 @@ Issues and specs for this repo live as markdown files in `.scratch/`.
 - The spec is `.scratch/<feature-slug>/spec.md`
 - Implementation issues are one file per ticket at `.scratch/<feature-slug>/issues/<NN>-<slug>.md`, numbered from `01`, never a single combined tickets file
 - State is recorded as a `Status:` line near the top of each issue file: `ready-for-agent` (new, the value `/to-tickets` writes), then `in-progress`, then `done`
-- Each ticket also carries a `Difficulty:` line (`routine` or `tricky`) that decides which model implements it: Sonnet for routine, Opus for tricky
+- Each ticket also carries a `Difficulty:` line that decides which model implements it:
+  - `routine`: Sonnet 5.5 at high effort
+  - `routine (Opus 5.5 medium)`: Opus 5.5 at medium effort, for work that is fully specified but where Sonnet is likely to slip
+  - `tricky`: Opus 5.5 at high effort
+- The rules for choosing a level are in the `/to-tickets` skill. The review at the end of `/implement` runs on Opus 5.5 whatever model implemented the ticket
 - Comments and conversation history append to the bottom of the file under a `## Comments` heading
 
 ## When a skill says "publish to the issue tracker"

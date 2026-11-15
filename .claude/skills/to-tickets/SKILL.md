@@ -39,10 +39,22 @@ Give each ticket its **blocking edges**: the other tickets that must complete be
 
 Give each ticket a **difficulty**, which decides which model implements it:
 
-- **routine**: the ticket fully specifies the work, it follows patterns that already exist in the codebase, and failures would be caught by tests. A faster model (Sonnet) can implement it.
-- **tricky**: the work needs judgment the ticket can't fully pin down. Examples: auth or security boundaries, concurrency or real-time behaviour, data migrations, cross-layer integration that hasn't been done before, a new pattern, or likely debugging. A stronger model (Opus) should implement it.
+- **routine**: the ticket fully specifies the work, it follows patterns that already exist in the codebase, and failures would be caught by tests. Sonnet 5.5 at high effort implements it.
+- **routine (Opus 5.5 medium)**: the ticket fully specifies the work and needs no deep judgment, but Sonnet is likely to slip on it. Opus 5.5 at medium effort implements it.
+- **tricky**: the work needs judgment the ticket can't fully pin down. Examples: auth or security boundaries, concurrency or real-time behaviour, data migrations, cross-layer integration that hasn't been done before, a new pattern, or likely debugging. Opus 5.5 at high effort implements it.
 
-Add a one-line reason. When in doubt, mark it tricky: an under-rated ticket costs a failed attempt.
+To rate a ticket, first decide whether it is tricky. If it is not, ask whether Sonnet 5.5 at high effort would execute it well, and move it to the middle level when any of these holds:
+
+- **Nothing to copy yet.** The pattern is written down in the conventions or an ADR, but no code in the repo shows it, and later tickets will copy what this one writes.
+- **Tests will not catch a failure.** The result is checked mostly by running the app and looking, such as a page with no DOM tests.
+- **Many small rules must hold at once.** What is shown or allowed depends on several conditions together, such as the viewer's role, ownership and the state of the item.
+- **It changes state that a tricky ticket built,** such as a store fed by real-time events.
+
+A page that copies an existing page's pattern and has a short list of things to click through stays routine.
+
+Add a one-line reason. When in doubt, move up one level: an under-rated ticket costs a failed attempt.
+
+Whatever model implements a ticket, the review at the end of `/implement` runs on Opus 5.5, because `/spec-review` pins its reviewers to it.
 
 **Wide refactors are the exception to vertical slicing.** A **wide refactor** is one mechanical change (rename a column, retype a shared symbol) whose **blast radius** fans across the whole codebase, so a single edit breaks thousands of call sites at once and no vertical slice can land green. Don't force it into a tracer bullet; sequence it as **expand–contract**. First expand: add the new form beside the old so nothing breaks. Then migrate the call sites over in batches sized by blast radius (per package, per directory), each batch its own ticket blocked by the expand, keeping CI green batch to batch because the old form still exists. Finally contract: delete the old form once no caller remains, in a ticket blocked by every migrate batch. When even the batches can't stay green alone, keep the sequence but let them share an integration branch that all block a final integrate-and-verify ticket; green is promised only there.
 
@@ -85,7 +97,7 @@ Do NOT close or modify any parent issue.
 
 **Status:** ready-for-agent
 
-**Difficulty:** routine | tricky: one-line reason
+**Difficulty:** routine | routine (Opus 5.5 medium) | tricky: one-line reason
 
 - [ ] Acceptance criterion 1
 - [ ] Acceptance criterion 2
