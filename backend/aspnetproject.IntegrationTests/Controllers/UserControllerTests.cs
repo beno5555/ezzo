@@ -494,7 +494,7 @@ public class UserControllerTests : IAsyncLifetime
     [InlineData("Search")]
     [InlineData("Account_Deactivated")]
     [InlineData("ACCOUNT_DELETED")]
-    public async Task AdminCreate_WithReservedUsername_ReturnsBadRequestWithReservedMessage(string username)
+    public async Task AdminCreate_WithReservedUsername_ReturnsBadRequestWithUsernameTakenMessage(string username)
     {
         var token = await AuthTestHelper.LoginAsync(_client, "sandro_beno", TestDataSeeder.SharedPlaintextPassword);
         AuthTestHelper.AttachToken(_client, token);
@@ -508,7 +508,7 @@ public class UserControllerTests : IAsyncLifetime
         });
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        Assert.Equal(ResponseMessages.UsernameIsReserved, await ResponseReader.ReadMessageAsync(response));
+        Assert.Equal(ResponseMessages.UsernameIsAlreadyTaken, await ResponseReader.ReadMessageAsync(response));
     }
 
     [Theory]
@@ -520,7 +520,7 @@ public class UserControllerTests : IAsyncLifetime
     [InlineData("Search")]
     [InlineData("Account_Deactivated")]
     [InlineData("ACCOUNT_DELETED")]
-    public async Task UpdateMine_WithReservedUsername_ReturnsBadRequestWithReservedMessage(string username)
+    public async Task UpdateMine_WithReservedUsername_ReturnsBadRequestWithUsernameTakenMessage(string username)
     {
         var token = await AuthTestHelper.LoginAsync(_client, "alice", TestDataSeeder.SharedPlaintextPassword);
         AuthTestHelper.AttachToken(_client, token);
@@ -533,7 +533,7 @@ public class UserControllerTests : IAsyncLifetime
         });
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        Assert.Equal(ResponseMessages.UsernameIsReserved, await ResponseReader.ReadMessageAsync(response));
+        Assert.Equal(ResponseMessages.UsernameIsAlreadyTaken, await ResponseReader.ReadMessageAsync(response));
     }
 
     [Theory]
@@ -545,7 +545,7 @@ public class UserControllerTests : IAsyncLifetime
     [InlineData("Search")]
     [InlineData("Account_Deactivated")]
     [InlineData("ACCOUNT_DELETED")]
-    public async Task UpdateOther_AsAdminWithReservedUsername_ReturnsBadRequestWithReservedMessage(string username)
+    public async Task UpdateOther_AsAdminWithReservedUsername_ReturnsBadRequestWithUsernameTakenMessage(string username)
     {
         var token = await AuthTestHelper.LoginAsync(_client, "sandro_beno", TestDataSeeder.SharedPlaintextPassword);
         AuthTestHelper.AttachToken(_client, token);
@@ -558,7 +558,7 @@ public class UserControllerTests : IAsyncLifetime
         });
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
-        Assert.Equal(ResponseMessages.UsernameIsReserved, await ResponseReader.ReadMessageAsync(response));
+        Assert.Equal(ResponseMessages.UsernameIsAlreadyTaken, await ResponseReader.ReadMessageAsync(response));
     }
 
     [Theory]

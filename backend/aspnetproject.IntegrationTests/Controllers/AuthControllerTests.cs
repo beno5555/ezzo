@@ -185,7 +185,7 @@ public class AuthControllerTests : IAsyncLifetime
     [InlineData("Search")]
     [InlineData("Account_Deactivated")]
     [InlineData("ACCOUNT_DELETED")]
-    public async Task Register_WithReservedUsername_ReturnsBadRequestWithReservedMessage(string username)
+    public async Task Register_WithReservedUsername_ReturnsBadRequestWithUsernameTakenMessage(string username)
     {
         var response = await _client.PostAsJsonAsync("api/auth/register", new
         {
@@ -199,7 +199,7 @@ public class AuthControllerTests : IAsyncLifetime
 
         var body = await response.Content.ReadFromJsonAsync<ApplicationResponse>();
         Assert.False(body!.Succeeded);
-        Assert.Equal(ResponseMessages.UsernameIsReserved, body.Message);
+        Assert.Equal(ResponseMessages.UsernameIsAlreadyTaken, body.Message);
     }
 
     [Theory]

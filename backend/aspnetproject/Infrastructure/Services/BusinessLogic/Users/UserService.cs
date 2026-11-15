@@ -119,55 +119,37 @@ public class UserService : BaseService
             var nextAllowedChangeDate = userToEdit.UsernameLastChangedAt?.AddDays(Constants.UsernameChangeCooldownDays);
             var cooldownActive = usernameChanged && nextAllowedChangeDate is not null && nextAllowedChangeDate > DateTime.UtcNow;
 
-            // Only choosing a reserved name is refused: an account that already holds one (it predates the rule) can still edit its bio.
-            var usernameReserved = usernameChanged && ReservedUsernames.IsReserved(editUserDto.Username);
-
-            if (!usernameReserved)
+            if (!cooldownActive)
             {
-                if (!cooldownActive)
+                // A reserved name looks taken to the caller. Only choosing one is refused: an account that already holds
+                // one (it predates the rule) can still edit its bio.
+                var usernameAvailable = !(usernameChanged && ReservedUsernames.IsReserved(editUserDto.Username))
+                                        && !await _userRepository.OtherUserByUsernameExistsAsync(editUserDto.Username, userToEdit.Id);
+
+                if (usernameAvailable)
                 {
-                    response = await SaveProfileEditAsync(userToEdit, editUserDto);
+                    await _userRepository.EditUserProfileAsync(userToEdit, editUserDto);
+                    var userDto = UserMapper.ToFullDisplay(userToEdit);
+                
+                    response.Ok(userDto, ResponseMessages.ProfileEdited);
+                    await LogResultAsync(response.Succeeded, nameof(EditUserProfileAsync), nameof(User), null, id);
                 }
                 else
                 {
-                    response.Fail(ResponseMessages.UsernameCanBeChangedAgainOn(nextAllowedChangeDate!.Value));
-                    await LogResultAsync(response.Succeeded, nameof(EditUserProfileAsync), nameof(User), $"Edit invalidated. Username cannot be edited yet. {response.Message}", id);
+                    response.Fail(ResponseMessages.UsernameIsAlreadyTaken);
+                    await LogResultAsync(response.Succeeded, nameof(EditUserProfileAsync), nameof(User), $"Edit invalidated. {response.Message}", id);
                 }
             }
             else
             {
-                response.Fail(ResponseMessages.UsernameIsReserved);
-                await LogResultAsync(response.Succeeded, nameof(EditUserProfileAsync), nameof(User), $"Edit invalidated. {response.Message}", id);
+                response.Fail(ResponseMessages.UsernameCanBeChangedAgainOn(nextAllowedChangeDate!.Value));
+                await LogResultAsync(response.Succeeded, nameof(EditUserProfileAsync), nameof(User), $"Edit invalidated. Username cannot be edited yet. {response.Message}", id);
             }
         }
         else
         {
             response.Fail(ResponseMessages.UserNotFound);
             await LogResultAsync(response.Succeeded, nameof(EditUserProfileAsync), nameof(User), response.Message, null);
-        }
-
-        return response;
-    }
-
-    // The last step of EditUserProfileAsync: the username is not reserved and no cooldown applies, so only a clash with another account can still refuse the edit.
-    private async Task<ApplicationResponse<FullUserDto>> SaveProfileEditAsync(User userToEdit, EditUserDto editUserDto)
-    {
-        var response = new ApplicationResponse<FullUserDto>();
-
-        bool userWithUsernameExists = await _userRepository.OtherUserByUsernameExistsAsync(editUserDto.Username, userToEdit.Id);
-
-        if (!userWithUsernameExists)
-        {
-            await _userRepository.EditUserProfileAsync(userToEdit, editUserDto);
-            var userDto = UserMapper.ToFullDisplay(userToEdit);
-
-            response.Ok(userDto, ResponseMessages.ProfileEdited);
-            await LogResultAsync(response.Succeeded, nameof(EditUserProfileAsync), nameof(User), null, userToEdit.Id);
-        }
-        else
-        {
-            response.Fail(ResponseMessages.UsernameIsAlreadyTaken);
-            await LogResultAsync(response.Succeeded, nameof(EditUserProfileAsync), nameof(User), $"Edit invalidated. {response.Message}", userToEdit.Id);
         }
 
         return response;

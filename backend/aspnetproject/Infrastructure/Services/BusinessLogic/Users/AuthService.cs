@@ -41,45 +41,37 @@ public class AuthService : BaseService
 
     public async Task<ApplicationResponse<FullUserDto>> RegisterAsync(RegisterDto registerDto)
     {
-        var response = new ApplicationResponse<FullUserDto>();
+        var response    = new ApplicationResponse<FullUserDto>();
+        var user = await _userRepository.GetUserByEmailAsync(registerDto.Email);
 
-        var usernameReserved = ReservedUsernames.IsReserved(registerDto.Username);
-        if (!usernameReserved)
+        if (user is null)
         {
-            var user = await _userRepository.GetUserByEmailAsync(registerDto.Email);
+            // A reserved name looks taken to the caller, so a user cannot tell the two apart.
+            var usernameAvailable = !ReservedUsernames.IsReserved(registerDto.Username)
+                                    && !await _userRepository.ExistsByUsernameAsync(registerDto.Username);
 
-            if (user is null)
+            if (usernameAvailable)
             {
-                var usernameExists = await _userRepository.ExistsByUsernameAsync(registerDto.Username);
-
-                if (!usernameExists)
-                {
-                    var (hash, salt) = _passwordHasher.HashPassword(registerDto.Password);
-                    User userToRegister = UserMapper.ToRegisteredEntity(registerDto, hash, salt);
-
-                    User addedUser = await _userRepository.AddUserAsync(userToRegister);
-                    var displayDto = UserMapper.ToFullDisplay(addedUser);
-
-                    response.Ok(displayDto, ResponseMessages.RegistrationSuccessful);
-                    await LogResultAsync(response.Succeeded, nameof(RegisterAsync), nameof(User), null, userToRegister.Id);
-                }
-                else
-                {
-                    response.Fail(ResponseMessages.UsernameIsAlreadyTaken);
-                    await LogResultAsync(response.Succeeded, nameof(RegisterAsync), nameof(User), $"Registration failed: {response.Message}", null);
-                }
+                var (hash, salt) = _passwordHasher.HashPassword(registerDto.Password);
+                User userToRegister = UserMapper.ToRegisteredEntity(registerDto, hash, salt);
+            
+                User addedUser = await _userRepository.AddUserAsync(userToRegister);
+                var displayDto = UserMapper.ToFullDisplay(addedUser);
+                
+                response.Ok(displayDto, ResponseMessages.RegistrationSuccessful);
+                await LogResultAsync(response.Succeeded, nameof(RegisterAsync), nameof(User), null, userToRegister.Id);
             }
             else
             {
-                response.Fail(ResponseMessages.EmailIsAlreadyTaken);
+                response.Fail(ResponseMessages.UsernameIsAlreadyTaken);
                 await LogResultAsync(response.Succeeded, nameof(RegisterAsync), nameof(User), $"Registration failed: {response.Message}", null);
-                await _accountSecurityService.HandleFailedRegisterAttempt(user);
             }
         }
         else
         {
-            response.Fail(ResponseMessages.UsernameIsReserved);
+            response.Fail(ResponseMessages.EmailIsAlreadyTaken);
             await LogResultAsync(response.Succeeded, nameof(RegisterAsync), nameof(User), $"Registration failed: {response.Message}", null);
+            await _accountSecurityService.HandleFailedRegisterAttempt(user);
         }
 
         return response;
