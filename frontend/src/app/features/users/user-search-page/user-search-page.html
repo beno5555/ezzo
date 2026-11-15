@@ -1,13 +1,17 @@
-<h1>WebCity</h1>
+<h1>{{ text().app.name }}</h1>
 
 <form [formGroup]="form" (ngSubmit)="search()">
-  <label for="username">Search users</label>
+  <label for="username">{{ text().users.search.label }}</label>
   <input id="username" type="search" formControlName="username" />
-  <button type="submit" [disabled]="form.invalid">Search</button>
+  <button type="submit" [disabled]="form.invalid">{{ text().users.search.submitButton }}</button>
 </form>
 
 @if (failureMessage(); as message) {
   <p role="alert">{{ message }}</p>
+}
+
+@if (users().length > 0) {
+  <p>{{ text().users.search.shown(users().length) }}</p>
 }
 
 <ul>
