@@ -242,6 +242,7 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 
 | Address | Page | Access |
 |---|---|---|
+| `/` | Landing page for guests; a signed-in user is sent to `/feed` | anyone |
 | `/feed` | Feed with the composer | signed in |
 | `/sign-in`, `/register` | Sign in, register | signed out only |
 | `/forgot-password` | Ask for a reset link | anyone |
