@@ -1,0 +1,11 @@
+{
+  "/api": {
+    "target": "https://localhost:7102",
+    "secure": false
+  },
+  "/hubs": {
+    "target": "https://localhost:7102",
+    "secure": false,
+    "ws": true
+  }
+}

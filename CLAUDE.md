@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-**WebCity** is an ASP.NET Core Web API (`net10.0`) for a small social platform: posts, comments, friendships, direct messages, presence. It uses EF Core with SQL Server, JWT auth with rotating refresh tokens, SignalR, MailKit email and background cleanup jobs. This repo is a monorepo: the backend lives in `backend/`, and the Angular frontend will live in `frontend/` once it is scaffolded. The restructure happened **inside** the current root folder: never rename or relocate the root itself, because Claude Code's project memory is keyed to its path.
+**WebCity** is an ASP.NET Core Web API (`net10.0`) for a small social platform: posts, comments, friendships, direct messages, presence. It uses EF Core with SQL Server, JWT auth with rotating refresh tokens, SignalR, MailKit email and background cleanup jobs. This repo is a monorepo: the backend lives in `backend/`, and the Angular 22 frontend in `frontend/`. The restructure happened **inside** the current root folder: never rename or relocate the root itself, because Claude Code's project memory is keyed to its path.
 
 ## About this file
 
@@ -28,7 +28,23 @@ dotnet ef migrations add <Name> --project aspnetproject
 dotnet ef database update --project aspnetproject
 ```
 
-No linter or formatter is configured.
+The backend has no linter or formatter. The frontend uses ESLint and Prettier.
+
+### Frontend
+
+Run these from `frontend/` (Node 24; run `npm ci` once after a clone):
+
+```bash
+npm start                    # dev server on http://localhost:4200, /api and /hubs proxied to the backend
+npm test -- --watch=false    # Vitest unit tests, once
+npm run lint                 # ESLint; fails on an un-awaited promise and on `any`
+npm run build
+npx prettier --write .       # Prettier owns formatting
+```
+
+- **Dev proxy.** `frontend/proxy.conf.json` forwards `/api` and `/hubs` (web sockets included) to `https://localhost:7102`, the backend's https port, with certificate checks off for the dev certificate. Start the backend first. Never aim the proxy at the http port: `UseHttpsRedirection` answers it with a redirect to another origin, which breaks the single origin (ADR 0001).
+- **CORS.** The dev origin `http://localhost:4200` must be listed in the backend's `Cors:AllowedOrigins`, or the backend refuses the reset-password page as a return address.
+- `.github/workflows/tests.yml` runs a `frontend` job (lint, unit tests, build) beside the backend job.
 
 ### Config prerequisites
 

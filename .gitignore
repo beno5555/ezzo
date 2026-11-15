@@ -502,3 +502,7 @@ backend/aspnetproject/Uploads/
 .claude/settings.local.json
 # Worktrees made by claude --worktree (docs/agents/worktrees.md)
 .claude/worktrees/
+# The Visual Studio patterns above would also hide frontend folders such as the admin logs page.
+!frontend/**/[Ll]ogs/
+!frontend/**/[Dd]ebug/
+!frontend/**/[Rr]elease/

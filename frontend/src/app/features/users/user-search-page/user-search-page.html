@@ -1,0 +1,17 @@
+<h1>WebCity</h1>
+
+<form [formGroup]="form" (ngSubmit)="search()">
+  <label for="username">Search users</label>
+  <input id="username" type="search" formControlName="username" />
+  <button type="submit" [disabled]="form.invalid">Search</button>
+</form>
+
+@if (failureMessage(); as message) {
+  <p role="alert">{{ message }}</p>
+}
+
+<ul>
+  @for (user of users(); track user.username) {
+    <li>{{ user.username }}</li>
+  }
+</ul>

@@ -26,3 +26,7 @@ Decisions are under "Languages and dates" in `.scratch/frontend/spec.md`, and in
 - [ ] The formatter writes dates and times in the current language, and is unit-tested for a time and for a date of birth read west of UTC
 - [ ] A plural entry is unit-tested in both languages
 - [ ] No literal UI text is left in a template or component
+
+## Comments
+
+- **From ticket 02 (2026-11-15):** besides the bare page's literal texts (`features/users/user-search-page/`, `core/not-found/`), `core/http/http-failure-texts.ts` holds the fixed texts that `toAppResult` gives a failure with no message of its own (validation, `401`, `403`, `404`, no response, anything else). It is marked temporary; move them into the dictionaries. `toAppResult` is a plain function called inside `…Api` methods, so it cannot `inject()` the language store itself: either have the store's current dictionary passed in, or read the text when it is shown rather than when the failure is made. `to-app-result.spec.ts` asserts against `httpFailureTexts`, so it moves with them.

@@ -141,7 +141,7 @@ The frontend is an Angular 22 app in `frontend/`. Sections 1 to 9 apply to it; t
 frontend/src/app/
   core/       app-wide singletons: session, HTTP plumbing, hub client, languages, error handling
   shared/     reusable presentational components and pipes; nothing routed
-  features/   auth/ users/ posts/ comments/ friendships/ messages/ accounts/
+  features/   auth/ users/ posts/ comments/ friendships/ messages/ accounts/ admin/ reports/
 ```
 
 - Feature folders are named after the backend's controllers. Each holds its pages, components, `…Api` service and DTO types.
@@ -195,7 +195,7 @@ export class UserApi {
   private readonly http = inject(HttpClient);
 
   getMine(): Promise<AppResult<FullUserDto>> {
-    return toAppResult(this.http.get<AppResult<FullUserDto>>('/api/users/mine'));
+    return toAppResult(this.http.get<ApplicationResponse<FullUserDto>>('/api/users/mine'));
   }
 }
 ```
@@ -312,7 +312,7 @@ export class MyProfilePage implements OnInit {
 
 - Write Vitest unit tests for code with logic and no template: `…Api` services, `toAppResult`, the token decoder, the refresh flow, guards and pure helpers. Name them as in section 11.
 - **Temporary (until the 2026-11-25 release):** write no component DOM tests and no end-to-end tests; verify pages by running the app. Afterwards, a few end-to-end flows come first.
-- ESLint runs Angular's recommended rules plus two: no un-awaited promises (`@typescript-eslint/no-floating-promises`) and no `any` (`@typescript-eslint/no-explicit-any`). Prettier owns formatting.
+- ESLint runs the rules `ng add angular-eslint` sets up (recommended, stylistic, template accessibility) plus two: no un-awaited promises (`@typescript-eslint/no-floating-promises`) and no `any` (`@typescript-eslint/no-explicit-any`). Prettier owns formatting.
 - Lint, tests and build run in the existing CI workflow.
 
 ## 11. Tests

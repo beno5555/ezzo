@@ -17,17 +17,22 @@ Decisions are under "Scaffold and plumbing" and "Across the whole frontend" in `
 
 **Blocked by:** None (can start immediately)
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Difficulty:** tricky: the first frontend code and the first integration of the two halves; it sets the patterns every later ticket copies, and proxy problems need debugging.
 
-- [ ] One documented command starts the frontend, and the bare page lists users returned by the backend's search through the proxy
+- [x] One documented command starts the frontend, and the bare page lists users returned by the backend's search through the proxy
 - [ ] The proxy forwards `/api` and `/hubs`, and web socket upgrades on `/hubs`
-- [ ] Every address the app does not know shows the not-found page
-- [ ] A reload of `/users/john.doe`, an address with a dot in it, serves the app and not a file error
-- [ ] `toAppResult` is unit-tested for a success, the failure envelope, a validation response with field errors, a bodiless `401`, `403` and `404`, and a network failure
-- [ ] The user search `…Api` method is unit-tested against Angular's HTTP testing backend: the address, the query and the mapped result
-- [ ] Lint fails on an un-awaited promise and on `any`
-- [ ] The existing CI workflow runs the frontend's lint, unit tests and build, and the backend job is unchanged
-- [ ] `CLAUDE.md` gains the frontend commands, the dev proxy, and the note that the dev origin must be listed in the backend's `Cors:AllowedOrigins`
-- [ ] The Structure section of the conventions skill's TypeScript reference lists `admin/` and `reports/` among the feature folders
+- [x] Every address the app does not know shows the not-found page
+- [x] A reload of `/users/john.doe`, an address with a dot in it, serves the app and not a file error
+- [x] `toAppResult` is unit-tested for a success, the failure envelope, a validation response with field errors, a bodiless `401`, `403` and `404`, and a network failure
+- [x] The user search `…Api` method is unit-tested against Angular's HTTP testing backend: the address, the query and the mapped result
+- [x] Lint fails on an un-awaited promise and on `any`
+- [x] The existing CI workflow runs the frontend's lint, unit tests and build, and the backend job is unchanged
+- [x] `CLAUDE.md` gains the frontend commands, the dev proxy, and the note that the dev origin must be listed in the backend's `Cors:AllowedOrigins`
+- [x] The Structure section of the conventions skill's TypeScript reference lists `admin/` and `reports/` among the feature folders
+
+## Comments
+
+- The web socket box stays open. Through the proxy, an upgrade request to `/hubs/messages` reached Kestrel, which answered `401` with `www-authenticate: Bearer`. A full `101` handshake needs a signed-in user, so ticket 04 finishes this check.
+- Known limit: the dev server answers a hard reload of an address that ends in a file extension, such as `/users/a.png`, with `404`, and the backend's username pattern allows such names. `/users/john.doe` and `/users/alice.com` work.
