@@ -5,13 +5,13 @@
 | Tier | Audience | Example fields |
 |---|---|---|
 | `Minimal` | Lists, search, nested references | Id, Username |
-| `Standard` | Public single fetch | + Bio, RegisteredAt |
-| `Full` | Owner's own view, freshly created resource | + Email, Roles |
+| `Standard` | Public single fetch | + Bio, DateOfBirth (no joined date: it is private) |
+| `Full` | Owner's own view, freshly created resource | + Email, Roles, RegisteredAt, UsernameLastChangedAt |
 
 ```csharp
 public class MinimalUserDto  { public int? Id { get; set; } public string Username { get; set; } = string.Empty; }
-public class StandardUserDto { /* Id, Username, Bio, RegisteredAt, DateOfBirth */ }
-public class FullUserDto     { /* Standard + Email, Roles */ }
+public class StandardUserDto { /* Id, Username, Bio, DateOfBirth */ }
+public class FullUserDto     { /* Standard + Email, Roles, RegisteredAt, UsernameLastChangedAt */ }
 ```
 
 Never return entities. Avoid:

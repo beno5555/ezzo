@@ -10,16 +10,16 @@ Decisions are under "Backend changes" in `.scratch/frontend/spec.md`.
 
 **Blocked by:** None (can start immediately)
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Difficulty:** routine: one validation rule at four entry points and two DTO changes, all following existing patterns and covered by the integration suite.
 
-- [ ] Each of the four names is refused at registration, in lower case and in mixed case
-- [ ] Each is refused when an administrator creates an account, when a user edits their own profile and when an administrator edits a profile
-- [ ] The refusal uses an existing failure shape and a message of its own in `ResponseMessages`
-- [ ] A name that only contains a reserved word (`mine2`, `searcher`) is accepted
-- [ ] The public reads of a user, by id and by username, no longer return the joined date, for a guest and for a signed-in user
-- [ ] The user's own profile and the admin account list still return the joined date
-- [ ] The user's own profile returns no last-changed time before a username change and the time of the change after one
-- [ ] The full integration suite passes
-- [ ] `docs/backend/controllers.md`, `docs/backend/auth.md` where it applies, `README.md` and the Postman collection describe the three changes
+- [x] Each of the four names is refused at registration, in lower case and in mixed case
+- [x] Each is refused when an administrator creates an account, when a user edits their own profile and when an administrator edits a profile
+- [x] The refusal uses an existing failure shape and a message of its own in `ResponseMessages`
+- [x] A name that only contains a reserved word (`mine2`, `searcher`) is accepted
+- [x] The public reads of a user, by id and by username, no longer return the joined date, for a guest and for a signed-in user
+- [x] The user's own profile and the admin account list still return the joined date
+- [x] The user's own profile returns no last-changed time before a username change and the time of the change after one
+- [x] The full integration suite passes
+- [x] `docs/backend/controllers.md`, `docs/backend/auth.md` where it applies, `README.md` and the Postman collection describe the three changes

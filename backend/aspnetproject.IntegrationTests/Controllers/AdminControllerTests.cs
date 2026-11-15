@@ -206,6 +206,17 @@ public class AdminControllerTests : IAsyncLifetime
     }
 
     [Fact]
+    public async Task GetAccounts_AsAdministrator_ReturnsTheJoinedDateOfEveryAccount()
+    {
+        await SignInAsync("sandro_beno");
+
+        var accounts = await GetAccountsAsync();
+
+        Assert.NotEmpty(accounts);
+        Assert.All(accounts, account => Assert.NotEqual(default, account.RegisteredAt));
+    }
+
+    [Fact]
     public async Task GetAccounts_ReturnsStateAsText()
     {
         await SignInAsync("sandro_beno");

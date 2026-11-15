@@ -174,6 +174,52 @@ public class AuthControllerTests : IAsyncLifetime
         Assert.Equal(ResponseMessages.PasswordResetRequested, body.Message);
     }
 
+    // ---------- POST /auth/register: reserved usernames ----------
+
+    [Theory]
+    [InlineData("mine")]
+    [InlineData("search")]
+    [InlineData("account_deactivated")]
+    [InlineData("account_deleted")]
+    [InlineData("MINE")]
+    [InlineData("Search")]
+    [InlineData("Account_Deactivated")]
+    [InlineData("ACCOUNT_DELETED")]
+    public async Task Register_WithReservedUsername_ReturnsBadRequestWithReservedMessage(string username)
+    {
+        var response = await _client.PostAsJsonAsync("api/auth/register", new
+        {
+            Username = username,
+            Email = "reserved_name_user@example.com",
+            Password = "SomeValidPassword1!",
+            DateOfBirth = new DateTime(2000, 1, 1)
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+        var body = await response.Content.ReadFromJsonAsync<ApplicationResponse>();
+        Assert.False(body!.Succeeded);
+        Assert.Equal(ResponseMessages.UsernameIsReserved, body.Message);
+    }
+
+    [Theory]
+    [InlineData("mine2")]
+    [InlineData("searcher")]
+    [InlineData("my_mine")]
+    [InlineData("account_deleted1")]
+    public async Task Register_WithUsernameThatOnlyContainsReservedWord_Succeeds(string username)
+    {
+        var response = await _client.PostAsJsonAsync("api/auth/register", new
+        {
+            Username = username,
+            Email = $"{username}@example.com",
+            Password = "SomeValidPassword1!",
+            DateOfBirth = new DateTime(2000, 1, 1)
+        });
+
+        Assert.Equal(HttpStatusCode.Created, response.StatusCode);
+    }
+
     private async Task<HttpResponseMessage> RequestPasswordResetAsync(string? redirectUrl)
     {
         return await _client.PutAsJsonAsync("api/auth/request-password-reset", new

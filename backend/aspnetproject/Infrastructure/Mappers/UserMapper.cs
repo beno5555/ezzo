@@ -40,7 +40,6 @@ public static class UserMapper
             Username = user.Username,
             Bio = user.Bio,
 
-            RegisteredAt = user.CreatedAt,
             DateOfBirth = user.DateOfBirth
         };
     }
@@ -55,7 +54,8 @@ public static class UserMapper
             Bio = user.Bio,
             Roles = user.UserRoles.Select(userRole => userRole.Role).Select(role => role!.Name).ToList(),
             RegisteredAt = user.CreatedAt,
-            DateOfBirth = user.DateOfBirth
+            DateOfBirth = user.DateOfBirth,
+            UsernameLastChangedAt = user.UsernameLastChangedAt
         };
     }
 

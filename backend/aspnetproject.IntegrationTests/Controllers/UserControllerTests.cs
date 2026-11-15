@@ -1,5 +1,9 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
+using aspnetproject.Common.ProjectConstants;
+using aspnetproject.Data;
+using Microsoft.EntityFrameworkCore;
 using aspnetproject.IntegrationTests.Fixtures;
 using aspnetproject.IntegrationTests.Helpers;
 
@@ -383,5 +387,242 @@ public class UserControllerTests : IAsyncLifetime
         });
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    // ---------- The joined date is private ----------
+
+    [Theory]
+    [InlineData("api/users/2", false)]
+    [InlineData("api/users/alice", false)]
+    [InlineData("api/users/2", true)]
+    [InlineData("api/users/alice", true)]
+    public async Task PublicRead_ReturnsNoJoinedDate(string address, bool signedIn)
+    {
+        if (signedIn)
+        {
+            var token = await AuthTestHelper.LoginAsync(_client, "bob", TestDataSeeder.SharedPlaintextPassword);
+            AuthTestHelper.AttachToken(_client, token);
+        }
+
+        var response = await _client.GetAsync(address);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.False(ReadData(await response.Content.ReadAsStringAsync()).TryGetProperty("registeredAt", out _));
+    }
+
+    [Fact]
+    public async Task GetMine_ReturnsTheJoinedDate()
+    {
+        var token = await AuthTestHelper.LoginAsync(_client, "alice", TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(_client, token);
+
+        var response = await _client.GetAsync("api/users/mine");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.True(ReadData(await response.Content.ReadAsStringAsync()).TryGetProperty("registeredAt", out var joined));
+        Assert.Equal(JsonValueKind.String, joined.ValueKind);
+    }
+
+    // ---------- The username's last change is visible to its owner ----------
+
+    [Fact]
+    public async Task GetMine_BeforeAnyUsernameChange_ReturnsNoLastChangedTime()
+    {
+        var token = await AuthTestHelper.LoginAsync(_client, "alice", TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(_client, token);
+
+        var response = await _client.GetAsync("api/users/mine");
+
+        var data = ReadData(await response.Content.ReadAsStringAsync());
+        Assert.True(data.TryGetProperty("usernameLastChangedAt", out var lastChanged));
+        Assert.Equal(JsonValueKind.Null, lastChanged.ValueKind);
+    }
+
+    [Fact]
+    public async Task GetMine_AfterAUsernameChange_ReturnsTheTimeOfTheChange()
+    {
+        var token = await AuthTestHelper.LoginAsync(_client, "bob", TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(_client, token);
+        var before = DateTime.UtcNow.AddSeconds(-1);
+
+        var edit = await _client.PutAsJsonAsync("api/users/mine", new
+        {
+            Username = "bob_renamed",
+            DateOfBirth = new DateTime(2000, 1, 1),
+            Bio = "Alice's accepted friend"
+        });
+        Assert.Equal(HttpStatusCode.OK, edit.StatusCode);
+
+        // The old token still names "bob", so sign in under the new name to read the own profile.
+        var newToken = await AuthTestHelper.LoginAsync(_client, "bob_renamed", TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(_client, newToken);
+        var response = await _client.GetAsync("api/users/mine");
+
+        var data = ReadData(await response.Content.ReadAsStringAsync());
+        Assert.True(data.TryGetProperty("usernameLastChangedAt", out var lastChanged));
+        Assert.Equal(JsonValueKind.String, lastChanged.ValueKind);
+        var changedAt = lastChanged.GetDateTime().ToUniversalTime();
+        Assert.InRange(changedAt, before, DateTime.UtcNow.AddSeconds(1));
+    }
+
+    [Fact]
+    public async Task UpdateMine_AfterAUsernameChange_ReturnsTheLastChangedTimeInTheResponse()
+    {
+        var token = await AuthTestHelper.LoginAsync(_client, "bob", TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(_client, token);
+
+        var response = await _client.PutAsJsonAsync("api/users/mine", new
+        {
+            Username = "bob_renamed",
+            DateOfBirth = new DateTime(2000, 1, 1),
+            Bio = "Alice's accepted friend"
+        });
+
+        var data = ReadData(await response.Content.ReadAsStringAsync());
+        Assert.True(data.TryGetProperty("usernameLastChangedAt", out var lastChanged));
+        Assert.Equal(JsonValueKind.String, lastChanged.ValueKind);
+    }
+
+    // ---------- Reserved usernames ----------
+
+    [Theory]
+    [InlineData("mine")]
+    [InlineData("search")]
+    [InlineData("account_deactivated")]
+    [InlineData("account_deleted")]
+    [InlineData("MINE")]
+    [InlineData("Search")]
+    [InlineData("Account_Deactivated")]
+    [InlineData("ACCOUNT_DELETED")]
+    public async Task AdminCreate_WithReservedUsername_ReturnsBadRequestWithReservedMessage(string username)
+    {
+        var token = await AuthTestHelper.LoginAsync(_client, "sandro_beno", TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(_client, token);
+
+        var response = await _client.PostAsJsonAsync("api/users", new
+        {
+            Username = username,
+            Email = "reserved_by_admin@example.com",
+            Password = "SomeValidPassword1!",
+            DateOfBirth = new DateTime(2000, 1, 1)
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(ResponseMessages.UsernameIsReserved, await ResponseReader.ReadMessageAsync(response));
+    }
+
+    [Theory]
+    [InlineData("mine")]
+    [InlineData("search")]
+    [InlineData("account_deactivated")]
+    [InlineData("account_deleted")]
+    [InlineData("MINE")]
+    [InlineData("Search")]
+    [InlineData("Account_Deactivated")]
+    [InlineData("ACCOUNT_DELETED")]
+    public async Task UpdateMine_WithReservedUsername_ReturnsBadRequestWithReservedMessage(string username)
+    {
+        var token = await AuthTestHelper.LoginAsync(_client, "alice", TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(_client, token);
+
+        var response = await _client.PutAsJsonAsync("api/users/mine", new
+        {
+            Username = username,
+            DateOfBirth = new DateTime(2000, 1, 1),
+            Bio = "Primary test caller"
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(ResponseMessages.UsernameIsReserved, await ResponseReader.ReadMessageAsync(response));
+    }
+
+    [Theory]
+    [InlineData("mine")]
+    [InlineData("search")]
+    [InlineData("account_deactivated")]
+    [InlineData("account_deleted")]
+    [InlineData("MINE")]
+    [InlineData("Search")]
+    [InlineData("Account_Deactivated")]
+    [InlineData("ACCOUNT_DELETED")]
+    public async Task UpdateOther_AsAdminWithReservedUsername_ReturnsBadRequestWithReservedMessage(string username)
+    {
+        var token = await AuthTestHelper.LoginAsync(_client, "sandro_beno", TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(_client, token);
+
+        var response = await _client.PutAsJsonAsync("api/users/4", new // charlie
+        {
+            Username = username,
+            DateOfBirth = new DateTime(2000, 1, 1),
+            Bio = "edited by admin"
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(ResponseMessages.UsernameIsReserved, await ResponseReader.ReadMessageAsync(response));
+    }
+
+    [Theory]
+    [InlineData("mine")]
+    [InlineData("MINE")]
+    public async Task UpdateMine_BioOnlyByAccountThatAlreadyHoldsAReservedUsername_Succeeds(string submittedUsername)
+    {
+        // An account that predates the rule keeps its name: only a change of username is refused.
+        await using (var db = new ApplicationDbContext(_dbFixture.GetOptions()))
+        {
+            await db.Users.Where(user => user.Id == 2).ExecuteUpdateAsync(setters => setters.SetProperty(user => user.Username, "mine"));
+        }
+        var token = await AuthTestHelper.LoginAsync(_client, "mine", TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(_client, token);
+
+        var response = await _client.PutAsJsonAsync("api/users/mine", new
+        {
+            Username = submittedUsername,
+            DateOfBirth = new DateTime(2000, 1, 1),
+            Bio = "a new bio"
+        });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Theory]
+    [InlineData("mine2")]
+    [InlineData("searcher")]
+    public async Task UpdateMine_WithUsernameThatOnlyContainsReservedWord_Succeeds(string username)
+    {
+        var token = await AuthTestHelper.LoginAsync(_client, "alice", TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(_client, token);
+
+        var response = await _client.PutAsJsonAsync("api/users/mine", new
+        {
+            Username = username,
+            DateOfBirth = new DateTime(2000, 1, 1),
+            Bio = "Primary test caller"
+        });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    [Theory]
+    [InlineData("mine2")]
+    [InlineData("searcher")]
+    public async Task AdminCreate_WithUsernameThatOnlyContainsReservedWord_Succeeds(string username)
+    {
+        var token = await AuthTestHelper.LoginAsync(_client, "sandro_beno", TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(_client, token);
+
+        var response = await _client.PostAsJsonAsync("api/users", new
+        {
+            Username = username,
+            Email = $"{username}@example.com",
+            Password = "SomeValidPassword1!",
+            DateOfBirth = new DateTime(2000, 1, 1)
+        });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+    }
+
+    private static JsonElement ReadData(string body)
+    {
+        return JsonDocument.Parse(body).RootElement.GetProperty("data");
     }
 }

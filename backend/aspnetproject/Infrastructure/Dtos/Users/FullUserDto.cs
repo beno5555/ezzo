@@ -8,6 +8,7 @@ public class FullUserDto
     public string?      Bio      { get; set; }
     public List<string> Roles    { get; set; } = [];
 
-    public DateTime RegisteredAt { get; set; }
-    public DateTime DateOfBirth  { get; set; }
+    public DateTime  RegisteredAt          { get; set; }
+    public DateTime  DateOfBirth           { get; set; }
+    public DateTime? UsernameLastChangedAt { get; set; } // null = the username was never changed
 }

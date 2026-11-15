@@ -9,6 +9,7 @@ For the earlier, API-only state of this repository and the history behind it, se
 ## Features
 
 - Register and log in; JWT access tokens plus rotating refresh tokens; password reset via an emailed token
+- Usernames `mine`, `search`, `account_deactivated` and `account_deleted` are reserved (any letter case) and refused wherever a username is set. A user's joined date is private: public profile reads leave it out, while the user's own profile and the admin account list keep it. The own profile also carries when the username was last changed
 - Create, view, update and delete posts, with up to 10 photos (JPEG, PNG or WebP, checked by content) per post; a ranked feed of friends' and other users' posts, scored by connection, activity and age. Every post read carries its like count, comment count and whether the caller liked it
 - Comment on posts and edit own comments; delete a comment as its author, as the post's author, or as an administrator; live `ReceiveComment` push to the post's author
 - Like and unlike posts, once per user per post; list a post's likers, newest first; live `PostLiked` push to the post's author

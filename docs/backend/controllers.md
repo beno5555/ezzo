@@ -240,11 +240,13 @@ Route: `api/users`. Inherits `BaseController`. `[Authorize]` at controller level
 **`POST api/users` reuses `AuthService.RegisterAsync`** rather than a separate admin-create path in `AccountManagementService` — unlike the earlier design note that anticipated keeping admin-create and self-registration deliberately separate, they now share one code path; admin-vs-self distinction is only the route/authorization, not the underlying service call.
 
 **DTO tiers**, shape-by-audience:
-- `FullUserDto` — Id, Username, Email, Bio, `Roles` (list of role names), RegisteredAt, DateOfBirth. Only returned for the caller's own profile or a freshly-registered account.
-- `StandardUserDto` — Id, Username, Bio, RegisteredAt, DateOfBirth (no email, no roles). Public single-fetch.
+- `FullUserDto` — Id, Username, Email, Bio, `Roles` (list of role names), RegisteredAt, DateOfBirth, `UsernameLastChangedAt` (null when the username was never changed). Only returned for the caller's own profile or a freshly-registered account.
+- `StandardUserDto` — Id, Username, Bio, DateOfBirth (no email, no roles, **no joined date**). Public single-fetch, by id and by username. The joined date is private: only the user (in `FullUserDto`) and administrators (`AdminUserDto.RegisteredAt`) see it.
 - `MinimalUserDto` — nullable Id + Username. List/search results.
 
-**Username change cooldown.** `User.UsernameLastChangedAt` (nullable, null = never changed). `EditUserProfileAsync` only blocks the edit if the username itself changed and the cooldown (`Constants.UsernameChangeCooldownDays`, 20 days) hasn't elapsed; a bio/DOB-only edit never touches this field or the cooldown. Collapses into the same mixed-meaning `BadRequest` bucket ("not found" vs. "cooldown active" aren't told apart at the HTTP layer).
+**Username change cooldown.** `User.UsernameLastChangedAt` (nullable, null = never changed), returned to its owner in `FullUserDto.UsernameLastChangedAt` so the settings page can show when the username can change again. `EditUserProfileAsync` only blocks the edit if the username itself changed and the cooldown (`Constants.UsernameChangeCooldownDays`, 20 days) hasn't elapsed; a bio/DOB-only edit never touches this field or the cooldown. Collapses into the same mixed-meaning `BadRequest` bucket ("not found" vs. "cooldown active" aren't told apart at the HTTP layer).
+
+**Reserved usernames.** `mine`, `search`, `account_deactivated` and `account_deleted` cannot be taken, in any letter case (`ReservedUsernames.IsReserved`, the one place the list lives). The first two are the routes beside `GET api/users/{username}`, so a user with either name could never be read by name; the last two are the placeholder names shown for unavailable accounts (`UsernameMapper`), so a real user could pose as one. The check runs wherever a username is set: `AuthService.RegisterAsync` (self-registration and `POST api/users`) and `UserService.EditUserProfileAsync` (`PUT api/users/mine` and `PUT api/users/{id:int}`). A refusal is a `400` with the envelope and `ResponseMessages.UsernameIsReserved`. Only a whole-name match is refused: `mine2` and `searcher` are accepted.
 
 **DOB validation** via `ValidAgeAttribute` (`Constants.MinAge`/`MaxAge` = 13/100, rejects future dates), mirroring the DB check constraint; shared between `RegisterDto` and `EditUserDto`.
 

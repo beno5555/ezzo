@@ -102,6 +102,7 @@ public static class ResponseMessages
 
     public const string RegistrationSuccessful = $"{Registration} {Successful}";
     public const string UsernameIsAlreadyTaken = $"Username is already taken";
+    public const string UsernameIsReserved     = "Username is reserved";
     public const string EmailIsAlreadyTaken    = $"Email is already taken";
 
     public const string LoginSuccessful           = $"{Login} {Successful}";
