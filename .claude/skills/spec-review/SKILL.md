@@ -57,7 +57,7 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 
 ### 4. Spawn both sub-agents in parallel
 
-Issue both sub-agent calls together, in the foreground, with `model: opus` (Opus 5.5), and aggregate the reports they return. Keep it on Opus: both axes call for judgement, and the session itself may be running on a smaller model.
+Issue both sub-agent calls together, in the foreground, with `model: opus` (Opus 5.5) and `effort: high`, and aggregate the reports they return. Keep both settings: both axes call for judgement, the session itself may be running on a smaller model, and without an effort the reviewers fall back to the default for Opus, which may be lower.
 
 **Standards sub-agent prompt** should include:
 

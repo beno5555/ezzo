@@ -54,7 +54,7 @@ A page that copies an existing page's pattern and has a short list of things to 
 
 Add a one-line reason. When in doubt, move up one level: an under-rated ticket costs a failed attempt.
 
-Whatever model implements a ticket, the review at the end of `/implement` runs on Opus 5.5, because `/spec-review` pins its reviewers to it.
+Whatever model implements a ticket, the review at the end of `/implement` runs on Opus 5.5 at high effort, because `/spec-review` pins its reviewers to that.
 
 **Wide refactors are the exception to vertical slicing.** A **wide refactor** is one mechanical change (rename a column, retype a shared symbol) whose **blast radius** fans across the whole codebase, so a single edit breaks thousands of call sites at once and no vertical slice can land green. Don't force it into a tracer bullet; sequence it as **expand–contract**. First expand: add the new form beside the old so nothing breaks. Then migrate the call sites over in batches sized by blast radius (per package, per directory), each batch its own ticket blocked by the expand, keeping CI green batch to batch because the old form still exists. Finally contract: delete the old form once no caller remains, in a ticket blocked by every migrate batch. When even the batches can't stay green alone, keep the sequence but let them share an integration branch that all block a final integrate-and-verify ticket; green is promised only there.
 

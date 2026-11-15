@@ -12,7 +12,7 @@ Issues and specs for this repo live as markdown files in `.scratch/`.
   - `routine`: Sonnet 5.5 at high effort
   - `routine (Opus 5.5 medium)`: Opus 5.5 at medium effort, for work that is fully specified but where Sonnet is likely to slip
   - `tricky`: Opus 5.5 at high effort
-- The rules for choosing a level are in the `/to-tickets` skill. The review at the end of `/implement` runs on Opus 5.5 whatever model implemented the ticket
+- The rules for choosing a level are in the `/to-tickets` skill. The review at the end of `/implement` runs on Opus 5.5 at high effort whatever model implemented the ticket
 - Comments and conversation history append to the bottom of the file under a `## Comments` heading
 
 ## When a skill says "publish to the issue tracker"
