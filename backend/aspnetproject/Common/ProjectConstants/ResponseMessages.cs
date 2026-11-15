@@ -101,7 +101,8 @@ public static class ResponseMessages
     #region Auth
 
     public const string RegistrationSuccessful = $"{Registration} {Successful}";
-    public const string UsernameIsAlreadyTaken = $"Username is already taken";    public const string EmailIsAlreadyTaken    = $"Email is already taken";
+    public const string UsernameIsAlreadyTaken = $"Username is already taken";
+    public const string EmailIsAlreadyTaken    = $"Email is already taken";
 
     public const string LoginSuccessful           = $"{Login} {Successful}";
     public const string LoginErrorMessage         = "Invalid Username or Password";
