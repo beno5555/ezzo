@@ -47,7 +47,7 @@ Dates are the day a step should finish.
    - Then scaffold `frontend/` with the dev proxy for `/api` and `/hubs`.
 2. [ ] **Write the tickets, one group at a time.** For each group the owner runs `/to-spec` and then `/to-tickets` in a session that already holds the context, because `/to-spec` only writes down what the conversation has settled.
    - Done 2026-11-14: the backend gaps A to F, as 13 tickets in `.scratch/documented-backend-features/issues/`. Tickets 01, 02 and 03 can start at once; the longest chain is 02 → 05 → 08 → 09 → 11 → 12.
-   - The frontend pages of steps 4 to 8: the owner's answers were taken on 2026-11-15 and are listed under **Answers from the frontend spec session** below. Next, the owner runs `/to-spec` and then `/to-tickets` in that session.
+   - Done 2026-11-15: the frontend spec, `.scratch/frontend/spec.md`, written from the owner's answers in the spec session. Next, the owner confirms its test seams and runs `/to-tickets` in that session.
    - By Fri 20: n8n, gaps G and H with the six workflows.
 3. [ ] **Any time, in parallel: the open backend tickets.** Readiness 06, 08 and 09, and openapi-document 01. Ticket 08 bites as soon as sign-in exists, 09 as soon as a date is shown, and the document promises per-user limits (06) and Swagger. Message-editing 01 (the 20-minute edit window) was done on 2026-11-14.
 4. [ ] **Mon 16: shell and auth.** Lazy-loaded feature areas, the HTTP interceptor with automatic refresh, session restore, route guards for signed-in users and administrators, and the pages: register, sign in, password reset, account reactivation.
@@ -66,46 +66,6 @@ Dates are the day a step should finish.
    - Needs from the owner before Sun 22: Docker Desktop installed (it is not on this machine as of 2026-11-14), the OpenAI key, the Telegram bot token and chat id, and SMTP credentials entered in n8n.
 10. [ ] **Tue 24: buffer and finish.** Responsive pass on a phone width. Walk the document top to bottom against the running app and fix what fails. Update `README.md` (monorepo ticket 04) and `docs/backend/*.md` for everything added.
 11. [ ] **Wed 25: hand in.**
-
-### Answers from the frontend spec session
-
-Taken on 2026-11-15. This is the record until `/to-spec` writes the spec; delete this section once the spec exists.
-
-**Addresses.** `/` feed (signed in), `/sign-in` and `/register` (signed out only), `/forgot-password`, `/reset-password?token=…`, `/reactivate-account`, `/posts/:postId`, `/users/:username`, `/settings`, `/search?q=…`, `/friends` (three tabs), `/messages` and `/messages/:username`, `/admin/users`, `/admin/reports`, `/admin/moderation`, `/admin/logs`, `/admin/statistics`, and a not-found page. Never put a fixed word beside a `:username` segment.
-
-**Guest.** Reads a profile (bio and posts, no friends tab) and one post with its comments, and searches users. The guest shell holds the logo, the search box, the language switch, and Sign in and Register. An action button sends a guest to sign-in.
-
-**Shell.** Desktop: a top bar with the logo, the search box, Feed, Friends and Messages (unread badge), and a menu under the user's initials (my profile, settings, admin for administrators, language, sign out). Phone: a top bar with the logo and that menu, and a bottom bar with Feed, Search, Friends, Messages and Profile. The website plays no sound.
-
-**Toasts.** New message (none while that chat is open), comment on my post, like on my post, friend came online (at most once per friend per 5 minutes). Each is a link, lasts 5 seconds, and at most three show at once. There is no notification history.
-
-**Feed and posts.** A composer card at the top of the feed: title, text, up to 10 photos with previews, type and size checked in the browser. A new post appears at the top without a reload. A post is edited in place: title, text, and removing photos one at a time; photos cannot be added to an existing post. Photos show as a grid with a full-screen viewer. The feed card shows the like button and the two counts; comments are read and written only on the post's page.
-
-**Actions on content.** A "…" menu on every post, comment and profile. Anyone signed in: Report, with a reason. The author: Edit and Delete; a post's author also deletes comments on it. An administrator: Delete, and Hide or Make visible, on any post or comment in the normal pages. Hidden content carries a badge for its author and for administrators.
-
-**Profile.** Username, bio, and birthday as day and month. A friendship button that follows the state, and a Message button for friends. Tabs: Posts and Friends. No joined date. An unavailable author shows as plain text with no link, and their address shows the not-found page.
-
-**Friends.** The Friends link shows the incoming count, loaded at sign-in and on each visit to `/friends`.
-
-**Chat.** Two routes, shown as two screens on a phone and side by side on a desktop. A chat starts from "New message" (friends with no conversation) or from a friend's profile. A list row shows the name, an online dot or last active time, the last message ("Photo" for images only) and the unread count. "typing…" hides after 3 seconds of silence; the client sends the typing signal at most once every 2 seconds.
-
-**Settings.** One page. Profile (username with the 20-day limit, bio, date of birth, the account's creation date, when the username was last changed), Language, Password (a button that emails a reset link), Email digest (appears with gap G), and a danger zone (deactivate and delete, each confirmed by typing the username).
-
-**Auth.** After registering, the frontend calls sign-in with the same credentials; the register endpoint is unchanged. If that sign-in fails, the user lands on the sign-in page with the username filled in. The reset link lands on `/reset-password?token=…`. Reactivation is one page with two steps and ends at sign-in. A guard remembers the wanted address and returns there after sign-in.
-
-**Admin.** A page per area with a side navigation. Users: a table filtered by state and username, create and edit in dialogs, row actions. Reports: pending first, filters, the reported content inline, Hide and Reject. Moderation: one page with Posts and Comments tabs. Logs: a table with the backend's filters. Statistics: number tiles, no charts. The Hide and Reject buttons wait for backend ticket 12, and the statistics page for ticket 13.
-
-**Search.** The top-bar box opens `/search?q=…`; the page searches as the user types, after a 300 ms pause.
-
-**Languages.** English and Georgian. Georgian on a first visit when the browser's language is Georgian, English otherwise.
-
-**Scope of the spec.** It includes the scaffold and the plumbing (dev proxy, lint, CI, session, interceptor, hub client, dictionaries) as its first tickets; these do not wait for the design session, the page tickets do. The scaffold ticket checks that a reload of `/users/john.doe` (a username with a dot) still serves the app. `admin/` and `reports/` join the feature folders, and `PostLikeApi` lives in `posts/`.
-
-**Small backend changes the spec carries.**
-
-- Refuse four usernames, compared without regard to case: `mine` and `search` (they collide with `/api/users/mine` and `/api/users/search`), and `account_deactivated` and `account_deleted` (the placeholder names shown for unavailable accounts).
-- Remove `RegisteredAt` from `StandardUserDto`, so only the user (in settings) and administrators (in the users table) see a joined date.
-- Add `UsernameLastChangedAt` to `FullUserDto`.
 
 ### Days the owner is away
 
