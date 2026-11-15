@@ -41,7 +41,7 @@ module.exports = defineConfig([
       // ADR 0003: every …Api call is a promise, so a forgotten await is a silent bug.
       '@typescript-eslint/no-floating-promises': 'error',
       '@typescript-eslint/no-explicit-any': 'error',
-      // The conventions use `type` for data shapes and `interface` for extensible contracts, so neither is forced.
+      // Off: the conventions use `type` for data shapes and an `interface` wherever a contract serves a purpose.
       '@typescript-eslint/consistent-type-definitions': 'off',
     },
   },

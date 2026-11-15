@@ -76,7 +76,7 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 
 ### Feed and posts
 
-34. As a user, I want the home page to show the ranked feed, so that I see friends' news and discover other people.
+34. As a user, I want the feed page to show the ranked feed, so that I see friends' news and discover other people.
 35. As a user, I want more posts to load as I scroll, so that I never press a "next page" button.
 36. As a user, I want a composer at the top of the feed with a title, text and up to 10 photos, so that posting takes no navigation.
 37. As a user, I want a preview of each photo I picked, and a way to drop one before I post, so that I publish what I meant.
@@ -242,7 +242,7 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 
 | Address | Page | Access |
 |---|---|---|
-| `/` | Feed with the composer | signed in |
+| `/feed` | Feed with the composer | signed in |
 | `/sign-in`, `/register` | Sign in, register | signed out only |
 | `/forgot-password` | Ask for a reset link | anyone |
 | `/reset-password?token=…` | Choose a new password | anyone |
@@ -258,13 +258,14 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 
 - **People are addressed by username,** in profiles and in chat. The backend resolves a username to a user with its public read by username; chat endpoints and hub events use the id, so the chat page resolves the username first, from the conversation list when it is loaded and from the backend otherwise.
 - **Never put a fixed word beside a `:username` segment.** A username could equal it.
+- **Usernames hold no dots,** only letters, digits, `_` and `-`. A last segment with a file extension (`bob.png`) is taken for a file by the dev server and by typical asset rules, which would break a reload of that profile.
 - **`/admin` redirects to `/admin/users`.**
 - **A guard that turns someone away to sign-in passes the wanted address along,** and sign-in returns there. Only addresses inside the app are accepted as a return target.
 
 ### Scaffold and plumbing
 
 - **The CLI project** lives in `frontend/`, with the dev proxy forwarding `/api` and `/hubs` (web sockets included) to the backend.
-- **Scaffold acceptance checks,** each proven in the running app: signing in and reloading keeps the session (the refresh cookie survives the proxy); the hub connects through the proxy; a reload of `/users/john.doe`, a username with a dot, still serves the app.
+- **Scaffold acceptance checks,** each proven in the running app: signing in and reloading keeps the session (the refresh cookie survives the proxy); the hub connects through the proxy; a reload of `/users/john_doe` still serves the app.
 - **The dev origin must be in the backend's `Cors:AllowedOrigins`,** or the backend refuses the reset page's address as a return address.
 - **CI** runs lint, the unit tests and the build in the existing workflow.
 - **Stores.** Session; language; presence (which friends are online, and last active times); unread (the number of conversations with unread messages); conversations (the list and the open conversation); incoming friend requests (the count); toasts.

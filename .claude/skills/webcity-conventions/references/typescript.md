@@ -118,7 +118,7 @@ export const responseMessages = {
 
 ## 8. `type` vs `interface`
 
-Use `type` for unions and data shapes. Use `interface` only for extensible contracts. Follow the project's existing choice.
+Use `type` for unions and data shapes, such as the DTOs that mirror the backend. Add an `interface` wherever it serves a purpose: a contract that more than one class implements, or a shape that other types extend. Don't add one for a class with a single implementation, such as an Angular service or an `…Api` class: like the backend's services, those are injected as concrete classes.
 
 ## 9. Formatting
 

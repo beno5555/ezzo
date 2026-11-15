@@ -44,7 +44,7 @@ npx prettier --write .       # Prettier owns formatting
 
 - **Dev proxy.** `frontend/proxy.conf.json` forwards `/api` and `/hubs` (web sockets included) to `https://localhost:7102`, the backend's https port, with certificate checks off for the dev certificate. Start the backend first. Never aim the proxy at the http port: `UseHttpsRedirection` answers it with a redirect to another origin, which breaks the single origin (ADR 0001).
 - **CORS.** The dev origin `http://localhost:4200` must be listed in the backend's `Cors:AllowedOrigins`, or the backend refuses the reset-password page as a return address.
-- `.github/workflows/tests.yml` runs a `frontend` job (lint, unit tests, build) beside the backend job.
+- `.github/workflows/tests.yml` runs a `frontend` job (Prettier check, lint, unit tests, build) beside the backend job.
 
 ### Config prerequisites
 
