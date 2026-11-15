@@ -1,0 +1,12 @@
+<div role="group" [attr.aria-label]="text().languages.switchLabel">
+  @for (choice of choices; track choice.language) {
+    <button
+      type="button"
+      [attr.lang]="choice.language"
+      [attr.aria-pressed]="isCurrent(choice.language)"
+      (click)="choose(choice.language)"
+    >
+      {{ choice.ownName }}
+    </button>
+  }
+</div>

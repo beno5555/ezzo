@@ -181,7 +181,7 @@ export type FriendshipStatus = (typeof FriendshipStatus)[keyof typeof Friendship
 ### API services and results
 
 - Every `…Api` method returns `Promise<AppResult<T>>` and never throws for an expected failure. Callers `await` it and branch on `succeeded`.
-- One helper in `core/`, `toAppResult`, converts the `HttpClient` Observable to that promise and maps failures. It is the only place that catches HTTP errors and the only place application code needs RxJS.
+- One helper in `core/`, `toAppResult`, converts the `HttpClient` Observable to that promise and maps failures. It is the only place that catches HTTP errors and the only place application code needs RxJS. It is a plain function, so the `…Api` method passes it the current dictionary's `httpFailures`.
 - On the frontend, the failure branch of `AppResult` also carries `status: number` and an optional `fieldErrors` map of field name to messages.
 - Endpoints that answer without the envelope (login and refresh return `{ accessToken }`) are wrapped into `AppResult` by their `…Api` method.
 - URLs are relative (`/api/...`, `/hubs/...`), per ADR 0001. Path literals appear only in `…Api` files.
@@ -193,9 +193,13 @@ export type FriendshipStatus = (typeof FriendshipStatus)[keyof typeof Friendship
 @Injectable({ providedIn: 'root' })
 export class UserApi {
   private readonly http = inject(HttpClient);
+  private readonly languageStore = inject(LanguageStore);
 
   getMine(): Promise<AppResult<FullUserDto>> {
-    return toAppResult(this.http.get<ApplicationResponse<FullUserDto>>('/api/users/mine'));
+    return toAppResult(
+      this.http.get<ApplicationResponse<FullUserDto>>('/api/users/mine'),
+      this.languageStore.text().httpFailures,
+    );
   }
 }
 ```

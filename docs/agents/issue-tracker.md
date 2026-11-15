@@ -14,7 +14,7 @@ Issues and specs for this repo live as markdown files in `.scratch/`.
   - `tricky`: Opus 5.5 at high effort
 - The rules for choosing a level are in the `/to-tickets` skill. The review at the end of `/implement` runs on Opus 5.5 at high effort whatever model implemented the ticket
 - Comments and conversation history append to the bottom of the file under a `## Comments` heading
-- A ticket is implemented on its own branch (named after the ticket, e.g. `frontend-01-reserved-usernames`), not on `master`, and the branch is merged into `master` with `--no-ff` once the ticket is `done` (no pull requests). When asked to implement a ticket while on `master`, the agent reminds the owner of this first and offers the branch; it works on `master` only if the owner says so. A session in a worktree under `.claude/worktrees/` is already on its own branch
+- A ticket is implemented on its own branch (named after the ticket, e.g. `frontend-01-reserved-usernames`), not on `master`, and the branch is merged into `master` with `--no-ff` once the ticket is `done` (no pull requests). When asked to implement a ticket while on `master`, the agent reminds the owner of this first and offers the branch; it works on `master` only if the owner says so. A session in a worktree under `.claude/worktrees/` is already on its own branch, and it still merges that branch into `master` when the ticket is done: see "Merging from a worktree session" in `worktrees.md`
 
 ## When a skill says "publish to the issue tracker"
 
