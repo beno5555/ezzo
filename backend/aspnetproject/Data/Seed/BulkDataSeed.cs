@@ -1,4 +1,5 @@
-﻿using aspnetproject.Common.ProjectConstants.Enums;
+﻿using System.Text.RegularExpressions;
+using aspnetproject.Common.ProjectConstants.Enums;
 using aspnetproject.Data.Models;
 using Bogus;
 
@@ -6,7 +7,10 @@ namespace aspnetproject.Data.Seed;
 
 public class BulkDataSeeder
 {
-    private readonly ApplicationDbContext _db; 
+    private static readonly Regex UsernameDisallowedCharacters = new("[^a-z0-9_-]");
+    private const string UsernameReplacement = "_";
+
+    private readonly ApplicationDbContext _db;
     private readonly Random _rng = new(42);
 
     public BulkDataSeeder(ApplicationDbContext db)
@@ -44,7 +48,7 @@ public class BulkDataSeeder
     private List<User> GenerateUsers(int count)
     {
         var faker = new Faker<User>()
-            .RuleFor(u => u.Username, (f, u) => f.Internet.UserName().ToLower() + f.Random.Number(1, 9999))
+            .RuleFor(u => u.Username, (f, u) => ToAllowedUsername(f.Internet.UserName()) + f.Random.Number(1, 9999))
             .RuleFor(u => u.Email, (f, u) => f.Internet.Email(u.Username))
             .RuleFor(u => u.Bio, f => f.Lorem.Sentence(8))
             .RuleFor(u => u.DateOfBirth, f => f.Date.Past(40, DateTime.UtcNow.AddYears(-18)))
@@ -58,6 +62,12 @@ public class BulkDataSeeder
             .RuleFor(u => u.UsernameLastChangedAt, f => null);
 
         return faker.Generate(count);
+    }
+
+    // Bogus joins names with a dot (john.doe), which Constants.UsernameRegexPattern refuses; so is anything else outside it.
+    private static string ToAllowedUsername(string generated)
+    {
+        return UsernameDisallowedCharacters.Replace(generated.ToLower(), UsernameReplacement);
     }
 
     private List<Friendship> GenerateFriendships(List<User> users)
