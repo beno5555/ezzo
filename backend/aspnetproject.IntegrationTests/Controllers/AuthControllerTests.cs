@@ -220,6 +220,26 @@ public class AuthControllerTests : IAsyncLifetime
         Assert.Equal(HttpStatusCode.Created, response.StatusCode);
     }
 
+    // ---------- POST /auth/register: username characters ----------
+    // A username is an address segment (/users/:username); a dot would let it pass for a file name (bob.png).
+
+    [Theory]
+    [InlineData("john.doe")]
+    [InlineData("bob.png")]
+    [InlineData("alice.")]
+    public async Task Register_WithDotInUsername_ReturnsBadRequest(string username)
+    {
+        var response = await _client.PostAsJsonAsync("api/auth/register", new
+        {
+            Username = username,
+            Email = "dotted_name_user@example.com",
+            Password = "SomeValidPassword1!",
+            DateOfBirth = new DateTime(2000, 1, 1)
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
     private async Task<HttpResponseMessage> RequestPasswordResetAsync(string? redirectUrl)
     {
         return await _client.PutAsJsonAsync("api/auth/request-password-reset", new

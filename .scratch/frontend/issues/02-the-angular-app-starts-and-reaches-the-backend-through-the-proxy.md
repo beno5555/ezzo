@@ -35,4 +35,4 @@ Decisions are under "Scaffold and plumbing" and "Across the whole frontend" in `
 ## Comments
 
 - The web socket box stays open. Through the proxy, an upgrade request to `/hubs/messages` reached Kestrel, which answered `401` with `www-authenticate: Bearer`. A full `101` handshake needs a signed-in user, so ticket 04 finishes this check.
-- Known limit: the dev server answers a hard reload of an address that ends in a file extension, such as `/users/a.png`, with `404`, and the backend's username pattern allows such names. `/users/john.doe` and `/users/alice.com` work.
+- The dev server answered a hard reload of an address ending in a file extension, such as `/users/a.png`, with `404`. Fixed at the source: usernames no longer allow dots (`Constants.UsernameRegexPattern`), so a profile address never looks like a file.
