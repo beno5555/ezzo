@@ -22,9 +22,18 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
     private const string ConnectionStringSetting  = "ConnectionStrings:DefaultConnection";
     private const string UploadFolderSetting      = "ImageStorage:UploadFolder";
     private const string TestUploadFolderRootName = "webcity-test-uploads";
+    public const string HashIterationsSetting     = "PasswordConfiguration:HashIterations";
+
+    // A sign-in at the production 100,000 rounds costs 60 to 80 ms. The app accepts a lower value only in Testing, so hosts in
+    // other environments keep the default, and TestDataSeeder's users can sign in only on Testing hosts.
+    public const int TestHashIterations = 1;
+
+    // What every other environment hashes with, pinned as a literal so tests catch a changed default.
+    public const int ProductionHashIterations = 100_000;
 
     public const string TestingEnvironment     = "Testing";
     public const string DevelopmentEnvironment = "Development";
+    public const string ProductionEnvironment  = "Production";
 
     private readonly IReadOnlyDictionary<string, string?> _settingOverrides;
     private readonly string _environmentName;
@@ -51,7 +60,8 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             config.AddJsonFile("appsettings.Testing.json", optional: false);
 
             // Added after the settings file so it wins: the suite never sends real email, always trusts TrustedFrontendOrigin,
-            // and always uses the database DatabaseFixture migrates and reseeds (one per git worktree).
+            // and always uses the database DatabaseFixture migrates and reseeds (one per git worktree). A Testing host also hashes
+            // passwords with TestHashIterations, the count TestDataSeeder hashes its users' password with.
             config.AddInMemoryCollection(new Dictionary<string, string?>
             {
                 [ConnectionStringSetting] = DatabaseFixture.ConnectionString,
@@ -59,6 +69,15 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
                 ["Cors:AllowedOrigins:0"] = TrustedFrontendOrigin,
                 [UploadFolderSetting] = UploadFolder
             });
+
+            bool isTestingHost = _environmentName == TestingEnvironment;
+            if (isTestingHost)
+            {
+                config.AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    [HashIterationsSetting] = TestHashIterations.ToString()
+                });
+            }
 
             config.AddInMemoryCollection(_settingOverrides);
         });
