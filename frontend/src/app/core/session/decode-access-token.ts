@@ -1,4 +1,5 @@
 import { AccessTokenClaims } from './access-token-claims';
+import { RoleName, isRoleName } from './role-name';
 
 // The short claim names .NET's JwtSecurityTokenHandler writes for the claims TokenGenerator sets (ADR 0004).
 // A change to TokenGenerator must be matched here.
@@ -56,16 +57,11 @@ function readPayload(token: string): AccessTokenPayload | null {
 }
 
 // A role claim is missing when the user has no role, a string when there is one, an array when there are more.
-function toRoles(role: unknown): string[] {
-  let roles: string[] = [];
+// A role the frontend does not know is dropped: no UI decision depends on it.
+function toRoles(role: unknown): RoleName[] {
+  const entries: unknown[] = Array.isArray(role) ? role : [role];
 
-  if (typeof role === 'string') {
-    roles = [role];
-  } else if (Array.isArray(role)) {
-    roles = role.filter((entry): entry is string => typeof entry === 'string');
-  }
-
-  return roles;
+  return entries.filter(isRoleName);
 }
 
 // atob throws on characters outside base64, and JSON.parse on text that is not JSON. For a malformed token

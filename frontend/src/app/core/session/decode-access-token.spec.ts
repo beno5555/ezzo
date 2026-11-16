@@ -34,6 +34,17 @@ describe('decodeAccessToken', () => {
     expect(decodeAccessToken(token)?.roles).toEqual(['User']);
   });
 
+  it('drops a role the frontend does not know', () => {
+    const token = createAccessToken({
+      nameid: '12',
+      unique_name: 'john_doe',
+      role: ['Moderator', 'Administrator'],
+      exp,
+    });
+
+    expect(decodeAccessToken(token)?.roles).toEqual(['Administrator']);
+  });
+
   it('reads a base64url payload that holds UTF-8 text', () => {
     // Written by hand from Node's Buffer: a "_" where base64 has "/", no padding, a Georgian username.
     const payload =
