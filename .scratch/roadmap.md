@@ -55,6 +55,35 @@ Dates are the day a step should finish.
 
 **Steps 4 to 8 are crucial.** They are the pages, and the pages are the commitment in `webcity-documentation.md`. No page can be dropped or traded for an item under Last in line. Every day lost here is taken from the buffer (Tue 24) first and from the items under Last in line after that. Three chains meet at frontend ticket 07, and the slowest of them decides the finish date: 27 → 28 → 29, 27 → 06, and 04 → 05. After 07 come the pages. Work on these chains comes before anything else. Tickets 27 and 05 can start now, and 06 and 28 can run side by side once 27 is done.
 
+### Lanes: which tickets run in parallel
+
+Set on 2026-11-16. Two worktree lanes at a time (`docs/agents/worktrees.md`). Until the shell (frontend 07) lands, each pair is one frontend ticket and one backend ticket, so that no two lanes edit the frontend at once: before the shell, every frontend ticket puts its proof on the same bare page. Start the next pair when both tickets of the current one are merged; if one lane finishes early, it may take the next ticket in its own column. "F" is a frontend ticket and "B" a backend one (`documented-backend-features`, unless marked "frontend").
+
+| Round | Frontend lane | Backend lane | Status |
+|---|---|---|---|
+| 0 | F27, design tokens | B12, an administrator decides a report | running |
+| 1 | F28, the themes | B13, statistics | |
+| 2 | F29, the screenshots | frontend 25, friendship tests | |
+| 3 | F06, toast, dialog, confirmation, menu | B04, remove a photo from a post | |
+| 4 | F05, the live connection | the first n8n backend ticket, if the n8n tickets exist | |
+| 5 | F07, the shell | an n8n backend ticket | |
+
+After the shell, both lanes take frontend tickets, always from **different feature areas**, so that the only shared files are the routes and the two dictionaries, where both sides add lines and a merge takes a minute. The n8n backend tickets fill a third lane when they exist.
+
+| Round | Lane 1 | Lane 2 |
+|---|---|---|
+| 6 | F08, the auth pages | F09, the feed |
+| 7 | F10, write a post | F18, chat: list and reading |
+| 8 | F11, the post page | F22, admin: layout and users |
+| 9 | F12, edit and delete a post | F19, chat: send and receive live |
+| 10 | F13, reports from the normal pages | F20, chat: edit, delete, typing |
+| 11 | F14, the profile page | F23, admin: reports and the queue |
+| 12 | F16, user search | F24, admin: logs and statistics |
+| 13 | F15, the friends page | F21, live toasts |
+| 14 | F17, the settings page | F26, the landing page |
+
+Frontend 30 (Impeccable) runs in a session with the owner whenever the owner is present, after 27. Readiness 07 is left out: it matters only if the demo moves to a host.
+
 1. [ ] **Design, in four parts.** The name was still open, so the session fixed the structure and left the brand for later.
    - [x] **Mon 16 (planned for Sat 14, two days late): the design session.** Output: ADR 0007, `DESIGN.md` with a neutral provisional skin, and the Styling rules in the conventions skill's TypeScript reference.
    - [ ] **Crucial: the frontend setup, frontend tickets 27 to 29.** Every open frontend ticket from 07 onward waits for all three, by the owner's decision on 2026-11-16: the environment is set up before the pages are built. Three tickets do not: 05 (the live connection, which has no styles) waits only for 04, 06 (the shared blocks) waits only for 27, and 25 is backend tests.
