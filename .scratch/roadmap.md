@@ -8,14 +8,14 @@ The schedule below has one buffer day and no other slack. If a day slips, the it
 
 ## Awaiting the owner's review
 
-Work merged to `master` while the owner was away. It passed the full integration suite and a spec review, but the owner has not looked at it yet. Review each item, then delete its line.
+Non-visual work (backend, tests, tooling) is merged as soon as it passes the full integration suite and a spec review, and the owner reviews it here afterwards. Visual work waits under "Not merged yet" instead. The rule is in `docs/agents/issue-tracker.md`. Review each item, then delete its line.
 
 - **Documented-backend-features ticket 02: a post can be created with photos** (gap A, first part), merged 2026-11-14. Look at:
   - the new `ImageStorage` (`backend/aspnetproject/Infrastructure/Services/Storage/`), the only code that touches files;
   - the contract change: `POST /api/posts` is now `multipart/form-data`, and every post read returns `Images`;
   - the open points at the bottom of the ticket, under Comments.
 
-**Not merged yet.** These branches are finished but wait for the owner's review before they are merged. No agent merges them until the owner says so. After the merge, delete the line.
+**Not merged yet.** These branches are finished but wait for the owner's review before they are merged. No agent merges them until the owner says so. After the merge, delete the line. Merge 27 first: it is on the critical chain (28, 06 and 30 wait for it). Ticket 12 was finished before the rule above existed, so it waits here too, until the owner merges it or tells an agent to.
 
 - **Branch `worktree-admin-decides-report`**: documented-backend-features ticket 12, an administrator decides a report (`.scratch/documented-backend-features/issues/12-an-administrator-decides-a-report.md`). Worktree `.claude/worktrees/admin-decides-report`, added 2026-11-16.
 - **Branch `worktree-design-tokens`**: frontend ticket 27, the app takes its look from design tokens (`.scratch/frontend/issues/27-the-app-takes-its-look-from-design-tokens.md`). Worktree `.claude/worktrees/design-tokens`, added 2026-11-16.

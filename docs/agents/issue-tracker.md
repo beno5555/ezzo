@@ -16,6 +16,9 @@ Issues and specs for this repo live as markdown files in `.scratch/`.
 - Sessions that decide rather than build run on Fable 5.2 when it is available: a grilling, the conversation before `/to-spec`, a naming or brand session, a review of the schedule. Implementing a ticket never needs Fable, because a finished ticket has already had its judgment done; a ticket that seems to need Fable has an open decision, which goes back to the owner
 - Comments and conversation history append to the bottom of the file under a `## Comments` heading
 - A ticket is implemented on its own branch (named after the ticket, e.g. `frontend-01-reserved-usernames`), not on `master`, and the branch is merged into `master` with `--no-ff` once the ticket is `done` (no pull requests). When asked to implement a ticket while on `master`, the agent reminds the owner of this first and offers the branch; it works on `master` only if the owner says so. A session in a worktree under `.claude/worktrees/` is already on its own branch, and it still merges that branch into `master` when the ticket is done: see "Merging from a worktree session" in `worktrees.md`
+- **When a done ticket is merged depends on what it changes.** The owner reviews every ticket, but not always before the merge:
+  - **Visual work** (a page, a shared component, styles, design tokens; any frontend ticket whose result is checked by looking) waits for the owner's review before it is merged. The session lists its branch under "Not merged yet" in `.scratch/roadmap.md` and stops.
+  - **Everything else** (backend, tests, tooling, frontend plumbing with no visual part) is merged as soon as the build, the full test suite and `/spec-review` pass. The session then adds a line under "Awaiting the owner's review" in `.scratch/roadmap.md` that says what to look at, and the owner reviews it after the merge
 
 ## When a skill says "publish to the issue tracker"
 
