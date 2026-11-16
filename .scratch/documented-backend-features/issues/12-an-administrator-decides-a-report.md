@@ -13,18 +13,18 @@ Decisions are under "Reports and moderation" in `.scratch/documented-backend-fea
 
 **Blocked by:** 11 (A user can report a post, a comment or a user, and an administrator sees the reports)
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Difficulty:** tricky: one transaction across reports and their target, reuse of the account deactivation path, and two administrators deciding at once.
 
-- [ ] Hiding a reported post or comment makes it hidden for other users and resolves the report with the reviewer and the time
-- [ ] Hiding a reported user deactivates the account, with the same effects as an administrator deactivating it directly
-- [ ] Hiding resolves every other pending report on the same target in the same transaction
-- [ ] Rejecting sets the report to rejected with the reviewer and the time, and leaves the target and other reports unchanged
-- [ ] A report that is already resolved or rejected refuses a decision
-- [ ] A hide on a target that no longer exists is refused and the report stays pending; rejecting it works
-- [ ] An unknown report is not found
-- [ ] An ordinary user and a guest are refused
-- [ ] A second decision on the same report made concurrently is refused, and the hide takes effect once
-- [ ] Each decision writes a `Log` row, and the endpoint has its own rate-limit policy
-- [ ] `docs/backend/controllers.md` and `README.md` describe report decisions
+- [x] Hiding a reported post or comment makes it hidden for other users and resolves the report with the reviewer and the time
+- [x] Hiding a reported user deactivates the account, with the same effects as an administrator deactivating it directly
+- [x] Hiding resolves every other pending report on the same target in the same transaction
+- [x] Rejecting sets the report to rejected with the reviewer and the time, and leaves the target and other reports unchanged
+- [x] A report that is already resolved or rejected refuses a decision
+- [x] A hide on a target that no longer exists is refused and the report stays pending; rejecting it works
+- [x] An unknown report is not found
+- [x] An ordinary user and a guest are refused
+- [x] A second decision on the same report made concurrently is refused, and the hide takes effect once
+- [x] Each decision writes a `Log` row, and the endpoint has its own rate-limit policy
+- [x] `docs/backend/controllers.md` and `README.md` describe report decisions

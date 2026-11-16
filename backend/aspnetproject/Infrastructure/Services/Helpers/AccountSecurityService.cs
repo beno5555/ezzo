@@ -91,6 +91,17 @@ public class AccountSecurityService
         return tokens;
     }
 
+    // The data side of deactivating an account, shared by the administrator's route, self-deactivation and a report
+    // decision that hides a user. The caller writes the Log row and sends NotifyAccountDeactivation, after its
+    // transaction commits if it runs inside one, so a rolled-back deactivation never emails its owner.
+    public async Task DeactivateAccountAsync(User user)
+    {
+        user.AccountDeactivatedAt = DateTime.UtcNow;
+        await _userRepository.SaveChangesAsync();
+
+        await _refreshTokenRepository.RevokeAllForUserAsync(user.Id);
+    }
+
     public async Task NotifyAccountDeactivation(string userEmail)
     {
         await _emailSender.SendAsync(

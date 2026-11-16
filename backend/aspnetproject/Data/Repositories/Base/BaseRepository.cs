@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using aspnetproject.Common.Domain;
 using Microsoft.EntityFrameworkCore;
 
 namespace aspnetproject.Data.Repositories.Base;
@@ -120,6 +121,24 @@ public class BaseRepository<T> where T : class
         await using var transaction = await _dbContext.Database.BeginTransactionAsync();
         await operation();
         await transaction.CommitAsync();
+    }
+
+    // Commits only when the operation's response succeeded, so a refusal found midway undoes everything written before it.
+    public async Task<TResponse> ExecuteInTransactionAsync<TResponse>(Func<Task<TResponse>> operation) where TResponse : ApplicationResponse
+    {
+        await using var transaction = await _dbContext.Database.BeginTransactionAsync();
+        var response = await operation();
+
+        if (response.Succeeded)
+        {
+            await transaction.CommitAsync();
+        }
+        else
+        {
+            await transaction.RollbackAsync();
+        }
+
+        return response;
     }
 
     protected async Task<T?> GetSingleByIgnoringQueryFilterAsync(Expression<Func<T, bool>> predicate)

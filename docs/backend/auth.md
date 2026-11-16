@@ -18,7 +18,7 @@ Password hashing is PBKDF2 (`Rfc2898DeriveBytes.Pbkdf2`, 100,000 iterations, SHA
 
 - `RefreshToken : BaseEntity` — `UserId` (FK, cascade delete), `TokenHash` (`MaxLength(44)`, unique-indexed — SHA-256 digest, 44 base64 chars), `ExpiresAt`, nullable `RevokedAt` (`null` = active).
 - `TokenGenerator.GenerateRefreshToken()` — 64 random bytes via `RandomNumberGenerator`, URL-safe base64-encoded (`+`/`/` replaced, padding trimmed). `TokenGenerator.HashToken(token)` — SHA-256.
-- `RefreshTokenRepository.GetActiveByHashAsync(hash)`, `RevokeAsync(token)`, `RevokeAllForUserAsync(userId)` (bulk `ExecuteUpdateAsync`, used on password reset, deactivation, and soft-delete).
+- `RefreshTokenRepository.GetActiveByHashAsync(hash)`, `RevokeAsync(token)`, `RevokeAllForUserAsync(userId)` (bulk `ExecuteUpdateAsync`, used on password reset, deactivation (including a report decision that hides a user), and soft-delete).
 - Delivered via `HttpOnly; Secure; SameSite=Strict` cookie, set/read/cleared in `AuthController`. `Expires` mirrors `Jwt:RefreshTokenDays`.
 - Rotated on every refresh: old token revoked, new one issued via the shared `AccountSecurityService.IssueAccessAndRefreshTokensAsync` helper. Revoked (not deleted) on logout; a background job (`RefreshTokenCleanupService`) later purges rows that are both expired and revoked — see `background-jobs.md`.
 
@@ -42,7 +42,7 @@ The body of `request-password-reset` (`ForgotPasswordDto`) is `Email` plus an op
 
 ### Account activation / deactivation (separate from auth, own controller/service)
 
-- **Deactivation** (`AccountActivationController`/`AccountActivationService`) — sets `AccountDeactivatedAt`, revokes all refresh tokens immediately, emails the user. Self-service (`PATCH api/accounts/mine/deactivate`) and admin-on-other-user (`PATCH api/accounts/{id}/deactivate`) are separate endpoints/rate-limit policies but call the same service method.
+- **Deactivation** (`AccountActivationController`/`AccountActivationService`) — sets `AccountDeactivatedAt`, revokes all refresh tokens immediately, emails the user. Self-service (`PATCH api/accounts/mine/deactivate`) and admin-on-other-user (`PATCH api/accounts/{id}/deactivate`) are separate endpoints/rate-limit policies but call the same service method. The data side (stamp, then revoke) is `AccountSecurityService.DeactivateAccountAsync`, which a report decision that hides a user also calls (`controllers.md`, `ReportController`).
 - **Reactivation** — two paths: admin-initiated (`PATCH api/accounts/{id}/activate`, `Administrator`-only, immediate) and self-service via emailed token (`PATCH api/accounts/request-activate` to request the token, `PATCH api/accounts/activate` with the token in the body to confirm — both `[AllowAnonymous]`, since a deactivated user can't authenticate).
 - Both activation-token issuance and password-reset-token issuance share `User.ResetTokenHash`/`ResetTokenExpiresAt` — different service methods (`HandleAccountActivationRequest` vs `HandlePasswordResetRequest`), same underlying fields, cleared on successful use.
 

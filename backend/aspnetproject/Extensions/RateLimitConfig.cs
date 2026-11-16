@@ -76,8 +76,9 @@ public static class RateLimitConfig
         #endregion
 
         #region Reports
-        public const string CreateReport     = "CreateReport";
-        public const string AdminReadReports = "AdminReadReports";
+        public const string CreateReport      = "CreateReport";
+        public const string AdminReadReports  = "AdminReadReports";
+        public const string AdminDecideReport = "AdminDecideReport";
         #endregion
 
         #region Users
@@ -238,6 +239,9 @@ public static class RateLimitConfig
 
             options.AddPolicy(Policies.AdminReadReports, httpContext =>
                 PerUserSlidingWindow(httpContext, 120, TimeSpan.FromMinutes(1)));
+
+            options.AddPolicy(Policies.AdminDecideReport, httpContext =>
+                PerUserSlidingWindow(httpContext, 60, TimeSpan.FromMinutes(10)));
             #endregion
 
             #region Users

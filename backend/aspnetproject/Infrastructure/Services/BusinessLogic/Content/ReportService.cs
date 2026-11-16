@@ -7,29 +7,33 @@ using aspnetproject.Infrastructure.Dtos.Reports;
 using aspnetproject.Infrastructure.Mappers;
 using aspnetproject.Infrastructure.Queries;
 using aspnetproject.Infrastructure.Services.BusinessLogic.Base;
+using aspnetproject.Infrastructure.Services.Helpers;
 using aspnetproject.Infrastructure.Services.Logging;
 
 namespace aspnetproject.Infrastructure.Services.BusinessLogic.Content;
 
 public class ReportService : BaseService
 {
-    private readonly ReportRepository  _reportRepository;
-    private readonly PostRepository    _postRepository;
-    private readonly CommentRepository _commentRepository;
-    private readonly UserRepository    _userRepository;
+    private readonly ReportRepository       _reportRepository;
+    private readonly PostRepository         _postRepository;
+    private readonly CommentRepository      _commentRepository;
+    private readonly UserRepository         _userRepository;
+    private readonly AccountSecurityService _accountSecurityService;
 
     public ReportService(
-        ReportRepository  reportRepository,
-        PostRepository    postRepository,
-        CommentRepository commentRepository,
-        UserRepository    userRepository,
-        DatabaseLogger    dbLogger
+        ReportRepository       reportRepository,
+        PostRepository         postRepository,
+        CommentRepository      commentRepository,
+        UserRepository         userRepository,
+        AccountSecurityService accountSecurityService,
+        DatabaseLogger         dbLogger
         ) : base(dbLogger)
     {
-        _reportRepository  = reportRepository;
-        _postRepository    = postRepository;
-        _commentRepository = commentRepository;
-        _userRepository    = userRepository;
+        _reportRepository       = reportRepository;
+        _postRepository         = postRepository;
+        _commentRepository      = commentRepository;
+        _userRepository         = userRepository;
+        _accountSecurityService = accountSecurityService;
     }
 
     // The target must be one the caller may read, so hidden content reads as missing, and must not be the caller or theirs.
@@ -93,6 +97,175 @@ public class ReportService : BaseService
             .ToList();
 
         response.Ok(reportDtos, ResponseMessages.ReportsRetrieved);
+
+        return response;
+    }
+
+    public async Task<ApplicationResponse> DecideReportAsync(int reviewerId, int id, ReportDecision decision)
+    {
+        var response = new ApplicationResponse();
+        var report   = await _reportRepository.GetByIdAsync(id);
+
+        bool reportFound = report is not null;
+        bool isPending   = report?.Status == ReportStatus.Pending;
+
+        if (reportFound && isPending)
+        {
+            bool isHide = decision == ReportDecision.Hide;
+            response = isHide
+                ? await HideAsync(reviewerId, report!)
+                : await RejectAsync(reviewerId, id);
+        }
+        else if (reportFound)
+        {
+            response.Fail(ResponseMessages.ReportAlreadyDecided);
+        }
+        else
+        {
+            response.Fail(ResponseMessages.ReportNotFound);
+        }
+
+        await LogResultAsync(response.Succeeded, nameof(DecideReportAsync), nameof(Report), DecisionDetails(report, decision, response), id);
+
+        return response;
+    }
+
+    // One transaction, in an order that cannot deadlock:
+    // 1. The target is written first. Its row lock queues every other hide of the same target behind this one.
+    // 2. The target's other pending reports are resolved. That statement scans Reports, and a scan waits on any report
+    //    another transaction holds, so it runs before this transaction holds a report of its own.
+    // 3. This report is claimed last, by key. A decision that lost a race finds it decided and rolls back everything.
+    private async Task<ApplicationResponse> HideAsync(int reviewerId, Report report)
+    {
+        var response   = new ApplicationResponse();
+        var reviewedAt = DateTime.UtcNow;
+
+        var hideResponse = await _reportRepository.ExecuteInTransactionAsync(async () =>
+        {
+            var hideResult = await HideTargetAsync(report.TargetType, report.TargetId);
+
+            if (hideResult.Succeeded)
+            {
+                await _reportRepository.ResolveOtherPendingForTargetAsync(report.Id, report.TargetType, report.TargetId, reviewerId, reviewedAt);
+
+                bool claimed     = await _reportRepository.DecideIfPendingAsync(report.Id, ReportStatus.Resolved, reviewerId, reviewedAt);
+                bool lostTheRace = !claimed;
+
+                if (lostTheRace)
+                {
+                    hideResult.Fail(ResponseMessages.ReportAlreadyDecided);
+                }
+            }
+
+            return hideResult;
+        });
+
+        if (hideResponse.Succeeded)
+        {
+            response.Ok(ResponseMessages.ReportResolved);
+
+            bool accountDeactivated = hideResponse.Data is not null;
+            if (accountDeactivated)
+            {
+                await _accountSecurityService.NotifyAccountDeactivation(hideResponse.Data!.Email);
+            }
+        }
+        else
+        {
+            response.Fail(hideResponse.Message);
+        }
+
+        return response;
+    }
+
+    // A target that finds no row was deleted, so there is nothing to hide; the report stays pending and can be rejected.
+    // A user is deactivated through the administrator's deactivation path, which finds active accounts only. Data is that
+    // account, so its owner is emailed once the transaction commits.
+    private async Task<ApplicationResponse<User?>> HideTargetAsync(ReportTargetType targetType, int targetId)
+    {
+        var response = new ApplicationResponse<User?>();
+
+        if (targetType == ReportTargetType.Post)
+        {
+            bool postHidden = await _postRepository.SetModerationStatusAsync(targetId, ModerationStatus.Hidden);
+            response = ContentHideResult(postHidden, ResponseMessages.PostNotFound);
+        }
+        else if (targetType == ReportTargetType.Comment)
+        {
+            bool commentHidden = await _commentRepository.SetModerationStatusAsync(targetId, ModerationStatus.Hidden);
+            response = ContentHideResult(commentHidden, ResponseMessages.CommentNotFound);
+        }
+        else
+        {
+            var user = await _userRepository.GetByIdAsync(targetId);
+
+            if (user is not null)
+            {
+                await _accountSecurityService.DeactivateAccountAsync(user);
+                response.Ok(user);
+            }
+            else
+            {
+                response.Fail(ResponseMessages.UserNotFound);
+            }
+        }
+
+        return response;
+    }
+
+    private ApplicationResponse<User?> ContentHideResult(bool contentHidden, string notFoundMessage)
+    {
+        var response = new ApplicationResponse<User?>();
+
+        if (contentHidden)
+        {
+            response.Ok();
+        }
+        else
+        {
+            response.Fail(notFoundMessage);
+        }
+
+        return response;
+    }
+
+    private string DecisionDetails(Report? report, ReportDecision decision, ApplicationResponse response)
+    {
+        string details;
+
+        bool isHide = decision == ReportDecision.Hide;
+
+        if (response.Succeeded && isHide)
+        {
+            details = $"Hid {report!.TargetType} {report.TargetId} and resolved its pending reports";
+        }
+        else if (response.Succeeded)
+        {
+            details = $"Rejected the report on {report!.TargetType} {report.TargetId}";
+        }
+        else
+        {
+            details = $"Could not {decision} the report. {response.Message}";
+        }
+
+        return details;
+    }
+
+    // Rejecting touches this report only, so the target and the other reports keep whatever state they have.
+    private async Task<ApplicationResponse> RejectAsync(int reviewerId, int id)
+    {
+        var response = new ApplicationResponse();
+
+        bool rejected = await _reportRepository.DecideIfPendingAsync(id, ReportStatus.Rejected, reviewerId, DateTime.UtcNow);
+
+        if (rejected)
+        {
+            response.Ok(ResponseMessages.ReportRejected);
+        }
+        else
+        {
+            response.Fail(ResponseMessages.ReportAlreadyDecided);
+        }
 
         return response;
     }
