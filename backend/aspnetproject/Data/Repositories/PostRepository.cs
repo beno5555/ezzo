@@ -86,6 +86,17 @@ public class PostRepository : BaseEntityRepository<Post>
             .ToListAsync();
     }
 
+    // A set-based write, so the row is locked even when the post already has this status: a report decision relies on
+    // that lock to queue every other decision on the same post behind it. False when the post does not exist.
+    public async Task<bool> SetModerationStatusAsync(int id, ModerationStatus status)
+    {
+        int updatedCount = await _dbSet
+            .Where(post => post.Id == id)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(post => post.ModerationStatus, status));
+
+        return updatedCount > 0;
+    }
+
     // The moderation queue: every flagged post, oldest first. Id breaks ties between posts written in the same millisecond.
     public async Task<List<Post>> GetFlaggedAsync(int pageNumber, int pageSize)
     {

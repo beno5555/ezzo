@@ -85,6 +85,16 @@ public class CommentRepository : BaseEntityRepository<Comment>
         return await Page(query, pageNumber, pageSize).ToListAsync();
     }
 
+    // Set-based for the same reason as PostRepository.SetModerationStatusAsync. False when the comment does not exist.
+    public async Task<bool> SetModerationStatusAsync(int id, ModerationStatus status)
+    {
+        int updatedCount = await _dbSet
+            .Where(comment => comment.Id == id)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(comment => comment.ModerationStatus, status));
+
+        return updatedCount > 0;
+    }
+
     public async Task DeletePostCommentsAsync(int postId)
     {
         await DeleteWhereAsync(comment => comment.PostId == postId);

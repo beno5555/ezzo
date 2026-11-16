@@ -13,20 +13,17 @@ namespace aspnetproject.Infrastructure.Services.BusinessLogic.Users;
 public class AccountActivationService : BaseService
 {
     private readonly UserRepository         _userRepository;
-    private readonly RefreshTokenRepository _refreshTokenRepository;
     private readonly AccountSecurityService _accountSecurityService;
     private readonly TokenGenerator         _tokenGenerator;
 
     public AccountActivationService(
         UserRepository userRepository,
-        RefreshTokenRepository refreshTokenRepository,
         AccountSecurityService accountSecurityService,
         TokenGenerator tokenGenerator,
         DatabaseLogger dbLogger
         ) : base(dbLogger)
     {
         _userRepository = userRepository;
-        _refreshTokenRepository = refreshTokenRepository;
         _accountSecurityService = accountSecurityService;
         _tokenGenerator = tokenGenerator;
     }
@@ -39,11 +36,8 @@ public class AccountActivationService : BaseService
         var user = await _userRepository.GetByIdAsync(id);
         if (user is not null)
         {
-            user.AccountDeactivatedAt = DateTime.UtcNow;
-            await _refreshTokenRepository.RevokeAllForUserAsync(user.Id);
-            
-            await _userRepository.SaveChangesAsync();
-            
+            await _accountSecurityService.DeactivateAccountAsync(user);
+
             response.Ok(ResponseMessages.AccountDeactivated);
             await LogResultAsync(response.Succeeded, nameof(DeactivateAccountAsync), nameof(User), null, id);
             await _accountSecurityService.NotifyAccountDeactivation(user.Email);

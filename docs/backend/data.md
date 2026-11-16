@@ -15,7 +15,7 @@
 - `AddAsync(T entity)` / `DeleteAsync(T entity)` — save immediately.
 - `DeleteWhereAsync(predicate)` — `protected`; uses `ExecuteDeleteAsync`, bypasses change tracker.
 - `ExistsAsync(predicate)` — `protected`.
-- `ExecuteInTransactionAsync(Func<Task> operation)` — wraps operations in a DB transaction; safe to call from any repository since all share the same scoped `DbContext`.
+- `ExecuteInTransactionAsync(Func<Task> operation)` — wraps operations in a DB transaction; safe to call from any repository since all share the same scoped `DbContext`. The overload `ExecuteInTransactionAsync<TResponse>(Func<Task<TResponse>> operation) where TResponse : ApplicationResponse` commits only when the returned response succeeded and rolls back otherwise, so a refusal found midway (e.g. a report decision whose target is gone) undoes what was written before it.
 - `GetSingleByIgnoringQueryFilterAsync` / `GetWhereByIgnoringQueryFilterAsync` / `ExistsByIgnoringQueryFilterAsync` — `protected`; explicit query-filter-bypassing variants, used where a lookup legitimately needs to see deactivated/deleted rows (e.g. resolving a user by email during registration, or finding a deactivated account to reactivate).
 - `SaveChangesAsync()` — public passthrough to `_dbContext.SaveChangesAsync()`.
 

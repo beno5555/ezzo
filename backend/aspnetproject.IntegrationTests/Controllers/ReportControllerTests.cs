@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using aspnetproject.Common.Domain;
 using aspnetproject.Common.ProjectConstants;
 using aspnetproject.Common.ProjectConstants.Enums;
+using aspnetproject.Infrastructure.Dtos.DatabaseLogs;
 using aspnetproject.Infrastructure.Dtos.Reports;
 using aspnetproject.IntegrationTests.Fixtures;
 using aspnetproject.IntegrationTests.Helpers;
@@ -24,6 +25,9 @@ namespace aspnetproject.IntegrationTests.Controllers;
 [Collection("Database")]
 public class ReportControllerTests : IAsyncLifetime
 {
+    // How many identical decisions the concurrency tests send at once.
+    private const int ConcurrentDecisions = 5;
+
     private readonly DatabaseFixture             _dbFixture;
     private readonly CustomWebApplicationFactory _factory;
     private readonly HttpClient                  _client;
@@ -424,6 +428,365 @@ public class ReportControllerTests : IAsyncLifetime
         var response = await _client.GetAsync("api/reports");
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    // ---------- PUT /reports/{id} ----------
+
+    [Theory]
+    [InlineData("Hide")]
+    [InlineData("Reject")]
+    public async Task Decide_UnknownReport_ReturnsNotFoundMessage(string decision)
+    {
+        await SignInAsync("sandro_beno");
+
+        var response = await DecideAsync(9999, decision);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(ResponseMessages.ReportNotFound, await ResponseReader.ReadMessageAsync(response));
+    }
+
+    [Theory]
+    [InlineData(3, "Hide")]   // resolved
+    [InlineData(3, "Reject")]
+    [InlineData(6, "Hide")]   // rejected
+    [InlineData(6, "Reject")]
+    public async Task Decide_ReportAlreadyDecided_ReturnsBadRequest(int reportId, string decision)
+    {
+        await SignInAsync("sandro_beno");
+
+        var response = await DecideAsync(reportId, decision);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(ResponseMessages.ReportAlreadyDecided, await ResponseReader.ReadMessageAsync(response));
+    }
+
+    [Fact]
+    public async Task Decide_HidePost_HidesItFromOtherUsersAndResolvesTheReport()
+    {
+        await SignInAsync("sandro_beno");
+        var before = DateTime.UtcNow.AddSeconds(-1);
+
+        var response = await DecideAsync(1, "Hide"); // alice's report on bob's post 2
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(ResponseMessages.ReportResolved, await ResponseReader.ReadMessageAsync(response));
+        var report = await GetReportAsync(1);
+        Assert.Equal(ReportStatus.Resolved, report.Status);
+        Assert.Equal("sandro_beno", report.ReviewedBy!.Username);
+        Assert.InRange(report.ReviewedAt!.Value, before, DateTime.UtcNow.AddSeconds(1));
+        Assert.True(report.Post!.IsHidden);
+        await SignInAsync("charlie");
+        Assert.Equal(HttpStatusCode.NotFound, (await _client.GetAsync("api/posts/2")).StatusCode);
+    }
+
+    [Fact]
+    public async Task Decide_HideComment_HidesItFromOtherUsersAndResolvesTheReport()
+    {
+        await SignInAsync("sandro_beno");
+
+        var response = await DecideAsync(2, "Hide"); // charlie's report on alice's comment 1 (on post 2)
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var report = await GetReportAsync(2);
+        Assert.Equal(ReportStatus.Resolved, report.Status);
+        Assert.Equal("sandro_beno", report.ReviewedBy!.Username);
+        Assert.True(report.Comment!.IsHidden);
+        await SignInAsync("bob");
+        Assert.Equal(HttpStatusCode.NotFound, (await _client.GetAsync("api/comments/1")).StatusCode);
+    }
+
+    [Fact]
+    public async Task Decide_Hide_ResolvesEveryOtherPendingReportOnTheSameTarget()
+    {
+        await SignInAsync("diana");
+        var dianaReport = await CreateReportAsync("Post", 3, "Spam"); // a second pending report on charlie's post 3, id 7
+        Assert.Equal(HttpStatusCode.OK, dianaReport.StatusCode);
+        await SignInAsync("sandro_beno");
+
+        var response = await DecideAsync(5, "Hide"); // frank's pending report on post 3
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var resolved = await GetReportAsync(7);
+        Assert.Equal(ReportStatus.Resolved, resolved.Status);
+        Assert.Equal("sandro_beno", resolved.ReviewedBy!.Username);
+        Assert.Equal((await GetReportAsync(5)).ReviewedAt, resolved.ReviewedAt);
+        Assert.Equal(ReportStatus.Rejected, (await GetReportAsync(6)).Status); // alice's earlier report on post 3 stays rejected
+        Assert.Equal([4, 2, 1], (await GetReportsAsync("")).Select(report => report.Id)); // other targets stay pending
+    }
+
+    // The same effects as PATCH /accounts/{id}/deactivate: the account leaves lookups, its refresh tokens are revoked
+    // and it can no longer sign in.
+    [Fact]
+    public async Task Decide_HideUser_DeactivatesTheAccountAndResolvesItsReports()
+    {
+        using var charlieClient = _factory.CreateClient();
+        await AuthTestHelper.LoginAsync(charlieClient, "charlie", TestDataSeeder.SharedPlaintextPassword);
+        await SignInAsync("bob");
+        Assert.Equal(HttpStatusCode.OK, (await CreateReportAsync("User", 4, "Spammer")).StatusCode);   // id 7
+        await SignInAsync("diana");
+        Assert.Equal(HttpStatusCode.OK, (await CreateReportAsync("User", 4, "Abusive")).StatusCode);   // id 8
+        await SignInAsync("sandro_beno");
+
+        var response = await DecideAsync(7, "Hide");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(ReportStatus.Resolved, (await GetReportAsync(7)).Status);
+        Assert.Equal(ReportStatus.Resolved, (await GetReportAsync(8)).Status);
+        Assert.Equal(HttpStatusCode.NotFound, (await _client.GetAsync("api/users/charlie")).StatusCode);
+        Assert.Equal(HttpStatusCode.Unauthorized, (await charlieClient.PostAsync("api/auth/refresh", null)).StatusCode);
+        var login = await _client.PostAsJsonAsync("api/auth/login", new
+        {
+            UniqueIdentifier = "charlie",
+            Password         = TestDataSeeder.SharedPlaintextPassword
+        });
+        Assert.Equal(HttpStatusCode.BadRequest, login.StatusCode);
+    }
+
+    // The deactivation path finds active accounts only, so an account deactivated since the report reads as missing.
+    [Fact]
+    public async Task Decide_HideUserAlreadyDeactivated_IsRefusedAndRejectingWorks()
+    {
+        await SignInAsync("bob");
+        Assert.Equal(HttpStatusCode.OK, (await CreateReportAsync("User", 5, "Spammer")).StatusCode); // diana, id 7
+        await SignInAsync("sandro_beno");
+        Assert.Equal(HttpStatusCode.OK, (await _client.PatchAsync("api/accounts/5/deactivate", null)).StatusCode);
+
+        var hide = await DecideAsync(7, "Hide");
+
+        Assert.Equal(HttpStatusCode.BadRequest, hide.StatusCode);
+        Assert.Equal(ResponseMessages.UserNotFound, await ResponseReader.ReadMessageAsync(hide));
+        Assert.Equal(ReportStatus.Pending, (await GetReportAsync(7)).Status);
+        Assert.Equal(HttpStatusCode.OK, (await DecideAsync(7, "Reject")).StatusCode);
+    }
+
+    [Fact]
+    public async Task Decide_HideTargetThatNoLongerExists_IsRefusedAndTheReportStaysPending()
+    {
+        await SignInAsync("sandro_beno");
+
+        var response = await DecideAsync(4, "Hide"); // diana's report on post 999
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(ResponseMessages.PostNotFound, await ResponseReader.ReadMessageAsync(response));
+        var report = await GetReportAsync(4);
+        Assert.Equal(ReportStatus.Pending, report.Status);
+        Assert.Null(report.ReviewedBy);
+        Assert.Null(report.ReviewedAt);
+    }
+
+    [Fact]
+    public async Task Decide_HideDeletedTarget_IsRefusedAndRejectingWorks()
+    {
+        await SignInAsync("bob");
+        Assert.Equal(HttpStatusCode.OK, (await _client.DeleteAsync("api/posts/2")).StatusCode);
+        await SignInAsync("sandro_beno");
+
+        var hide   = await DecideAsync(1, "Hide"); // alice's report on the deleted post 2
+        var reject = await DecideAsync(1, "Reject");
+
+        Assert.Equal(HttpStatusCode.BadRequest, hide.StatusCode);
+        Assert.Equal(HttpStatusCode.OK, reject.StatusCode);
+        Assert.Equal(ReportStatus.Rejected, (await GetReportAsync(1)).Status);
+    }
+
+    [Fact]
+    public async Task Decide_Reject_RejectsOnlyThisReportAndLeavesTheTargetAlone()
+    {
+        await SignInAsync("charlie");
+        var otherReport = await CreateReportAsync("Post", 2, "Spam"); // a second pending report on bob's post 2, id 7
+        Assert.Equal(HttpStatusCode.OK, otherReport.StatusCode);
+        await SignInAsync("sandro_beno");
+        var before = DateTime.UtcNow.AddSeconds(-1);
+
+        var response = await DecideAsync(1, "Reject"); // alice's report on post 2
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(ResponseMessages.ReportRejected, await ResponseReader.ReadMessageAsync(response));
+        var report = await GetReportAsync(1);
+        Assert.Equal(ReportStatus.Rejected, report.Status);
+        Assert.Equal("sandro_beno", report.ReviewedBy!.Username);
+        Assert.InRange(report.ReviewedAt!.Value, before, DateTime.UtcNow.AddSeconds(1));
+        var untouched = await GetReportAsync(7);
+        Assert.Equal(ReportStatus.Pending, untouched.Status);
+        Assert.False(untouched.Post!.IsHidden);
+        await SignInAsync("charlie");
+        Assert.Equal(HttpStatusCode.OK, (await _client.GetAsync("api/posts/2")).StatusCode);
+    }
+
+    [Fact]
+    public async Task Decide_AfterReject_RefusesAHide()
+    {
+        await SignInAsync("sandro_beno");
+
+        var first  = await DecideAsync(1, "Reject");
+        var second = await DecideAsync(1, "Hide");
+
+        Assert.Equal(HttpStatusCode.OK, first.StatusCode);
+        Assert.Equal(HttpStatusCode.BadRequest, second.StatusCode);
+        Assert.Equal(ResponseMessages.ReportAlreadyDecided, await ResponseReader.ReadMessageAsync(second));
+        Assert.Equal(ReportStatus.Rejected, (await GetReportAsync(1)).Status);
+    }
+
+    // Concurrent decisions: the requests run in parallel on the test host, each in its own scope and transaction. The
+    // assertions hold whichever request wins; a deadlock would surface as a 500 and fail them.
+
+    [Fact]
+    public async Task Decide_ConcurrentHidesOfTheSameReport_OnlyOneSucceeds()
+    {
+        await SignInAsync("sandro_beno");
+
+        var responses = await Task.WhenAll(Enumerable.Range(0, ConcurrentDecisions).Select(_ => DecideAsync(1, "Hide")));
+
+        Assert.Single(responses, response => response.StatusCode == HttpStatusCode.OK);
+        Assert.All(responses.Where(response => response.StatusCode != HttpStatusCode.OK),
+            refused => Assert.Equal(HttpStatusCode.BadRequest, refused.StatusCode));
+        var report = await GetReportAsync(1);
+        Assert.Equal(ReportStatus.Resolved, report.Status);
+        Assert.True(report.Post!.IsHidden);
+    }
+
+    [Fact]
+    public async Task Decide_ConcurrentHideAndRejectOfTheSameReport_OnlyOneTakesEffect()
+    {
+        await SignInAsync("sandro_beno");
+
+        var responses = await Task.WhenAll(DecideAsync(1, "Hide"), DecideAsync(1, "Reject"));
+
+        Assert.Single(responses, response => response.StatusCode == HttpStatusCode.OK);
+        Assert.Single(responses, response => response.StatusCode == HttpStatusCode.BadRequest);
+        var report   = await GetReportAsync(1);
+        bool hideWon = responses[0].StatusCode == HttpStatusCode.OK;
+        Assert.Equal(hideWon ? ReportStatus.Resolved : ReportStatus.Rejected, report.Status);
+        Assert.Equal(hideWon, report.Post!.IsHidden);
+    }
+
+    [Fact]
+    public async Task Decide_ConcurrentHidesOfTheSameUserReport_OnlyOneSucceeds()
+    {
+        await SignInAsync("bob");
+        Assert.Equal(HttpStatusCode.OK, (await CreateReportAsync("User", 4, "Spammer")).StatusCode); // charlie, id 7
+        await SignInAsync("sandro_beno");
+
+        var responses = await Task.WhenAll(Enumerable.Range(0, ConcurrentDecisions).Select(_ => DecideAsync(7, "Hide")));
+
+        Assert.Single(responses, response => response.StatusCode == HttpStatusCode.OK);
+        Assert.All(responses.Where(response => response.StatusCode != HttpStatusCode.OK),
+            refused => Assert.Equal(HttpStatusCode.BadRequest, refused.StatusCode));
+        Assert.Equal(ReportStatus.Resolved, (await GetReportAsync(7)).Status);
+        Assert.Equal(HttpStatusCode.NotFound, (await _client.GetAsync("api/users/charlie")).StatusCode);
+    }
+
+    // Two reports, one target: the first hide resolves the other report, so the second hide finds it decided.
+    [Fact]
+    public async Task Decide_ConcurrentHidesOfTwoReportsOnOneTarget_OnlyOneSucceeds()
+    {
+        await SignInAsync("diana");
+        Assert.Equal(HttpStatusCode.OK, (await CreateReportAsync("Post", 3, "Spam")).StatusCode); // charlie's post 3, id 7
+        await SignInAsync("sandro_beno");
+
+        var responses = await Task.WhenAll(DecideAsync(5, "Hide"), DecideAsync(7, "Hide")); // both on post 3
+
+        Assert.Single(responses, response => response.StatusCode == HttpStatusCode.OK);
+        Assert.Single(responses, response => response.StatusCode == HttpStatusCode.BadRequest);
+        Assert.Equal(ReportStatus.Resolved, (await GetReportAsync(5)).Status);
+        Assert.Equal(ReportStatus.Resolved, (await GetReportAsync(7)).Status);
+    }
+
+    // Different targets share no row, so concurrent hides of them must all succeed rather than block one another.
+    [Fact]
+    public async Task Decide_ConcurrentHidesOfDifferentTargets_AllSucceed()
+    {
+        await SignInAsync("sandro_beno");
+
+        var responses = await Task.WhenAll(DecideAsync(1, "Hide"), DecideAsync(2, "Hide"), DecideAsync(5, "Hide"));
+
+        Assert.All(responses, response => Assert.Equal(HttpStatusCode.OK, response.StatusCode));
+        Assert.Equal(ReportStatus.Resolved, (await GetReportAsync(1)).Status);
+        Assert.Equal(ReportStatus.Resolved, (await GetReportAsync(2)).Status);
+        Assert.Equal(ReportStatus.Resolved, (await GetReportAsync(5)).Status);
+    }
+
+    [Theory]
+    [InlineData(null)]
+    [InlineData("Approve")]
+    [InlineData("1")]
+    public async Task Decide_MissingOrUnknownDecision_ReturnsBadRequest(string? decision)
+    {
+        await SignInAsync("sandro_beno");
+
+        var response = await DecideAsync(1, decision);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(ReportStatus.Pending, (await GetReportAsync(1)).Status);
+    }
+
+    [Fact]
+    public async Task Decide_AsOrdinaryUser_ReturnsForbidden()
+    {
+        await SignInAsync("alice");
+
+        var response = await DecideAsync(1, "Hide");
+
+        Assert.Equal(HttpStatusCode.Forbidden, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Decide_WithoutToken_ReturnsUnauthorized()
+    {
+        var response = await DecideAsync(1, "Hide");
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Decide_Hide_WritesASucceededLogRow()
+    {
+        await SignInAsync("sandro_beno");
+
+        await DecideAsync(1, "Hide");
+
+        var log = Assert.Single(await GetLogsAsync("action=ReportService.DecideReportAsync&entityId=1&succeeded=true"));
+        Assert.Equal("Report", log.EntityName);
+        Assert.Equal(1, log.UserId);
+    }
+
+    [Fact]
+    public async Task Decide_Refused_WritesAFailedLogRow()
+    {
+        await SignInAsync("sandro_beno");
+
+        await DecideAsync(3, "Reject"); // already resolved
+
+        var log = Assert.Single(await GetLogsAsync("action=ReportService.DecideReportAsync&entityId=3&succeeded=false"));
+        Assert.Equal("Report", log.EntityName);
+    }
+
+    private async Task<List<LogDisplayDto>> GetLogsAsync(string filters)
+    {
+        var response = await _client.GetAsync($"api/admin/logs?pageSize={Constants.MaxPageSize}&{filters}");
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var body = await response.Content.ReadFromJsonAsync<ListResponse<LogDisplayDto>>();
+        return body!.Data;
+    }
+
+    private async Task<HttpResponseMessage> DecideAsync(int reportId, string? decision)
+    {
+        return await _client.PutAsJsonAsync($"api/reports/{reportId}", new { Decision = decision });
+    }
+
+    // Reads one report of any status through the administrator's list; the caller must be signed in as the administrator.
+    private async Task<AdminReportDto> GetReportAsync(int reportId)
+    {
+        var statuses = new[] { "Pending", "Resolved", "Rejected" };
+        var reports  = new List<AdminReportDto>();
+
+        foreach (var status in statuses)
+        {
+            reports.AddRange(await GetReportsAsync($"status={status}&pageSize={Constants.MaxPageSize}"));
+        }
+
+        return reports.Single(report => report.Id == reportId);
     }
 
     private async Task<List<AdminReportDto>> GetReportsAsync(string query)

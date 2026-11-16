@@ -52,4 +52,21 @@ public class ReportController : BaseController
 
         return BadRequest(response);
     }
+
+    // The failures mean different things (unknown report, already decided, target gone), so they collapse to 400.
+    [HttpPut]
+    [Route("{id:int}")]
+    [Authorize(Roles = nameof(RoleName.Administrator))]
+    [EnableRateLimiting(RateLimitConfig.Policies.AdminDecideReport)]
+    public async Task<ActionResult<ApplicationResponse>> Decide(int id, [FromBody] DecideReportDto decideReportDto)
+    {
+        var response = await _reportService.DecideReportAsync(GetUserId(), id, decideReportDto.Decision!.Value);
+
+        if (response.Succeeded)
+        {
+            return Ok(response);
+        }
+
+        return BadRequest(response);
+    }
 }

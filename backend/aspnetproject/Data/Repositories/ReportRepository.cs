@@ -39,6 +39,35 @@ public class ReportRepository : BaseEntityRepository<Report>
         return await Page(orderedQuery, reportQuery.PageNumber, reportQuery.PageSize).ToListAsync();
     }
 
+    // One conditional statement, so of two administrators deciding the same report at once, the second updates nothing:
+    // its UPDATE waits on the first one's row lock, then finds the report no longer pending.
+    public async Task<bool> DecideIfPendingAsync(int id, ReportStatus status, int reviewerId, DateTime reviewedAt)
+    {
+        int decidedCount = await _dbSet
+            .Where(report => report.Id == id && report.Status == ReportStatus.Pending)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(report => report.Status, status)
+                .SetProperty(report => report.ReviewedByUserId, reviewerId)
+                .SetProperty(report => report.ReviewedAt, reviewedAt));
+
+        return decidedCount > 0;
+    }
+
+    // Hiding decides for the whole target, so every other report on it still pending is resolved with the same reviewer
+    // and time. The decided report is excluded: the caller claims it by key afterwards (see ReportService.HideAsync).
+    public async Task ResolveOtherPendingForTargetAsync(int decidedReportId, ReportTargetType targetType, int targetId, int reviewerId, DateTime reviewedAt)
+    {
+        await _dbSet
+            .Where(report => report.Id         != decidedReportId
+                             && report.TargetType == targetType
+                             && report.TargetId   == targetId
+                             && report.Status     == ReportStatus.Pending)
+            .ExecuteUpdateAsync(setters => setters
+                .SetProperty(report => report.Status, ReportStatus.Resolved)
+                .SetProperty(report => report.ReviewedByUserId, reviewerId)
+                .SetProperty(report => report.ReviewedAt, reviewedAt));
+    }
+
     // Filters ignored so a reporter or reviewer whose account is deactivated or soft-deleted still loads, and the mapper can name that state.
     protected override IQueryable<Report> Query(bool track = true)
     {

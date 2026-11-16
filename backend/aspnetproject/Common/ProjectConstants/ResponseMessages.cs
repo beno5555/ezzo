@@ -194,6 +194,10 @@ public static class ResponseMessages
     public const string CannotReportOneself    = "You cannot report yourself";
     public const string CannotReportOwnContent = "You cannot report your own content";
     public const string ReportAlreadyPending   = "You already have a pending report on this";
+    public const string ReportNotFound         = $"Report {NotFound}";
+    public const string ReportAlreadyDecided   = "This report has already been decided";
+    public const string ReportResolved         = $"Report Resolved {Successfully}";
+    public const string ReportRejected         = $"Report Rejected {Successfully}";
 
     #endregion
 

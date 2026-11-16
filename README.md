@@ -21,7 +21,7 @@ For the earlier, API-only state of this repository and the history behind it, se
 - Roles (`User`, `Administrator`): an administrator can create, update, deactivate, reactivate and soft-delete other users' accounts, delete any post or comment, and assign or remove the `Administrator` role
 - Admin reads (`api/admin`): an administrator reads the `Logs` table page by page, newest first, filtered by user, authorized or not, succeeded or not, entity, action and date range, and lists accounts in any state (active, deactivated, soft-deleted), filtered by state and username
 - Moderation (`api/admin`): an administrator sets a post's or a comment's status to `Visible`, `Flagged` or `Hidden`. Hidden content is readable only by its author and by administrators, and reads as not found for everyone else; flagged content reads as visible. Post and comment shapes carry an `IsHidden` flag. The moderation queue (`GET api/admin/moderation-queue/posts` and `.../comments`) pages the flagged posts or comments, oldest first, each with a snapshot (text, photos or the post's title, author, time) so the administrator can approve or hide it
-- Reports (`api/reports`): a user reports a post, a comment or another user, with a reason, once per target while the report is pending. Hidden content, the caller's own content and the caller themselves cannot be reported. An administrator lists the reports page by page, newest first, filtered by status and target type, each with a snapshot of its target (or marked missing once the target is deleted)
+- Reports (`api/reports`): a user reports a post, a comment or another user, with a reason, once per target while the report is pending. Hidden content, the caller's own content and the caller themselves cannot be reported. An administrator lists the reports page by page, newest first, filtered by status and target type, each with a snapshot of its target (or marked missing once the target is deleted), and decides a pending report: hide (the post or comment is hidden, or the user deactivated, and every pending report on that target is resolved) or reject (only that report)
 - Deactivate own account; reactivate it through an emailed activation token
 - Soft-delete own account; a background job later purges soft-deleted accounts and their messages (with their photo files), friendships, posts, likes and reports once a retention window has passed
 - Outcome logging of service calls to the `Logs` table, plus a file log for unhandled exceptions
@@ -93,7 +93,7 @@ CLAUDE.md
         /Enums
             AccountState.cs
             FriendshipStatus.cs
-            ReportStatus.cs, ReportTargetType.cs, RoleName.cs
+            ReportDecision.cs, ReportStatus.cs, ReportTargetType.cs, RoleName.cs
 /Controllers
     /Admin
         AdminController.cs
