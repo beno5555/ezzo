@@ -11,9 +11,26 @@ export function toAppResult<T>(
   request: Observable<ApplicationResponse<T>>,
   failureTexts: HttpFailureTexts,
 ): Promise<AppResult<T>> {
+  return settle(request, (body) => ok(body.data as T, body.message ?? undefined), failureTexts);
+}
+
+// For the endpoints that answer success without the envelope: login and refresh ({ accessToken })
+// and logout (an empty body). Their failures still arrive as the envelope or bodiless.
+export function toAppResultWithoutEnvelope<T>(
+  request: Observable<T>,
+  failureTexts: HttpFailureTexts,
+): Promise<AppResult<T>> {
+  return settle(request, (body) => ok(body), failureTexts);
+}
+
+function settle<TBody, T>(
+  request: Observable<TBody>,
+  toSuccess: (body: TBody) => AppResult<T>,
+  failureTexts: HttpFailureTexts,
+): Promise<AppResult<T>> {
   return firstValueFrom(
     request.pipe(
-      map((body) => ok(body.data as T, body.message ?? undefined)),
+      map(toSuccess),
       catchError((error: unknown) => {
         const isHttpFailure = error instanceof HttpErrorResponse;
         return isHttpFailure ? of(toFailure<T>(error, failureTexts)) : throwError(() => error);

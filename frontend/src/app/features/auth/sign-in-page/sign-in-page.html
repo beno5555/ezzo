@@ -1,0 +1,22 @@
+<h1>{{ text().auth.signIn.title }}</h1>
+
+<form [formGroup]="form" (ngSubmit)="signIn()">
+  <label for="uniqueIdentifier">{{ text().auth.signIn.identifierLabel }}</label>
+  <input
+    id="uniqueIdentifier"
+    type="text"
+    autocomplete="username"
+    formControlName="uniqueIdentifier"
+  />
+
+  <label for="password">{{ text().auth.signIn.passwordLabel }}</label>
+  <input id="password" type="password" autocomplete="current-password" formControlName="password" />
+
+  @if (failureMessage(); as message) {
+    <p role="alert">{{ message }}</p>
+  }
+
+  <button type="submit" [disabled]="form.invalid || isSubmitting()">
+    {{ text().auth.signIn.submitButton }}
+  </button>
+</form>

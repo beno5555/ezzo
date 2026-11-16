@@ -31,6 +31,25 @@ export const english = {
     message: 'There is nothing at this address.',
     homeLink: 'Go to the home page',
   },
+  // The bare session bar in the app shell. Ticket 07's shell replaces it.
+  session: {
+    signedInAs: (username: string) => `Signed in as ${username}`,
+    signOutButton: 'Sign out',
+    signInLink: 'Sign in',
+  },
+  auth: {
+    signIn: {
+      title: 'Sign in',
+      identifierLabel: 'Username or email',
+      passwordLabel: 'Password',
+      submitButton: 'Sign in',
+    },
+  },
+  admin: {
+    users: {
+      title: 'Users',
+    },
+  },
   users: {
     search: {
       label: 'Search users',

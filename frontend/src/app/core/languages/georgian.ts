@@ -23,6 +23,24 @@ export const georgian: Dictionary = {
     message: 'ამ მისამართზე არაფერია.',
     homeLink: 'მთავარ გვერდზე დაბრუნება',
   },
+  session: {
+    signedInAs: (username: string) => `შესული ხართ, როგორც ${username}`,
+    signOutButton: 'გასვლა',
+    signInLink: 'შესვლა',
+  },
+  auth: {
+    signIn: {
+      title: 'შესვლა',
+      identifierLabel: 'მომხმარებლის სახელი ან ელფოსტა',
+      passwordLabel: 'პაროლი',
+      submitButton: 'შესვლა',
+    },
+  },
+  admin: {
+    users: {
+      title: 'მომხმარებლები',
+    },
+  },
   users: {
     search: {
       label: 'მომხმარებლების ძებნა',
