@@ -21,7 +21,7 @@ Decisions are in `DESIGN.md`, ADR 0007, and under "Styling" in the conventions s
 
 **Difficulty:** tricky: the first styled code and a new pattern that every later ticket copies; switching off Tailwind's defaults needs care, and most of the result is checked by looking.
 
-- [ ] Lint, the unit tests and the build pass locally and in CI
+- [x] Lint, the unit tests and the build pass locally and in CI
 - [x] Every design token in the header of `DESIGN.md` is in the token file under the same role name with the same value, light and dark
 - [x] Putting `data-theme="dark"` on the root element by hand turns every surface, text and border of the proof pages dark, and removing it turns them light
 - [x] A class from outside the design tokens (`bg-blue-500`, `xl:`) produces no style
@@ -75,4 +75,4 @@ A fifth run planted `shadow-[0_0_0_rgb(0_0_0)]` in a component class (`button.ts
 - The check does not catch a CSS named colour (`red`) or a literal `px` length in a component `.css` file. Component `.css` files are meant to stay nearly empty. `src/index.html` and `src/styles.css` are outside `src/app` and so outside the check.
 - The language switch marks the current language by a filled versus outlined button plus `aria-pressed`. A review asked whether that is "colour alone"; the fill changes the shape's contrast, not only its hue, so it was left as is.
 - The sign-in page is not restyled. Under Tailwind's reset its inputs have no border and its submit is 25 px high, until ticket 08 styles it. Ticket 08 is blocked by 07, 28 and 29, so this lasts several tickets.
-- CI has not yet run this change: it runs when `master` is pushed.
+- CI has not yet run this change: it runs when `master` is pushed. The first box was ticked on the owner's local run of the full suite (2026-11-16); if CI fails after the merge, untick it.
