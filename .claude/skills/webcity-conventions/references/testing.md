@@ -43,7 +43,7 @@ public async Task ResetAndSeedAsync()
 }
 ```
 
-Change the seed only in `TestDataSeeder`: the fixture records it through EF at the start of every run.
+Change the seed only in `TestDataSeeder`: the test database pool records it through EF at the start of every run.
 
 ## 3. Name tests `Method_Condition_ExpectedResult`
 

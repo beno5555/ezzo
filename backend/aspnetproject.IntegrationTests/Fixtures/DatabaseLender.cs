@@ -7,8 +7,8 @@ namespace aspnetproject.IntegrationTests.Fixtures;
 // take one back that is not out, so no two classes can ever share a database, even through a fixture bug.
 public class DatabaseLender
 {
-    private readonly Channel<string> _available = Channel.CreateUnbounded<string>();
-    private readonly HashSet<string> _onLoan    = [];
+    private readonly Channel<string> _available  = Channel.CreateUnbounded<string>();
+    private readonly HashSet<string> _onLoan     = [];
     private readonly Lock            _ledgerLock = new();
 
     public DatabaseLender(IReadOnlyList<string> databaseNames)

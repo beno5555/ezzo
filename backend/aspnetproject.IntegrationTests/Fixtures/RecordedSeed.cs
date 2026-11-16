@@ -30,7 +30,7 @@ public class RecordedSeed
     public Task ReplayAsync(SqlConnection connection) =>
         ReplayAsync(connection, DateTime.UtcNow - _recordingFinishedAt);
 
-    // Inserts exactly the recorded values, for the fixture's check against the EF seed.
+    // Inserts exactly the recorded values, for the pool's check against the EF seed.
     public Task ReplayUnshiftedAsync(SqlConnection connection) => ReplayAsync(connection, TimeSpan.Zero);
 
     public static SqlParameter Copy(SqlParameter parameter) => (SqlParameter)((ICloneable)parameter).Clone();

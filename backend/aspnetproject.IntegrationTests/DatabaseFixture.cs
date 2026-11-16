@@ -16,8 +16,6 @@ public class DatabaseFixture : IAsyncLifetime
 
     public string ConnectionString => Database.ConnectionString;
 
-    public string DatabaseName => Database.Name;
-
     private PooledDatabase Database =>
         _database ?? throw new InvalidOperationException("The test class has not borrowed a database yet.");
 

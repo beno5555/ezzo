@@ -22,7 +22,7 @@ public class TestDatabasePool
         new(() => PrepareAsync(TestDatabaseNames.PoolConnectionStrings));
 
     private readonly IReadOnlyDictionary<string, PooledDatabase> _databases;
-    private readonly DatabaseLender _lender;
+    private readonly DatabaseLender                              _lender;
 
     private TestDatabasePool(IReadOnlyList<PooledDatabase> databases, RecordedSeed seed)
     {
