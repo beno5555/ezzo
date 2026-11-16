@@ -4,7 +4,7 @@
 
 Together with 03, this replaces the former ticket 02.
 
-**Blocked by:** 03 (README describes the backend as it is now, and the repository is called webcity), and the Angular frontend being scaffolded in `frontend/` (no ticket exists for that yet).
+**Blocked by:** 03 (README describes the backend as it is now, and the repository is called webcity), and the Angular frontend being scaffolded in `frontend/` (frontend ticket 02, done 2026-11-15). Both are met. The roadmap schedules this ticket for the finish on Tue 24 (step 10), once the pages exist for the README to describe.
 
 **Status:** ready-for-agent
 

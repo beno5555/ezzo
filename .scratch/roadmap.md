@@ -2,7 +2,7 @@
 
 The order of work toward the full-stack deadline, 2026-11-25. Tick a step when it is done, and add new steps here. Decisions live in `docs/adr/`, rules in the conventions skill, and work items in the tickets; this file holds the order and the list of what is still missing.
 
-**Scope is fixed.** The documentation sent to the principal (`webcity-documentation.md` at the repo root) is the commitment: everything in it is due on the 25th. The old step "decide what ships" is therefore closed. The frontend comes first, because none of it exists. The backend gaps A to F are built except for three tickets (see step 3); G and H come with n8n.
+**Scope is fixed.** The documentation sent to the principal (`webcity-documentation.md` at the repo root) is the commitment: everything in it is due on the 25th. The old step "decide what ships" is therefore closed. The frontend comes first, because none of its pages exist yet. The backend gaps A to F are built except for two tickets, 04 and 13 (see step 3); G and H come with n8n.
 
 The schedule below has one buffer day and no other slack. If a day slips, the items under **Last in line** move, not the pages.
 
@@ -18,13 +18,17 @@ Non-visual work (backend, tests, tooling) is merged as soon as it passes the ful
   - the new setting `PasswordConfiguration:HashIterations` (`PasswordHashingConfiguration`, default 100,000) and its startup guard, which fails below 100,000 outside Testing;
   - `TestDataSeeder`, which now hashes the shared test password through the app's hasher, so seeded users sign in only on Testing hosts;
   - the open points at the bottom of the ticket, under Comments (Testing accepts 0 or a negative value).
-- **Test-suite-speed ticket 03: test classes run in parallel, each on its own database**, merged 2026-11-17 (528 tests, `Duration` 15 to 21 s locally, down from 44 s). Still open: three Linux runs through CI, recorded in the ticket before it is set to `done`. Look at:
+- **Test-suite-speed ticket 02: every test is reseeded in one round trip**, merged 2026-11-17 (519 tests, `Duration` 42 to 46 s, down from 58 s). Look at:
+  - `SeedRecorder` and `RecordedSeed` (`backend/aspnetproject.IntegrationTests/Fixtures/`), which record the first seed's SQL and replay it as one batch;
+  - the startup check that fails the run when a replay does not match the EF seed table for table;
+  - the known limits at the bottom of the ticket, under Comments.
+- **Test-suite-speed ticket 03: test classes run in parallel, each on its own database**, merged 2026-11-17 (528 tests, `Duration` 15 to 21 s locally, down from 44 s; 22 to 29 s through `scripts/test-linux.sh` in CI). Look at:
   - the pool and the lender (`backend/aspnetproject.IntegrationTests/Fixtures/TestDatabasePool.cs`, `DatabaseLender.cs`, `TestDatabaseNames.cs`) and the class fixture `DatabaseFixture`;
   - the new local databases `TestSocialMediaWebApiDb_1` to `_4`; the old single `TestSocialMediaWebApiDb` can be dropped;
   - the open points at the bottom of the ticket, under Comments.
 
-**Not merged yet.** These branches are finished but wait for the owner's review before they are merged. No agent merges them until the owner says so. After the merge, delete the line. Merge 27 first: it is on the critical chain (28, 06 and 30 wait for it).
-- **Branch `worktree-design-tokens`**: frontend ticket 27, the app takes its look from design tokens (`.scratch/frontend/issues/27-the-app-takes-its-look-from-design-tokens.md`). Worktree `.claude/worktrees/design-tokens`, added 2026-11-16.
+**Not merged yet.** These branches are finished but wait for the owner's review before they are merged. No agent merges them until the owner says so. After the merge, delete the line.
+- None at the moment. Frontend ticket 27 was reviewed and merged on 2026-11-16.
 
 ## Open decisions
 
@@ -57,7 +61,7 @@ Settled on 2026-11-16, in the design session:
 - **Light and dark both ship.** If time runs short, dark joins "Last in line" and its switch is hidden.
 - **Every user has the default profile picture:** initials on a disc coloured by the user's id. Choosing a picture is a later ticket.
 - **An agent looks at pages through Playwright,** which also shows it reference sites in the name session. A screenshot script gives the repeatable evidence. The Playwright MCP server, in a committed `.mcp.json`, lets an agent click through a page; it is on trial, and that one file is deleted if it bloats context or goes unused.
-- **Two design skills:** Anthropic's `frontend-design` (installed) and Impeccable (installed by the foundation ticket, its hook on trial). See `docs/agents/skills.md`.
+- **Two design skills:** Anthropic's `frontend-design` (installed) and Impeccable (installed by frontend ticket 30, its hook on trial). See `docs/agents/skills.md`.
 - **Styling rules are enforced in three layers:** a `frontend/CLAUDE.md` that is loaded when frontend work starts, a check in lint and CI that fails on a literal colour or a bracketed Tailwind value, and screenshots of every page at 360, 768 and 1280 px in both themes for the owner's approval.
 
 Settled on 2026-11-15, in the frontend spec session:
@@ -77,9 +81,9 @@ Settled on 2026-11-14:
 
 Dates are the day a step should finish.
 
-**Overdue, as of Mon 16.** Step 4 is overdue: its pages could not start, because they wait for the frontend setup of step 1 (frontend tickets 27 to 29) and for frontend ticket 06. Steps 5 to 8 each wait for the step before, so each will be late by as much as step 4 is, and their dates no longer hold.
+**Overdue, as of Tue 17.** Step 4 is overdue: its pages could not start, because they wait for the rest of the frontend setup of step 1 (frontend tickets 28 and 29) and for frontend tickets 05 and 06. Steps 5 to 8 each wait for the step before, so each will be late by as much as step 4 is, and their dates no longer hold.
 
-**Steps 4 to 8 are crucial.** They are the pages, and the pages are the commitment in `webcity-documentation.md`. No page can be dropped or traded for an item under Last in line. Every day lost here is taken from the buffer (Tue 24) first and from the items under Last in line after that. Three chains meet at frontend ticket 07, and the slowest of them decides the finish date: 27 → 28 → 29, 27 → 06, and 04 → 05. After 07 come the pages. Work on these chains comes before anything else. Tickets 27 and 05 can start now, and 06 and 28 can run side by side once 27 is done.
+**Steps 4 to 8 are crucial.** They are the pages, and the pages are the commitment in `webcity-documentation.md`. No page can be dropped or traded for an item under Last in line. Every day lost here is taken from the buffer (Tue 24) first and from the items under Last in line after that. Three chains meet at frontend ticket 07, and the slowest of them decides the finish date: 28 → 29, 06, and 05 (27 and 04, where they started, are done). After 07 come the pages. Work on these chains comes before anything else. Tickets 28, 06 and 05 can all start now; 29 waits for 28.
 
 ### Lanes: which tickets run in parallel
 
@@ -87,8 +91,8 @@ Set on 2026-11-16. Two worktree lanes at a time (`docs/agents/worktrees.md`). Un
 
 | Round | Frontend lane | Backend lane | Status |
 |---|---|---|---|
-| 0 | F27, design tokens | B12, an administrator decides a report (merged 2026-11-16) | running |
-| 1 | F28, the themes | T01, then T02: cheaper sign-in, one-batch reseed | both merged 2026-11-16 |
+| 0 | F27, design tokens (merged 2026-11-16) | B12, an administrator decides a report (merged 2026-11-16) | both merged 2026-11-16 |
+| 1 | F28, the themes | T01, then T02: cheaper sign-in, one-batch reseed | T01 merged 2026-11-16, T02 2026-11-17 |
 | 2 | F29, the screenshots | T03, test classes in parallel (merged 2026-11-17) | |
 | 3 | F06, toast, dialog, confirmation, menu | B13, statistics | |
 | 4 | F05, the live connection | frontend 25, friendship tests | |
@@ -115,9 +119,9 @@ Frontend 30 (Impeccable) runs in a session with the owner whenever the owner is 
 1. [ ] **Design, in four parts.** The name was still open, so the session fixed the structure and left the brand for later.
    - [x] **Mon 16 (planned for Sat 14, two days late): the design session.** Output: ADR 0007, `DESIGN.md` with a neutral provisional skin, and the Styling rules in the conventions skill's TypeScript reference.
    - [ ] **Crucial: the frontend setup, frontend tickets 27 to 29.** Every open frontend ticket from 07 onward waits for all three, by the owner's decision on 2026-11-16: the environment is set up before the pages are built. Three tickets do not: 05 (the live connection, which has no styles) waits only for 04, 06 (the shared blocks) waits only for 27, and 25 is backend tests.
-     - **27, the design tokens:** Tailwind, CDK and the icon package; the token file with the neutral skin in light and dark; the fonts; the `Button`; `frontend/CLAUDE.md`; the check that fails on a literal value. It can start at once.
-     - **28, the themes:** the theme store, its switch, and no flash of the wrong theme on load. After 27.
-     - **29, the screenshots:** the Playwright command, and the Playwright MCP server in `.mcp.json` on trial. After 28 and 04.
+     - [x] **27, the design tokens:** Tailwind, CDK and the icon package; the token file with the neutral skin in light and dark; the fonts; the `Button`; `frontend/CLAUDE.md`; the check that fails on a literal value. Merged 2026-11-16.
+     - [ ] **28, the themes:** the theme store, its switch, and no flash of the wrong theme on load. Can start now.
+     - [ ] **29, the screenshots:** the Playwright command, and the Playwright MCP server in `.mcp.json` on trial. After 28 (04 is done).
    - [ ] **Frontend ticket 30: Impeccable, with its hook on trial.** Done in a session with the owner, not through `/implement`. No ticket waits for it.
    - [ ] **By Sat 21: the name session** (the open decision on the name). It uses Playwright to look at reference sites, and writes `PRODUCT.md`. On Fable 5.2 if available, like the brand session.
    - [ ] **After the name: the brand session.** One approval page in two skins; the owner chooses. It replaces the provisional values in `DESIGN.md` and the token file, and adds the logo.
@@ -130,18 +134,18 @@ Frontend 30 (Impeccable) runs in a session with the owner whenever the owner is 
      - **Workflows, run on the owner's machine and open until the owner has run the checklist:** 02 (the n8n setup and the exception alert), 05 (welcome email), 06 (AI moderation), 07 (reports), 09 (digest), 12 (birthdays), 14 (alert grouping).
      - **Frontend, visual:** 10 (the digest switch, after frontend 17) and 13 (the birthday toast, after frontend 21).
 3. [ ] **Any time, in parallel: the open backend tickets.**
-   - Documented-backend-features 04 (remove a photo from a post), 12 (an administrator decides a report) and 13 (statistics). The frontend shows "Coming soon" on whatever depends on one that is still open when its page is built.
-   - Frontend ticket 01, the three small backend changes the pages need: four reserved usernames, the joined date removed from the public user shape, and the time the username was last changed added to the user's own shape.
+   - Documented-backend-features 04 (remove a photo from a post) and 13 (statistics). The frontend shows "Coming soon" on whatever depends on one that is still open when its page is built.
    - Readiness 07 (the real client IP behind a proxy) matters only if the demo moves to a host.
-   - Done: readiness 06, 08 and 09, openapi-document 01 and message-editing 01.
+   - Done: readiness 06, 08 and 09, openapi-document 01, message-editing 01, documented-backend-features 12 (2026-11-16), and frontend ticket 01 (four reserved usernames, the joined date removed from the public user shape, and the time the username was last changed added to the user's own shape).
 4. [ ] **Mon 16, overdue, crucial: shell and auth.** Lazy-loaded feature areas, the HTTP interceptor with automatic refresh, session restore, route guards for signed-in users and administrators, and the pages: register, sign in, password reset, account reactivation.
+   - Frontend, already done: the session, the interceptor with automatic refresh, session restore, the three guards and an unstyled sign-in form (frontend ticket 04), and the English and Georgian dictionaries (frontend ticket 03). Still open: the shell (07) and the real auth pages (08).
    - Backend, already done: **images** and **likes** (gaps A and B), which changed the post and message contracts. Ticket 02 (photos on a new post) still awaits the owner's review; 05 (likes) and 06 (photos in a message) are done. Only ticket 04 (remove a photo from a post) is open.
 5. [ ] **Tue 17, will be late, crucial: feed, posts and comments.** Feed with pagination, create a post with photos, edit and delete, like, comment, edit and delete a comment, report a post or comment.
    - Backend, already done: **feed ranking** (gap C, ticket 08).
 6. [ ] **Wed 18, will be late, crucial: profile, friends and search.** Profile page (bio, posts, friends), edit profile, user search, friend requests (send, accept, decline, remove; the three lists), account settings (deactivate, delete, digest opt-out), the guest view.
    - Backend, already done: **typing on the hub** (gap D, ticket 07).
 7. [ ] **Fri 20, will be late, crucial: chat and live notifications.** The SignalR service and the central state (signals) for the session, conversations, online friends and unread count. Conversation list with last message, conversation with photos, edit and delete, seen, typing, presence and last active. Toasts for a new message, comment, like and a friend coming online.
-   - Backend alongside: what is left of gaps E and F, which is ticket 12 (an administrator decides a report) and ticket 13 (statistics). Logs, the account list, hiding content, the moderation queue and the reports list are done (tickets 03, 09, 10 and 11).
+   - Backend alongside: what is left of gaps E and F, which is ticket 13 (statistics). Logs, the account list, hiding content, the moderation queue, the reports list and the report decision are done (tickets 03, 09, 10, 11 and 12).
 8. [ ] **Sat 21, will be late, crucial: admin panel.** Users (create, edit, deactivate, restore, delete, grant and remove the administrator role), delete any post or comment, logs, statistics, the reports list, the moderation queue.
 9. [ ] **Mon 23: n8n.** One day for the plumbing and two workflows, one day for the other four.
    - Sun 22: gap G, then the exception-alert and welcome-email workflows (n8n tickets 01 to 05).
@@ -161,18 +165,18 @@ The owner expects to lose more than a day, which is more than the buffer. Work t
 
 If time runs short, these are finished last, in this order from the end: the weekly digest, birthday notifications, grouping of repeated exception alerts, automatic hiding after several reports, the activity part of the statistics page. (The orphan-photo cleanup job and the mutual-friends tier of the feed ranking were on this list and are done.)
 
-On the frontend, in this order from the end: choosing a profile picture (an upload; the default picture is built either way), the dark theme (its switch is hidden if it is not checked on every page), the account history in settings (every username change, deactivation and reactivation, which needs a new table because `AccountDeactivatedAt` is cleared on reactivation), live friend requests (a new hub event, the badge and the incoming list on `/friends` updating live, and a fifth toast), and the dialog that lists who liked a post.
+On the frontend, in this order from the end: choosing a profile picture (an upload; the default picture is built either way), the dark theme (its switch is hidden if it is not checked on every page), the account history in settings (every username change, deactivation and reactivation, which needs a new table because `AccountDeactivatedAt` is cleared on reactivation), live friend requests (a new hub event, the badge and the incoming list on `/friends` updating live, and one more toast beside the notification toast), and the dialog that lists who liked a post.
 
 ## What the document promises and the backend lacks
 
-Checked against the code on 2026-11-15. Gaps A to F are specified in `.scratch/documented-backend-features/spec.md`, and all of them are built except three tickets; G and H wait for the n8n spec.
+Checked against the code on 2026-11-15. Gaps A to F are specified in `.scratch/documented-backend-features/spec.md`, and all of them are built except two tickets, 04 and 13. G and H are specified in `.scratch/n8n-automation/spec.md` and ticketed there.
 
 - **A. Images.** Done (tickets 02 and 06): photos on a new post and in a message, stored on disk, checked and served. Still missing: `DELETE /api/posts/{postId}/images/{imageId}` (ticket 04).
 - **B. Likes.** Done (ticket 05).
 - **C. Feed ranking.** Done (ticket 08), the mutual-friends tier included.
 - **D. Hub.** Done (ticket 07): `SendTyping` and the `UserTyping` push.
 - **E. Admin reads.** Done (ticket 03): `GET /api/admin/logs` and `GET /api/admin/users`, the account list the document does not mention. Still missing: `GET /api/admin/statistics` (ticket 13).
-- **F. Reports and moderation.** Done (tickets 09, 10 and 11): hiding a post or comment, creating and listing reports, and the moderation queue. Still missing: the report decision, `PUT /api/reports/{id}` (ticket 12). The queue is two routes, `GET /api/admin/moderation-queue/posts` and `/comments`, where the document lists one.
+- **F. Reports and moderation.** Done (tickets 09, 10, 11 and 12): hiding a post or comment, creating and listing reports, the moderation queue, and the report decision, `PUT /api/reports/{id}`. The queue is two routes, `GET /api/admin/moderation-queue/posts` and `/comments`, where the document lists one.
 - **G. n8n plumbing.** Outbound webhooks signed with a shared secret for a new account, post and comment creation and edits, a new report and an exception (from requests and from background jobs). An API-key identity that can reach only the internal and moderation endpoints. `GET /api/internal/digest`, `GET /api/internal/birthdays`, `POST /api/internal/notifications` with the `ReceiveNotification` push it sends. `digestEmailEnabled` on `User`, editable in the profile settings.
 - **H. Email through n8n.** Only the new welcome email, which follows the "an account was created" event. The six existing emails stay in the backend (ADR 0008).
 

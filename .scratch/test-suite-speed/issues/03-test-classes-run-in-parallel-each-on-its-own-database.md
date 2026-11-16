@@ -18,11 +18,11 @@ Measured on 2026-11-16: every test class shares one xUnit collection, so all 484
 
 Runs in its own worktree, beside a frontend ticket only: it changes the constructor of every test class.
 
-- [ ] The full suite passes three times in a row locally and three times in a row through `scripts/test-linux.sh`; the six `Duration` lines are recorded in this ticket's comments
+- [x] The full suite passes three times in a row locally and three times in a row through `scripts/test-linux.sh`; the six `Duration` lines are recorded in this ticket's comments
 - [x] A test that fails only some of the time is reported in the comments, not ticked as passing, and the ticket is not set to `done` while one remains
 - [x] Two test classes running at the same time use different databases; a check in the fixture or a test proves it
 - [x] A worktree's pool and the main checkout's pool share no database name
-- [ ] CI passes on the branch
+- [x] CI passes on the branch (on `master` after the merge, since CI runs only on pushes to `master` and on pull requests)
 - [x] The Integration tests section of `CLAUDE.md` describes the pool, the borrowing and how the names are made
 - [x] The roadmap's "After the deadline" entry about sharing one test host per class is removed
 - [x] The full suite's `Duration` before and after is recorded in this ticket's comments
@@ -39,3 +39,5 @@ Runs in its own worktree, beside a frontend ticket only: it changes the construc
 - Docs updated: CLAUDE.md (Integration tests), `docs/agents/worktrees.md` (the pool names and the command that drops a lane's four databases), `testing.md` §2 in the conventions skill, and the comment in `test-linux.sh`. No run uses the old single databases (`TestSocialMediaWebApiDb` and `TestSocialMediaWebApiDb_<worktree>`) any more, so they can be dropped.
 - **Not met yet: the Linux runs and CI.** `scripts/test-linux.sh` cannot run on the owner's Windows machine: Docker is missing, and the local SQL Server holds port 1433. CI runs that script only on a push to `master` or on a pull request, so it first runs once this branch is merged and pushed. Still to do: merge, push, rerun the CI job until it has run three times (`gh run rerun <id>`), record the three `Duration` lines here, tick the two boxes,. The ticket is `done`; those two boxes stay unticked until CI has run. The script's behaviour did not need to change, because the suite builds the pool from its one connection string.
 - **Review.** The standards reviewer (Fable 5.2) found only minor items, and these were fixed: field alignment, an unused `DatabaseName` property, and two comments that still said the fixture runs the seed check. The negative guard in `DatabaseLender.BorrowAsync` was kept: it matches `CheckReplayMatchesSeedAsync`, and the positive form would add a second exit. The spec reviewer (Fable 5.2, run separately) found no blocking defect. Two findings were fixed: the fixture's check was renamed to `CheckDatabaseIsStillOnLoan`, because it cannot tell which class holds a database (the lender guarantees that), and `DisposeAsync` now returns the database even if closing its connection throws. Two were left as they are: on a machine with fewer than four cores xUnit still starts four classes, and the extras wait at the lender without holding a thread; and the worktree suffix is derived by private code that no test covers, while the disjointness itself holds by construction. Full suite after the fixes: 528 passed, Duration 21 s.
+
+**2026-11-17, CI.** Three runs of `scripts/test-linux.sh` in the `Tests` workflow on `master` after the merge, all with 528 passed and none failed: `Duration: 29 s` (run 43978151856, the ticket's merge), `Duration: 23 s` (run 43978972184, the merge of the worktree branch) and `Duration: 22 s` (the same run, rerun with `gh run rerun`). No test failed in any of them. The two remaining boxes are ticked.
