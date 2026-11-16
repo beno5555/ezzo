@@ -16,8 +16,7 @@ namespace aspnetproject.IntegrationTests.Controllers;
 //   post 1 is alice's, with comments 4 (bob) and 5 (orphaned), and one like by bob
 //   post 2 is bob's, with comments 1 (alice), 2 (bob) and 3 (charlie)
 //   posts 10 and 13 are charlie's, with no activity and the same feed score
-[Collection("Database")]
-public class ContentVisibilityTests : IAsyncLifetime
+public class ContentVisibilityTests : IClassFixture<DatabaseFixture>, IAsyncLifetime
 {
     private const string Administrator = "sandro_beno";
     private const string Author        = "alice";
@@ -43,11 +42,11 @@ public class ContentVisibilityTests : IAsyncLifetime
     public ContentVisibilityTests(DatabaseFixture dbFixture)
     {
         _dbFixture = dbFixture;
-        _factory = new CustomWebApplicationFactory();
+        _factory = new CustomWebApplicationFactory(_dbFixture);
         _client = _factory.CreateClient();
     }
 
-    public Task InitializeAsync() => _dbFixture.ResetAndSeedAsync(_dbFixture.GetOptions());
+    public Task InitializeAsync() => _dbFixture.ResetAndSeedAsync();
 
     public async Task DisposeAsync()
     {

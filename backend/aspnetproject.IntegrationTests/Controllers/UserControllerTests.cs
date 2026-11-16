@@ -9,8 +9,7 @@ using aspnetproject.IntegrationTests.Helpers;
 
 namespace aspnetproject.IntegrationTests.Controllers;
 
-[Collection("Database")]
-public class UserControllerTests : IAsyncLifetime
+public class UserControllerTests : IClassFixture<DatabaseFixture>, IAsyncLifetime
 {
     private readonly DatabaseFixture _dbFixture;
     private readonly CustomWebApplicationFactory _factory;
@@ -19,11 +18,11 @@ public class UserControllerTests : IAsyncLifetime
     public UserControllerTests(DatabaseFixture dbFixture)
     {
         _dbFixture = dbFixture;
-        _factory = new CustomWebApplicationFactory();
+        _factory = new CustomWebApplicationFactory(_dbFixture);
         _client = _factory.CreateClient();
     }
 
-    public Task InitializeAsync() => _dbFixture.ResetAndSeedAsync(_dbFixture.GetOptions());
+    public Task InitializeAsync() => _dbFixture.ResetAndSeedAsync();
     // Disposing the host releases its settings-file watchers; each one holds an inotify instance, and Linux caps them per user.
     public async Task DisposeAsync()
     {

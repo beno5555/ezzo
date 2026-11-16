@@ -14,6 +14,7 @@ SETTINGS_FILE="${REPO_ROOT}/backend/aspnetproject/appsettings.Testing.json"
 
 CONTAINER="webcity-test-sql"
 IMAGE="mcr.microsoft.com/mssql/server:2022-latest"
+# The base name: the suite builds its pool of test databases from it (TestSocialMediaWebApiDb_1 to _4) and migrates them.
 DATABASE="TestSocialMediaWebApiDb"
 READY_TIMEOUT_SECONDS=90
 

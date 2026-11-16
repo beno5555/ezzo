@@ -5,8 +5,7 @@ using aspnetproject.IntegrationTests.Helpers;
 
 namespace aspnetproject.IntegrationTests.Controllers;
 
-[Collection("Database")]
-public class FriendshipControllerTests : IAsyncLifetime
+public class FriendshipControllerTests : IClassFixture<DatabaseFixture>, IAsyncLifetime
 {
     private readonly DatabaseFixture             _dbFixture;
     private readonly CustomWebApplicationFactory _factory;
@@ -15,11 +14,11 @@ public class FriendshipControllerTests : IAsyncLifetime
     public FriendshipControllerTests(DatabaseFixture dbFixture)
     {
         _dbFixture = dbFixture;
-        _factory   = new CustomWebApplicationFactory();
+        _factory   = new CustomWebApplicationFactory(_dbFixture);
         _client    = _factory.CreateClient();
     }
 
-    public Task InitializeAsync() => _dbFixture.ResetAndSeedAsync(_dbFixture.GetOptions());
+    public Task InitializeAsync() => _dbFixture.ResetAndSeedAsync();
 
     public async Task DisposeAsync()
     {

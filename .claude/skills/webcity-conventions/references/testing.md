@@ -14,13 +14,19 @@ Test through the real HTTP pipeline (`WebApplicationFactory`). For each endpoint
 
 ## 2. Isolated database, reset and reseeded per test
 
-Never run tests against the dev database.
+Never run tests against the dev database. Each test class borrows its own database from the suite's pool through `DatabaseFixture`, so classes run at once without seeing each other's data; give that fixture to every host.
 
 ```csharp
-[Collection("Database")]
-public class PostControllerTests : IAsyncLifetime
+public class PostControllerTests : IClassFixture<DatabaseFixture>, IAsyncLifetime
 {
-    public Task InitializeAsync() => _dbFixture.ResetAndSeedAsync(_dbFixture.GetOptions());
+    public PostControllerTests(DatabaseFixture dbFixture)
+    {
+        _dbFixture = dbFixture;
+        _factory   = new CustomWebApplicationFactory(_dbFixture);   // the host uses the borrowed database
+        _client    = _factory.CreateClient();
+    }
+
+    public Task InitializeAsync() => _dbFixture.ResetAndSeedAsync();
 
     // Disposing the host releases its settings-file watchers; each one holds an inotify instance, and Linux caps them per user.
     public async Task DisposeAsync()
@@ -30,14 +36,14 @@ public class PostControllerTests : IAsyncLifetime
     }
 }
 
-public async Task ResetAndSeedAsync(DbContextOptions<ApplicationDbContext> options)
+public async Task ResetAndSeedAsync()
 {
-    await _respawner.ResetAsync(_connection);            // keeps __EFMigrationsHistory
-    await _recordedSeed.ReplayAsync(_connection);        // TestDataSeeder's SQL, recorded on the run's first seed
+    await Database.Respawner.ResetAsync(_connection!);   // keeps __EFMigrationsHistory
+    await _pool.Seed.ReplayAsync(_connection!);          // TestDataSeeder's SQL, recorded on the run's first seed
 }
 ```
 
-Change the seed only in `TestDataSeeder`: the fixture records it through EF at the start of every run.
+Change the seed only in `TestDataSeeder`: the test database pool records it through EF at the start of every run.
 
 ## 3. Name tests `Method_Condition_ExpectedResult`
 

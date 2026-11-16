@@ -9,8 +9,7 @@ using aspnetproject.IntegrationTests.Helpers;
 
 namespace aspnetproject.IntegrationTests.Controllers;
 
-[Collection("Database")]
-public class MessageControllerTests : IAsyncLifetime
+public class MessageControllerTests : IClassFixture<DatabaseFixture>, IAsyncLifetime
 {
     private readonly DatabaseFixture             _dbFixture;
     private readonly CustomWebApplicationFactory _factory;
@@ -19,11 +18,11 @@ public class MessageControllerTests : IAsyncLifetime
     public MessageControllerTests(DatabaseFixture dbFixture)
     {
         _dbFixture = dbFixture;
-        _factory   = new CustomWebApplicationFactory();
+        _factory   = new CustomWebApplicationFactory(_dbFixture);
         _client    = _factory.CreateClient();
     }
 
-    public Task InitializeAsync() => _dbFixture.ResetAndSeedAsync(_dbFixture.GetOptions());
+    public Task InitializeAsync() => _dbFixture.ResetAndSeedAsync();
 
     // Disposing the host releases its settings-file watchers; each one holds an inotify instance, and Linux caps them per user.
     public async Task DisposeAsync()
@@ -115,7 +114,7 @@ public class MessageControllerTests : IAsyncLifetime
     public async Task SendMessage_WithPhotoOverSizeLimit_ReturnsBadRequestAndSavesNothing()
     {
         // The limit is lowered through configuration, so the test does not upload megabytes.
-        await using var factory = new CustomWebApplicationFactory(new Dictionary<string, string?>
+        await using var factory = new CustomWebApplicationFactory(_dbFixture, new Dictionary<string, string?>
         {
             ["ImageStorage:MaxFileSizeBytes"] = "1024"
         });

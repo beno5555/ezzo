@@ -18,6 +18,10 @@ Non-visual work (backend, tests, tooling) is merged as soon as it passes the ful
   - the new setting `PasswordConfiguration:HashIterations` (`PasswordHashingConfiguration`, default 100,000) and its startup guard, which fails below 100,000 outside Testing;
   - `TestDataSeeder`, which now hashes the shared test password through the app's hasher, so seeded users sign in only on Testing hosts;
   - the open points at the bottom of the ticket, under Comments (Testing accepts 0 or a negative value).
+- **Test-suite-speed ticket 03: test classes run in parallel, each on its own database**, merged 2026-11-17 (528 tests, `Duration` 15 to 21 s locally, down from 44 s). Still open: three Linux runs through CI, recorded in the ticket before it is set to `done`. Look at:
+  - the pool and the lender (`backend/aspnetproject.IntegrationTests/Fixtures/TestDatabasePool.cs`, `DatabaseLender.cs`, `TestDatabaseNames.cs`) and the class fixture `DatabaseFixture`;
+  - the new local databases `TestSocialMediaWebApiDb_1` to `_4`; the old single `TestSocialMediaWebApiDb` can be dropped;
+  - the open points at the bottom of the ticket, under Comments.
 
 **Not merged yet.** These branches are finished but wait for the owner's review before they are merged. No agent merges them until the owner says so. After the merge, delete the line. Merge 27 first: it is on the critical chain (28, 06 and 30 wait for it).
 - **Branch `worktree-design-tokens`**: frontend ticket 27, the app takes its look from design tokens (`.scratch/frontend/issues/27-the-app-takes-its-look-from-design-tokens.md`). Worktree `.claude/worktrees/design-tokens`, added 2026-11-16.
@@ -179,4 +183,3 @@ Checked against the code on 2026-11-15. Gaps A to F are specified in `.scratch/d
 - **Retried events:** an outbox table and a job that resends an event the automation did not receive. Until then an event sent while n8n is down is lost.
 - Russian and Spanish dictionary files (ADR 0006).
 - Translated server text, which needs a stable code on every backend failure (ADR 0006).
-- **Replaced on 2026-11-16 by the `test-suite-speed` tickets** (484 tests, 1 m 53 s; a shared host per class would carry rate-limit counters between tests). Test-suite-speed ticket 03 deletes this entry. **Share one test host per test class**, once the integration suite reaches about 400 tests or a run takes more than a minute (on 2026-11-14: 159 tests, 18 s). xUnit builds a new class instance per test, so each test boots its own `CustomWebApplicationFactory`. Moving the factory into an `IClassFixture` would roughly halve the run time; the database reset per test stays.

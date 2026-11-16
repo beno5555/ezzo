@@ -9,8 +9,7 @@ using aspnetproject.IntegrationTests.Helpers;
 namespace aspnetproject.IntegrationTests.Hubs;
 
 // What a connected user receives over hubs/messages when another user acts through HTTP.
-[Collection("Database")]
-public class MessageHubTests : IAsyncLifetime
+public class MessageHubTests : IClassFixture<DatabaseFixture>, IAsyncLifetime
 {
     private readonly DatabaseFixture             _dbFixture;
     private readonly CustomWebApplicationFactory _factory;
@@ -19,11 +18,11 @@ public class MessageHubTests : IAsyncLifetime
     public MessageHubTests(DatabaseFixture dbFixture)
     {
         _dbFixture = dbFixture;
-        _factory   = new CustomWebApplicationFactory();
+        _factory   = new CustomWebApplicationFactory(_dbFixture);
         _client    = _factory.CreateClient();
     }
 
-    public Task InitializeAsync() => _dbFixture.ResetAndSeedAsync(_dbFixture.GetOptions());
+    public Task InitializeAsync() => _dbFixture.ResetAndSeedAsync();
 
     // Disposing the host closes any hub connection a test left open.
     public async Task DisposeAsync() => await _factory.DisposeAsync();

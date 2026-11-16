@@ -16,7 +16,7 @@ Pick tickets that touch different files. The ticket's "What to build" names the 
 
 ## What differs inside a worktree
 
-- **Test database.** With `ConnectionStrings__DefaultConnection` unset, `DatabaseFixture` names the local database after the worktree folder (`TestSocialMediaWebApiDb_<name>`, with any character other than a letter or digit turned into `_`), and `CustomWebApplicationFactory` gives the app under test the same connection string. The first run creates and migrates it. The main checkout keeps `TestSocialMediaWebApiDb`. So two suites never wipe each other's data.
+- **Test databases.** With `ConnectionStrings__DefaultConnection` unset, the suite's pool of test databases is named after the worktree folder: `TestSocialMediaWebApiDb_<name>_1` to `_4`, with any character other than a letter or digit turned into `_` (`TestDatabaseNames`). Each test class borrows one, and its `CustomWebApplicationFactory` gives the app under test that database's connection string. The first run creates and migrates them. The main checkout's pool is `TestSocialMediaWebApiDb_1` to `_4`. Every name ends in its number, so two checkouts' suites never share a database.
 - **Sync.** Skip CLAUDE.md's "pull on `master`" step: `master` is checked out in the main checkout, and the worktree already starts from a fresh `origin/master`.
 - **Skills.** The worktree has its own copy of `.claude/skills/`, separate from the junctions in `~/.claude/skills/` (see `skills.md`). Editing a skill there is fine: the edit is committed on the lane's branch and reaches the shared copy when the branch is merged.
 
@@ -34,10 +34,18 @@ A session inside a worktree can do the merge itself. Git will not check out `mas
 
 1. Make sure the main checkout is clean (`git -C <repo root> status`). If it is not, stop and ask the owner: those are someone else's changes.
 2. `git merge --no-ff --no-commit worktree-<name>`, so you can fix things before the merge commit.
-3. Resolve conflicts (below), then build and run the full suite **from the main checkout's `backend/`**. That uses the main test database, `TestSocialMediaWebApiDb`. If an IDE holds a file under `obj/` and the build fails with an `IOException`, add `--artifacts-path <scratch folder>` to `dotnet build` and `dotnet test`. For a frontend change, also run Prettier's check, lint, the unit tests and the build from the main checkout's `frontend/`. If its `node_modules` needs `npm ci`, first stop any dev server or test watcher running from that folder: Windows locks `esbuild.exe` while it runs, `npm ci` then fails with `EPERM` halfway, and the half-deleted `node_modules` breaks `npm start` too.
+3. Resolve conflicts (below), then build and run the full suite **from the main checkout's `backend/`**. That uses the main checkout's pool, `TestSocialMediaWebApiDb_1` to `_4`. If an IDE holds a file under `obj/` and the build fails with an `IOException`, add `--artifacts-path <scratch folder>` to `dotnet build` and `dotnet test`. For a frontend change, also run Prettier's check, lint, the unit tests and the build from the main checkout's `frontend/`. If its `node_modules` needs `npm ci`, first stop any dev server or test watcher running from that folder: Windows locks `esbuild.exe` while it runs, `npm ci` then fails with `EPERM` halfway, and the half-deleted `node_modules` breaks `npm start` too.
 4. Commit the merge, push `master`, and report what conflicted and how each conflict was resolved.
 
-**When Claude Code refuses the command.** A session started with `claude --worktree` is isolated: Claude Code refuses any git command aimed at the main checkout (`cd` there, or `git -C <repo root>`), with a message that the session is isolated in the worktree. Do not work around it. In particular, never move `master` with `git update-ref`, `git commit-tree` or a push to `origin/master`: the main checkout has `master` checked out, and its files would no longer match the branch. Instead, give the owner the exact commands for steps 1 to 4, each starting with `!` so that it runs in the session and its output lands in the conversation, and check each output as it comes back.
+**When Claude Code refuses the command.** A session started with `claude --worktree` cannot run git in the main checkout. Do not work around it: never move `master` with `git update-ref`, `git commit-tree` or a push to `origin/master`. Give the owner these commands instead, written for the repo root, with no absolute paths and no `git -C`, and check each output the owner sends back:
+
+```bash
+git status
+git merge --no-ff --no-commit worktree-<name>
+cd backend && dotnet test aspnetproject.IntegrationTests; cd ..
+git commit --no-edit
+git push origin master
+```
 
 **Conflicts between parallel lanes.** The lane that merges first should add a dated note under `## Comments` in its ticket for whoever merges the other lane. The note says which files will conflict, which side to keep, and which change git will *not* flag (for example an `.Include()` that a shared mapper now needs). Read that note before you resolve anything. Typical cases:
 
@@ -47,8 +55,10 @@ A session inside a worktree can do the merge itself. Git will not check out `mas
 
 Comments that say a shape is "meant for ticket X to reuse" go stale once X is merged; update them. This Windows machine has no Python, so script edits with `sed` or use the Edit tool.
 
-A worktree's test database stays behind. Drop it when the lane is done:
+A worktree's test databases stay behind. Drop them when the lane is done (a pool on a machine with fewer than four cores has fewer databases; `IF EXISTS` skips the missing ones):
 
 ```bash
-sqlcmd -S localhost -E -Q "DROP DATABASE [TestSocialMediaWebApiDb_<name_with_underscores>]"
+sqlcmd -S localhost -E -Q "DROP DATABASE IF EXISTS [TestSocialMediaWebApiDb_<name_with_underscores>_1], [TestSocialMediaWebApiDb_<name_with_underscores>_2], [TestSocialMediaWebApiDb_<name_with_underscores>_3], [TestSocialMediaWebApiDb_<name_with_underscores>_4]"
 ```
+
+A lane started before the suite ran in parallel also left a single `TestSocialMediaWebApiDb_<name_with_underscores>`, and the main checkout a `TestSocialMediaWebApiDb`; no run uses them any more.

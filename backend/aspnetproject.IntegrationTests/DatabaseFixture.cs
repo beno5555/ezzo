@@ -1,111 +1,38 @@
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Respawn;
 using aspnetproject.Data;
 using aspnetproject.IntegrationTests.Fixtures;
 
 namespace aspnetproject.IntegrationTests;
 
+// A test class's database: borrowed from the run's pool (TestDatabasePool) before the class's first test, and returned
+// after its last. Every test class takes it as an IClassFixture, passes it to CustomWebApplicationFactory, and calls
+// ResetAndSeedAsync before each test that relies on the seed. xUnit runs the classes at once, each on its own database.
 public class DatabaseFixture : IAsyncLifetime
 {
-    // Set where Windows authentication is unavailable (scripts/test-linux.sh sets it); unset, the suite uses the local
-    // default below. CustomWebApplicationFactory hands ConnectionString to the app under test, so both sides always agree.
-    private const string ConnectionStringVariable    = "ConnectionStrings__DefaultConnection";
-    private const string LocalConnectionStringFormat = "Server=localhost;Database={0};Trusted_Connection=True;TrustServerCertificate=True";
-    private const string LocalDatabaseName           = "TestSocialMediaWebApiDb";
-    private const string GitEntryName                = ".git";
-    private const char   DatabaseNameSeparator       = '_';
+    private TestDatabasePool _pool        = null!;
+    private PooledDatabase?  _database;
+    private SqlConnection?   _connection;
 
-    public static string ConnectionString { get; } =
-        Environment.GetEnvironmentVariable(ConnectionStringVariable)
-        ?? string.Format(LocalConnectionStringFormat, GetLocalDatabaseName());
+    public string ConnectionString => Database.ConnectionString;
 
-    // A replay must reach the server in one request; the fixture checks it once per run.
-    private const long   ExpectedReplayRoundTrips  = 1;
-    private const string ServerRoundTripsStatistic = "ServerRoundtrips";
-    private const string TableListSeparator        = ", ";
-
-    // The wipe keeps it, and DatabaseSnapshot leaves it out.
-    public const string MigrationsHistoryTable = "__EFMigrationsHistory";
-
-    private Respawner _respawner = null!;
-    private SqlConnection _connection = null!;
-    private RecordedSeed _recordedSeed = null!;
+    private PooledDatabase Database =>
+        _database ?? throw new InvalidOperationException("The test class has not borrowed a database yet.");
 
     public async Task InitializeAsync()
     {
-        var options = GetOptions();
-
-        await using (var db = new ApplicationDbContext(options))
-        {
-            await db.Database.MigrateAsync();
-        }
-
-        _connection = new SqlConnection(ConnectionString);
+        _pool       = await TestDatabasePool.GetSharedAsync();
+        _database   = await _pool.BorrowAsync();
+        _connection = new SqlConnection(_database.ConnectionString);
         await _connection.OpenAsync();
-
-        _respawner = await Respawner.CreateAsync(_connection, new RespawnerOptions
-        {
-            TablesToIgnore = new Respawn.Graph.Table[] { MigrationsHistoryTable },
-            DbAdapter = DbAdapter.SqlServer
-        });
-
-        await RecordSeedAsync(options);
-        await CheckReplayMatchesSeedAsync();
     }
 
-    // Wipes every table, then replays the recorded seed in one round trip. The options are no longer used, but every
-    // test class passes them.
-    public async Task ResetAndSeedAsync(DbContextOptions<ApplicationDbContext> options)
+    // Wipes every table, then replays the recorded seed in one round trip.
+    public async Task ResetAndSeedAsync()
     {
-        await _respawner.ResetAsync(_connection);
-        await _recordedSeed.ReplayAsync(_connection);
-    }
-
-    // The first seed of a run goes through EF and TestDataSeeder, and the SQL it sends is recorded for every later
-    // reseed. The recording is taken fresh on every run, so a change to the seeder alone changes what the replay inserts.
-    private async Task RecordSeedAsync(DbContextOptions<ApplicationDbContext> options)
-    {
-        await _respawner.ResetAsync(_connection);
-
-        var recorder = new SeedRecorder();
-        var recordingOptions = new DbContextOptionsBuilder<ApplicationDbContext>(options)
-            .AddInterceptors(recorder)
-            .Options;
-
-        await using (var db = new ApplicationDbContext(recordingOptions))
-        {
-            await TestDataSeeder.SeedAsync(db);
-        }
-
-        _recordedSeed = recorder.Build();
-    }
-
-    // Proves once per run that a replay leaves every table as the EF seed left it, ids and identity values included,
-    // and that it takes one round trip.
-    private async Task CheckReplayMatchesSeedAsync()
-    {
-        var seeded = await DatabaseSnapshot.TakeAsync(_connection);
-
-        await _respawner.ResetAsync(_connection);
-        _connection.StatisticsEnabled = true;
-        _connection.ResetStatistics();
-        await _recordedSeed.ReplayUnshiftedAsync(_connection);
-        long roundTrips = (long)_connection.RetrieveStatistics()[ServerRoundTripsStatistic]!;
-        _connection.StatisticsEnabled = false;
-
-        var  replayed         = await DatabaseSnapshot.TakeAsync(_connection);
-        var  differences      = DatabaseSnapshot.FindDifferences(seeded, replayed);
-        bool replayMatches    = differences.Count == 0;
-        bool tookOneRoundTrip = roundTrips == ExpectedReplayRoundTrips;
-        bool replayIsFaithful = replayMatches && tookOneRoundTrip;
-
-        if (!replayIsFaithful)
-        {
-            throw new InvalidOperationException(
-                $"The recorded seed does not replay the EF seed. Tables that differ: " +
-                $"[{string.Join(TableListSeparator, differences)}]; round trips: {roundTrips}, expected {ExpectedReplayRoundTrips}.");
-        }
+        CheckDatabaseIsStillOnLoan();
+        await Database.Respawner.ResetAsync(_connection!);
+        await _pool.Seed.ReplayAsync(_connection!);
     }
 
     public DbContextOptions<ApplicationDbContext> GetOptions() =>
@@ -113,45 +40,39 @@ public class DatabaseFixture : IAsyncLifetime
             .UseSqlServer(ConnectionString)
             .Options;
 
-    // A linked git worktree (claude --worktree) gets its own database named after its folder, so suites running in two
-    // checkouts at once never wipe each other's data. The main checkout keeps the plain name.
-    private static string GetLocalDatabaseName()
+    // Before every reseed: the database is still on loan, and the connection that wipes it points at it. That no other
+    // class holds it too is the lender's guarantee: it never lends a database that is on loan (DatabaseLenderTests).
+    private void CheckDatabaseIsStillOnLoan()
     {
-        string databaseName = LocalDatabaseName;
-        DirectoryInfo? checkoutRoot = FindCheckoutRoot();
-        bool isLinkedWorktree = checkoutRoot is not null && File.Exists(Path.Combine(checkoutRoot.FullName, GitEntryName));
+        bool isOnLoan           = _pool.IsOnLoan(Database);
+        bool connectsToBorrowed = _connection!.Database == Database.Name;
+        bool canReseed          = isOnLoan && connectsToBorrowed;
 
-        if (isLinkedWorktree)
+        if (!canReseed)
         {
-            string suffix = new string(checkoutRoot!.Name
-                .Select(character => char.IsAsciiLetterOrDigit(character) ? character : DatabaseNameSeparator)
-                .ToArray());
-            databaseName = $"{LocalDatabaseName}{DatabaseNameSeparator}{suffix}";
+            throw new InvalidOperationException(
+                $"Test database {Database.Name} is no longer on loan, or its connection points at {_connection.Database}.");
         }
-
-        return databaseName;
     }
 
-    // The nearest folder above the test binaries that holds a .git entry: a folder in the main checkout, a file in a linked worktree.
-    private static DirectoryInfo? FindCheckoutRoot()
-    {
-        DirectoryInfo? directory = new DirectoryInfo(AppContext.BaseDirectory);
-        bool found = false;
-
-        while (directory is not null && !found)
-        {
-            found = Path.Exists(Path.Combine(directory.FullName, GitEntryName));
-            if (!found)
-            {
-                directory = directory.Parent;
-            }
-        }
-
-        return directory;
-    }
-
+    // The database goes back even if closing the connection fails, or the pool would shrink for the rest of the run.
     public async Task DisposeAsync()
     {
-        await _connection.DisposeAsync();
+        try
+        {
+            bool hasConnection = _connection is not null;
+            if (hasConnection)
+            {
+                await _connection!.DisposeAsync();
+            }
+        }
+        finally
+        {
+            bool hasBorrowed = _database is not null;
+            if (hasBorrowed)
+            {
+                _pool.Return(_database!);
+            }
+        }
     }
 }

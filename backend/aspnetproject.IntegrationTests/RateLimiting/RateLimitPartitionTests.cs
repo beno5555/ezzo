@@ -9,8 +9,7 @@ namespace aspnetproject.IntegrationTests.RateLimiting;
 // budget, or the shared per-IP one.
 // Limiter state lives in the host's singleton RateLimiter. xUnit builds a new instance of this class per test, and each
 // instance owns (and disposes) its own factory, so an exhausted limiter dies with the test whatever the run order.
-[Collection("Database")]
-public class RateLimitPartitionTests : IAsyncLifetime
+public class RateLimitPartitionTests : IClassFixture<DatabaseFixture>, IAsyncLifetime
 {
     // SearchUsers is a per-user policy on an endpoint that also allows anonymous callers, and it only reads.
     private const string SearchUsersUrl = "api/users/search?username=a";
@@ -22,11 +21,11 @@ public class RateLimitPartitionTests : IAsyncLifetime
     public RateLimitPartitionTests(DatabaseFixture dbFixture)
     {
         _dbFixture = dbFixture;
-        _factory = new CustomWebApplicationFactory();
+        _factory = new CustomWebApplicationFactory(_dbFixture);
         _client = _factory.CreateClient();
     }
 
-    public Task InitializeAsync() => _dbFixture.ResetAndSeedAsync(_dbFixture.GetOptions());
+    public Task InitializeAsync() => _dbFixture.ResetAndSeedAsync();
 
     public async Task DisposeAsync()
     {
