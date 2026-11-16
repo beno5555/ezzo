@@ -22,8 +22,7 @@ namespace aspnetproject.IntegrationTests.Controllers;
 //   3: bob     -> user 4 (charlie)    resolved, reviewed by sandro_beno (1)
 //   2: charlie -> comment 1 (alice's) pending
 //   1: alice   -> post 2 (bob's)      pending
-[Collection("Database")]
-public class ReportControllerTests : IAsyncLifetime
+public class ReportControllerTests : IClassFixture<DatabaseFixture>, IAsyncLifetime
 {
     // How many identical decisions the concurrency tests send at once.
     private const int ConcurrentDecisions = 5;
@@ -35,11 +34,11 @@ public class ReportControllerTests : IAsyncLifetime
     public ReportControllerTests(DatabaseFixture dbFixture)
     {
         _dbFixture = dbFixture;
-        _factory   = new CustomWebApplicationFactory();
+        _factory   = new CustomWebApplicationFactory(_dbFixture);
         _client    = _factory.CreateClient();
     }
 
-    public Task InitializeAsync() => _dbFixture.ResetAndSeedAsync(_dbFixture.GetOptions());
+    public Task InitializeAsync() => _dbFixture.ResetAndSeedAsync();
 
     public async Task DisposeAsync()
     {

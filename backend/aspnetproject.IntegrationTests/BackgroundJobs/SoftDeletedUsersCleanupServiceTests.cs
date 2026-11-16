@@ -9,8 +9,7 @@ namespace aspnetproject.IntegrationTests.BackgroundJobs;
 
 // Runs one sweep of the job directly, resolved from the host's services: the test host removes hosted services, so no
 // timer ever fires here. A failed sweep is logged, not thrown, so each test checks what the sweep left behind.
-[Collection("Database")]
-public class SoftDeletedUsersCleanupServiceTests : IAsyncLifetime
+public class SoftDeletedUsersCleanupServiceTests : IClassFixture<DatabaseFixture>, IAsyncLifetime
 {
     private readonly DatabaseFixture             _dbFixture;
     private readonly CustomWebApplicationFactory _factory;
@@ -19,11 +18,11 @@ public class SoftDeletedUsersCleanupServiceTests : IAsyncLifetime
     public SoftDeletedUsersCleanupServiceTests(DatabaseFixture dbFixture)
     {
         _dbFixture = dbFixture;
-        _factory   = new CustomWebApplicationFactory();
+        _factory   = new CustomWebApplicationFactory(_dbFixture);
         _client    = _factory.CreateClient();
     }
 
-    public Task InitializeAsync() => _dbFixture.ResetAndSeedAsync(_dbFixture.GetOptions());
+    public Task InitializeAsync() => _dbFixture.ResetAndSeedAsync();
 
     public async Task DisposeAsync()
     {

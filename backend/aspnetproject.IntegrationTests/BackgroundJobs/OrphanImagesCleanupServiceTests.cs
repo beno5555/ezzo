@@ -15,8 +15,7 @@ namespace aspnetproject.IntegrationTests.BackgroundJobs;
 
 // Runs one sweep of the job directly, resolved from the host's services: the test host removes hosted services, so no
 // timer ever fires here.
-[Collection("Database")]
-public class OrphanImagesCleanupServiceTests : IAsyncLifetime
+public class OrphanImagesCleanupServiceTests : IClassFixture<DatabaseFixture>, IAsyncLifetime
 {
     // A fixed time in the past, so it is always older than the default MinimumAge (1 hour).
     private static readonly DateTime LongAgo = new(2026, 9, 1, 10, 0, 0, DateTimeKind.Utc);
@@ -30,11 +29,11 @@ public class OrphanImagesCleanupServiceTests : IAsyncLifetime
     public OrphanImagesCleanupServiceTests(DatabaseFixture dbFixture)
     {
         _dbFixture = dbFixture;
-        _factory   = new CustomWebApplicationFactory();
+        _factory   = new CustomWebApplicationFactory(_dbFixture);
         _client    = _factory.CreateClient();
     }
 
-    public Task InitializeAsync() => _dbFixture.ResetAndSeedAsync(_dbFixture.GetOptions());
+    public Task InitializeAsync() => _dbFixture.ResetAndSeedAsync();
 
     // Disposing the host releases its settings-file watchers; each one holds an inotify instance, and Linux caps them per user.
     public async Task DisposeAsync()
@@ -152,7 +151,7 @@ public class OrphanImagesCleanupServiceTests : IAsyncLifetime
     [InlineData("00:00:59")]
     public async Task Startup_WithMinimumAgeUnderOneMinute_FailsToStart(string minimumAge)
     {
-        await using var factory = new CustomWebApplicationFactory(new Dictionary<string, string?>
+        await using var factory = new CustomWebApplicationFactory(_dbFixture, new Dictionary<string, string?>
         {
             ["CleanupConfiguration:OrphanImages:MinimumAge"] = minimumAge
         });

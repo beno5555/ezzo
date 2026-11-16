@@ -15,8 +15,7 @@ namespace aspnetproject.IntegrationTests.Serialization;
 
 // Every time the API writes, in a response or a hub push, ends in Z (ADR 0005). Times are read as raw JSON text,
 // because a typed read would hide a missing suffix.
-[Collection("Database")]
-public class UtcTimeSerializationTests : IAsyncLifetime
+public class UtcTimeSerializationTests : IClassFixture<DatabaseFixture>, IAsyncLifetime
 {
     private const string DataProperty               = "data";
     private const string IdProperty                 = "id";
@@ -38,11 +37,11 @@ public class UtcTimeSerializationTests : IAsyncLifetime
     public UtcTimeSerializationTests(DatabaseFixture dbFixture)
     {
         _dbFixture = dbFixture;
-        _factory   = new CustomWebApplicationFactory();
+        _factory   = new CustomWebApplicationFactory(_dbFixture);
         _client    = _factory.CreateClient();
     }
 
-    public Task InitializeAsync() => _dbFixture.ResetAndSeedAsync(_dbFixture.GetOptions());
+    public Task InitializeAsync() => _dbFixture.ResetAndSeedAsync();
 
     public async Task DisposeAsync()
     {

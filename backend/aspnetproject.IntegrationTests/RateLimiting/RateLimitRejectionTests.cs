@@ -9,9 +9,8 @@ namespace aspnetproject.IntegrationTests.RateLimiting;
 // Limiter state lives in the host's singleton RateLimiter, so exhausting a policy here must never
 // leak into other tests. xUnit builds a new instance of this class per test, and each instance owns
 // (and disposes) its own factory, so the exhausted limiter dies with the test whatever the run order.
-// The requests below never touch the database, so no reseed is needed.
-[Collection("Database")]
-public class RateLimitRejectionTests : IAsyncLifetime
+// The requests below never touch the data, so no reseed is needed; the host still gets the class's own database.
+public class RateLimitRejectionTests : IClassFixture<DatabaseFixture>, IAsyncLifetime
 {
     // One more than the old limit of 5: six page reloads in a row must all get through.
     private const int ReloadsInARow = 6;
@@ -19,9 +18,9 @@ public class RateLimitRejectionTests : IAsyncLifetime
     private readonly CustomWebApplicationFactory _factory;
     private readonly HttpClient _client;
 
-    public RateLimitRejectionTests()
+    public RateLimitRejectionTests(DatabaseFixture dbFixture)
     {
-        _factory = new CustomWebApplicationFactory();
+        _factory = new CustomWebApplicationFactory(dbFixture);
         _client = _factory.CreateClient();
     }
 

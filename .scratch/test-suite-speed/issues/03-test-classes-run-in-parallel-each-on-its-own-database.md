@@ -12,7 +12,7 @@ Measured on 2026-11-16: every test class shares one xUnit collection, so all 484
 
 **Blocked by:** 02 (Every test is reseeded in one round trip), which also changes the database fixture.
 
-**Status:** ready-for-agent
+**Status:** in-progress
 
 **Difficulty:** tricky: concurrency and a new fixture pattern, a change to every test class, the Linux script and CI must build the same pool, and tests that fail only sometimes may need debugging.
 

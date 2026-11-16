@@ -7,9 +7,8 @@ using aspnetproject.Infrastructure.Dtos.Users;
 namespace aspnetproject.IntegrationTests.OpenApi;
 
 // The OpenAPI documents are only mapped in Development, so these tests run the host in that environment.
-// They never touch the database, so no reseed is needed.
-[Collection("Database")]
-public class OpenApiDocumentTests : IAsyncLifetime
+// They never touch the data, so no reseed is needed; the host still gets the class's own database.
+public class OpenApiDocumentTests : IClassFixture<DatabaseFixture>, IAsyncLifetime
 {
     private const string OpenApiDocumentUrl = "openapi/v1.json";
     private const string SwaggerDocumentUrl = "swagger/v1/swagger.json";
@@ -30,9 +29,9 @@ public class OpenApiDocumentTests : IAsyncLifetime
     private readonly CustomWebApplicationFactory _factory;
     private readonly HttpClient _client;
 
-    public OpenApiDocumentTests()
+    public OpenApiDocumentTests(DatabaseFixture dbFixture)
     {
-        _factory = new CustomWebApplicationFactory(environmentName: CustomWebApplicationFactory.DevelopmentEnvironment);
+        _factory = new CustomWebApplicationFactory(dbFixture, environmentName: CustomWebApplicationFactory.DevelopmentEnvironment);
         _client = _factory.CreateClient();
     }
 

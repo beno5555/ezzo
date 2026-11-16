@@ -15,8 +15,7 @@ namespace aspnetproject.IntegrationTests.Controllers;
 //   2: charlie (4)          likes post 2
 //   1: alice (2)            likes post 2
 // Posts 3 (charlie's), 4 (erin's) and 5 (frank's) have no likes.
-[Collection("Database")]
-public class PostLikeControllerTests : IAsyncLifetime
+public class PostLikeControllerTests : IClassFixture<DatabaseFixture>, IAsyncLifetime
 {
     private readonly DatabaseFixture             _dbFixture;
     private readonly CustomWebApplicationFactory _factory;
@@ -25,11 +24,11 @@ public class PostLikeControllerTests : IAsyncLifetime
     public PostLikeControllerTests(DatabaseFixture dbFixture)
     {
         _dbFixture = dbFixture;
-        _factory   = new CustomWebApplicationFactory();
+        _factory   = new CustomWebApplicationFactory(_dbFixture);
         _client    = _factory.CreateClient();
     }
 
-    public Task InitializeAsync() => _dbFixture.ResetAndSeedAsync(_dbFixture.GetOptions());
+    public Task InitializeAsync() => _dbFixture.ResetAndSeedAsync();
 
     public async Task DisposeAsync()
     {

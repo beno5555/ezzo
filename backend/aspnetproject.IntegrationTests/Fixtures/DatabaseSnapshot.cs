@@ -16,7 +16,7 @@ public static class DatabaseSnapshot
 
     private const string TablesQuery =
         "SELECT TABLE_SCHEMA, TABLE_NAME FROM INFORMATION_SCHEMA.TABLES " +
-        "WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME <> '" + DatabaseFixture.MigrationsHistoryTable + "' " +
+        "WHERE TABLE_TYPE = 'BASE TABLE' AND TABLE_NAME <> '" + TestDatabasePool.MigrationsHistoryTable + "' " +
         "ORDER BY TABLE_SCHEMA, TABLE_NAME";
 
     private const string RowsQueryFormat     = "SELECT * FROM [{0}].[{1}]";

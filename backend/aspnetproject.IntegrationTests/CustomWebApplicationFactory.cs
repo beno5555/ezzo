@@ -35,6 +35,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
     public const string DevelopmentEnvironment = "Development";
     public const string ProductionEnvironment  = "Production";
 
+    private readonly string _connectionString;
     private readonly IReadOnlyDictionary<string, string?> _settingOverrides;
     private readonly string _environmentName;
 
@@ -42,12 +43,18 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
     public string UploadFolder { get; } =
         Path.Combine(Path.GetTempPath(), TestUploadFolderRootName, Guid.NewGuid().ToString("N"));
 
+    // database is the test class's DatabaseFixture: the host uses the database the class borrowed from the pool.
     // settingOverrides win over the settings file and the suite's defaults, e.g. a lower ImageStorage:MaxFileSizeBytes.
     // environmentName is Testing unless a test needs a Development-only feature, such as the OpenAPI document.
-    public CustomWebApplicationFactory(IReadOnlyDictionary<string, string?>? settingOverrides = null, string environmentName = TestingEnvironment)
+    public CustomWebApplicationFactory(
+        DatabaseFixture                       database,
+        IReadOnlyDictionary<string, string?>? settingOverrides = null,
+        string                                environmentName  = TestingEnvironment
+        )
     {
+        _connectionString = database.ConnectionString;
         _settingOverrides = settingOverrides ?? new Dictionary<string, string?>();
-        _environmentName = environmentName;
+        _environmentName  = environmentName;
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -60,11 +67,11 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             config.AddJsonFile("appsettings.Testing.json", optional: false);
 
             // Added after the settings file so it wins: the suite never sends real email, always trusts TrustedFrontendOrigin,
-            // and always uses the database DatabaseFixture migrates and reseeds (one per git worktree). A Testing host also hashes
-            // passwords with TestHashIterations, the count TestDataSeeder hashes its users' password with.
+            // and always uses the database its test class borrowed and reseeds. A Testing host also hashes passwords with
+            // TestHashIterations, the count TestDataSeeder hashes its users' password with.
             config.AddInMemoryCollection(new Dictionary<string, string?>
             {
-                [ConnectionStringSetting] = DatabaseFixture.ConnectionString,
+                [ConnectionStringSetting] = _connectionString,
                 ["EmailConfiguration:Enabled"] = "false",
                 ["Cors:AllowedOrigins:0"] = TrustedFrontendOrigin,
                 [UploadFolderSetting] = UploadFolder
