@@ -18,6 +18,10 @@ Non-visual work (backend, tests, tooling) is merged as soon as it passes the ful
   - the new setting `PasswordConfiguration:HashIterations` (`PasswordHashingConfiguration`, default 100,000) and its startup guard, which fails below 100,000 outside Testing;
   - `TestDataSeeder`, which now hashes the shared test password through the app's hasher, so seeded users sign in only on Testing hosts;
   - the open points at the bottom of the ticket, under Comments (Testing accepts 0 or a negative value).
+- **Test-suite-speed ticket 03: test classes run in parallel, each on its own database**, merged 2026-11-17 (528 tests, `Duration` 15 to 21 s locally, down from 44 s). Still open: three Linux runs through CI, recorded in the ticket before it is set to `done`. Look at:
+  - the pool and the lender (`backend/aspnetproject.IntegrationTests/Fixtures/TestDatabasePool.cs`, `DatabaseLender.cs`, `TestDatabaseNames.cs`) and the class fixture `DatabaseFixture`;
+  - the new local databases `TestSocialMediaWebApiDb_1` to `_4`; the old single `TestSocialMediaWebApiDb` can be dropped;
+  - the open points at the bottom of the ticket, under Comments.
 
 **Not merged yet.** These branches are finished but wait for the owner's review before they are merged. No agent merges them until the owner says so. After the merge, delete the line. Merge 27 first: it is on the critical chain (28, 06 and 30 wait for it).
 - **Branch `worktree-design-tokens`**: frontend ticket 27, the app takes its look from design tokens (`.scratch/frontend/issues/27-the-app-takes-its-look-from-design-tokens.md`). Worktree `.claude/worktrees/design-tokens`, added 2026-11-16.

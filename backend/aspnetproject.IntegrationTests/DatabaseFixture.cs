@@ -30,7 +30,7 @@ public class DatabaseFixture : IAsyncLifetime
     // Wipes every table, then replays the recorded seed in one round trip.
     public async Task ResetAndSeedAsync()
     {
-        CheckDatabaseIsOnLoanToThisClass();
+        CheckDatabaseIsStillOnLoan();
         await Database.Respawner.ResetAsync(_connection!);
         await _pool.Seed.ReplayAsync(_connection!);
     }
@@ -40,33 +40,39 @@ public class DatabaseFixture : IAsyncLifetime
             .UseSqlServer(ConnectionString)
             .Options;
 
-    // Before every reseed: the database is still on loan, so no other class can hold it (the lender never lends one twice),
-    // and the connection that wipes it points at it.
-    private void CheckDatabaseIsOnLoanToThisClass()
+    // Before every reseed: the database is still on loan, and the connection that wipes it points at it. That no other
+    // class holds it too is the lender's guarantee: it never lends a database that is on loan (DatabaseLenderTests).
+    private void CheckDatabaseIsStillOnLoan()
     {
         bool isOnLoan           = _pool.IsOnLoan(Database);
         bool connectsToBorrowed = _connection!.Database == Database.Name;
-        bool belongsToThisClass = isOnLoan && connectsToBorrowed;
+        bool canReseed          = isOnLoan && connectsToBorrowed;
 
-        if (!belongsToThisClass)
+        if (!canReseed)
         {
             throw new InvalidOperationException(
-                $"Test database {Database.Name} is not on loan to this test class; its connection points at {_connection.Database}.");
+                $"Test database {Database.Name} is no longer on loan, or its connection points at {_connection.Database}.");
         }
     }
 
+    // The database goes back even if closing the connection fails, or the pool would shrink for the rest of the run.
     public async Task DisposeAsync()
     {
-        bool hasConnection = _connection is not null;
-        if (hasConnection)
+        try
         {
-            await _connection!.DisposeAsync();
+            bool hasConnection = _connection is not null;
+            if (hasConnection)
+            {
+                await _connection!.DisposeAsync();
+            }
         }
-
-        bool hasBorrowed = _database is not null;
-        if (hasBorrowed)
+        finally
         {
-            _pool.Return(_database!);
+            bool hasBorrowed = _database is not null;
+            if (hasBorrowed)
+            {
+                _pool.Return(_database!);
+            }
         }
     }
 }
