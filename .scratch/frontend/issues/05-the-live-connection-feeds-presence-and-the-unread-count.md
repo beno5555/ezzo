@@ -10,7 +10,7 @@
 
 Decisions are under "Scaffold and plumbing" in `.scratch/frontend/spec.md`, and in "Real-time" and "State" in the conventions skill's TypeScript reference.
 
-**Blocked by:** 04 (A user signs in and stays signed in), and the frontend setup (27, 28, 29)
+**Blocked by:** 04 (A user signs in and stays signed in)
 
 **Status:** ready-for-agent
 

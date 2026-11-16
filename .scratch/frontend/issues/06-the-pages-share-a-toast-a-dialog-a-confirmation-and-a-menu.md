@@ -11,7 +11,7 @@ The profile picture is a fifth small piece: one `Avatar` component that shows a 
 
 Decisions are under "Toasts", "Actions on content" and "Across the whole frontend" in `.scratch/frontend/spec.md`.
 
-**Blocked by:** 02 (The Angular app starts), 03 (The interface speaks English and Georgian), and the frontend setup: 27 (The app takes its look from design tokens), 28 (A user switches between light and dark), 29 (An agent and the owner see every page in screenshots)
+**Blocked by:** 02 (The Angular app starts), 03 (The interface speaks English and Georgian), 27 (The app takes its look from design tokens)
 
 **Status:** ready-for-agent
 
@@ -23,5 +23,5 @@ Decisions are under "Toasts", "Actions on content" and "Across the whole fronten
 - [ ] The dialog keeps focus inside, closes on Escape, and returns focus to the button that opened it
 - [ ] The menu opens, moves and chooses with the keyboard
 - [ ] The default profile picture's rules are unit-tested: a username in two parts gives both first letters, any other gives its first two letters, the same id always gives the same disc colour, and an unavailable account gives the grey disc with no letters
-- [ ] Each block is shown in screenshots of the bare page at 360, 768 and 1280 px, in both themes, for the owner's approval
+- [ ] Each block is checked on the bare page at 360, 768 and 1280 px, in both themes, for the owner's approval. This ticket does not wait for tickets 28 and 29: until they land, show the dark theme by putting `data-theme="dark"` on the root element by hand, and check by eye; once ticket 29 has landed, use its screenshots
 - [ ] All texts come from the dictionaries, and all colours, sizes and spacing from design tokens
