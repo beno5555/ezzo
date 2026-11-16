@@ -26,9 +26,24 @@ Non-visual work (backend, tests, tooling) is merged as soon as it passes the ful
 
 Settle these before the spec session that needs them. Each has a going-in recommendation.
 
-1. **Who sends email.** The document says n8n sends every transactional email; today MailKit does. Recommendation: move it in step 9, and leave MailKit working until then.
-2. **Admin and developer channels.** Telegram for both, which needs one bot token and a chat id from the owner.
-3. **The product's name.** The owner may replace "WebCity"; one candidate is Ezo (ეზო). It is settled in a separate name session by **Sat 21**, before the n8n emails that carry it are written. If it is not settled by then, the product ships as WebCity. `webcity-documentation.md`, already sent to the principal, says WebCity; whether to tell the principal is the owner's call.
+1. **The product's name.** The owner may replace "WebCity"; one candidate is Ezo (ეზო). It is settled in a separate name session by **Sat 21**, before the n8n emails that carry it are written. If it is not settled by then, the product ships as WebCity. `webcity-documentation.md`, already sent to the principal, says WebCity; whether to tell the principal is the owner's call.
+
+Settled on 2026-11-16, in the n8n session (the grilling before the n8n spec). The words Automation, Notification, Alert, Toast, Report, Flagged, Hidden and Digest are defined in `GLOSSARY.md`.
+
+- **Each email has one sender** (ADR 0008). The backend keeps sending its six emails through MailKit, unchanged: the reset request, the reactivation request, "someone tried to register with your email", "your password was reset", account deactivated and account reactivated. The automation sends the new welcome email, the digest, birthday emails and the moderation email to administrators. No event carries a token or another secret.
+- **The backend tells the automation facts, in one attempt.** Every event has one envelope (a unique id, the event name, the UTC time, a `data` object) and carries everything its workflow needs. It is posted after the data is committed, to one path per event name under one base URL. There is no retry and no stored queue: a failure writes a `Log` row and never fails the user's request. One setting turns events off, for a fresh clone and for cloud sessions.
+- **Events are signed.** The header `X-WebCity-Signature` holds the lower-case hex of HMAC-SHA256 over the raw body with a shared secret. n8n checks it with a Crypto node and answers 401 on a mismatch. No timestamp.
+- **The automation is a caller with no `User` row.** It sends an API key in a header, is recognised by its own authentication scheme, and reaches only `/api/internal/*` and the two moderation routes. It has its own rate-limit bucket.
+- **Alerts go to Telegram,** with one chat id for administrators and one for developers (they may be the same chat). Moderation alerts also go by email to one fixed administrator address set in n8n. No Discord.
+- **AI moderation.** Content is published at once and checked afterwards, on creation and on edit: posts, comments and post photos, never direct messages. Content that OpenAI marks as violating becomes Flagged; a category score of 0.9 or more makes it Hidden. Both numbers live in n8n. The automation only raises a status: the backend refuses a "Visible" from it.
+- **Reports.** Every new report raises an alert. Five pending reports on one post or comment within 24 hours hide it; the number lives in n8n. A reported user is never deactivated automatically, and the reports stay pending for an administrator.
+- **Exception alerts.** Every unhandled exception, from a request or a background job, produces an event with the exception type, the message, the first lines of the stack trace, the place and the time, and never a request body, headers or user data. A failure to deliver an event never produces another event. Grouping (the first occurrence alerts at once, repeats within 10 minutes are counted and sent as one message) stays last in line.
+- **Birthdays.** `GET /api/internal/birthdays` returns one row per recipient with the friends whose birthday is today (UTC date; 29 February counts on 28 February in other years), paged. The run is daily at 09:00 Tbilisi time. Each recipient gets one email and one notification, and the email ignores the digest switch.
+- **A notification is a kind and data, not text** (ADR 0006), and is not stored. The frontend shows it as a fifth toast.
+- **The digest** runs on Mondays at 10:00 Tbilisi time, for each user with the switch on and something to report: the number of conversations with unread messages, the number of pending friend requests, and the three most-liked posts by their friends in the last 7 days. The list is paged. The switch is on by default and is changed on the settings page.
+- **n8n lives in `n8n/`** at the repo root: a compose file pinned to image 2.47.7 with a named volume, `workflows/*.json` with fixed ids that a one-shot service imports and publishes, and a gitignored credentials file and `.env` beside a committed example.
+- **Testing.** The backend's half has integration tests: the test host records the outgoing call, and tests assert the event's name, body and signature; the internal endpoints are tested with the API key. The workflows are checked by hand from a checklist in `n8n/`.
+- **Order of the tickets.** The first is the exception alert, end to end on real Docker (signed event, verified in n8n, Telegram message, workflow imported from a clean start). Then the welcome email, AI moderation, report handling, the digest, birthdays, and alert grouping.
 
 Settled on 2026-11-16, in the design session:
 
@@ -100,13 +115,13 @@ Frontend 30 (Impeccable) runs in a session with the owner whenever the owner is 
      - **28, the themes:** the theme store, its switch, and no flash of the wrong theme on load. After 27.
      - **29, the screenshots:** the Playwright command, and the Playwright MCP server in `.mcp.json` on trial. After 28 and 04.
    - [ ] **Frontend ticket 30: Impeccable, with its hook on trial.** Done in a session with the owner, not through `/implement`. No ticket waits for it.
-   - [ ] **By Sat 21: the name session** (open decision 3). It uses Playwright to look at reference sites, and writes `PRODUCT.md`. On Fable 5.2 if available, like the brand session.
+   - [ ] **By Sat 21: the name session** (the open decision on the name). It uses Playwright to look at reference sites, and writes `PRODUCT.md`. On Fable 5.2 if available, like the brand session.
    - [ ] **After the name: the brand session.** One approval page in two skins; the owner chooses. It replaces the provisional values in `DESIGN.md` and the token file, and adds the logo.
 2. [ ] **Write the tickets, one group at a time.** For each group the owner runs `/to-spec` and then `/to-tickets` in a session that already holds the context, because `/to-spec` only writes down what the conversation has settled.
    - Done 2026-11-14: the backend gaps A to F, as 13 tickets in `.scratch/documented-backend-features/issues/`. Tickets 01, 02 and 03 can start at once; the longest chain is 02 → 05 → 08 → 09 → 11 → 12.
    - Done 2026-11-15: the frontend, as a spec (`.scratch/frontend/spec.md`) and 24 tickets in `.scratch/frontend/issues/`. Tickets 01 and 02 can start at once, and 01 to 05 need nothing from the design session; 06 onward wait for it. The longest chain is 02 → 04 → 05 → 07 → 09 → 11 → 13 → 14.
    - Done 2026-11-16: the frontend setup from the design session, as frontend tickets 27 to 30. Tickets 06 and 07 were changed to match (the default profile picture, the theme switch, screenshots), and every open frontend ticket from 07 onward now waits for 27 to 29.
-   - By Fri 20: n8n, gaps G and H with the six workflows. A grilling first, then `/to-spec` and `/to-tickets` in the same session, on Fable 5.2 if available (`docs/agents/issue-tracker.md`).
+   - By Fri 20: n8n, gaps G and H with the six workflows. The grilling was held on 2026-11-16 (its decisions are under Open decisions). Still to do: `/to-spec` and `/to-tickets` in the same session, on Fable 5.2 if available (`docs/agents/issue-tracker.md`).
 3. [ ] **Any time, in parallel: the open backend tickets.**
    - Documented-backend-features 04 (remove a photo from a post), 12 (an administrator decides a report) and 13 (statistics). The frontend shows "Coming soon" on whatever depends on one that is still open when its page is built.
    - Frontend ticket 01, the three small backend changes the pages need: four reserved usernames, the joined date removed from the public user shape, and the time the username was last changed added to the user's own shape.
@@ -122,10 +137,11 @@ Frontend 30 (Impeccable) runs in a session with the owner whenever the owner is 
    - Backend alongside: what is left of gaps E and F, which is ticket 12 (an administrator decides a report) and ticket 13 (statistics). Logs, the account list, hiding content, the moderation queue and the reports list are done (tickets 03, 09, 10 and 11).
 8. [ ] **Sat 21, will be late, crucial: admin panel.** Users (create, edit, deactivate, restore, delete, grant and remove the administrator role), delete any post or comment, logs, statistics, the reports list, the moderation queue.
 9. [ ] **Mon 23: n8n.** One day for the plumbing and two workflows, one day for the other four.
-   - Sun 22: gap G, then the transactional-email and exception-alert workflows.
+   - Sun 22: gap G, then the exception-alert and welcome-email workflows.
    - Mon 23: AI moderation, report handling, weekly digest, birthday notifications.
    - The workflows are exported as JSON into the repo, with a compose file that starts n8n.
-   - Needs from the owner before Sun 22: Docker Desktop installed (it is not on this machine as of 2026-11-15), the OpenAI key, the Telegram bot token and chat id, and SMTP credentials entered in n8n.
+   - The first ticket (the exception alert, end to end) can start as soon as it exists: Docker Desktop was installed on 2026-11-16 (29.9.3, WSL 2). A session that was open before the install does not have `docker` on its PATH.
+   - Needs from the owner: the Telegram bot token and the chat ids (before the first ticket), the OpenAI key (before AI moderation), and the administrator address. n8n uses the same SMTP account as the backend's `EmailConfiguration`.
 10. [ ] **Tue 24: buffer and finish.** Responsive pass on a phone width. Walk the document top to bottom against the running app and fix what fails. Update `README.md` (monorepo ticket 04) and `docs/backend/*.md` for everything added.
 11. [ ] **Wed 25: hand in.**
 
@@ -149,12 +165,14 @@ Checked against the code on 2026-11-15. Gaps A to F are specified in `.scratch/d
 - **D. Hub.** Done (ticket 07): `SendTyping` and the `UserTyping` push.
 - **E. Admin reads.** Done (ticket 03): `GET /api/admin/logs` and `GET /api/admin/users`, the account list the document does not mention. Still missing: `GET /api/admin/statistics` (ticket 13).
 - **F. Reports and moderation.** Done (tickets 09, 10 and 11): hiding a post or comment, creating and listing reports, and the moderation queue. Still missing: the report decision, `PUT /api/reports/{id}` (ticket 12). The queue is two routes, `GET /api/admin/moderation-queue/posts` and `/comments`, where the document lists one.
-- **G. n8n plumbing.** Outbound webhooks signed with a shared secret for registration, post and comment creation, a new report and an exception (from requests and from background jobs). An API-key identity that can reach only the internal and moderation endpoints. `GET /api/internal/digest`, `GET /api/internal/birthdays`, `POST /api/internal/notifications` with the `ReceiveNotification` push it sends. `digestEmailEnabled` on `User`, editable in the profile settings.
-- **H. Email through n8n.** The welcome, password-reset, account-reactivation and security emails leave the backend as events instead of being sent by MailKit (open decision 1).
+- **G. n8n plumbing.** Outbound webhooks signed with a shared secret for a new account, post and comment creation and edits, a new report and an exception (from requests and from background jobs). An API-key identity that can reach only the internal and moderation endpoints. `GET /api/internal/digest`, `GET /api/internal/birthdays`, `POST /api/internal/notifications` with the `ReceiveNotification` push it sends. `digestEmailEnabled` on `User`, editable in the profile settings.
+- **H. Email through n8n.** Only the new welcome email, which follows the "an account was created" event. The six existing emails stay in the backend (ADR 0008).
 
 ## After the deadline
 
 - A few end-to-end test flows (sign in, post, message). They come before component tests.
+- **Stored notifications:** a table, a list with an unread count, a mark-as-read route, and a bell with a badge in the interface. Until then a notification reaches only a user who is connected (n8n session, 2026-11-16).
+- **Retried events:** an outbox table and a job that resends an event the automation did not receive. Until then an event sent while n8n is down is lost.
 - Russian and Spanish dictionary files (ADR 0006).
 - Translated server text, which needs a stable code on every backend failure (ADR 0006).
 - **Replaced on 2026-11-16 by the `test-suite-speed` tickets** (484 tests, 1 m 53 s; a shared host per class would carry rate-limit counters between tests). Test-suite-speed ticket 03 deletes this entry. **Share one test host per test class**, once the integration suite reaches about 400 tests or a run takes more than a minute (on 2026-11-14: 159 tests, 18 s). xUnit builds a new class instance per test, so each test boots its own `CustomWebApplicationFactory`. Moving the factory into an `IClassFixture` would roughly halve the run time; the database reset per test stays.
