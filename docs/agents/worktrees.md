@@ -37,7 +37,15 @@ A session inside a worktree can do the merge itself. Git will not check out `mas
 3. Resolve conflicts (below), then build and run the full suite **from the main checkout's `backend/`**. That uses the main checkout's pool, `TestSocialMediaWebApiDb_1` to `_4`. If an IDE holds a file under `obj/` and the build fails with an `IOException`, add `--artifacts-path <scratch folder>` to `dotnet build` and `dotnet test`. For a frontend change, also run Prettier's check, lint, the unit tests and the build from the main checkout's `frontend/`. If its `node_modules` needs `npm ci`, first stop any dev server or test watcher running from that folder: Windows locks `esbuild.exe` while it runs, `npm ci` then fails with `EPERM` halfway, and the half-deleted `node_modules` breaks `npm start` too.
 4. Commit the merge, push `master`, and report what conflicted and how each conflict was resolved.
 
-**When Claude Code refuses the command.** A session started with `claude --worktree` is isolated: Claude Code refuses any git command aimed at the main checkout (`cd` there, or `git -C <repo root>`), with a message that the session is isolated in the worktree. Do not work around it. In particular, never move `master` with `git update-ref`, `git commit-tree` or a push to `origin/master`: the main checkout has `master` checked out, and its files would no longer match the branch. Instead, give the owner the exact commands for steps 1 to 4, each starting with `!` so that it runs in the session and its output lands in the conversation, and check each output as it comes back.
+**When Claude Code refuses the command.** A session started with `claude --worktree` cannot run git in the main checkout. Do not work around it: never move `master` with `git update-ref`, `git commit-tree` or a push to `origin/master`. Give the owner these commands instead, written for the repo root, with no absolute paths and no `git -C`, and check each output the owner sends back:
+
+```bash
+git status
+git merge --no-ff --no-commit worktree-<name>
+cd backend && dotnet test aspnetproject.IntegrationTests; cd ..
+git commit --no-edit
+git push origin master
+```
 
 **Conflicts between parallel lanes.** The lane that merges first should add a dated note under `## Comments` in its ticket for whoever merges the other lane. The note says which files will conflict, which side to keep, and which change git will *not* flag (for example an `.Include()` that a shared mapper now needs). Read that note before you resolve anything. Typical cases:
 
