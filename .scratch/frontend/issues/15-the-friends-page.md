@@ -13,7 +13,7 @@ The count and the incoming list do not update live in this ticket. That is liste
 
 Decisions are under "Friends and search" in `.scratch/frontend/spec.md`.
 
-**Blocked by:** 07 (The shell gives navigation on a desktop, on a phone and to a guest), 25 (The friendship endpoints are covered by integration tests)
+**Blocked by:** 07 (The shell gives navigation on a desktop, on a phone and to a guest), 25 (The friendship endpoints are covered by integration tests), and the frontend setup (27, 28, 29)
 
 **Status:** ready-for-agent
 

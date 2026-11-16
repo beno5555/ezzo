@@ -12,7 +12,7 @@ This is the first paged list. Its way of loading the next page is what the comme
 
 Decisions are under "Feed, posts and comments" in `.scratch/frontend/spec.md`. The backend's side is in `docs/backend/controllers.md`.
 
-**Blocked by:** 07 (The shell gives navigation on a desktop, on a phone and to a guest)
+**Blocked by:** 07 (The shell gives navigation on a desktop, on a phone and to a guest), and the frontend setup (27, 28, 29)
 
 **Status:** ready-for-agent
 

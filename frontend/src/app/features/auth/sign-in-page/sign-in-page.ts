@@ -1,6 +1,7 @@
 import { Component, inject, input, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
+import { LanguageStore } from '../../../core/languages/language-store';
 import { LIMITS } from '../../../core/limits';
 import { toReturnAddress } from '../../../core/routing/to-return-address';
 import { SessionStore } from '../../../core/session/session-store';
@@ -15,6 +16,8 @@ import { SessionStore } from '../../../core/session/session-store';
 export class SignInPage {
   private readonly sessionStore = inject(SessionStore);
   private readonly router = inject(Router);
+
+  protected readonly text = inject(LanguageStore).text;
 
   // The address a guard turned the user away from, from the query string.
   readonly returnUrl = input<string>();

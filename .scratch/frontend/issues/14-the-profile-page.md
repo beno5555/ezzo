@@ -23,7 +23,7 @@
 
 Decisions are under "Profile" in `.scratch/frontend/spec.md`. The friendship rules are under `FriendshipController` in `docs/backend/controllers.md`.
 
-**Blocked by:** 09 (The feed shows posts with photos and likes), 13 (Content is reported and moderated from the normal pages)
+**Blocked by:** 09 (The feed shows posts with photos and likes), 13 (Content is reported and moderated from the normal pages), and the frontend setup (27, 28, 29)
 
 **Status:** ready-for-agent
 

@@ -11,7 +11,7 @@ The email digest switch is not built here. It arrives with the n8n spec.
 
 Decisions are under "Settings" in `.scratch/frontend/spec.md`. The backend's rules are in `docs/backend/auth.md` and under the account controllers in `docs/backend/controllers.md`.
 
-**Blocked by:** 01 (Reserved usernames are refused, and the joined date is private), 08 (The auth pages)
+**Blocked by:** 01 (Reserved usernames are refused, and the joined date is private), 08 (The auth pages), and the frontend setup (27, 28, 29)
 
 **Status:** ready-for-agent
 

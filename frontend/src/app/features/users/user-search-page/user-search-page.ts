@@ -1,5 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { LanguageStore } from '../../../core/languages/language-store';
 import { LIMITS } from '../../../core/limits';
 import { MinimalUserDto } from '../minimal-user-dto';
 import { UserApi } from '../user-api';
@@ -14,6 +15,7 @@ import { UserApi } from '../user-api';
 export class UserSearchPage {
   private readonly userApi = inject(UserApi);
 
+  protected readonly text = inject(LanguageStore).text;
   protected readonly form = inject(NonNullableFormBuilder).group({
     username: ['', [Validators.required, Validators.maxLength(LIMITS.users.usernameMaxLength)]],
   });

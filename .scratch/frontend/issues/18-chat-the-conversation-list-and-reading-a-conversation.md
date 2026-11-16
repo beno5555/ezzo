@@ -12,7 +12,7 @@
 
 Decisions are under "Chat" and "Scaffold and plumbing" in `.scratch/frontend/spec.md`. The backend's side is in `docs/backend/signalr.md` and under `MessageController` in `docs/backend/controllers.md`.
 
-**Blocked by:** 05 (The live connection feeds presence and the unread count), 07 (The shell gives navigation on a desktop, on a phone and to a guest)
+**Blocked by:** 05 (The live connection feeds presence and the unread count), 07 (The shell gives navigation on a desktop, on a phone and to a guest), and the frontend setup (27, 28, 29)
 
 **Status:** ready-for-agent
 

@@ -21,6 +21,18 @@ Settle these before the spec session that needs them. Each has a going-in recomm
 
 1. **Who sends email.** The document says n8n sends every transactional email; today MailKit does. Recommendation: move it in step 9, and leave MailKit working until then.
 2. **Admin and developer channels.** Telegram for both, which needs one bot token and a chat id from the owner.
+3. **The product's name.** The owner may replace "WebCity"; one candidate is Ezo (ეზო). It is settled in a separate name session by **Sat 21**, before the n8n emails that carry it are written. If it is not settled by then, the product ships as WebCity. `webcity-documentation.md`, already sent to the principal, says WebCity; whether to tell the principal is the owner's call.
+
+Settled on 2026-11-16, in the design session:
+
+- **Tailwind v4 with Angular CDK, and no component kit** (ADR 0007). Icons from `@lucide/angular`. Fonts served by the app.
+- **Structure now, brand later.** The design token names, the two themes, the layout rules and the floor for motion and accessibility are fixed in `DESIGN.md`. Its colours and fonts are a neutral provisional skin, replaced after the name is chosen.
+- **A rename changes only what users see:** one dictionary key, the logo component, the page title and the email texts. The code names (`webcity` in `package.json`, the `webcity-conventions` skill, `~/.webcity-test/`) stay.
+- **Light and dark both ship.** If time runs short, dark joins "Last in line" and its switch is hidden.
+- **Every user has the default profile picture:** initials on a disc coloured by the user's id. Choosing a picture is a later ticket.
+- **An agent looks at pages through Playwright,** which also shows it reference sites in the name session. A screenshot script gives the repeatable evidence. The Playwright MCP server, in a committed `.mcp.json`, lets an agent click through a page; it is on trial, and that one file is deleted if it bloats context or goes unused.
+- **Two design skills:** Anthropic's `frontend-design` (installed) and Impeccable (installed by the foundation ticket, its hook on trial). See `docs/agents/skills.md`.
+- **Styling rules are enforced in three layers:** a `frontend/CLAUDE.md` that is loaded when frontend work starts, a check in lint and CI that fails on a literal colour or a bracketed Tailwind value, and screenshots of every page at 360, 768 and 1280 px in both themes for the owner's approval.
 
 Settled on 2026-11-15, in the frontend spec session:
 
@@ -39,30 +51,38 @@ Settled on 2026-11-14:
 
 Dates are the day a step should finish.
 
-1. [ ] **Sun 15 (planned for Sat 14, one day late): design session.** Timebox the design session to half a day. It chooses the styling toolset and the visual identity (palette, type, shape, mood).
-   - Going-in recommendation for the toolset: Tailwind with Angular CDK, because the look must not be ordinary.
-   - Fixed constraint: the typeface must cover Latin, Cyrillic and Georgian.
-   - Consider installing one general frontend design skill first (candidate: Anthropic's `frontend-design`). Read `docs/agents/skills.md` before installing.
-   - Output: the token values, a short style brief, the Styling rules in §10 of the conventions skill's TypeScript reference (replacing its temporary line), and an ADR for the toolset.
-   - The scaffold of `frontend/` (dev proxy for `/api` and `/hubs`, lint, CI) and the plumbing are the first tickets of the frontend spec. They do not wait for this session; every page ticket does.
+**Overdue, as of Mon 16.** Step 4 is overdue: its pages could not start, because they wait for the frontend setup of step 1 (frontend tickets 27 to 29) and for frontend ticket 06. Steps 5 to 8 each wait for the step before, so each will be late by as much as step 4 is, and their dates no longer hold.
+
+**Steps 4 to 8 are crucial.** They are the pages, and the pages are the commitment in `webcity-documentation.md`. No page can be dropped or traded for an item under Last in line. Every day lost here is taken from the buffer (Tue 24) first and from the items under Last in line after that. Three chains meet at frontend ticket 07, and the slowest of them decides the finish date: 27 → 28 → 29, 27 → 06, and 04 → 05. After 07 come the pages. Work on these chains comes before anything else. Tickets 27 and 05 can start now, and 06 and 28 can run side by side once 27 is done.
+
+1. [ ] **Design, in four parts.** The name was still open, so the session fixed the structure and left the brand for later.
+   - [x] **Mon 16 (planned for Sat 14, two days late): the design session.** Output: ADR 0007, `DESIGN.md` with a neutral provisional skin, and the Styling rules in the conventions skill's TypeScript reference.
+   - [ ] **Crucial: the frontend setup, frontend tickets 27 to 29.** Every open frontend ticket from 07 onward waits for all three, by the owner's decision on 2026-11-16: the environment is set up before the pages are built. Three tickets do not: 05 (the live connection, which has no styles) waits only for 04, 06 (the shared blocks) waits only for 27, and 25 is backend tests.
+     - **27, the design tokens:** Tailwind, CDK and the icon package; the token file with the neutral skin in light and dark; the fonts; the `Button`; `frontend/CLAUDE.md`; the check that fails on a literal value. It can start at once.
+     - **28, the themes:** the theme store, its switch, and no flash of the wrong theme on load. After 27.
+     - **29, the screenshots:** the Playwright command, and the Playwright MCP server in `.mcp.json` on trial. After 28 and 04.
+   - [ ] **Frontend ticket 30: Impeccable, with its hook on trial.** Done in a session with the owner, not through `/implement`. No ticket waits for it.
+   - [ ] **By Sat 21: the name session** (open decision 3). It uses Playwright to look at reference sites, and writes `PRODUCT.md`.
+   - [ ] **After the name: the brand session.** One approval page in two skins; the owner chooses. It replaces the provisional values in `DESIGN.md` and the token file, and adds the logo.
 2. [ ] **Write the tickets, one group at a time.** For each group the owner runs `/to-spec` and then `/to-tickets` in a session that already holds the context, because `/to-spec` only writes down what the conversation has settled.
    - Done 2026-11-14: the backend gaps A to F, as 13 tickets in `.scratch/documented-backend-features/issues/`. Tickets 01, 02 and 03 can start at once; the longest chain is 02 → 05 → 08 → 09 → 11 → 12.
    - Done 2026-11-15: the frontend, as a spec (`.scratch/frontend/spec.md`) and 24 tickets in `.scratch/frontend/issues/`. Tickets 01 and 02 can start at once, and 01 to 05 need nothing from the design session; 06 onward wait for it. The longest chain is 02 → 04 → 05 → 07 → 09 → 11 → 13 → 14.
+   - Done 2026-11-16: the frontend setup from the design session, as frontend tickets 27 to 30. Tickets 06 and 07 were changed to match (the default profile picture, the theme switch, screenshots), and every open frontend ticket from 07 onward now waits for 27 to 29.
    - By Fri 20: n8n, gaps G and H with the six workflows.
 3. [ ] **Any time, in parallel: the open backend tickets.**
    - Documented-backend-features 04 (remove a photo from a post), 12 (an administrator decides a report) and 13 (statistics). The frontend shows "Coming soon" on whatever depends on one that is still open when its page is built.
    - Frontend ticket 01, the three small backend changes the pages need: four reserved usernames, the joined date removed from the public user shape, and the time the username was last changed added to the user's own shape.
    - Readiness 07 (the real client IP behind a proxy) matters only if the demo moves to a host.
    - Done: readiness 06, 08 and 09, openapi-document 01 and message-editing 01.
-4. [ ] **Mon 16: shell and auth.** Lazy-loaded feature areas, the HTTP interceptor with automatic refresh, session restore, route guards for signed-in users and administrators, and the pages: register, sign in, password reset, account reactivation.
+4. [ ] **Mon 16, overdue, crucial: shell and auth.** Lazy-loaded feature areas, the HTTP interceptor with automatic refresh, session restore, route guards for signed-in users and administrators, and the pages: register, sign in, password reset, account reactivation.
    - Backend, already done: **images** and **likes** (gaps A and B), which changed the post and message contracts. Ticket 02 (photos on a new post) still awaits the owner's review; 05 (likes) and 06 (photos in a message) are done. Only ticket 04 (remove a photo from a post) is open.
-5. [ ] **Tue 17: feed, posts and comments.** Feed with pagination, create a post with photos, edit and delete, like, comment, edit and delete a comment, report a post or comment.
+5. [ ] **Tue 17, will be late, crucial: feed, posts and comments.** Feed with pagination, create a post with photos, edit and delete, like, comment, edit and delete a comment, report a post or comment.
    - Backend, already done: **feed ranking** (gap C, ticket 08).
-6. [ ] **Wed 18: profile, friends and search.** Profile page (bio, posts, friends), edit profile, user search, friend requests (send, accept, decline, remove; the three lists), account settings (deactivate, delete, digest opt-out), the guest view.
+6. [ ] **Wed 18, will be late, crucial: profile, friends and search.** Profile page (bio, posts, friends), edit profile, user search, friend requests (send, accept, decline, remove; the three lists), account settings (deactivate, delete, digest opt-out), the guest view.
    - Backend, already done: **typing on the hub** (gap D, ticket 07).
-7. [ ] **Fri 20: chat and live notifications.** The SignalR service and the central state (signals) for the session, conversations, online friends and unread count. Conversation list with last message, conversation with photos, edit and delete, seen, typing, presence and last active. Toasts for a new message, comment, like and a friend coming online.
+7. [ ] **Fri 20, will be late, crucial: chat and live notifications.** The SignalR service and the central state (signals) for the session, conversations, online friends and unread count. Conversation list with last message, conversation with photos, edit and delete, seen, typing, presence and last active. Toasts for a new message, comment, like and a friend coming online.
    - Backend alongside: what is left of gaps E and F, which is ticket 12 (an administrator decides a report) and ticket 13 (statistics). Logs, the account list, hiding content, the moderation queue and the reports list are done (tickets 03, 09, 10 and 11).
-8. [ ] **Sat 21: admin panel.** Users (create, edit, deactivate, restore, delete, grant and remove the administrator role), delete any post or comment, logs, statistics, the reports list, the moderation queue.
+8. [ ] **Sat 21, will be late, crucial: admin panel.** Users (create, edit, deactivate, restore, delete, grant and remove the administrator role), delete any post or comment, logs, statistics, the reports list, the moderation queue.
 9. [ ] **Mon 23: n8n.** One day for the plumbing and two workflows, one day for the other four.
    - Sun 22: gap G, then the transactional-email and exception-alert workflows.
    - Mon 23: AI moderation, report handling, weekly digest, birthday notifications.
@@ -79,7 +99,7 @@ The owner expects to lose more than a day, which is more than the buffer. Work t
 
 If time runs short, these are finished last, in this order from the end: the weekly digest, birthday notifications, grouping of repeated exception alerts, automatic hiding after several reports, the activity part of the statistics page. (The orphan-photo cleanup job and the mutual-friends tier of the feed ranking were on this list and are done.)
 
-On the frontend, in this order from the end: the account history in settings (every username change, deactivation and reactivation, which needs a new table because `AccountDeactivatedAt` is cleared on reactivation), live friend requests (a new hub event, the badge and the incoming list on `/friends` updating live, and a fifth toast), and the dialog that lists who liked a post.
+On the frontend, in this order from the end: choosing a profile picture (an upload; the default picture is built either way), the dark theme (its switch is hidden if it is not checked on every page), the account history in settings (every username change, deactivation and reactivation, which needs a new table because `AccountDeactivatedAt` is cleared on reactivation), live friend requests (a new hub event, the badge and the incoming list on `/friends` updating live, and a fifth toast), and the dialog that lists who liked a post.
 
 ## What the document promises and the backend lacks
 

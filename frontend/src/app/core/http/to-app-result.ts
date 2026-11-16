@@ -1,44 +1,54 @@
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
 import { Observable, catchError, firstValueFrom, map, of, throwError } from 'rxjs';
+import { Dictionary } from '../languages/dictionary';
 import { AppResult, FieldErrors, fail, ok } from './app-result';
 import { ApplicationResponse } from './application-response';
-import { httpFailureTexts } from './http-failure-texts';
 
-export function toAppResult<T>(request: Observable<ApplicationResponse<T>>): Promise<AppResult<T>> {
-  return settle(request, (body) => ok(body.data as T, body.message ?? undefined));
+type HttpFailureTexts = Dictionary['httpFailures'];
+
+// failureTexts come from the current dictionary, passed in by the …Api method, which can inject LanguageStore.
+export function toAppResult<T>(
+  request: Observable<ApplicationResponse<T>>,
+  failureTexts: HttpFailureTexts,
+): Promise<AppResult<T>> {
+  return settle(request, (body) => ok(body.data as T, body.message ?? undefined), failureTexts);
 }
 
 // For the endpoints that answer success without the envelope: login and refresh ({ accessToken })
 // and logout (an empty body). Their failures still arrive as the envelope or bodiless.
-export function toAppResultWithoutEnvelope<T>(request: Observable<T>): Promise<AppResult<T>> {
-  return settle(request, (body) => ok(body));
+export function toAppResultWithoutEnvelope<T>(
+  request: Observable<T>,
+  failureTexts: HttpFailureTexts,
+): Promise<AppResult<T>> {
+  return settle(request, (body) => ok(body), failureTexts);
 }
 
 function settle<TBody, T>(
   request: Observable<TBody>,
   toSuccess: (body: TBody) => AppResult<T>,
+  failureTexts: HttpFailureTexts,
 ): Promise<AppResult<T>> {
   return firstValueFrom(
     request.pipe(
       map(toSuccess),
       catchError((error: unknown) => {
         const isHttpFailure = error instanceof HttpErrorResponse;
-        return isHttpFailure ? of(toFailure<T>(error)) : throwError(() => error);
+        return isHttpFailure ? of(toFailure<T>(error, failureTexts)) : throwError(() => error);
       }),
     ),
   );
 }
 
-function toFailure<T>(error: HttpErrorResponse): AppResult<T> {
+function toFailure<T>(error: HttpErrorResponse, failureTexts: HttpFailureTexts): AppResult<T> {
   let result: AppResult<T>;
   const body: unknown = error.error;
 
   if (isEnvelope(body)) {
     result = fail<T>(body.message, error.status);
   } else if (isValidationProblem(body)) {
-    result = fail<T>(httpFailureTexts.validation, error.status, toFieldErrors(body.errors));
+    result = fail<T>(failureTexts.validation, error.status, toFieldErrors(body.errors));
   } else {
-    result = fail<T>(fixedTextFor(error.status), error.status);
+    result = fail<T>(failureTexts[fixedTextKeyFor(error.status)], error.status);
   }
 
   return result;
@@ -49,15 +59,15 @@ const noResponseStatus = 0;
 
 // Failures without a message of their own: no response, and the framework's bodiless rejections
 // (a missing token, a wrong role, an unmatched route). Any other status gets the unexpected text.
-const fixedTexts: Partial<Record<number, string>> = {
-  [noResponseStatus]: httpFailureTexts.network,
-  [HttpStatusCode.Unauthorized]: httpFailureTexts.unauthorized,
-  [HttpStatusCode.Forbidden]: httpFailureTexts.forbidden,
-  [HttpStatusCode.NotFound]: httpFailureTexts.notFound,
+const fixedTextKeys: Partial<Record<number, keyof HttpFailureTexts>> = {
+  [noResponseStatus]: 'network',
+  [HttpStatusCode.Unauthorized]: 'unauthorized',
+  [HttpStatusCode.Forbidden]: 'forbidden',
+  [HttpStatusCode.NotFound]: 'notFound',
 };
 
-function fixedTextFor(status: number): string {
-  return fixedTexts[status] ?? httpFailureTexts.unexpected;
+function fixedTextKeyFor(status: number): keyof HttpFailureTexts {
+  return fixedTextKeys[status] ?? 'unexpected';
 }
 
 function isObject(value: unknown): value is object {

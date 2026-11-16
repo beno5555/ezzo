@@ -10,7 +10,7 @@
 
 Decisions are under "Friends and search" in `.scratch/frontend/spec.md`.
 
-**Blocked by:** 07 (The shell gives navigation on a desktop, on a phone and to a guest)
+**Blocked by:** 07 (The shell gives navigation on a desktop, on a phone and to a guest), and the frontend setup (27, 28, 29)
 
 **Status:** ready-for-agent
 

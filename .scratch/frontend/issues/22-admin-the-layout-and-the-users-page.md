@@ -12,7 +12,7 @@
 
 Decisions are under "Admin panel" in `.scratch/frontend/spec.md`. The backend's side is under `AdminController` and the account controllers in `docs/backend/controllers.md`.
 
-**Blocked by:** 07 (The shell gives navigation on a desktop, on a phone and to a guest), 08 (The auth pages)
+**Blocked by:** 07 (The shell gives navigation on a desktop, on a phone and to a guest), 08 (The auth pages), and the frontend setup (27, 28, 29)
 
 **Status:** ready-for-agent
 

@@ -28,3 +28,7 @@ Decisions are under "Addresses" and "Auth pages" in `.scratch/frontend/spec.md`,
 - [x] Each guard is unit-tested, including the remembered return address and the refusal of a return address outside the app
 - [x] A signed-in user who opens the sign-in address is sent to the home address
 - [x] A user without the administrator role who opens an admin address is turned away
+
+## Comments
+
+- **Merged with ticket 03 (2026-11-16):** `master` was merged into this branch, following the note in ticket 03. The session bar, the sign-in page and the admin users page now take their texts from `english.ts` and `georgian.ts` (`session`, `auth.signIn`, `admin.users`), and `AuthApi` passes `httpFailures` to `toAppResultWithoutEnvelope`.

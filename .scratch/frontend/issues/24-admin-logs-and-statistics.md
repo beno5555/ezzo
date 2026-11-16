@@ -15,7 +15,7 @@
 
 Decisions are under "Admin panel" in `.scratch/frontend/spec.md`. The backend's side is under `AdminController` in `docs/backend/controllers.md`, and ticket 13 in `.scratch/documented-backend-features/issues/`.
 
-**Blocked by:** 22 (Admin: the layout and the users page)
+**Blocked by:** 22 (Admin: the layout and the users page), and the frontend setup (27, 28, 29)
 
 **Status:** ready-for-agent
 
