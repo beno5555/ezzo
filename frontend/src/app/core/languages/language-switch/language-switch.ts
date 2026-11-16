@@ -3,7 +3,7 @@ import { dictionaries } from '../dictionaries';
 import { Language } from '../language';
 import { LanguageStore } from '../language-store';
 
-// One button per language, each named in its own language. Bare until the design session.
+// One button per language, each named in its own language. The current one is marked in accent.
 @Component({
   selector: 'app-language-switch',
   templateUrl: './language-switch.html',

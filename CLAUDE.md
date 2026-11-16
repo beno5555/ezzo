@@ -37,7 +37,7 @@ Run these from `frontend/` (Node 24; run `npm ci` once after a clone):
 ```bash
 npm start                    # dev server on http://localhost:4200, /api and /hubs proxied to the backend
 npm test -- --watch=false    # Vitest unit tests, once
-npm run lint                 # ESLint; fails on an un-awaited promise and on `any`
+npm run lint                 # ESLint; fails on an un-awaited promise, on `any` and on a style that is not a design token
 npm run build
 npx prettier --write .       # Prettier owns formatting
 ```
@@ -88,7 +88,7 @@ Follow the project skill `.claude/skills/webcity-conventions` (it overrides the 
 
 `README.md` describes the backend as it is now: features, stack, layout, architecture and design decisions. `docs/backend/*.md` (`auth`, `controllers`, `data`, `signalr`, `background-jobs`) holds per-area detail. Update the relevant doc when you change behavior it describes.
 
-`DESIGN.md` at the repo root is the frontend's visual brief (design tokens, themes, layout rules). Read it before you edit a template or a style in `frontend/`.
+`DESIGN.md` at the repo root is the frontend's visual brief (design tokens, themes, layout rules). Read it before you edit a template or a style in `frontend/`. `frontend/CLAUDE.md` holds the frontend's hard styling rules.
 
 ## Agent workflow
 

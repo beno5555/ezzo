@@ -1,1 +1,19 @@
-/* You can add global styles to this file, and also import other style files */
+/*
+ * The global stylesheet: Tailwind, the design tokens and the fonts, and nothing else.
+ * Component looks are Tailwind classes in the templates (see the Styling section of the conventions).
+ */
+/*
+ * Tailwind makes a class for every class name it finds in the files it scans. source('.') limits the
+ * scan to src/, so the forbidden samples in eslint-rules/*.test.js never reach the stylesheet.
+ */
+@import 'tailwindcss' source('.');
+@import './design-tokens.css';
+
+/* The fonts, served by the app itself: the build copies every file, so no font request leaves the origin. */
+@import '@fontsource/noto-sans/400.css';
+@import '@fontsource/noto-sans/600.css';
+@import '@fontsource/noto-sans/700.css';
+/* Noto Sans covers Latin and Cyrillic; its Georgian partner is needed only for Georgian letters. */
+@import '@fontsource/noto-sans-georgian/georgian-400.css';
+@import '@fontsource/noto-sans-georgian/georgian-600.css';
+@import '@fontsource/noto-sans-georgian/georgian-700.css';

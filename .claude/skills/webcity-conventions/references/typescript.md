@@ -307,8 +307,6 @@ export class MyProfilePage implements OnInit {
 
 `DESIGN.md` at the repo root is the visual brief: the design tokens, their values and how to apply them. Read it before you edit a template or a style.
 
-- **Temporary:** Tailwind, Angular CDK, the icon package, the token file, `frontend/CLAUDE.md` and the check for literal values are installed by frontend ticket 27, and the screenshot command by ticket 29. Until ticket 27 lands, write no styles. Ticket 27 deletes this line.
-
 **Toolset**
 
 - Tailwind v4 gives every look, and Angular CDK gives behaviour: overlays, dialogs, menus, focus trapping (ADR 0007). Install no component kit.
@@ -319,14 +317,15 @@ export class MyProfilePage implements OnInit {
 
 - Always write **design token** for a named styling value. A bare "token" means an access, refresh or reset token.
 - A design token is named for its role (`surface-page`, `ink-strong`, `accent`), never for its shade.
-- The design tokens live in the Tailwind theme block, which the build reads, and in `DESIGN.md`. Change a design token in both in the same commit.
-- Write no literal colour, size or space: no hex code and no bracketed Tailwind value (`p-[13px]`).
+- The design tokens live in the Tailwind theme block, `frontend/src/design-tokens.css`, which the build reads, and in `DESIGN.md`. Change a design token in both in the same commit. The theme block switches Tailwind's own colours, type sizes, radii, shadows and breakpoints off, so only design token classes exist.
+- Write no literal colour, size or space: no hex code, no colour function such as `rgb(`, no bracketed Tailwind value (`p-[13px]`) and no inline style (`style="..."`, `[style.width.px]`). Under `src/app`, `npm run lint` fails on each of these, on a `dark:` class and on an `@apply`. It does not catch a named colour (`red`) or a `px` length in a component `.css` file, so write neither.
 - Light and dark are two sets of values for the same names. A component never names a theme: write no `dark:` class.
 - Until the product's name is settled, no component carries a brand metaphor. The brand lives in design token values and the logo component.
 
 **Where styles go**
 
 - Tailwind classes go in the template. A look that is used twice becomes a component in `shared/`.
+- A shared component that dresses a native element takes an attribute selector, so the element keeps its own behaviour: `Button` is `<button appButton look="primary">` (or `quiet`, `danger`), and also sits on an `<a routerLink>` that is a screen's main action.
 - Never build a class with `@apply`. A component's `.css` file stays nearly empty.
 - Write no global element styles beyond a reset.
 
@@ -363,7 +362,7 @@ export class MyProfilePage implements OnInit {
 
 - Write Vitest unit tests for code with logic and no template: `…Api` services, `toAppResult`, the token decoder, the refresh flow, guards and pure helpers. Name them as in section 11.
 - **Temporary (until the 2026-11-25 release):** write no component DOM tests and no end-to-end tests; verify pages by running the app. Afterwards, a few end-to-end flows come first.
-- ESLint runs the rules `ng add angular-eslint` sets up (recommended, stylistic, template accessibility) plus two: no un-awaited promises (`@typescript-eslint/no-floating-promises`) and no `any` (`@typescript-eslint/no-explicit-any`). Prettier owns formatting.
+- ESLint runs the rules `ng add angular-eslint` sets up (recommended, stylistic, template accessibility) plus three: no un-awaited promises (`@typescript-eslint/no-floating-promises`), no `any` (`@typescript-eslint/no-explicit-any`) and design tokens only (`webcity/design-tokens-only`, in `frontend/eslint-rules/`, which reads templates, component styles and component classes, and whose own tests `npm run lint` runs). Prettier owns formatting.
 - Lint, tests and build run in the existing CI workflow.
 
 ## 11. Tests

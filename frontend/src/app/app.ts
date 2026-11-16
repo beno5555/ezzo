@@ -4,9 +4,10 @@ import { LanguageStore } from './core/languages/language-store';
 import { LanguageSwitch } from './core/languages/language-switch/language-switch';
 import { appAddresses } from './core/routing/app-addresses';
 import { SessionStore } from './core/session/session-store';
+import { Button } from './shared/button/button';
 
 @Component({
-  imports: [RouterLink, RouterOutlet, LanguageSwitch],
+  imports: [RouterLink, RouterOutlet, LanguageSwitch, Button],
   selector: 'app-root',
   styleUrl: './app.css',
   templateUrl: './app.html',

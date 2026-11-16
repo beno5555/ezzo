@@ -28,6 +28,13 @@ export const georgian: Dictionary = {
     signOutButton: 'გასვლა',
     signInLink: 'შესვლა',
   },
+  buttonSamples: {
+    label: 'ღილაკების ნიმუშები',
+    primary: 'მთავარი',
+    quiet: 'მშვიდი',
+    danger: 'საშიში',
+    disabled: 'გამორთული',
+  },
   auth: {
     signIn: {
       title: 'შესვლა',

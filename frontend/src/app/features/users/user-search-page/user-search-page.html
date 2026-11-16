@@ -1,21 +1,41 @@
-<h1>{{ text().app.name }}</h1>
+<div class="flex flex-col gap-6">
+  <h1 class="font-display text-2xl text-ink-strong">{{ text().app.name }}</h1>
 
-<form [formGroup]="form" (ngSubmit)="search()">
-  <label for="username">{{ text().users.search.label }}</label>
-  <input id="username" type="search" formControlName="username" />
-  <button type="submit" [disabled]="form.invalid">{{ text().users.search.submitButton }}</button>
-</form>
+  <form class="flex flex-col gap-2" [formGroup]="form" (ngSubmit)="search()">
+    <label class="text-sm font-semibold text-ink-strong" for="username">{{
+      text().users.search.label
+    }}</label>
+    <div class="flex flex-wrap gap-2">
+      <input
+        class="min-h-11 min-w-0 flex-1 basis-48 rounded-md border border-border-strong bg-surface-raised px-3 text-ink-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+        id="username"
+        type="search"
+        formControlName="username"
+      />
+      <button appButton look="primary" type="submit" [disabled]="form.invalid">
+        <svg class="size-5" lucideSearch></svg>
+        {{ text().users.search.submitButton }}
+      </button>
+    </div>
+  </form>
 
-@if (failureMessage(); as message) {
-  <p role="alert">{{ message }}</p>
-}
-
-@if (users().length > 0) {
-  <p>{{ text().users.search.shown(users().length) }}</p>
-}
-
-<ul>
-  @for (user of users(); track user.username) {
-    <li>{{ user.username }}</li>
+  @if (failureMessage(); as message) {
+    <p class="flex items-start gap-2 text-danger" role="alert">
+      <svg class="mt-0.5 size-5 shrink-0" lucideCircleExclamationPoint></svg>
+      {{ message }}
+    </p>
   }
-</ul>
+
+  @if (users().length > 0) {
+    <section class="flex flex-col gap-2">
+      <p class="text-sm text-ink-muted">{{ text().users.search.shown(users().length) }}</p>
+      <ul
+        class="divide-y divide-border overflow-hidden rounded-lg border border-border bg-surface-raised"
+      >
+        @for (user of users(); track user.username) {
+          <li class="px-4 py-3 wrap-break-word">{{ user.username }}</li>
+        }
+      </ul>
+    </section>
+  }
+</div>

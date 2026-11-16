@@ -37,6 +37,14 @@ export const english = {
     signOutButton: 'Sign out',
     signInLink: 'Sign in',
   },
+  // The Button's looks, shown in the app shell to prove the design tokens. Ticket 07's shell removes them.
+  buttonSamples: {
+    label: 'Button samples',
+    primary: 'Primary',
+    quiet: 'Quiet',
+    danger: 'Danger',
+    disabled: 'Disabled',
+  },
   auth: {
     signIn: {
       title: 'Sign in',
