@@ -15,6 +15,11 @@ Work merged to `master` while the owner was away. It passed the full integration
   - the contract change: `POST /api/posts` is now `multipart/form-data`, and every post read returns `Images`;
   - the open points at the bottom of the ticket, under Comments.
 
+**Not merged yet.** These branches are finished but wait for the owner's review before they are merged. No agent merges them until the owner says so. After the merge, delete the line.
+
+- **Branch `worktree-admin-decides-report`**: documented-backend-features ticket 12, an administrator decides a report (`.scratch/documented-backend-features/issues/12-an-administrator-decides-a-report.md`). Worktree `.claude/worktrees/admin-decides-report`, added 2026-11-16.
+- **Branch `worktree-design-tokens`**: frontend ticket 27, the app takes its look from design tokens (`.scratch/frontend/issues/27-the-app-takes-its-look-from-design-tokens.md`). Worktree `.claude/worktrees/design-tokens`, added 2026-11-16.
+
 ## Open decisions
 
 Settle these before the spec session that needs them. Each has a going-in recommendation.
