@@ -62,11 +62,13 @@ Set on 2026-11-16. Two worktree lanes at a time (`docs/agents/worktrees.md`). Un
 | Round | Frontend lane | Backend lane | Status |
 |---|---|---|---|
 | 0 | F27, design tokens | B12, an administrator decides a report | running |
-| 1 | F28, the themes | B13, statistics | |
-| 2 | F29, the screenshots | frontend 25, friendship tests | |
-| 3 | F06, toast, dialog, confirmation, menu | B04, remove a photo from a post | |
-| 4 | F05, the live connection | the first n8n backend ticket, if the n8n tickets exist | |
-| 5 | F07, the shell | an n8n backend ticket | |
+| 1 | F28, the themes | T01, then T02: cheaper sign-in, one-batch reseed | |
+| 2 | F29, the screenshots | T03, test classes in parallel | |
+| 3 | F06, toast, dialog, confirmation, menu | B13, statistics | |
+| 4 | F05, the live connection | frontend 25, friendship tests | |
+| 5 | F07, the shell | B04, remove a photo from a post | |
+
+"T" is a `test-suite-speed` ticket. The three run one after another, each in its own worktree, and only beside frontend tickets: they change the seed and every test class that the other backend tickets rely on. The n8n backend tickets take the backend lane after round 5, or a third lane once the shell lands.
 
 After the shell, both lanes take frontend tickets, always from **different feature areas**, so that the only shared files are the routes and the two dictionaries, where both sides add lines and a merge takes a minute. The n8n backend tickets fill a third lane when they exist.
 
@@ -148,4 +150,4 @@ Checked against the code on 2026-11-15. Gaps A to F are specified in `.scratch/d
 - A few end-to-end test flows (sign in, post, message). They come before component tests.
 - Russian and Spanish dictionary files (ADR 0006).
 - Translated server text, which needs a stable code on every backend failure (ADR 0006).
-- **Share one test host per test class**, once the integration suite reaches about 400 tests or a run takes more than a minute (on 2026-11-14: 159 tests, 18 s). xUnit builds a new class instance per test, so each test boots its own `CustomWebApplicationFactory`. Moving the factory into an `IClassFixture` would roughly halve the run time; the database reset per test stays.
+- **Replaced on 2026-11-16 by the `test-suite-speed` tickets** (484 tests, 1 m 53 s; a shared host per class would carry rate-limit counters between tests). Test-suite-speed ticket 03 deletes this entry. **Share one test host per test class**, once the integration suite reaches about 400 tests or a run takes more than a minute (on 2026-11-14: 159 tests, 18 s). xUnit builds a new class instance per test, so each test boots its own `CustomWebApplicationFactory`. Moving the factory into an `IClassFixture` would roughly halve the run time; the database reset per test stays.
