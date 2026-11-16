@@ -1,64 +1,71 @@
 ﻿using aspnetproject.Common.ProjectConstants.Enums;
 using Microsoft.EntityFrameworkCore;
 using aspnetproject.Data;
-using aspnetproject.Data.Models; 
+using aspnetproject.Data.Models;
+using aspnetproject.Infrastructure.Services.Helpers;
+using aspnetproject.Infrastructure.Services.Helpers.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace aspnetproject.IntegrationTests.Fixtures;
 
 public static class TestDataSeeder
 {
-    private const string SharedPasswordHash = "x3UgoGJFZ2X3VJBAaQyF4J+M9+gfXP6vdO1W4jNwUzQ=";
-    private const string SharedPasswordSalt = "o0wzhm224CIRy46p73NmiqjhaEtU5pyOuZ60rUHOM+g=";
-    public const string SharedPlaintextPassword = "password123"; 
+    public const string SharedPlaintextPassword = "password123";
+
+    // Hashed by the app's own hasher with the Testing host's iteration count, so a seeded user signs in on a Testing host only.
+    private static readonly PasswordHasher SharedPasswordHasher = new(Options.Create(
+        new PasswordHashingConfiguration { HashIterations = CustomWebApplicationFactory.TestHashIterations }));
 
     public static async Task SeedAsync(ApplicationDbContext db)
     {
+        var (sharedPasswordHash, sharedPasswordSalt) = SharedPasswordHasher.HashPassword(SharedPlaintextPassword);
+
         await InsertWithIdentityAsync(db, "Users", async () =>
         {
             db.Users.AddRange(
                 new User
                 {
                     Id = 1, Username = "sandro_beno", Email = "benashvilisandro91@gmail.com", Bio = "Admin",
-                    DateOfBirth = new DateTime(2000, 8, 16), PasswordHash = SharedPasswordHash,
-                    PasswordSalt = SharedPasswordSalt, CreatedAt = DateTime.UtcNow
+                    DateOfBirth = new DateTime(2000, 8, 16), PasswordHash = sharedPasswordHash,
+                    PasswordSalt = sharedPasswordSalt, CreatedAt = DateTime.UtcNow
                 },
                 new User
                 {
                     Id = 2, Username = "alice", Email = "alice@example.com", Bio = "Primary test caller",
-                    DateOfBirth = new DateTime(2000, 1, 1), PasswordHash = SharedPasswordHash,
-                    PasswordSalt = SharedPasswordSalt, CreatedAt = DateTime.UtcNow
+                    DateOfBirth = new DateTime(2000, 1, 1), PasswordHash = sharedPasswordHash,
+                    PasswordSalt = sharedPasswordSalt, CreatedAt = DateTime.UtcNow
                 },
                 new User
                 {
                     Id = 3, Username = "bob", Email = "bob@example.com", Bio = "Alice's accepted friend",
-                    DateOfBirth = new DateTime(2000, 1, 1), PasswordHash = SharedPasswordHash,
-                    PasswordSalt = SharedPasswordSalt, CreatedAt = DateTime.UtcNow
+                    DateOfBirth = new DateTime(2000, 1, 1), PasswordHash = sharedPasswordHash,
+                    PasswordSalt = sharedPasswordSalt, CreatedAt = DateTime.UtcNow
                 },
                 new User
                 {
                     Id = 4, Username = "charlie", Email = "charlie@example.com", Bio = "Unrelated active user",
-                    DateOfBirth = new DateTime(2000, 1, 1), PasswordHash = SharedPasswordHash,
-                    PasswordSalt = SharedPasswordSalt, CreatedAt = DateTime.UtcNow
+                    DateOfBirth = new DateTime(2000, 1, 1), PasswordHash = sharedPasswordHash,
+                    PasswordSalt = sharedPasswordSalt, CreatedAt = DateTime.UtcNow
                 },
                 new User
                 {
                     Id = 5, Username = "diana", Email = "benashvilisandro780@gmail.com", Bio = "Pending friendship user",
-                    DateOfBirth = new DateTime(2000, 1, 1), PasswordHash = SharedPasswordHash,
-                    PasswordSalt = SharedPasswordSalt, CreatedAt = DateTime.UtcNow
+                    DateOfBirth = new DateTime(2000, 1, 1), PasswordHash = sharedPasswordHash,
+                    PasswordSalt = sharedPasswordSalt, CreatedAt = DateTime.UtcNow
                 },
                 new User
                 {
                     Id = 6, Username = "erin_deactivated", Email = "erin@example.com", Bio = "Deactivated fixture user",
-                    DateOfBirth = new DateTime(2000, 1, 1), PasswordHash = SharedPasswordHash,
-                    PasswordSalt = SharedPasswordSalt,
+                    DateOfBirth = new DateTime(2000, 1, 1), PasswordHash = sharedPasswordHash,
+                    PasswordSalt = sharedPasswordSalt,
                     AccountDeactivatedAt = new DateTime(2026, 9, 6, 11, 50, 0, DateTimeKind.Utc),
                     CreatedAt = DateTime.UtcNow
                 },
                 new User
                 {
                     Id = 7, Username = "frank_deleted", Email = "frank@example.com", Bio = "Soft-deleted fixture user",
-                    DateOfBirth = new DateTime(2000, 1, 1), PasswordHash = SharedPasswordHash,
-                    PasswordSalt = SharedPasswordSalt,
+                    DateOfBirth = new DateTime(2000, 1, 1), PasswordHash = sharedPasswordHash,
+                    PasswordSalt = sharedPasswordSalt,
                     AccountDeletedAt = new DateTime(2026, 8, 12, 12, 0, 0, DateTimeKind.Utc),
                     CreatedAt = DateTime.UtcNow
                 }

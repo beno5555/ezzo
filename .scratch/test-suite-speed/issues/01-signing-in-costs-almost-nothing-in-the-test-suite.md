@@ -11,15 +11,25 @@ Measured on 2026-11-16 (484 tests, `Duration: 1 m 53 s`): a sign-in costs about 
 
 **Blocked by:** None (can start immediately).
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Difficulty:** tricky: it changes how passwords are hashed, and the guard must make a lowered value impossible outside Testing.
 
 Runs in its own worktree, beside a frontend ticket only: it changes the seed that every backend ticket's tests rely on.
 
-- [ ] Without the setting in any settings file, a password registered, changed or reset is hashed with 100,000 iterations, and a user registered before this change still signs in
-- [ ] Starting the app in Development or Production with the value below 100,000 fails at startup with an error that names the setting; an integration test proves it
-- [ ] The test host hashes with 1 iteration, and the seeder no longer holds a precomputed hash or salt
-- [ ] Registration, sign-in, password change and password reset tests pass unchanged
-- [ ] `docs/backend/auth.md` and the settings list in `CLAUDE.md` (Config prerequisites) name the new setting, its default and the guard
-- [ ] The full suite passes; its `Duration` before and after is recorded in this ticket's comments
+- [x] Without the setting in any settings file, a password registered, changed or reset is hashed with 100,000 iterations, and a user registered before this change still signs in
+- [x] Starting the app in Development or Production with the value below 100,000 fails at startup with an error that names the setting; an integration test proves it
+- [x] The test host hashes with 1 iteration, and the seeder no longer holds a precomputed hash or salt
+- [x] Registration, sign-in, password change and password reset tests pass unchanged
+- [x] `docs/backend/auth.md` and the settings list in `CLAUDE.md` (Config prerequisites) name the new setting, its default and the guard
+- [x] The full suite passes; its `Duration` before and after is recorded in this ticket's comments
+
+## Comments
+
+**2026-11-16, implementation.** `Duration` before: 1 m 53 s (484 tests, the measurement above). After: 47 s on the first full run and 59 s on the second, 492 tests (484 plus 8 new), all passing.
+
+- The setting is `PasswordConfiguration:HashIterations`, bound to `PasswordHashingConfiguration` (default 100,000). `ResetTokenMinutes` stays where it is, read by `AccountSecurityService`, because the unmerged ticket 12 branch edits that file.
+- The guard is `ValidateOnStart` with `HasSafeIterationsFor(IHostEnvironment)`. `PasswordHashingStartupTests` proves it for Development and Production.
+- The test host forces 1 iteration only on Testing hosts, so the Development-hosted `OpenApiDocumentTests` keep starting. Seeded users can therefore sign in only on Testing hosts.
+- The app has no separate password-change path: `HashPassword` runs only on registration and reset, so "changed" in the first box is covered by those two.
+- Left as is (outside the ticket): Testing accepts 0 or a negative value, which fails at the first hash rather than at startup. The guard message spells out 100000 and Testing as text, as the `MinimumAge` precedent does.

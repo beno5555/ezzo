@@ -1,4 +1,6 @@
 ﻿using System.Security.Cryptography;
+using aspnetproject.Infrastructure.Services.Helpers.Configuration;
+using Microsoft.Extensions.Options;
 
 namespace aspnetproject.Infrastructure.Services.Helpers;
 
@@ -6,15 +8,21 @@ public class PasswordHasher
 {
     private const int SaltLength = 32;
     private const int HashLength = 32;
-    private const int Iterations = 100_000;
-    
+
+    private readonly int _iterations;
+
+    public PasswordHasher(IOptions<PasswordHashingConfiguration> options)
+    {
+        _iterations = options.Value.HashIterations;
+    }
+
     public (string hash, string salt) HashPassword(string password)
     {
         byte[] saltBytes = RandomNumberGenerator.GetBytes(SaltLength);
         byte[] hashBytes = Rfc2898DeriveBytes.Pbkdf2(
             password,
             saltBytes,
-            Iterations,
+            _iterations,
             HashAlgorithmName.SHA256,
             HashLength);
         return (Convert.ToBase64String(hashBytes), Convert.ToBase64String(saltBytes));
@@ -27,7 +35,7 @@ public class PasswordHasher
         byte[] hashBytes = Rfc2898DeriveBytes.Pbkdf2(
             password,
             saltBytes,
-            Iterations,
+            _iterations,
             HashAlgorithmName.SHA256,
             HashLength);
 

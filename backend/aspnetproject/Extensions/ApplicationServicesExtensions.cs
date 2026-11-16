@@ -6,6 +6,7 @@ using aspnetproject.Infrastructure.Services.BusinessLogic;
 using aspnetproject.Infrastructure.Services.BusinessLogic.Content;
 using aspnetproject.Infrastructure.Services.BusinessLogic.Users;
 using aspnetproject.Infrastructure.Services.Helpers;
+using aspnetproject.Infrastructure.Services.Helpers.Configuration;
 using aspnetproject.Infrastructure.Services.Logging;
 using aspnetproject.Infrastructure.Services.Storage;
 using aspnetproject.Infrastructure.Services.Storage.Configuration;
@@ -60,6 +61,13 @@ public static class ApplicationServicesExtensions
         services.Configure<EmailConfiguration>(configuration.GetSection("EmailConfiguration"));
         services.AddTransient<EmailSender>();
         
+        services.AddOptions<PasswordHashingConfiguration>()
+            .Bind(configuration.GetSection("PasswordConfiguration"))
+            .Validate<IHostEnvironment>(
+                (config, environment) => config.HasSafeIterationsFor(environment),
+                PasswordHashingConfiguration.IterationsTooLowMessage)
+            .ValidateOnStart();
+
         services.Configure<ImageStorageConfiguration>(configuration.GetSection("ImageStorage"));
 
         services.Configure<OldLogsCleanupConfiguration>(configuration.GetSection("CleanupConfiguration:OldLogs"));
