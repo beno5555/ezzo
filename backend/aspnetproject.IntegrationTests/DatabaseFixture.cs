@@ -1,4 +1,3 @@
-﻿using System.Data.Common;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Respawn;
@@ -21,14 +20,21 @@ public class DatabaseFixture : IAsyncLifetime
         Environment.GetEnvironmentVariable(ConnectionStringVariable)
         ?? string.Format(LocalConnectionStringFormat, GetLocalDatabaseName());
 
+    // A replay must reach the server in one request; the fixture checks it once per run.
+    private const long   ExpectedReplayRoundTrips  = 1;
+    private const string ServerRoundTripsStatistic = "ServerRoundtrips";
+    private const string TableListSeparator        = ", ";
+
+    // The wipe keeps it, and DatabaseSnapshot leaves it out.
+    public const string MigrationsHistoryTable = "__EFMigrationsHistory";
+
     private Respawner _respawner = null!;
-    private DbConnection _connection = null!;
+    private SqlConnection _connection = null!;
+    private RecordedSeed _recordedSeed = null!;
 
     public async Task InitializeAsync()
     {
-        var options = new DbContextOptionsBuilder<ApplicationDbContext>()
-            .UseSqlServer(ConnectionString)
-            .Options;
+        var options = GetOptions();
 
         await using (var db = new ApplicationDbContext(options))
         {
@@ -40,19 +46,66 @@ public class DatabaseFixture : IAsyncLifetime
 
         _respawner = await Respawner.CreateAsync(_connection, new RespawnerOptions
         {
-            TablesToIgnore = new Respawn.Graph.Table[] { "__EFMigrationsHistory" },
+            TablesToIgnore = new Respawn.Graph.Table[] { MigrationsHistoryTable },
             DbAdapter = DbAdapter.SqlServer
         });
 
-        await ResetAndSeedAsync(options);
+        await RecordSeedAsync(options);
+        await CheckReplayMatchesSeedAsync();
     }
 
+    // Wipes every table, then replays the recorded seed in one round trip. The options are no longer used, but every
+    // test class passes them.
     public async Task ResetAndSeedAsync(DbContextOptions<ApplicationDbContext> options)
     {
         await _respawner.ResetAsync(_connection);
+        await _recordedSeed.ReplayAsync(_connection);
+    }
 
-        await using var db = new ApplicationDbContext(options);
-        await TestDataSeeder.SeedAsync(db);
+    // The first seed of a run goes through EF and TestDataSeeder, and the SQL it sends is recorded for every later
+    // reseed. The recording is taken fresh on every run, so a change to the seeder alone changes what the replay inserts.
+    private async Task RecordSeedAsync(DbContextOptions<ApplicationDbContext> options)
+    {
+        await _respawner.ResetAsync(_connection);
+
+        var recorder = new SeedRecorder();
+        var recordingOptions = new DbContextOptionsBuilder<ApplicationDbContext>(options)
+            .AddInterceptors(recorder)
+            .Options;
+
+        await using (var db = new ApplicationDbContext(recordingOptions))
+        {
+            await TestDataSeeder.SeedAsync(db);
+        }
+
+        _recordedSeed = recorder.Build();
+    }
+
+    // Proves once per run that a replay leaves every table as the EF seed left it, ids and identity values included,
+    // and that it takes one round trip.
+    private async Task CheckReplayMatchesSeedAsync()
+    {
+        var seeded = await DatabaseSnapshot.TakeAsync(_connection);
+
+        await _respawner.ResetAsync(_connection);
+        _connection.StatisticsEnabled = true;
+        _connection.ResetStatistics();
+        await _recordedSeed.ReplayUnshiftedAsync(_connection);
+        long roundTrips = (long)_connection.RetrieveStatistics()[ServerRoundTripsStatistic]!;
+        _connection.StatisticsEnabled = false;
+
+        var  replayed         = await DatabaseSnapshot.TakeAsync(_connection);
+        var  differences      = DatabaseSnapshot.FindDifferences(seeded, replayed);
+        bool replayMatches    = differences.Count == 0;
+        bool tookOneRoundTrip = roundTrips == ExpectedReplayRoundTrips;
+        bool replayIsFaithful = replayMatches && tookOneRoundTrip;
+
+        if (!replayIsFaithful)
+        {
+            throw new InvalidOperationException(
+                $"The recorded seed does not replay the EF seed. Tables that differ: " +
+                $"[{string.Join(TableListSeparator, differences)}]; round trips: {roundTrips}, expected {ExpectedReplayRoundTrips}.");
+        }
     }
 
     public DbContextOptions<ApplicationDbContext> GetOptions() =>
