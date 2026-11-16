@@ -4,6 +4,7 @@ using aspnetproject.Controllers.Base;
 using aspnetproject.Extensions;
 using aspnetproject.Infrastructure.Dtos.DatabaseLogs;
 using aspnetproject.Infrastructure.Dtos.Moderation;
+using aspnetproject.Infrastructure.Dtos.Statistics;
 using aspnetproject.Infrastructure.Dtos.Users;
 using aspnetproject.Infrastructure.Queries;
 using aspnetproject.Infrastructure.Services.BusinessLogic;
@@ -22,12 +23,19 @@ public class AdminController : BaseController
     private readonly LogService        _logService;
     private readonly UserService       _userService;
     private readonly ModerationService _moderationService;
+    private readonly StatisticsService _statisticsService;
 
-    public AdminController(LogService logService, UserService userService, ModerationService moderationService)
+    public AdminController(
+        LogService        logService,
+        UserService       userService,
+        ModerationService moderationService,
+        StatisticsService statisticsService
+        )
     {
         _logService        = logService;
         _userService       = userService;
         _moderationService = moderationService;
+        _statisticsService = statisticsService;
     }
 
     [HttpGet]
@@ -43,6 +51,16 @@ public class AdminController : BaseController
         }
 
         return BadRequest(response);
+    }
+
+    [HttpGet]
+    [Route("statistics")]
+    [EnableRateLimiting(RateLimitConfig.Policies.AdminReadStatistics)]
+    public async Task<ActionResult<ApplicationResponse<SystemStatisticsDto>>> GetStatistics()
+    {
+        var response = await _statisticsService.GetStatisticsAsync();
+
+        return Ok(response);
     }
 
     // Not in the documentation's endpoint list: the admin panel needs it to find a deactivated account to restore.

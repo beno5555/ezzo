@@ -26,6 +26,7 @@ Extends `BaseRepository<T>`. Adds:
 - `GetByIdAsync(int id)` — uses `_dbSet.FindAsync(id)`.
 - `DeleteWithoutChangeTrackingAsync(int id)` — `DeleteWhereAsync(e => e.Id == id)`.
 - `ExistsByIdAsync(int id)`.
+- `CountAsync()` and `CountCreatedSinceAsync(DateTime since)` — row counts for the administrator's statistics; only the context's own query filters apply, so `UserRepository` counts active accounts only through them and has its own `CountDeactivatedAsync` and `CountAccountsCreatedSinceAsync` that ignore the `User` filter.
 - `ClearTracker()` — detaches all tracked entities; lives here (not on `BaseRepository<T>`) since it's only meaningful for entities with an `Id`-based identity. Its one caller is `AccountManagementService.SoftDeleteAccountAsync`, at the start of the soft-delete transaction. Soft-delete itself removes no related data; the background purge job does that later.
 
 ### Pagination

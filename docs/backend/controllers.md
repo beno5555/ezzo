@@ -295,11 +295,12 @@ See `auth.md` for the full activation/deactivation flow and email notifications.
 
 ### `AdminController`
 
-Route: `api/admin`. Inherits `BaseController`. The whole controller is `[Authorize(Roles = nameof(RoleName.Administrator))]`: a guest gets `401`, any other signed-in caller `403`. Later tickets add statistics to it.
+Route: `api/admin`. Inherits `BaseController`. The whole controller is `[Authorize(Roles = nameof(RoleName.Administrator))]`: a guest gets `401`, any other signed-in caller `403`.
 
 | Method | Route                                | Notes                                                                                                                       |
 |--------|--------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
 | GET    | `api/admin/logs`                     | `Log` rows, newest first, `LogQueryDto`, `ListResponse<LogDisplayDto>`. Policy `AdminReadLogs` (120/minute)                  |
+| GET    | `api/admin/statistics`               | System statistics, `ApplicationResponse<SystemStatisticsDto>`. Policy `AdminReadStatistics` (30/minute)                      |
 | GET    | `api/admin/users`                    | Accounts in any state, oldest account first, `AccountListQuery`, `ListResponse<AdminUserDto>`. Policy `AdminListAccounts` (120/minute) |
 | PUT    | `api/admin/posts/{id}/moderation`    | Set a post's moderation status, `SetModerationStatusDto`. `200`, or `404` (`PostNotFound`). Policy `AdminModeratePost` (60 per 10 minutes) |
 | PUT    | `api/admin/comments/{id}/moderation` | Set a comment's moderation status, `SetModerationStatusDto`. `200`, or `404` (`CommentNotFound`). Policy `AdminModerateComment` (60 per 10 minutes) |
@@ -314,4 +315,10 @@ Route: `api/admin`. Inherits `BaseController`. The whole controller is `[Authori
 
 **Account list** (`AccountListQuery : PageQuery`): `state` (`Active`, `Deactivated` or `SoftDeleted`) and `username` (matches any part), both optional. It ignores the `User` query filter, which is how an administrator finds a deactivated account to restore with `PATCH api/accounts/{id}/activate`. Each `AdminUserDto` row carries id, username, email, `isAdministrator`, `state` (written as text), `registeredAt`, `deactivatedAt` and `deletedAt`. A soft-deleted account reads as `SoftDeleted` even if it was also deactivated. This endpoint is not in the documentation's endpoint list; it was added because the admin panel cannot restore an account without it.
 
-**No log row on success.** Neither read writes a `Log` row when it succeeds, so reading the logs does not fill them. (`UserService.SearchUsersAsync`, by contrast, logs every search.)
+**System statistics** (`StatisticsService.GetStatisticsAsync`, `SystemStatisticsDto`): one object with three parts. The counts are read through the repositories, one query after another, not from the `DbContext`.
+
+- `totals`: `activeAccounts`, `deactivatedAccounts`, `posts`, `comments`, `messages`, `likes` and `pendingReports`. Posts, comments, messages and likes are counted whatever their moderation status, and posts and comments of a deactivated or soft-deleted author are included. A soft-deleted account is in neither account count, because the purge is about to remove it, and a soft-deleted account that was also deactivated counts as soft-deleted, as in the account list. `pendingReports` counts reports with status `Pending` only (resolved and rejected ones are left out), whatever the state of the reporter's account.
+- `activity`: `last7Days` and `last30Days`, each with `accounts`, `posts`, `comments` and `messages` created inside the window. Both windows end at the same instant, taken once per request, and the 30-day counts include the 7-day ones (`Constants.StatisticsShortWindow` and `StatisticsLongWindow`). Accounts are the sign-ups of accounts that still exist (active and deactivated, not soft-deleted).
+- `onlineUsers`: users with a live hub connection, from `UserConnectionTracker.GetOnlineUserCount()`. A user with two tabs open counts once. It is the count for this server process only: the tracker lives in memory, so it would undercount behind several instances.
+
+**No log row on success.** None of these reads writes a `Log` row when it succeeds, so reading the logs does not fill them. (`UserService.SearchUsersAsync`, by contrast, logs every search.)

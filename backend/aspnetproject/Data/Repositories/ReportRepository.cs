@@ -21,6 +21,13 @@ public class ReportRepository : BaseEntityRepository<Report>
                                            && report.Status      == ReportStatus.Pending);
     }
 
+    // Reports still waiting for a decision, whoever made them. The count loads no reporter, so the User query filter
+    // does not apply and a report by a deactivated or soft-deleted reporter counts.
+    public async Task<int> CountPendingAsync()
+    {
+        return await _dbSet.CountAsync(report => report.Status == ReportStatus.Pending);
+    }
+
     // Newest first. Id breaks ties between reports written in the same millisecond, so paging is deterministic.
     public async Task<List<Report>> GetReportsAsync(ReportListQuery reportQuery)
     {

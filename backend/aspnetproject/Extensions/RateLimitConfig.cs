@@ -11,8 +11,9 @@ public static class RateLimitConfig
     public static class Policies
     {
         #region Admin
-        public const string AdminReadLogs     = "AdminReadLogs";
-        public const string AdminListAccounts = "AdminListAccounts";
+        public const string AdminReadLogs       = "AdminReadLogs";
+        public const string AdminListAccounts   = "AdminListAccounts";
+        public const string AdminReadStatistics = "AdminReadStatistics";
 
         public const string AdminModeratePost        = "AdminModeratePost";
         public const string AdminModerateComment     = "AdminModerateComment";
@@ -103,6 +104,10 @@ public static class RateLimitConfig
 
             options.AddPolicy(Policies.AdminListAccounts, httpContext =>
                 PerUserSlidingWindow(httpContext, 120, TimeSpan.FromMinutes(1)));
+
+            // Lower than the list reads: one request runs a dozen count queries.
+            options.AddPolicy(Policies.AdminReadStatistics, httpContext =>
+                PerUserSlidingWindow(httpContext, 30, TimeSpan.FromMinutes(1)));
 
             options.AddPolicy(Policies.AdminModeratePost, httpContext =>
                 PerUserSlidingWindow(httpContext, 60, TimeSpan.FromMinutes(10)));

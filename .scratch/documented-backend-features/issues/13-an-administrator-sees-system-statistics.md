@@ -14,15 +14,15 @@ Decisions are under "Admin reads" in `.scratch/documented-backend-features/spec.
 
 **Blocked by:** 01 (Real-time tests connect a real SignalR client), 05 (A post can be liked), 11 (A user can report a post, a comment or a user, and an administrator sees the reports)
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Difficulty:** routine: counts over existing tables returned in one shape; the online count is tested with the helper from ticket 01.
 
-- [ ] An administrator gets the totals, and they match the seed data
-- [ ] Deactivated accounts are counted separately from active ones
-- [ ] The 7-day and 30-day counts include rows created inside each window and leave out older ones, using seed rows with fixed creation times
-- [ ] The count of waiting reports includes pending reports only
-- [ ] The online count rises when a seeded user connects a SignalR client and falls when they disconnect
-- [ ] An ordinary user and a guest are refused
-- [ ] The endpoint has its own rate-limit policy and a successful read writes no `Log` row
-- [ ] `docs/backend/controllers.md` and `README.md` describe the statistics
+- [x] An administrator gets the totals, and they match the seed data
+- [x] Deactivated accounts are counted separately from active ones
+- [x] The 7-day and 30-day counts include rows created inside each window and leave out older ones, using seed rows with fixed creation times
+- [x] The count of waiting reports includes pending reports only
+- [x] The online count rises when a seeded user connects a SignalR client and falls when they disconnect
+- [x] An ordinary user and a guest are refused
+- [x] The endpoint has its own rate-limit policy and a successful read writes no `Log` row
+- [x] `docs/backend/controllers.md` and `README.md` describe the statistics

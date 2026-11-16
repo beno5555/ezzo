@@ -14,6 +14,12 @@ public class UserConnectionTracker
         return firstConnection;
     }
 
+    // Users with at least one live connection. A count of zero is a user mid-removal, not an online one.
+    public int GetOnlineUserCount()
+    {
+        return _counts.Count(entry => entry.Value > 0);
+    }
+
     public bool RemoveConnection(int userId)
     {
         bool wasLastConnection = false;
