@@ -1,6 +1,7 @@
-<div role="group" [attr.aria-label]="text().languages.switchLabel">
+<div class="flex flex-wrap gap-1" role="group" [attr.aria-label]="text().languages.switchLabel">
   @for (choice of choices; track choice.language) {
     <button
+      class="min-h-11 cursor-pointer rounded-md border border-border-strong bg-surface-raised px-3 text-sm font-semibold text-ink-strong transition-colors not-aria-pressed:hover:bg-surface-sunken focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus aria-pressed:border-accent aria-pressed:bg-accent aria-pressed:text-on-accent motion-reduce:transition-none"
       type="button"
       [attr.lang]="choice.language"
       [attr.aria-pressed]="isCurrent(choice.language)"

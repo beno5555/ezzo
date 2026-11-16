@@ -37,7 +37,7 @@ Run these from `frontend/` (Node 24; run `npm ci` once after a clone):
 ```bash
 npm start                    # dev server on http://localhost:4200, /api and /hubs proxied to the backend
 npm test -- --watch=false    # Vitest unit tests, once
-npm run lint                 # ESLint; fails on an un-awaited promise and on `any`
+npm run lint                 # ESLint; fails on an un-awaited promise, on `any` and on a style that is not a design token
 npm run build
 npx prettier --write .       # Prettier owns formatting
 ```
@@ -88,7 +88,7 @@ Follow the project skill `.claude/skills/webcity-conventions` (it overrides the 
 
 `README.md` describes the backend as it is now: features, stack, layout, architecture and design decisions. `docs/backend/*.md` (`auth`, `controllers`, `data`, `signalr`, `background-jobs`) holds per-area detail. Update the relevant doc when you change behavior it describes.
 
-`DESIGN.md` at the repo root is the frontend's visual brief (design tokens, themes, layout rules). Read it before you edit a template or a style in `frontend/`.
+`DESIGN.md` at the repo root is the frontend's visual brief (design tokens, themes, layout rules). Read it before you edit a template or a style in `frontend/`. `frontend/CLAUDE.md` holds the frontend's hard styling rules.
 
 ## Agent workflow
 
@@ -96,6 +96,8 @@ Follow the project skill `.claude/skills/webcity-conventions` (it overrides the 
 - **One branch per ticket:** implement a ticket on its own branch, never directly on `master`, and merge it into `master` with `--no-ff` when it is done (no pull requests). If the owner asks you to implement a ticket while the checkout is on `master`, remind them of this before touching anything and offer a branch name (`git switch -c <ticket-slug>`); continue on `master` only if they say so. Details: `docs/agents/issue-tracker.md`.
 - **Merging from a worktree:** a session in `.claude/worktrees/<name>/` still owes the merge into `master` when its ticket is done. `master` cannot be checked out there, and none is needed. Before you report the ticket finished, read "Merging from a worktree session" in `docs/agents/worktrees.md` and follow it.
 - **Parallel lanes:** two local sessions can run in parallel with `claude --worktree <name>`, each on its own branch and test database. See `docs/agents/worktrees.md`.
+- **Running the app:** check frontend work in the owner's Chrome through the Claude in Chrome extension, which is normally connected (call `tabs_context_mcp` before falling back to a headless browser). If a page needs data, start the backend as well (`dotnet run --project aspnetproject --launch-profile https` from `backend/`) instead of checking it without data. Stop every server you started before you report, then confirm ports 4200 and 7102 are free (`netstat -ano | grep LISTENING`): earlier sessions left stale runs behind. On Windows, stopping the background `npm start` task can leave its `ng serve` child holding 4200; end it with `taskkill //PID <pid> //T //F`.
+- **Commands for the owner** assume the owner is at the repo root. Write each command so it runs from there as written: no "in `frontend/`, run ..." steps.
 - **Skills:** Matt Pocock's skills in `.claude/skills/` are linked from `~/.claude/skills/` by Windows junctions (`webcity-conventions` and the design skill `frontend-design` are not). Never remove one with `rm -rf` (it can delete the repo copy); read `docs/agents/skills.md` before touching either folder.
 - **Issue tracker:** issues and specs live as local markdown files under `.scratch/<feature>/`. See `docs/agents/issue-tracker.md`.
 - **Domain docs:** single-context, one `GLOSSARY.md` and `docs/adr/` at the repo root, created lazily. See `docs/agents/domain.md`.

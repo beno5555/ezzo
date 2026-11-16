@@ -1,3 +1,5 @@
-<h1>{{ text().notFound.title }}</h1>
-<p>{{ text().notFound.message }}</p>
-<a routerLink="/">{{ text().notFound.homeLink }}</a>
+<div class="flex flex-col items-start gap-4">
+  <h1 class="font-display text-2xl text-ink-strong">{{ text().notFound.title }}</h1>
+  <p class="text-ink-muted">{{ text().notFound.message }}</p>
+  <a appButton look="primary" routerLink="/">{{ text().notFound.homeLink }}</a>
+</div>

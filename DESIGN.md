@@ -3,8 +3,9 @@ version: alpha
 name: WebCity (provisional skin)
 description: The structure of WebCity's look, with neutral values that stand in until the product's name and brand are chosen.
 colors:
-  # "primary" is the name the DESIGN.md format requires. It is the same colour as "accent".
+  # "primary" is the name the DESIGN.md format requires. It is the same colour as "accent", in both themes.
   primary: "#2b59c3"
+  primary-dark: "#8fb0ff"
 
   # Light theme
   surface-page: "#f4f4f5"
@@ -86,7 +87,7 @@ rounded:
   lg: 12px
   full: 9999px
 spacing:
-  unit: 4px
+  unit: 0.25rem
   column: 42rem
   wide: 75rem
 components:
@@ -170,7 +171,7 @@ A colour is named for its job, never for its shade. A component uses the role na
 - **A second change at 1024 px** is allowed only on a page with a real second column: chat and the admin panel.
 - **Content sits in a capped column:** `column` (42rem) for reading pages such as the feed and a post, `wide` (75rem) for chat and the admin panel.
 - **Nothing scrolls sideways** at 360 px. On a phone, the rows of an admin table become stacked cards.
-- **Spacing** uses Tailwind's default scale, in steps of 4 px. Use no value outside the scale.
+- **Spacing** uses Tailwind's default scale, in steps of 0.25rem (4 px). Use no value outside the scale.
 - **Touch targets** are at least 44 px high on a phone.
 - **Every page is checked at 360, 768 and 1280 px,** in both themes, when it is built.
 

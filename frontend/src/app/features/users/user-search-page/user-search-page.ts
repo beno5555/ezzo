@@ -1,14 +1,16 @@
 import { Component, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { LucideCircleExclamationPoint, LucideSearch } from '@lucide/angular';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { LIMITS } from '../../../core/limits';
+import { Button } from '../../../shared/button/button';
 import { MinimalUserDto } from '../minimal-user-dto';
 import { UserApi } from '../user-api';
 
 // A bare page that proves the path from the browser through the dev proxy to the backend.
 @Component({
   selector: 'app-user-search-page',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, Button, LucideSearch, LucideCircleExclamationPoint],
   templateUrl: './user-search-page.html',
   styleUrl: './user-search-page.css',
 })

@@ -1,12 +1,34 @@
 <!-- A bare session bar that proves sign-in and sign-out. Ticket 07's shell replaces it. -->
-<header>
-  @if (user(); as signedInUser) {
-    <span>{{ text().session.signedInAs(signedInUser.username) }}</span>
-    <button type="button" (click)="signOut()">{{ text().session.signOutButton }}</button>
-  } @else {
-    <a [routerLink]="signInAddress">{{ text().session.signInLink }}</a>
-  }
+<header class="border-b border-border bg-surface-raised">
+  <div class="mx-auto flex w-full max-w-wide flex-wrap items-center gap-3 px-4 py-2">
+    @if (user(); as signedInUser) {
+      <span class="text-sm text-ink-muted">{{
+        text().session.signedInAs(signedInUser.username)
+      }}</span>
+      <button appButton look="quiet" type="button" (click)="signOut()">
+        {{ text().session.signOutButton }}
+      </button>
+    } @else {
+      <a appButton look="quiet" [routerLink]="signInAddress">{{ text().session.signInLink }}</a>
+    }
+
+    <app-language-switch class="ms-auto" />
+  </div>
 </header>
 
-<app-language-switch />
-<router-outlet />
+<!-- The Button's looks, to prove the design tokens. Ticket 07's shell removes them. -->
+<section
+  class="mx-auto flex w-full max-w-wide flex-wrap gap-3 px-4 pt-6"
+  [attr.aria-label]="text().buttonSamples.label"
+>
+  <button appButton look="primary" type="button">{{ text().buttonSamples.primary }}</button>
+  <button appButton look="quiet" type="button">{{ text().buttonSamples.quiet }}</button>
+  <button appButton look="danger" type="button">{{ text().buttonSamples.danger }}</button>
+  <button appButton look="primary" type="button" disabled>
+    {{ text().buttonSamples.disabled }}
+  </button>
+</section>
+
+<main class="mx-auto w-full max-w-column px-4 py-8">
+  <router-outlet />
+</main>
