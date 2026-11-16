@@ -57,7 +57,7 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 
 ### 4. Spawn both sub-agents in parallel
 
-Issue both sub-agent calls together, in the foreground, with `model: opus` (Opus 5.5) and `effort: high`, and aggregate the reports they return. Keep both settings: both axes call for judgement, the session itself may be running on a smaller model, and without an effort the reviewers fall back to the default for Opus, which may be lower.
+Issue both sub-agent calls together, in the foreground, with `model: fable` (Fable 5.2) and `effort: high`, and aggregate the reports they return. If Fable is unavailable (the spawn fails on the model, or the plan no longer offers it), issue both again with `model: opus` (Opus 5.5) and `effort: high`, and say in the final report which model reviewed. Keep both settings: both axes call for judgement, a reviewer stronger than the model that wrote the code catches what that model could not see, and without an effort the reviewers fall back to the model's default, which may be lower.
 
 **Standards sub-agent prompt** should include:
 

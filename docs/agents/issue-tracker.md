@@ -12,7 +12,7 @@ Issues and specs for this repo live as markdown files in `.scratch/`.
   - `routine`: Sonnet 5.5 at high effort
   - `routine (Opus 5.5 medium)`: Opus 5.5 at medium effort, for work that is fully specified but where Sonnet is likely to slip
   - `tricky`: Opus 5.5 at high effort
-- The rules for choosing a level are in the `/to-tickets` skill. The review at the end of `/implement` runs on Opus 5.5 at high effort whatever model implemented the ticket
+- The rules for choosing a level are in the `/to-tickets` skill. The review at the end of `/implement` runs on Fable 5.2 at high effort whatever model implemented the ticket, or on Opus 5.5 at high effort when Fable is unavailable (`/spec-review`, step 4)
 - Sessions that decide rather than build run on Fable 5.2 when it is available: a grilling, the conversation before `/to-spec`, a naming or brand session, a review of the schedule. Implementing a ticket never needs Fable, because a finished ticket has already had its judgment done; a ticket that seems to need Fable has an open decision, which goes back to the owner
 - Comments and conversation history append to the bottom of the file under a `## Comments` heading
 - A ticket is implemented on its own branch (named after the ticket, e.g. `frontend-01-reserved-usernames`), not on `master`, and the branch is merged into `master` with `--no-ff` once the ticket is `done` (no pull requests). When asked to implement a ticket while on `master`, the agent reminds the owner of this first and offers the branch; it works on `master` only if the owner says so. A session in a worktree under `.claude/worktrees/` is already on its own branch, and it still merges that branch into `master` when the ticket is done: see "Merging from a worktree session" in `worktrees.md`
