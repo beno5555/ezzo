@@ -156,6 +156,7 @@ The six emails the backend already sends (about passwords, reactivation and deac
 - **The query string is never sent,** because hub connections carry the access token there.
 - **An exception event is sent for every unhandled exception,** the conflict answer for a database update error included.
 - **Publishing never raises an exception event.** A failure inside the publisher is caught there.
+- **A route that throws on purpose is mapped only in Development,** as Swagger is. No existing route can be made to fail on request, and the tests, the first workflow's checklist and the demo all need one.
 
 ### The automation's identity
 
@@ -240,7 +241,7 @@ The six emails the backend already sends (about passwords, reactivation and deac
   - Nothing is sent when the action fails, and nothing when events are off.
   - With the recorder failing or timing out, the user's request still succeeds.
   - No recorded event contains a token: the registration, reset and reactivation flows are run and every recorded body is searched.
-- **Exceptions.** The test host adds one route that throws, since no existing route can be made to fail on request. A request to it must produce one `exception-occurred` event without the query string. A background job built in the test that throws, run once through the existing `RunOnceAsync`, must produce one with the job's name. With the recorder failing, the exception answer is unchanged and no second event appears.
+- **Exceptions.** Tests reach the Development-only route that throws, on a host started in Development. A request to it must produce one `exception-occurred` event without the query string. A background job built in the test that throws, run once through the existing `RunOnceAsync`, must produce one with the job's name. With the recorder failing, the exception answer is unchanged and no second event appears.
 - **The automation's identity.** A helper sends requests with the test API key. Tests cover: the internal routes with the key, without it, with a wrong key, with a user's token and with an administrator's token; the key on a sample of ordinary and administrator routes, refused; the two moderation routes with the key; a host with no key configured, which refuses an empty key.
 - **Raise-only moderation** is tested as a table of from-status, to-status and caller.
 - **The internal lists** are tested by their properties, from seed data: who is included and who is left out (switch off, nothing to report, deactivated), the three posts and their order, hidden posts left out, paging. Birthdays use the `date` parameter: a match, no match, several friends in one row, both directions of a friendship, a pending friendship left out, 29 February in a leap year and in another year.

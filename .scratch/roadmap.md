@@ -121,7 +121,10 @@ Frontend 30 (Impeccable) runs in a session with the owner whenever the owner is 
    - Done 2026-11-14: the backend gaps A to F, as 13 tickets in `.scratch/documented-backend-features/issues/`. Tickets 01, 02 and 03 can start at once; the longest chain is 02 → 05 → 08 → 09 → 11 → 12.
    - Done 2026-11-15: the frontend, as a spec (`.scratch/frontend/spec.md`) and 24 tickets in `.scratch/frontend/issues/`. Tickets 01 and 02 can start at once, and 01 to 05 need nothing from the design session; 06 onward wait for it. The longest chain is 02 → 04 → 05 → 07 → 09 → 11 → 13 → 14.
    - Done 2026-11-16: the frontend setup from the design session, as frontend tickets 27 to 30. Tickets 06 and 07 were changed to match (the default profile picture, the theme switch, screenshots), and every open frontend ticket from 07 onward now waits for 27 to 29.
-   - By Fri 20: n8n, gaps G and H with the six workflows. The grilling was held on 2026-11-16 (its decisions are under Open decisions) and the spec was written on 2026-11-17 (`.scratch/n8n-automation/spec.md`). Still to do: `/to-tickets` in the same session, on Fable 5.2 if available (`docs/agents/issue-tracker.md`).
+   - Done 2026-11-17: n8n, gaps G and H with the six workflows, as a spec (`.scratch/n8n-automation/spec.md`) and 14 tickets in `.scratch/n8n-automation/issues/`. The grilling was held on 2026-11-16 (its decisions are under Open decisions). Ticket 01 can start at once. The chain every workflow waits for is 01 → 02, and 02 needs the owner. Three kinds of ticket:
+     - **Backend, proven by integration tests:** 01 (the signed exception event), 03 (the automation's key), 04 (the other six events), 08 (the digest list and switch), 11 (the birthday list and notifications).
+     - **Workflows, run on the owner's machine and open until the owner has run the checklist:** 02 (the n8n setup and the exception alert), 05 (welcome email), 06 (AI moderation), 07 (reports), 09 (digest), 12 (birthdays), 14 (alert grouping).
+     - **Frontend, visual:** 10 (the digest switch, after frontend 17) and 13 (the birthday toast, after frontend 21).
 3. [ ] **Any time, in parallel: the open backend tickets.**
    - Documented-backend-features 04 (remove a photo from a post), 12 (an administrator decides a report) and 13 (statistics). The frontend shows "Coming soon" on whatever depends on one that is still open when its page is built.
    - Frontend ticket 01, the three small backend changes the pages need: four reserved usernames, the joined date removed from the public user shape, and the time the username was last changed added to the user's own shape.
@@ -137,17 +140,18 @@ Frontend 30 (Impeccable) runs in a session with the owner whenever the owner is 
    - Backend alongside: what is left of gaps E and F, which is ticket 12 (an administrator decides a report) and ticket 13 (statistics). Logs, the account list, hiding content, the moderation queue and the reports list are done (tickets 03, 09, 10 and 11).
 8. [ ] **Sat 21, will be late, crucial: admin panel.** Users (create, edit, deactivate, restore, delete, grant and remove the administrator role), delete any post or comment, logs, statistics, the reports list, the moderation queue.
 9. [ ] **Mon 23: n8n.** One day for the plumbing and two workflows, one day for the other four.
-   - Sun 22: gap G, then the exception-alert and welcome-email workflows.
-   - Mon 23: AI moderation, report handling, weekly digest, birthday notifications.
+   - Sun 22: gap G, then the exception-alert and welcome-email workflows (n8n tickets 01 to 05).
+   - Mon 23: AI moderation, report handling, weekly digest, birthday notifications (n8n tickets 06 to 13). Alert grouping (14) is last.
    - The workflows are exported as JSON into the repo, with a compose file that starts n8n.
-   - The first ticket (the exception alert, end to end) can start as soon as it exists: Docker Desktop was installed on 2026-11-16 (29.9.3, WSL 2). A session that was open before the install does not have `docker` on its PATH.
-   - Needs from the owner: the Telegram bot token and the chat ids (before the first ticket), the OpenAI key (before AI moderation), and the administrator address. n8n uses the same SMTP account as the backend's `EmailConfiguration`.
+   - n8n ticket 01 can start now, and nothing after it needs to wait for Sunday: Docker Desktop was installed on 2026-11-16 (29.9.3, WSL 2). A session that was open before the install does not have `docker` on its PATH.
+   - Ticket 03 waits for ticket 02 by the owner's decision (2026-11-17): it needs none of 02's code, but nothing more is built for the automation until the n8n setup is proven. Tickets 08 and 11 wait for 03, so they wait for 02 as well.
+   - Needs from the owner: the Telegram bot token and the chat ids (before ticket 02), the OpenAI key (before ticket 06), and the administrator address. n8n uses the same SMTP account as the backend's `EmailConfiguration`.
 10. [ ] **Tue 24: buffer and finish.** Responsive pass on a phone width. Walk the document top to bottom against the running app and fix what fails. Update `README.md` (monorepo ticket 04) and `docs/backend/*.md` for everything added.
 11. [ ] **Wed 25: hand in.**
 
 ### Days the owner is away
 
-The owner expects to lose more than a day, which is more than the buffer. Work that is covered by tests can run without the owner, in a cloud session, and be reviewed afterwards. Most of the backend was built that way on 2026-11-14. What is left of that kind: the backend tickets of step 3, the frontend's plumbing tickets (unit-tested, with no visual part), and the backend half of gap G once the n8n spec exists. The pages cannot, because someone has to look at them.
+The owner expects to lose more than a day, which is more than the buffer. Work that is covered by tests can run without the owner, in a cloud session, and be reviewed afterwards. Most of the backend was built that way on 2026-11-14. What is left of that kind: the backend tickets of step 3, the frontend's plumbing tickets (unit-tested, with no visual part), and the backend tickets of the n8n spec: 01 now, 04 after it, and 03, 08 and 11 once the owner has checked ticket 02. The pages cannot, because someone has to look at them, and neither can a workflow ticket, because someone has to run its checklist.
 
 ### Last in line
 
