@@ -33,10 +33,11 @@ public class PostControllerTests : IAsyncLifetime
 public async Task ResetAndSeedAsync(DbContextOptions<ApplicationDbContext> options)
 {
     await _respawner.ResetAsync(_connection);            // keeps __EFMigrationsHistory
-    await using var db = new ApplicationDbContext(options);
-    await TestDataSeeder.SeedAsync(db);                  // deterministic ids and users
+    await _recordedSeed.ReplayAsync(_connection);        // TestDataSeeder's SQL, recorded on the run's first seed
 }
 ```
+
+Change the seed only in `TestDataSeeder`: the fixture records it through EF at the start of every run.
 
 ## 3. Name tests `Method_Condition_ExpectedResult`
 
