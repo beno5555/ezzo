@@ -88,8 +88,8 @@ Set on 2026-11-16. Two worktree lanes at a time (`docs/agents/worktrees.md`). Un
 | Round | Frontend lane | Backend lane | Status |
 |---|---|---|---|
 | 0 | F27, design tokens | B12, an administrator decides a report (merged 2026-11-16) | running |
-| 1 | F28, the themes | T01, then T02: cheaper sign-in, one-batch reseed | T01 merged 2026-11-16 |
-| 2 | F29, the screenshots | T03, test classes in parallel | |
+| 1 | F28, the themes | T01, then T02: cheaper sign-in, one-batch reseed | both merged 2026-11-16 |
+| 2 | F29, the screenshots | T03, test classes in parallel (merged 2026-11-17) | |
 | 3 | F06, toast, dialog, confirmation, menu | B13, statistics | |
 | 4 | F05, the live connection | frontend 25, friendship tests | |
 | 5 | F07, the shell | B04, remove a photo from a post | |
