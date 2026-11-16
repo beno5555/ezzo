@@ -15,9 +15,7 @@ Non-visual work (backend, tests, tooling) is merged as soon as it passes the ful
   - the contract change: `POST /api/posts` is now `multipart/form-data`, and every post read returns `Images`;
   - the open points at the bottom of the ticket, under Comments.
 
-**Not merged yet.** These branches are finished but wait for the owner's review before they are merged. No agent merges them until the owner says so. After the merge, delete the line. Merge 27 first: it is on the critical chain (28, 06 and 30 wait for it). Ticket 12 was finished before the rule above existed, so it waits here too, until the owner merges it or tells an agent to.
-
-- **Branch `worktree-admin-decides-report`**: documented-backend-features ticket 12, an administrator decides a report (`.scratch/documented-backend-features/issues/12-an-administrator-decides-a-report.md`). Worktree `.claude/worktrees/admin-decides-report`, added 2026-11-16.
+**Not merged yet.** These branches are finished but wait for the owner's review before they are merged. No agent merges them until the owner says so. After the merge, delete the line. Merge 27 first: it is on the critical chain (28, 06 and 30 wait for it).
 - **Branch `worktree-design-tokens`**: frontend ticket 27, the app takes its look from design tokens (`.scratch/frontend/issues/27-the-app-takes-its-look-from-design-tokens.md`). Worktree `.claude/worktrees/design-tokens`, added 2026-11-16.
 
 ## Open decisions
@@ -66,7 +64,7 @@ Set on 2026-11-16. Two worktree lanes at a time (`docs/agents/worktrees.md`). Un
 
 | Round | Frontend lane | Backend lane | Status |
 |---|---|---|---|
-| 0 | F27, design tokens | B12, an administrator decides a report | running |
+| 0 | F27, design tokens | B12, an administrator decides a report (merged 2026-11-16) | running |
 | 1 | F28, the themes | T01, then T02: cheaper sign-in, one-batch reseed | |
 | 2 | F29, the screenshots | T03, test classes in parallel | |
 | 3 | F06, toast, dialog, confirmation, menu | B13, statistics | |
