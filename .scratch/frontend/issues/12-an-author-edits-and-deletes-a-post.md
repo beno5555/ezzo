@@ -11,7 +11,7 @@ The menu holds only the author's entries here. Report and the administrator's en
 
 Decisions are under "Feed, posts and comments" and "Actions on content, reports and hidden content" in `.scratch/frontend/spec.md`.
 
-**Blocked by:** 09 (The feed shows posts with photos and likes)
+**Blocked by:** 09 (The feed shows posts with photos and likes), and the frontend setup (27, 28, 29)
 
 **Status:** ready-for-agent
 

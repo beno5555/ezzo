@@ -19,7 +19,7 @@ The rules that decide whether an event becomes a toast live in one place with no
 
 Decisions are under "Toasts" in `.scratch/frontend/spec.md`. Events and payloads are in `docs/backend/signalr.md`.
 
-**Blocked by:** 07 (The shell gives navigation on a desktop, on a phone and to a guest), 18 (Chat: the conversation list and reading a conversation)
+**Blocked by:** 07 (The shell gives navigation on a desktop, on a phone and to a guest), 18 (Chat: the conversation list and reading a conversation), and the frontend setup (27, 28, 29)
 
 **Status:** ready-for-agent
 

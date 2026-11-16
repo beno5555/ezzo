@@ -13,7 +13,7 @@ These are the first forms. They set the pattern for every later one: typed react
 
 Decisions are under "Auth pages" in `.scratch/frontend/spec.md`, and in "Forms" and "Errors" in the conventions skill's TypeScript reference. The backend's side is in `docs/backend/auth.md`.
 
-**Blocked by:** 04 (A user signs in and stays signed in), 07 (The shell gives navigation on a desktop, on a phone and to a guest)
+**Blocked by:** 04 (A user signs in and stays signed in), 07 (The shell gives navigation on a desktop, on a phone and to a guest), and the frontend setup (27, 28, 29)
 
 **Status:** ready-for-agent
 

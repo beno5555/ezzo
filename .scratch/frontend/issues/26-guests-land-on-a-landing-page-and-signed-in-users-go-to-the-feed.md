@@ -9,7 +9,7 @@
 
 Decisions are under "Addresses" in `.scratch/frontend/spec.md`.
 
-**Blocked by:** 07 (The shell gives navigation on a desktop, on a phone and to a guest), 09 (The feed shows posts with photos and likes), whose post card the skeletons copy
+**Blocked by:** 07 (The shell gives navigation on a desktop, on a phone and to a guest), 09 (The feed shows posts with photos and likes), whose post card the skeletons copy, and the frontend setup (27, 28, 29)
 
 **Status:** ready-for-agent
 

@@ -12,7 +12,7 @@ The photo picker (choose, check, preview, remove) is built so that the chat can 
 
 Decisions are under "Feed, posts and comments" in `.scratch/frontend/spec.md`. The upload rules are under Images in `docs/backend/controllers.md`.
 
-**Blocked by:** 09 (The feed shows posts with photos and likes)
+**Blocked by:** 09 (The feed shows posts with photos and likes), and the frontend setup (27, 28, 29)
 
 **Status:** ready-for-agent
 

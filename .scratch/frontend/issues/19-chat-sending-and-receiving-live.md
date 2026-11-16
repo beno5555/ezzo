@@ -13,7 +13,7 @@ Edit, delete and typing arrive in ticket 20; toasts in ticket 21.
 
 Decisions are under "Chat" in `.scratch/frontend/spec.md`. Events and payloads are in `docs/backend/signalr.md`.
 
-**Blocked by:** 10 (A user writes a post with photos), 18 (Chat: the conversation list and reading a conversation)
+**Blocked by:** 10 (A user writes a post with photos), 18 (Chat: the conversation list and reading a conversation), and the frontend setup (27, 28, 29)
 
 **Status:** ready-for-agent
 

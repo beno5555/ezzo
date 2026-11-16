@@ -2,9 +2,9 @@
 
 **What to build:** Every page sits inside one shell, and the shell changes with the width of the screen and with who is looking.
 
-- **Desktop, signed in:** a top bar with the logo, the search box, Feed, Friends and Messages, and a menu under the user's initials: my profile, settings, admin (administrators only), language, sign out.
+- **Desktop, signed in:** a top bar with the logo, the search box, Feed, Friends and Messages, and a menu under the user's profile picture: my profile, settings, admin (administrators only), language, theme, sign out.
 - **Phone, signed in:** a top bar with the logo and that menu, and a bottom bar with Feed, Search, Friends, Messages and Profile.
-- **Guest:** the logo, the search box, the language switch, Sign in and Register.
+- **Guest:** the logo, the search box, the language switch, the theme switch, Sign in and Register.
 - **Two counts.** Messages shows the unread store's number. Friends shows how many friend requests are waiting; a small store loads that number at sign-in and can be told to load it again. The backend gives no total, and the list's `TotalCount` is only the length of the page it returns, so the store reads one page of the largest size and shows the number, or "99+" when that page is full.
 - **The whole route table,** with every page lazy, titled by dictionary key, and guarded as the spec's address table says. An address whose page is not built yet shows a placeholder with its title, so the shell can be walked end to end. `/admin` redirects to `/admin/users`.
 - **The not-found page,** styled.
@@ -14,7 +14,7 @@ The bare page from the plumbing tickets is removed here.
 
 Decisions are under "Shell" and "Addresses" in `.scratch/frontend/spec.md`.
 
-**Blocked by:** 04 (A user signs in and stays signed in), 05 (The live connection feeds presence and the unread count), 06 (The pages share a toast, a dialog, a confirmation and a menu), and the design session (roadmap step 1)
+**Blocked by:** 04 (A user signs in and stays signed in), 05 (The live connection feeds presence and the unread count), 06 (The pages share a toast, a dialog, a confirmation and a menu), and the frontend setup: 27 (The app takes its look from design tokens), 28 (A user switches between light and dark), 29 (An agent and the owner see every page in screenshots)
 
 **Status:** ready-for-agent
 
@@ -26,6 +26,7 @@ Decisions are under "Shell" and "Addresses" in `.scratch/frontend/spec.md`.
 - [ ] The unread count changes without a reload when a message arrives
 - [ ] The waiting-requests count is loaded at sign-in; its store is unit-tested, including the full-page case
 - [ ] The language switch changes every text of the shell in place
+- [ ] The theme switch from ticket 28 sits in the menu and in the guest shell, and changes the whole shell in place
 - [ ] Sign out returns the visitor to the guest shell
 - [ ] No fixed word sits beside a `:username` segment in the route table
-- [ ] Checked in the running app on a desktop width and on a phone width, as a guest, as a user and as an administrator: every link leads where it says, nothing scrolls sideways, and the bottom bar never covers content
+- [ ] Checked in the running app as a guest, as a user and as an administrator, with screenshots at 360, 768 and 1280 px in both themes for the owner's approval: every link leads where it says, nothing scrolls sideways, and the bottom bar never covers content

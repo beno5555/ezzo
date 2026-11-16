@@ -51,18 +51,23 @@ Settled on 2026-11-14:
 
 Dates are the day a step should finish.
 
-**Overdue, as of Mon 16.** Step 4 is overdue: its pages could not start, because they wait for the foundation tickets of step 1 and for frontend ticket 06. Steps 5 to 8 each wait for the step before, so each will be late by as much as step 4 is, and their dates no longer hold.
+**Overdue, as of Mon 16.** Step 4 is overdue: its pages could not start, because they wait for the frontend setup of step 1 (frontend tickets 27 to 29) and for frontend ticket 06. Steps 5 to 8 each wait for the step before, so each will be late by as much as step 4 is, and their dates no longer hold.
 
-**Steps 4 to 8 are crucial.** They are the pages, and the pages are the commitment in `webcity-documentation.md`. No page can be dropped or traded for an item under Last in line. Every day lost here is taken from the buffer (Tue 24) first and from the items under Last in line after that. The path that decides the finish date is: the foundation tickets → frontend ticket 06 → 07 → the pages, joined at 07 by 04 → 05. Work on that path comes before anything else.
+**Steps 4 to 8 are crucial.** They are the pages, and the pages are the commitment in `webcity-documentation.md`. No page can be dropped or traded for an item under Last in line. Every day lost here is taken from the buffer (Tue 24) first and from the items under Last in line after that. The path that decides the finish date is frontend tickets 27 → 28 → 29 → 06 → 07 → the pages. Ticket 05 also waits for 29 and must be done before 07. Work on that path comes before anything else, and ticket 27 is the one that can start now.
 
 1. [ ] **Design, in four parts.** The name was still open, so the session fixed the structure and left the brand for later.
    - [x] **Mon 16 (planned for Sat 14, two days late): the design session.** Output: ADR 0007, `DESIGN.md` with a neutral provisional skin, and the Styling rules in the conventions skill's TypeScript reference.
-   - [ ] **The foundation ticket,** which the owner writes with `/to-tickets`. Wherever a ticket says it waits for the design session, it now waits for this ticket. It installs Tailwind, CDK and the icon package; adds the token file with the neutral skin in light and dark, and the fonts; builds the theme store, its switch and the first-paint check against a flash of the wrong theme; builds the `Avatar` and `Button` components; adds the Playwright screenshot script, the Playwright MCP server in `.mcp.json` (on trial), `frontend/CLAUDE.md` and the check for literal values; installs Impeccable and starts the trial of its hook. Ticket 07 gains the theme switch in the menu.
+   - [ ] **Crucial: the frontend setup, frontend tickets 27 to 29.** Every open frontend ticket from 05 onward waits for all three, by the owner's decision on 2026-11-16: the environment is set up before any other frontend work. Only ticket 25 does not wait, because it is backend tests.
+     - **27, the design tokens:** Tailwind, CDK and the icon package; the token file with the neutral skin in light and dark; the fonts; the `Button`; `frontend/CLAUDE.md`; the check that fails on a literal value. It can start at once.
+     - **28, the themes:** the theme store, its switch, and no flash of the wrong theme on load. After 27.
+     - **29, the screenshots:** the Playwright command, and the Playwright MCP server in `.mcp.json` on trial. After 28 and 04.
+   - [ ] **Frontend ticket 30: Impeccable, with its hook on trial.** Done in a session with the owner, not through `/implement`. No ticket waits for it.
    - [ ] **By Sat 21: the name session** (open decision 3). It uses Playwright to look at reference sites, and writes `PRODUCT.md`.
    - [ ] **After the name: the brand session.** One approval page in two skins; the owner chooses. It replaces the provisional values in `DESIGN.md` and the token file, and adds the logo.
 2. [ ] **Write the tickets, one group at a time.** For each group the owner runs `/to-spec` and then `/to-tickets` in a session that already holds the context, because `/to-spec` only writes down what the conversation has settled.
    - Done 2026-11-14: the backend gaps A to F, as 13 tickets in `.scratch/documented-backend-features/issues/`. Tickets 01, 02 and 03 can start at once; the longest chain is 02 → 05 → 08 → 09 → 11 → 12.
    - Done 2026-11-15: the frontend, as a spec (`.scratch/frontend/spec.md`) and 24 tickets in `.scratch/frontend/issues/`. Tickets 01 and 02 can start at once, and 01 to 05 need nothing from the design session; 06 onward wait for it. The longest chain is 02 → 04 → 05 → 07 → 09 → 11 → 13 → 14.
+   - Done 2026-11-16: the frontend setup from the design session, as frontend tickets 27 to 30. Tickets 06 and 07 were changed to match (the default profile picture, the theme switch, screenshots), and every open frontend ticket from 05 onward now waits for 27 to 29.
    - By Fri 20: n8n, gaps G and H with the six workflows.
 3. [ ] **Any time, in parallel: the open backend tickets.**
    - Documented-backend-features 04 (remove a photo from a post), 12 (an administrator decides a report) and 13 (statistics). The frontend shows "Coming soon" on whatever depends on one that is still open when its page is built.

@@ -19,7 +19,7 @@
 
 Decisions are under "Actions on content, reports and hidden content" in `.scratch/frontend/spec.md`. The backend's rules are under Moderation visibility and `ReportController` in `docs/backend/controllers.md`.
 
-**Blocked by:** 11 (A post has its own page with comments), 12 (An author edits and deletes a post)
+**Blocked by:** 11 (A post has its own page with comments), 12 (An author edits and deletes a post), and the frontend setup (27, 28, 29)
 
 **Status:** ready-for-agent
 

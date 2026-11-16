@@ -10,7 +10,7 @@
 
 Decisions are under "Chat" in `.scratch/frontend/spec.md`. The 20-minute rule and the events are in `docs/backend/signalr.md` and under `MessageController` in `docs/backend/controllers.md`.
 
-**Blocked by:** 19 (Chat: sending and receiving live)
+**Blocked by:** 19 (Chat: sending and receiving live), and the frontend setup (27, 28, 29)
 
 **Status:** ready-for-agent
 

@@ -13,7 +13,7 @@ Hidden content, reports and the administrator's actions come in ticket 13.
 
 Decisions are under "Feed, posts and comments" in `.scratch/frontend/spec.md`. The backend's rules, including who may delete a comment, are under `CommentController` in `docs/backend/controllers.md`.
 
-**Blocked by:** 09 (The feed shows posts with photos and likes)
+**Blocked by:** 09 (The feed shows posts with photos and likes), and the frontend setup (27, 28, 29)
 
 **Status:** ready-for-agent
 

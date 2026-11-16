@@ -1,17 +1,17 @@
 # 06: The pages share a toast, a dialog, a confirmation and a menu
 
-**What to build:** Four building blocks in `shared/` that almost every page uses, built with the toolset and tokens the design session chose. This is the one ticket that is not a path through a page: it exists so that the first page to need a confirmation does not hold up every other page.
+**What to build:** Four building blocks in `shared/` that almost every page uses, built with Tailwind, Angular CDK and the design tokens of `DESIGN.md`. This is the one ticket that is not a path through a page: it exists so that the first page to need a confirmation does not hold up every other page.
 
 - **Toast.** A toast store and its component. A toast is a short message that appears over the page and leaves by itself. It stays 5 seconds, at most three show at once, and a fourth waits for a place. A toast may be a link. It serves two uses: failures of actions outside a form (conventions, Errors) and, in ticket 21, live notifications.
 - **Dialog.** A box over the page that holds any content, keeps the keyboard focus inside it, and closes on Escape and on a click outside.
 - **Confirmation.** A dialog with a question and two buttons, whose answer the caller awaits. One variant asks the user to type a given word before the confirm button works; the settings page needs it.
 - **Menu.** A "…" button that opens a list of entries given by the caller, usable with the keyboard.
 
-A user's initials, shown wherever an avatar would be, are a fifth small piece: users have no picture.
+The profile picture is a fifth small piece: one `Avatar` component that shows a user wherever a user appears. It takes the user's id, the username and an optional address of a picture, which no DTO supplies yet. Without a picture it draws the default, as `DESIGN.md` (Components) defines it: the user's initials on a disc whose colour is chosen by the user's id, and a grey disc with no letters for an account that is deactivated or deleted.
 
 Decisions are under "Toasts", "Actions on content" and "Across the whole frontend" in `.scratch/frontend/spec.md`.
 
-**Blocked by:** 02 (The Angular app starts), 03 (The interface speaks English and Georgian), and the design session (roadmap step 1), which chooses the toolset and the tokens
+**Blocked by:** 02 (The Angular app starts), 03 (The interface speaks English and Georgian), and the frontend setup: 27 (The app takes its look from design tokens), 28 (A user switches between light and dark), 29 (An agent and the owner see every page in screenshots)
 
 **Status:** ready-for-agent
 
@@ -22,5 +22,6 @@ Decisions are under "Toasts", "Actions on content" and "Across the whole fronten
 - [ ] In the running app, the bare page has a button that shows each block, until the shell replaces the page
 - [ ] The dialog keeps focus inside, closes on Escape, and returns focus to the button that opened it
 - [ ] The menu opens, moves and chooses with the keyboard
-- [ ] Each block works on a desktop width and on a phone width
-- [ ] All texts come from the dictionaries, and all colours, sizes and spacing from the token file
+- [ ] The default profile picture's rules are unit-tested: a username in two parts gives both first letters, any other gives its first two letters, the same id always gives the same disc colour, and an unavailable account gives the grey disc with no letters
+- [ ] Each block is shown in screenshots of the bare page at 360, 768 and 1280 px, in both themes, for the owner's approval
+- [ ] All texts come from the dictionaries, and all colours, sizes and spacing from design tokens

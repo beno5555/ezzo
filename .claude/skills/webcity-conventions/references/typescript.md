@@ -307,7 +307,7 @@ export class MyProfilePage implements OnInit {
 
 `DESIGN.md` at the repo root is the visual brief: the design tokens, their values and how to apply them. Read it before you edit a template or a style.
 
-- **Temporary:** Tailwind, Angular CDK, the icon package, the token file, `frontend/CLAUDE.md`, the check for literal values and the screenshot script are installed by the foundation ticket. Until it lands, write no styles. Delete this line in that ticket.
+- **Temporary:** Tailwind, Angular CDK, the icon package, the token file, `frontend/CLAUDE.md` and the check for literal values are installed by frontend ticket 27, and the screenshot command by ticket 29. Until ticket 27 lands, write no styles. Ticket 27 deletes this line.
 
 **Toolset**
 

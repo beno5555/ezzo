@@ -13,7 +13,7 @@ The copies in `~/.claude/skills/` with the same names are **Windows directory ju
 Two design skills from other authors serve the frontend. Each is a real folder committed under `.claude/skills/`, with no junction.
 
 - **`frontend-design`** (Anthropic, Apache 2.0): one text file, copied on 2026-11-16 from `anthropics/skills` at commit `1780c5e`. It guides new visual work, such as the brand session.
-- **Impeccable** (`pbakaus/impeccable`, Apache 2.0): not installed yet; the foundation ticket installs it. It is used through its named commands (`critique`, `audit`, `adapt`, `polish`) at approval points. Its launcher downloads a program from the skill's GitHub releases and checks it against checksums shipped with the skill. Its hook runs on trial, in quiet mode.
+- **Impeccable** (`pbakaus/impeccable`, Apache 2.0): not installed yet; frontend ticket 30 installs it, in a session with the owner. It is used through its named commands (`critique`, `audit`, `adapt`, `polish`) at approval points. Its launcher downloads a program from the skill's GitHub releases and checks it against checksums shipped with the skill. Its hook runs on trial, in quiet mode.
 
 Rules for any further skill:
 
