@@ -14,6 +14,10 @@ Non-visual work (backend, tests, tooling) is merged as soon as it passes the ful
   - the new `ImageStorage` (`backend/aspnetproject/Infrastructure/Services/Storage/`), the only code that touches files;
   - the contract change: `POST /api/posts` is now `multipart/form-data`, and every post read returns `Images`;
   - the open points at the bottom of the ticket, under Comments.
+- **Test-suite-speed ticket 01: signing in costs almost nothing in the test suite**, merged 2026-11-16 (suite on `master` after the merge: 519 tests, `Duration: 49 s`, down from 1 m 53 s). Look at:
+  - the new setting `PasswordConfiguration:HashIterations` (`PasswordHashingConfiguration`, default 100,000) and its startup guard, which fails below 100,000 outside Testing;
+  - `TestDataSeeder`, which now hashes the shared test password through the app's hasher, so seeded users sign in only on Testing hosts;
+  - the open points at the bottom of the ticket, under Comments (Testing accepts 0 or a negative value).
 
 **Not merged yet.** These branches are finished but wait for the owner's review before they are merged. No agent merges them until the owner says so. After the merge, delete the line. Merge 27 first: it is on the critical chain (28, 06 and 30 wait for it).
 - **Branch `worktree-design-tokens`**: frontend ticket 27, the app takes its look from design tokens (`.scratch/frontend/issues/27-the-app-takes-its-look-from-design-tokens.md`). Worktree `.claude/worktrees/design-tokens`, added 2026-11-16.
@@ -65,7 +69,7 @@ Set on 2026-11-16. Two worktree lanes at a time (`docs/agents/worktrees.md`). Un
 | Round | Frontend lane | Backend lane | Status |
 |---|---|---|---|
 | 0 | F27, design tokens | B12, an administrator decides a report (merged 2026-11-16) | running |
-| 1 | F28, the themes | T01, then T02: cheaper sign-in, one-batch reseed | |
+| 1 | F28, the themes | T01, then T02: cheaper sign-in, one-batch reseed | T01 merged 2026-11-16 |
 | 2 | F29, the screenshots | T03, test classes in parallel | |
 | 3 | F06, toast, dialog, confirmation, menu | B13, statistics | |
 | 4 | F05, the live connection | frontend 25, friendship tests | |
