@@ -15,7 +15,7 @@ For the earlier, API-only state of this repository and the history behind it, se
 - Like and unlike posts, once per user per post; list a post's likers, newest first; live `PostLiked` push to the post's author
 - Send, accept, decline and remove friend requests; view friends, pending and sent requests; search users by username
 - Send, edit and delete messages between friends, with up to 5 photos per message (the same checks as post photos); live push (`ReceiveMessage`, `MessageEdited`, `MessageSeen`) over SignalR; paginated conversations and read receipts. A message can be edited for 20 minutes after it is sent, and the receiver sees the edit live
-- Presence: `UserOnline` / `UserOffline` broadcast to friends when a user's first connection opens or last connection closes
+- Presence: `UserOnline` / `UserOffline` broadcast to friends when a user's first connection opens or last connection closes; at startup, every user still marked online is marked offline, since a restart drops every connection
 - Typing indicator: a client calls `SendTyping` while its user writes to a friend, and the friend receives `UserTyping`. Only accepted friends get it; nothing is stored or logged
 - View a user's profile; edit own profile
 - Roles (`User`, `Administrator`): an administrator can create, update, deactivate, reactivate and soft-delete other users' accounts, delete any post or comment, and assign or remove the `Administrator` role

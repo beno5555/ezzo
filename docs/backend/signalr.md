@@ -58,6 +58,7 @@ public class MessageHub : Hub
   - `NotifyUserOnlineAsync(userId)` — marks `User.LastOnlineAt = null` (the "online" sentinel, via `UserRepository.MarkActiveAsync`, a bulk `ExecuteUpdateAsync`), fetches the user's accepted friend ids, broadcasts `UserOnline { UserId }` to each friend's group.
   - `NotifyUserOfflineAsync(userId)` — stamps `User.LastOnlineAt = DateTime.UtcNow` (`MarkUserOfflineAsync`), broadcasts `UserOffline { UserId, LastActiveAt }` to friends.
 - `User.LastOnlineAt`: `null` means online; a timestamp means "last seen at." `DisplayFriendDto.IsActive => LastActiveAt == null` mirrors this convention client-side.
+- `PresenceResetService` (a hosted service that runs once at startup, before the server accepts requests) marks every user still marked online as offline at that moment (`UserRepository.MarkEveryoneOfflineAsync`), deactivated and deleted accounts included, and writes one `Log` row when it changed any. `UserConnectionTracker` lives in memory, so after a restart nobody is connected, and a user who was connected when the process stopped without a clean disconnect would otherwise show as online to friends until they connected and left again. Users who reconnect are marked online again by `OnConnectedAsync`. It assumes one backend instance: a second instance starting would mark the first one's connected users offline. It is also registered as a singleton, so a test can run it (`Hubs/PresenceResetServiceTests`); the test host removes hosted services.
 
 ## Typing
 

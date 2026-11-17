@@ -22,6 +22,9 @@ public static class ApplicationServicesExtensions
     {
         services.AddSignalR().AddUtcTimeJson();
         services.AddSingleton<UserConnectionTracker>();
+        // Also a singleton, so integration tests can run the reset: their host removes every IHostedService.
+        services.AddSingleton<PresenceResetService>();
+        services.AddHostedService(serviceProvider => serviceProvider.GetRequiredService<PresenceResetService>());
         
         services.AddScoped<CommentRepository>();
         services.AddScoped<FriendshipRepository>();
