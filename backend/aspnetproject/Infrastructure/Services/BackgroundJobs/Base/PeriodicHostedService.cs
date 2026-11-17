@@ -1,5 +1,7 @@
 ﻿using aspnetproject.Common.ProjectConstants;
 using aspnetproject.Infrastructure.Dtos.DatabaseLogs;
+using aspnetproject.Infrastructure.Mappers;
+using aspnetproject.Infrastructure.Services.Automation;
 using aspnetproject.Infrastructure.Services.Logging;
 
 namespace aspnetproject.Infrastructure.Services.BackgroundJobs.Base;
@@ -31,9 +33,9 @@ public abstract class PeriodicHostedService : BackgroundService
     }
 
     /// <summary>
-    /// Runs one cycle in its own scope, as each timer tick does; a failed cycle is logged, not thrown. Public so a test can
-    /// run a cycle without the timer. The test host removes hosted services, so a job under test is also registered as a
-    /// singleton (see docs/backend/background-jobs.md).
+    /// Runs one cycle in its own scope, as each timer tick does; a failed cycle is logged and sent as an exception-occurred
+    /// event, not thrown. Public so a test can run a cycle without the timer. The test host removes hosted services, so a
+    /// job under test is also registered as a singleton (see docs/backend/background-jobs.md).
     /// </summary>
     public async Task RunOnceAsync(CancellationToken stoppingToken)
     {
@@ -52,6 +54,9 @@ public abstract class PeriodicHostedService : BackgroundService
         catch (Exception ex)
         {
             await LogResultAsync(dbLogger, false, null, ex.Message);
+
+            var eventPublisher = scope.ServiceProvider.GetRequiredService<EventPublisher>();
+            await eventPublisher.PublishAsync(EventNames.ExceptionOccurred, ExceptionEventMapper.ToJobEvent(ex, _serviceName));
         }
     }
 

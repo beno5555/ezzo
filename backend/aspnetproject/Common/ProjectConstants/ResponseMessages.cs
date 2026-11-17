@@ -257,6 +257,17 @@ public static class ResponseMessages
     public static readonly Func<string, string, string> WithInnerExceptionDetail =
         (detail, innerMessage) => $"{detail} | Inner: {innerMessage}";
 
+    // The Development-only route's exception (DevelopmentEndpointsExtensions).
+    public const string ThrownOnPurpose = "Thrown on purpose, to test what an unhandled exception does";
+
+    public static readonly Func<string, string, string> EventNotDelivered =
+        (eventName, reason) => $"Event {eventName} was not delivered: {reason}";
+
+    public static readonly Func<int, string> EventRefused =
+        statusCode => $"the automation answered {statusCode}";
+
+    public const string EventTimedOut = "no answer before the timeout";
+
     #endregion
 
 }

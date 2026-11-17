@@ -15,7 +15,7 @@ Decisions are under "Events" and "Testing Decisions" in `.scratch/n8n-automation
 
 **Blocked by:** None (can start immediately).
 
-**Status:** ready-for-agent
+**Status:** in-progress
 
 **Difficulty:** tricky: the first outgoing HTTP call in this backend, with a signature, a rule that it never throws or loops, and a pattern that tickets 04 onward copy.
 
