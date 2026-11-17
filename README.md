@@ -25,6 +25,7 @@ For the earlier, API-only state of this repository and the history behind it, se
 - Deactivate own account; reactivate it through an emailed activation token
 - Soft-delete own account; a background job later purges soft-deleted accounts and their messages (with their photo files), friendships, posts, likes and reports once a retention window has passed
 - Outcome logging of service calls to the `Logs` table, plus a file log for unhandled exceptions
+- Automation events: an unhandled exception, in a request or in a background job, is sent to the automation (n8n) as a signed `exception-occurred` event. Events are off by default; a failed delivery writes a `Logs` row and nothing else. In Development, `GET api/dev/throw` throws on purpose
 - Rate limiting: a named policy on every endpoint except logout, and a global limiter over everything
 
 ---
@@ -67,7 +68,7 @@ System.Security.Cryptography.Pkcs
     /aspnetproject                    the API project
     /aspnetproject.IntegrationTests   integration tests
 /docs
-    /backend                          per-area docs: auth, controllers, data, signalr, background-jobs
+    /backend                          per-area docs: auth, controllers, data, signalr, background-jobs, automation
     /adr                              architecture decision records
     /agents                           notes for coding agents
 /scripts
@@ -130,13 +131,13 @@ CLAUDE.md
         DeterministicFixtureSeed.cs
 /Extensions
     ApplicationServicesExtensions.cs, AuthenticationExtensions.cs, CorsExtensions.cs,
-    GlobalExceptionHandler.cs, ImageStorageExtensions.cs, RateLimitConfig.cs, SwaggerExtensions.cs,
-    TestSeedExtensions.cs
+    DevelopmentEndpointsExtensions.cs, GlobalExceptionHandler.cs, ImageStorageExtensions.cs, RateLimitConfig.cs,
+    SwaggerExtensions.cs, TestSeedExtensions.cs
 /Hubs
     MessageHub.cs
 /Infrastructure
     /Dtos
-        /Accounts, /Auth, /Comments, /DatabaseLogs, /Friendships, /Images,
+        /Accounts, /Auth, /Automation, /Comments, /DatabaseLogs, /Friendships, /Images,
         /Messages, /Moderation, /Posts, /Reports, /UserRoles, /Users, /WebsocketsTransfer
     /Mappers
         UserMapper.cs
@@ -144,6 +145,9 @@ CLAUDE.md
     /Queries
         AccountListQuery.cs, PageQuery.cs, ReportListQuery.cs, SearchUserQuery.cs
     /Services
+        /Automation
+            /Configuration
+            EventPublisher.cs
         /BackgroundJobs
             /Base
             /Common
@@ -236,6 +240,7 @@ var app = builder.Build();
 
 if (app.Environment.IsDevelopment())
 {
+    app.MapThrowingEndpoint();
     app.MapSwagger();
     app.MapSwaggerUI();
     app.MapOpenApi();
@@ -258,7 +263,7 @@ app.MapHub<MessageHub>("hubs/messages");
 app.Run();
 ```
 
-`AddApplicationServices` (`Extensions/ApplicationServicesExtensions.cs`) registers SignalR, the singleton `UserConnectionTracker`, every repository and service (scoped), the two loggers (scoped), `EmailSender` (transient), `ImageStorage` (scoped), the options classes for email, image storage and the four cleanup jobs, and the four hosted services (`OrphanImagesCleanupService` also as a singleton, so the integration tests can run one sweep). `UseImageStorage` serves the upload folder as static files at `/api/images`.
+`AddApplicationServices` (`Extensions/ApplicationServicesExtensions.cs`) registers SignalR, the singleton `UserConnectionTracker`, every repository and service (scoped), the two loggers (scoped), `EmailSender` (transient), `ImageStorage` (scoped), the options classes for email, image storage, automation events and the four cleanup jobs, `EventPublisher` (a typed `HttpClient`), and the four hosted services (`OrphanImagesCleanupService` also as a singleton, so the integration tests can run one sweep). `UseImageStorage` serves the upload folder as static files at `/api/images`.
 
 ---
 
@@ -290,5 +295,6 @@ Per-area detail lives in `docs/backend/`:
 - `data.md`: repositories, entities, cascade behavior
 - `signalr.md`: the hub, presence, events, CORS
 - `background-jobs.md`: the cleanup jobs
+- `automation.md`: the events sent to the automation, their signature and settings
 
 Architecture decision records are in `docs/adr/`, and domain terms in `GLOSSARY.md`.

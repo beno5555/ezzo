@@ -1,6 +1,6 @@
 # WebCity — Background Jobs
 
-> Part of the WebCity doc set. See also: `README.md`, `data.md`, `auth.md`, `controllers.md`, `signalr.md`, `background-jobs.md`.
+> Part of the WebCity doc set. See also: `README.md`, `data.md`, `auth.md`, `controllers.md`, `signalr.md`, `background-jobs.md`, `automation.md`.
 
 ---
 
@@ -32,6 +32,9 @@ public async Task RunOnceAsync(CancellationToken stoppingToken)
     catch (Exception ex)
     {
         await LogResultAsync(dbLogger, false, null, ex.Message);
+
+        var eventPublisher = scope.ServiceProvider.GetRequiredService<EventPublisher>();
+        await eventPublisher.PublishAsync(EventNames.ExceptionOccurred, ExceptionEventMapper.ToJobEvent(ex, _serviceName));
     }
 }
 
@@ -127,4 +130,4 @@ Tests: `OrphanImagesCleanupServiceTests` (see **Testing a job**) cover deleting 
 
 Background jobs log through `DatabaseLogger.LogSystemActionAsync`, not `LogUserActionAsync` — no `HttpContext`/caller identity exists in a timer-triggered cycle, so `AuthorizedRequest` is always `false` and `UserId` is always `null` for these rows, distinguishing them from request-triggered log rows at a glance.
 
-**Failed cycles.** The base class's catch block calls `LogResultAsync(dbLogger, false, null, ex.Message)`. `Log.EntityName` is nullable, so a failed cycle is written as a `Succeeded = false` row with no entity name. `LogResultAsync` truncates `details` to `Constants.LogDetailsMaxLength` (the `Log.Details` column size) because exception messages, such as SQL errors, can be longer and an oversized insert would be rejected. If the log write itself still fails, `DatabaseLogger` falls back to `SystemLogger`.
+**Failed cycles.** The base class's catch block calls `LogResultAsync(dbLogger, false, null, ex.Message)`, then sends an `exception-occurred` event whose place is the job's class name (see `automation.md`). The event goes out after the row is written, and the publisher never throws, so the row is there whether or not the event is delivered; with events off nothing is sent. `Log.EntityName` is nullable, so a failed cycle is written as a `Succeeded = false` row with no entity name. `LogResultAsync` truncates `details` to `Constants.LogDetailsMaxLength` (the `Log.Details` column size) because exception messages, such as SQL errors, can be longer and an oversized insert would be rejected. If the log write itself still fails, `DatabaseLogger` falls back to `SystemLogger`.
