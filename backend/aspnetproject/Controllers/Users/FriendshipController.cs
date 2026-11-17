@@ -3,7 +3,6 @@ using aspnetproject.Common.ProjectConstants.Enums;
 using aspnetproject.Controllers.Base;
 using aspnetproject.Extensions;
 using aspnetproject.Infrastructure.Dtos.Friendships;
-using aspnetproject.Infrastructure.Dtos.Users;
 using aspnetproject.Infrastructure.Queries;
 using aspnetproject.Infrastructure.Services.BusinessLogic.Users;
 using Microsoft.AspNetCore.Authorization;
@@ -122,7 +121,7 @@ public class FriendshipController : BaseController
     [HttpGet]
     [Route("user/{userId:int}")]
     [EnableRateLimiting(RateLimitConfig.Policies.ReadFriendships)]
-    public async Task<ActionResult<ListResponse<MinimalUserDto>>> GetFriendsOf(int userId, [FromQuery] PageQuery query) 
+    public async Task<ActionResult<ListResponse<StandardFriendshipDto>>> GetFriendsOf(int userId, [FromQuery] PageQuery query) 
     {
         var response = await _friendshipService.GetFriendshipsAsync(userId, query.PageNumber, query.PageSize);
 

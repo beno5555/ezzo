@@ -189,14 +189,11 @@ public class FriendshipService : BaseService
         var response   = new ApplicationResponse<AcceptedFriendshipDto>();
         
         var friendship = await _friendshipRepository.GetAcceptedFriendshipAsync(currentUserId, otherUserId, false);
+        var otherUser  = friendship is null ? null : await ResolveOtherUserAsync(friendship, otherUserId);
 
-        if (friendship is not null)
+        if (friendship is not null && otherUser is not null)
         {
-            var otherUser = friendship.RequesterUserId == otherUserId
-                ? friendship.RequesterUser
-                : friendship.AddresseeUser;
-            
-            var friendshipDto = FriendshipMapper.ToAcceptedDisplay(friendship, otherUser!);
+            var friendshipDto = FriendshipMapper.ToAcceptedDisplay(friendship, otherUser);
             response.Ok(friendshipDto, ResponseMessages.RelationshipFetched);           
             await LogResultAsync(response.Succeeded, nameof(GetAcceptedFriendshipAsync), nameof(Friendship), null, friendship.Id);
         }
@@ -209,6 +206,16 @@ public class FriendshipService : BaseService
         return response;
     }
     
+    // The user query filter leaves out a deactivated or soft-deleted friend, so such a friend is read without it.
+    private async Task<User?> ResolveOtherUserAsync(Friendship friendship, int otherUserId)
+    {
+        var otherUser = friendship.RequesterUserId == otherUserId
+            ? friendship.RequesterUser
+            : friendship.AddresseeUser;
+
+        return otherUser ?? await _userRepository.GetUserByIdNoFilterAsync(otherUserId);
+    }
+
     public async Task<ApplicationResponse<StandardFriendshipDto>> RespondToRequestAsync(int requesterId, int addresseeId, FriendshipStatus status)
     {
         var response = new ApplicationResponse<StandardFriendshipDto>();

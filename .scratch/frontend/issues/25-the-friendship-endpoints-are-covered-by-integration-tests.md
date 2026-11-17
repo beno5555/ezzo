@@ -10,7 +10,7 @@ Tests follow the house layout: grouped by endpoint, named `Method_Condition_Expe
 
 **Blocked by:** None (can start immediately)
 
-**Status:** ready-for-agent
+**Status:** in-progress
 
 **Difficulty:** routine (Opus 5.5 medium): many small rules hold at once (who may act, in which state, on which list), and a test that exposes a bug needs judgment to fix.
 
