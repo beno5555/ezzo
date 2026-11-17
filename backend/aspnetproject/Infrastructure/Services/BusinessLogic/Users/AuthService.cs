@@ -6,6 +6,7 @@ using aspnetproject.Infrastructure.Dtos.Auth;
 using aspnetproject.Infrastructure.Dtos.Auth.Password;
 using aspnetproject.Infrastructure.Dtos.Users;
 using aspnetproject.Infrastructure.Mappers;
+using aspnetproject.Infrastructure.Services.Automation;
 using aspnetproject.Infrastructure.Services.BusinessLogic.Base;
 using aspnetproject.Infrastructure.Services.Helpers;
 using aspnetproject.Infrastructure.Services.Logging;
@@ -20,6 +21,7 @@ public class AuthService : BaseService
     private readonly TokenGenerator         _tokenGenerator;
     private readonly AccountSecurityService _accountSecurityService;
     private readonly UrlSecurityService     _urlSecurityService;
+    private readonly EventPublisher         _eventPublisher;
     
     public AuthService(
         UserRepository userRepository,
@@ -28,6 +30,7 @@ public class AuthService : BaseService
         TokenGenerator tokenGenerator,
         AccountSecurityService accountSecurityService,
         UrlSecurityService urlSecurityService,
+        EventPublisher eventPublisher,
         DatabaseLogger dbLogger
         ) : base(dbLogger)
     {
@@ -37,6 +40,7 @@ public class AuthService : BaseService
         _tokenGenerator = tokenGenerator;
         _accountSecurityService = accountSecurityService;
         _urlSecurityService = urlSecurityService;
+        _eventPublisher = eventPublisher;
     }
 
     public async Task<ApplicationResponse<FullUserDto>> RegisterAsync(RegisterDto registerDto)
@@ -57,6 +61,9 @@ public class AuthService : BaseService
             
                 User addedUser = await _userRepository.AddUserAsync(userToRegister);
                 var displayDto = UserMapper.ToFullDisplay(addedUser);
+
+                // An administrator creating an account goes through here too (UserController.CreateUser).
+                await _eventPublisher.PublishAsync(EventNames.AccountCreated, AccountEventMapper.ToCreatedEvent(addedUser));
                 
                 response.Ok(displayDto, ResponseMessages.RegistrationSuccessful);
                 await LogResultAsync(response.Succeeded, nameof(RegisterAsync), nameof(User), null, userToRegister.Id);

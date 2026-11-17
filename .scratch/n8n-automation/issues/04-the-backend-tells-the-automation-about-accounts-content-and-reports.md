@@ -20,20 +20,20 @@ Decisions are under "Events" in `.scratch/n8n-automation/spec.md`. The six email
 
 **Blocked by:** 01 (A failure in the backend leaves as a signed event)
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Difficulty:** routine: six calls to the publisher from ticket 01, each proven by the recorder from that ticket.
 
-- [ ] A successful registration records one `account-created` event with the id, username and email; an administrator creating an account records the same
-- [ ] A registration refused for a taken username or a registered email records no event
-- [ ] Creating a post with photos records `post-created` with the title, the text, every photo's relative address, the author and the status; editing it records `post-edited`
-- [ ] Creating and editing a comment record `comment-created` and `comment-edited` with the text, the post id and the author
-- [ ] A refused create or edit records nothing
-- [ ] A report records `report-created` with the target snapshot and the reason; a second user's report on the same target carries both pending times; a decided report's time is no longer among them
-- [ ] A refused report (own content, a second pending report by the same user) records nothing
-- [ ] With the recorder failing, creating a post still succeeds
-- [ ] The registration, password reset and reactivation flows are run, and no recorded body contains a reset token or a password
-- [ ] `docs/backend/automation.md` lists the six events and their data
+- [x] A successful registration records one `account-created` event with the id, username and email; an administrator creating an account records the same
+- [x] A registration refused for a taken username or a registered email records no event
+- [x] Creating a post with photos records `post-created` with the title, the text, every photo's relative address, the author and the status; editing it records `post-edited`
+- [x] Creating and editing a comment record `comment-created` and `comment-edited` with the text, the post id and the author
+- [x] A refused create or edit records nothing
+- [x] A report records `report-created` with the target snapshot and the reason; a second user's report on the same target carries both pending times; a decided report's time is no longer among them
+- [x] A refused report (own content, a second pending report by the same user) records nothing
+- [x] With the recorder failing, creating a post still succeeds
+- [x] The registration, password reset and reactivation flows are run, and no recorded body contains a reset token or a password
+- [x] `docs/backend/automation.md` lists the six events and their data
 
 ## Known limits from ticket 01
 
@@ -45,3 +45,10 @@ Ticket 01 built the backend's sending side (`EventPublisher`, `docs/backend/auto
 - **Enums are text only when the DTO says so.** The publisher writes JSON as the API does, with no global enum converter. A moderation status or a target type is written as its name only with `[JsonConverter(typeof(JsonStringEnumConverter<T>))]` on the property, as `StandardReportDto` does; without it, it leaves as a number.
 - **`occurredAt` is the send time.** Publish in the same method, right after the change is committed. Never publish inside an `ExecuteInTransactionAsync` delegate: a change that is rolled back must send nothing.
 - **The test seam:** `new CustomWebApplicationFactory(dbFixture, recordEvents: true)`, then `factory.EventRecorder.Events` (each with `Path`, `Body`, `Signature`, `Envelope` and `Data`). Seeded users sign in only on Testing hosts, which is the default.
+
+## Comments
+
+**2026-11-17, implementation.** Six events sent from `AuthService.RegisterAsync` (also the administrator's `POST api/users`), `PostService.UploadPost` / `UpdatePost`, `CommentService.AddCommentAsync` / `EditCommentAsync` and `ReportService.CreateReportAsync`, each after the commit and outside any transaction delegate. Each has its own data DTO (`PostEventDto` and `CommentEventDto` are abstract bases for the created/edited pairs). Tests: `Automation/AccountCreatedEventTests`, `PostEventTests`, `CommentEventTests`, `ReportCreatedEventTests`, `EventSecretsTests`. Full suite: 709 passed, 49 s.
+
+- **`post-edited` is sent for every saved edit,** even when the title and text are the same as before, because `UpdatePost` stamps `LastUpdatedAt` regardless. The spec says "a post's title or text is changed". Skipping an unchanged edit is a small change if the owner wants it.
+- **The secrets test cannot consume the emailed tokens.** Email is off in tests, so the reset and reactivation flows are run as far as the request and the administrator's reactivation; the raw token is never readable. Every recorded body is searched for token-shaped strings, JWTs, the stored password hashes, salts and reset-token hashes, the plaintext passwords, and the words password, token and hash.

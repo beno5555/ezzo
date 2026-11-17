@@ -4,4 +4,10 @@ namespace aspnetproject.Common.ProjectConstants;
 public static class EventNames
 {
     public const string ExceptionOccurred = "exception-occurred";
+    public const string AccountCreated    = "account-created";
+    public const string PostCreated       = "post-created";
+    public const string PostEdited        = "post-edited";
+    public const string CommentCreated    = "comment-created";
+    public const string CommentEdited     = "comment-edited";
+    public const string ReportCreated     = "report-created";
 }
