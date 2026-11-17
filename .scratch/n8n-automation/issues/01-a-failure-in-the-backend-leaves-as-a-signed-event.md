@@ -41,8 +41,5 @@ Decisions are under "Events" and "Testing Decisions" in `.scratch/n8n-automation
   - the throwing route has its own per-IP rate-limit policy (`ThrowOnPurpose`, 30 a minute), as every new action does;
   - a failed delivery's `Log` row is written through a scope of its own, so a `DbUpdateException` left in the request's `DbContext` cannot block it.
 - Not tested: the event for the conflict answer (a `DbUpdateException`). It goes through the same code before the status branch in `GlobalExceptionHandler`, but no test forces one.
-- **Not merged into `master`.**
-  - `origin/master` was force-pushed to a new history, and the local `master` (`685d7e6`) shares no history with it, so `git pull --ff-only` cannot succeed.
-  - The local `master` holds commits (for example "Stop integration test hosts from leaking inotify instances") that I could not find in the new history, so I left it alone, as CLAUDE.md asks.
-  - The branch is based on `2f93490`. `origin/master` has since moved to `1978158`.
-  - To finish: the owner decides what happens to the old local `master`, then merges `claude/kind-fermi-rgzhwf` into `master` with `--no-ff` and adds the "Awaiting the owner's review" line in `.scratch/roadmap.md`. That line was left out here so it cannot conflict with the roadmap changes made since.
+- **Correction to the merge note first written here.** It said `origin/master` had been force-pushed and that the container's `master` (`685d7e6`) held commits found nowhere else. Both claims were wrong. The cloud clone was shallow, so `git fetch` reported a "forced update" and found no merge base. After `git fetch --unshallow`, `685d7e6` is an ancestor of `origin/master`. CLAUDE.md now describes this trap and forbids force-pushing `master`.
+- Merged into `master` with `--no-ff` after `master` was fast-forwarded to `origin/master` (`1978158`, which includes ticket 25). The full suite was run again on the merge before the push; its result is in the merge report.
