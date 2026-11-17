@@ -118,7 +118,7 @@ Gaps A to F (`.scratch/documented-backend-features/spec.md`) are built except on
 
 - A few end-to-end test flows (sign in, post, message). They come before component tests.
 - **Stored notifications:** a table, a list with an unread count, a mark-as-read route, and a bell with a badge. Until then a notification reaches only a user who is connected.
-- **Retried events:** an outbox table and a job that resends an event the automation did not receive. Until then an event sent while n8n is down is lost.
+- **Retried events:** an outbox table and a job that resends an event the automation did not receive (n8n ticket 15, written 2026-11-17). Until then an event sent while n8n is down is lost.
 - Images on AWS S3 (considered on 2026-11-14). Until then they stay on local disk.
 - Russian and Spanish dictionary files (ADR 0006).
 - Translated server text, which needs a stable code on every backend failure (ADR 0006).
