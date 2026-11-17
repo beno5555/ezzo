@@ -4,6 +4,7 @@ using aspnetproject.Data.Models;
 using aspnetproject.Data.Repositories;
 using aspnetproject.Infrastructure.Dtos.Posts;
 using aspnetproject.Infrastructure.Mappers;
+using aspnetproject.Infrastructure.Services.Automation;
 using aspnetproject.Infrastructure.Services.BusinessLogic.Base;
 using aspnetproject.Infrastructure.Services.Logging;
 using aspnetproject.Infrastructure.Services.Storage;
@@ -16,12 +17,14 @@ public class PostService : BaseService
     private readonly UserRepository    _userRepository;
     private readonly CommentRepository _commentRepository;
     private readonly ImageStorage      _imageStorage;
+    private readonly EventPublisher    _eventPublisher;
 
     public PostService(
         PostRepository postRepository,
         UserRepository userRepository,
         CommentRepository commentRepository,
         ImageStorage imageStorage,
+        EventPublisher eventPublisher,
         DatabaseLogger dbLogger
         ) : base(dbLogger)
     {
@@ -29,6 +32,7 @@ public class PostService : BaseService
         _userRepository = userRepository;
         _commentRepository = commentRepository;
         _imageStorage = imageStorage;
+        _eventPublisher = eventPublisher;
     }
     
     public async Task<ApplicationResponse<StandardPostDisplayDto>> UploadPost(int userId, CreatePostDto createPostDto)
@@ -43,6 +47,8 @@ public class PostService : BaseService
                 var postToAdd = PostMapper.ToEntity(userId, createPostDto, imageAddresses);
                 return _postRepository.AddPostAsync(postToAdd);
             });
+
+            await _eventPublisher.PublishAsync(EventNames.PostCreated, PostEventMapper.ToCreatedEvent(addedPost));
 
             var postDisplay = PostMapper.ToNewPostDisplay(addedPost);
             response.Ok(postDisplay, ResponseMessages.PostUploaded);
@@ -121,11 +127,20 @@ public class PostService : BaseService
             bool belongsToCaller = post.UserId == userId;
             if (belongsToCaller)
             {
-                post.PostTitle = updatePostDto.Title;
-                post.PostContent = updatePostDto.Content;
-                post.LastUpdatedAt = DateTime.UtcNow;
+                // Only a real change is an edit: it stamps LastUpdatedAt and sends post-edited. Saving the same text again does neither.
+                bool titleChanged   = post.PostTitle   != updatePostDto.Title;
+                bool contentChanged = post.PostContent != updatePostDto.Content;
+                bool isEdit         = titleChanged || contentChanged;
 
-                await _postRepository.SaveChangesAsync();
+                if (isEdit)
+                {
+                    post.PostTitle = updatePostDto.Title;
+                    post.PostContent = updatePostDto.Content;
+                    post.LastUpdatedAt = DateTime.UtcNow;
+
+                    await _postRepository.SaveChangesAsync();
+                    await _eventPublisher.PublishAsync(EventNames.PostEdited, PostEventMapper.ToEditedEvent(post));
+                }
 
                 var postDisplayDto = PostMapper.ToFullDisplay(postWithStats);
                 response.Ok(postDisplayDto, ResponseMessages.PostUpdated);

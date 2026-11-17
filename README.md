@@ -25,7 +25,7 @@ For the earlier, API-only state of this repository and the history behind it, se
 - Deactivate own account; reactivate it through an emailed activation token
 - Soft-delete own account; a background job later purges soft-deleted accounts and their messages (with their photo files), friendships, posts, likes and reports once a retention window has passed
 - Outcome logging of service calls to the `Logs` table, plus a file log for unhandled exceptions
-- Automation events: an unhandled exception, in a request or in a background job, is sent to the automation (n8n) as a signed `exception-occurred` event. Events are off by default; a failed delivery writes a `Logs` row and nothing else. In Development, `GET api/dev/throw` throws on purpose
+- Automation events: an unhandled exception, in a request or in a background job, is sent to the automation (n8n) as a signed `exception-occurred` event, and so are new accounts, posts, comments, their edits and reports (`account-created`, `post-created`, `post-edited`, `comment-created`, `comment-edited`, `report-created`). Events are off by default; a failed delivery writes a `Logs` row and nothing else. In Development, `GET api/dev/throw` throws on purpose
 - Rate limiting: a named policy on every endpoint except logout, and a global limiter over everything
 
 ---

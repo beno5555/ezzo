@@ -5,6 +5,7 @@ using aspnetproject.Data.Repositories;
 using aspnetproject.Hubs;
 using aspnetproject.Infrastructure.Dtos.Comments;
 using aspnetproject.Infrastructure.Mappers;
+using aspnetproject.Infrastructure.Services.Automation;
 using aspnetproject.Infrastructure.Services.BusinessLogic.Base;
 using aspnetproject.Infrastructure.Services.Logging;
 using Microsoft.AspNetCore.SignalR;
@@ -17,12 +18,14 @@ public class CommentService : BaseService
     private readonly PostRepository          _postRepository;
     private readonly UserRepository          _userRepository;
     private readonly IHubContext<MessageHub> _hubContext;
+    private readonly EventPublisher          _eventPublisher;
 
     public CommentService(
         CommentRepository commentRepository,
         PostRepository postRepository,
         UserRepository userRepository,
         IHubContext<MessageHub> hubContext,
+        EventPublisher eventPublisher,
         DatabaseLogger dbLogger
         ) : base(dbLogger)
     {
@@ -30,6 +33,7 @@ public class CommentService : BaseService
         _postRepository = postRepository;
         _userRepository = userRepository;
         _hubContext = hubContext;
+        _eventPublisher = eventPublisher;
     }
     
     public async Task<ApplicationResponse<FullCommentDto>> GetCommentByIdAsync(int id, int? callerId, bool isAdmin)
@@ -73,6 +77,8 @@ public class CommentService : BaseService
                     var commentNotification = CommentMapper.ToNotification(addedComment);
                     await _hubContext.Clients.Group(post.UserId.ToString()).SendAsync("ReceiveComment", commentNotification);
                 }
+
+                await _eventPublisher.PublishAsync(EventNames.CommentCreated, CommentEventMapper.ToCreatedEvent(addedComment));
             
                 var commentDto = CommentMapper.ToFullDisplay(addedComment);
                 response.Ok(commentDto, ResponseMessages.CommentUploaded);
@@ -180,10 +186,17 @@ public class CommentService : BaseService
             bool belongsToCaller = comment.CommenterUserId == userId;
             if (belongsToCaller)
             {
-                comment.CommentContent = editCommentDto.Content;
-                comment.LastUpdatedAt = DateTime.UtcNow;
-            
-                await _commentRepository.SaveChangesAsync();
+                // Only a real change is an edit: it stamps LastUpdatedAt and sends comment-edited. Saving the same text again does neither.
+                bool isEdit = comment.CommentContent != editCommentDto.Content;
+
+                if (isEdit)
+                {
+                    comment.CommentContent = editCommentDto.Content;
+                    comment.LastUpdatedAt = DateTime.UtcNow;
+
+                    await _commentRepository.SaveChangesAsync();
+                    await _eventPublisher.PublishAsync(EventNames.CommentEdited, CommentEventMapper.ToEditedEvent(comment));
+                }
             
                 var commentDto = CommentMapper.ToFullDisplay(comment);
                 response.Ok(commentDto, ResponseMessages.CommentUpdated);

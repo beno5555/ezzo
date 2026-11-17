@@ -72,7 +72,7 @@ public class BaseEntity
 }
 ```
 
-- `LastUpdatedAt` is nullable and defaults to `null` (not DB-defaulted) — stamped explicitly by service code on update, and doubles as a semantic flag (`Message.IsEdited`).
+- `LastUpdatedAt` is nullable and defaults to `null` (not DB-defaulted) — stamped explicitly by service code on update, and doubles as a semantic flag (`Message.IsEdited`). A post or comment edit stamps it only when the title or text really changes (`PostService.UpdatePost`, `CommentService.EditCommentAsync`); `EditMessage` and the profile edit still stamp it on every saved edit.
 - `Friendship` now inherits `BaseEntity` (unlike the earlier composite-PK design) — it has an `Id`, but controllers still route by the other user's id, not by `Friendship.Id`.
 - `UserRole` does not inherit `BaseEntity` — composite PK `(UserId, RoleId)`.
 - `FriendshipStatus` is stored as a string in the database, lives under `Common/ProjectConstants/Enums`.

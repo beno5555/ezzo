@@ -2,7 +2,7 @@
 
 > Part of the WebCity doc set. See also: `README.md`, `data.md`, `auth.md`, `controllers.md`, `signalr.md`, `background-jobs.md`, `automation.md`.
 
-The backend tells the **automation** (n8n, see `GLOSSARY.md`) what happened by sending it signed events. This page covers the sending side: the publisher, its settings, the envelope, the signature and the events sent so far. The decisions behind it are under "Events" in `.scratch/n8n-automation/spec.md`.
+The backend tells the **automation** (n8n, see `GLOSSARY.md`) what happened by sending it signed events. This page covers the sending side: the publisher, its settings, the envelope, the signature and the events. The decisions behind it are under "Events" in `.scratch/n8n-automation/spec.md`.
 
 ---
 
@@ -81,6 +81,27 @@ Data (`ExceptionOccurredEventDto`, built by `ExceptionEventMapper`):
 
 The route template is read from `IExceptionHandlerFeature.Endpoint`, because the exception middleware clears the request's endpoint before the handler runs. The place never holds the query string (hub connections carry the access token there). The event carries nothing else from the request: no body, no header, no user data.
 
+### Account, content and report events
+
+Six more events, each sent by the service in the method that changed the data, right after the change is committed (never inside a transaction delegate, so a change that is rolled back sends nothing). Each has a data DTO of its own in `Infrastructure/Dtos/Automation`, built by a mapper (`AccountEventMapper`, `PostEventMapper`, `CommentEventMapper`, `ReportEventMapper`). Enums leave as their names. Nothing is sent when the action is refused, and no event carries a token, a password or a hash (ADR 0008); the six emails the backend sends itself are not touched.
+
+| Event | Sent by | When | Data |
+|---|---|---|---|
+| `account-created` | `AuthService.RegisterAsync` | A registration succeeds, or an administrator creates an account (`POST api/users` goes through the same method). A taken username, a reserved one or an already registered email sends nothing; the registered-email case keeps its email from the backend | `userId`, `username`, `email` |
+| `post-created` | `PostService.UploadPost` | A post is created | `postId`, `title`, `text`, `photoAddresses`, `authorId`, `authorUsername`, `moderationStatus` |
+| `post-edited` | `PostService.UpdatePost` | The owner's edit changes the title or the text. Saving the same title and text again is not an edit: it stamps nothing and sends nothing | The same as `post-created`, the post as it is after the edit |
+| `comment-created` | `CommentService.AddCommentAsync` | A comment is created, after the push to the post's author | `commentId`, `text`, `postId`, `authorId`, `authorUsername`, `moderationStatus` |
+| `comment-edited` | `CommentService.EditCommentAsync` | The commenter's edit changes the text. Saving the same text again is not an edit: it stamps nothing and sends nothing | The same as `comment-created`, the comment as it is after the edit |
+| `report-created` | `ReportService.CreateReportAsync` | A report is created. Own content, a second pending report by the same user and a missing target send nothing | `reportId`, `targetType`, `targetId`, `reason`, `reporterId`, `reporterUsername`, `post` / `comment` / `user` (the target snapshot the reports list shows, only the one matching `targetType` is set, the others are `null`), `pendingReportTimes` |
+
+- **One DTO per event.** `post-created` and `post-edited` share their fields through the abstract `PostEventDto`, and the comment events through `CommentEventDto`; each event still has a type of its own (`PostCreatedEventDto`, `PostEditedEventDto`, ...), so a name and its data are paired in the code that sends it.
+- **`photoAddresses`** are the relative addresses the API returns (`/api/images/{name}`), in upload order. n8n prefixes the backend's address itself.
+- **`moderationStatus`** is `Visible`, `Flagged` or `Hidden`. A new post or comment is `Visible`.
+- **`authorUsername` and `reporterUsername`** are the names the API shows, so a deactivated or deleted account reads as its placeholder. `authorId` of a comment is `null` only for a comment whose author was purged, which a comment just written or edited never is.
+- **The snapshot** is the same shape as in the reports list (`PostSnapshotDto`, `CommentSnapshotDto`, `UserSnapshotDto`), loaded the same way (`GetSnapshotsByIdsAsync`).
+- **`pendingReportTimes`** are the creation times of every report still pending on the same target, the new one included, oldest first. They are read after the report is committed, so a decided report's time is not among them. A report by a deactivated or soft-deleted reporter counts, as it does in the pending count.
+- **A hung n8n slows the action.** Each event is one awaited attempt inside the user's request, up to `AutomationEvents:Timeout` (3 seconds by default). The action still succeeds (`Create_WhenDeliveryFails_StillCreatesThePost`, `..._WhenDeliveryTimesOut_...`).
+
 ### The route that throws on purpose
 
 `GET api/dev/throw`, optionally with an id (`api/dev/throw/7`, template `api/dev/throw/{id:int?}`), throws an `InvalidOperationException`. The id is never read; it lets the tests and the demo show two addresses of one route sharing one fingerprint. It is mapped only in Development, as Swagger is (`DevelopmentEndpointsExtensions.MapThrowingEndpoint`), anonymous, rate-limited per IP (`ThrowOnPurpose`, 30 a minute) and left out of the OpenAPI documents. No real route can be made to fail on request, and the tests, the exception workflow's checklist and the demo all need one. In any other environment the route does not exist (`404`).
@@ -99,4 +120,4 @@ var recorded = Assert.Single(factory.EventRecorder.Events);   // Path, Body (the
 
 Set `EventRecorder.Answer` to `RecorderAnswer.Fail` (the recorder answers `500`) or `RecorderAnswer.TimeOut` (it never answers; pair it with a short `AutomationEvents:Timeout` override) to test a failed delivery. A test checks the signature by computing it again from `recorded.Body` and the test secret.
 
-Tests: `Automation/ExceptionOccurredEventTests` (the route on a Development host, the envelope and data, the signature, the query string left out, the unchanged answer, a failed and a timed-out delivery, events off, the route missing outside Development, and a job built in the test, `ThrowingJob`, run once through `RunOnceAsync`) and `Automation/EventPublisherStartupTests` (the startup checks).
+Tests: `Automation/AccountCreatedEventTests`, `PostEventTests`, `CommentEventTests` and `ReportCreatedEventTests` (each event's every field, the nothing-sent cases, and a failed and a timed-out delivery for a post and a report), `EventSecretsTests` (the registration, reset and reactivation flows run, and every recorded body searched for tokens, hashes and passwords; `Helpers/EventAssert` checks the address, envelope, time and signature of each event), `Automation/ExceptionOccurredEventTests` (the route on a Development host, the envelope and data, the signature, the query string left out, the unchanged answer, a failed and a timed-out delivery, events off, the route missing outside Development, and a job built in the test, `ThrowingJob`, run once through `RunOnceAsync`) and `Automation/EventPublisherStartupTests` (the startup checks).
