@@ -48,7 +48,7 @@ public static class FriendshipMapper
             OtherUser = new DisplayFriendDto
             {
                 Id = otherUser.Id,
-                Username = otherUser.Username,
+                Username = UsernameMapper.ResolveUsername(otherUser, otherUser.Id),
                 LastActiveAt =  otherUser.LastOnlineAt,
             },
             

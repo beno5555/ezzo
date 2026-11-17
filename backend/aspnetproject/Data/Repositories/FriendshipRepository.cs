@@ -21,6 +21,10 @@ public class FriendshipRepository : BaseRepository<Friendship>
         return track ? query : query.AsNoTracking();
     }
 
+    // Without an order, SQL Server may return rows in a different order for each page, so a row could show on two pages or on none.
+    private static IOrderedQueryable<Friendship> ById(IQueryable<Friendship> query) =>
+        query.OrderBy(friendship => friendship.Id);
+
     public async Task<List<Friendship>> GetPendingRequestsAsync(int userId, int? pageNumber = null, int? pageSize = null)
     {
         return await GetAsync(userId, FriendshipStatus.Pending, pageNumber, pageSize);
@@ -29,7 +33,8 @@ public class FriendshipRepository : BaseRepository<Friendship>
     public async Task<List<Friendship>> GetSentRequestsAsync(int userId, int? pageNumber = null, int? pageSize = null)
     {
         return await GetWhereAsync(friendship =>
-            friendship.RequesterUserId == userId && friendship.FriendshipStatus == FriendshipStatus.Pending, pageNumber, pageSize, ignoreQueryFilters: true);
+            friendship.RequesterUserId == userId && friendship.FriendshipStatus == FriendshipStatus.Pending,
+            pageNumber, pageSize, ById, ignoreQueryFilters: true);
     }
     
     /// <summary>
@@ -45,8 +50,9 @@ public class FriendshipRepository : BaseRepository<Friendship>
         return await GetWhereAsync(friendship => 
             friendship.AddresseeUserId == userId && (!status.HasValue || friendship.FriendshipStatus == status), // only checks for status if the parameter has value
             pageNumber,
-            pageSize, 
-            ignoreQueryFilters: true); 
+            pageSize,
+            ById,
+            ignoreQueryFilters: true);
     }
 
     /// <summary>
@@ -57,7 +63,7 @@ public class FriendshipRepository : BaseRepository<Friendship>
         return await GetWhereAsync(friendship =>
             (friendship.RequesterUserId == userId || friendship.AddresseeUserId == userId) &&
             friendship.FriendshipStatus == FriendshipStatus.Accepted,
-            pageNumber, pageSize, ignoreQueryFilters: true);
+            pageNumber, pageSize, ById, ignoreQueryFilters: true);
     }
 
     public async Task<List<int>> GetFriendIdsAsync(int userId)
