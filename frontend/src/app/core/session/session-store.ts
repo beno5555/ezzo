@@ -1,3 +1,4 @@
+import { HttpStatusCode } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { AccessTokenResponse } from '../../features/auth/access-token-response';
 import { AuthApi } from '../../features/auth/auth-api';
@@ -14,6 +15,9 @@ type Session = { accessToken: string; claims: AccessTokenClaims };
 // so two tabs refreshing with the same cookie would leave one of them holding a revoked token (ADR 0004).
 const refreshCookieLockName = 'webcity-refresh-cookie';
 
+// A token this close to its expiry counts as expired, so it cannot run out between being handed out and arriving.
+const expiryMarginMilliseconds = 30_000;
+
 // The signed-in user and the access token, held in memory only: never in localStorage or sessionStorage (ADR 0004).
 @Injectable({ providedIn: 'root' })
 export class SessionStore {
@@ -25,6 +29,8 @@ export class SessionStore {
 
   readonly accessToken = computed(() => this.session()?.accessToken ?? null);
   readonly user = computed<SessionUser | null>(() => toUser(this.session()));
+  // Changes only when another user signs in or the user signs out, not when the token is renewed.
+  readonly userId = computed(() => this.session()?.claims.id ?? null);
   readonly isSignedIn = computed(() => this.session() !== null);
   readonly isAdministrator = computed(
     () => this.session()?.claims.roles.includes(RoleName.Administrator) ?? false,
@@ -45,8 +51,8 @@ export class SessionStore {
     return result;
   }
 
-  // Swaps the refresh cookie for a new access token, or clears the session when it cannot.
-  // Resolves to whether the user is still signed in.
+  // Swaps the refresh cookie for a new access token. Clears the session when the backend refuses the cookie,
+  // and keeps it when the refresh gets no answer. Resolves to whether the user is still signed in.
   refresh(): Promise<boolean> {
     this.pendingRefresh ??= this.refreshInTurn();
 
@@ -69,6 +75,20 @@ export class SessionStore {
     return isRenewed;
   }
 
+  // For a caller that sends the token outside the interceptor, such as the hub client on each connect:
+  // the current token while it is still valid, else the one a refresh gives. Null when nobody is signed in.
+  async validAccessToken(): Promise<string | null> {
+    const session = this.session();
+
+    const isExpiring =
+      session !== null && session.claims.expiresAt - expiryMarginMilliseconds <= Date.now();
+    if (isExpiring) {
+      await this.refresh();
+    }
+
+    return this.accessToken();
+  }
+
   async signOut(): Promise<void> {
     // Logout answers success even without a cookie, and the session ends here whatever it answers.
     await this.inTurn(() => this.authApi.signOut());
@@ -82,7 +102,12 @@ export class SessionStore {
       if (result.succeeded) {
         this.start(result.data.accessToken);
       } else {
-        this.session.set(null);
+        // Only a 401 says the refresh cookie is missing, expired or revoked. Any other failure (no answer while
+        // the network is down, a 502 from the proxy, a 429) keeps the session, so a later attempt can refresh.
+        const isRefused = result.status === HttpStatusCode.Unauthorized;
+        if (isRefused) {
+          this.session.set(null);
+        }
       }
 
       return this.isSignedIn();

@@ -28,6 +28,16 @@ export const georgian: Dictionary = {
     signOutButton: 'გასვლა',
     signInLink: 'შესვლა',
   },
+  live: {
+    label: 'მიმდინარე მდგომარეობა',
+    // A Georgian noun stays singular after a number, so `other` covers every count.
+    unreadConversations: (count: number) =>
+      pluralize(Language.Georgian, count, {
+        other: `${count} საუბარი წაუკითხავი შეტყობინებებით`,
+      }),
+    onlineFriends: 'ონლაინ მეგობრები:',
+    noFriendsOnline: 'ონლაინ მეგობარი არავინაა',
+  },
   buttonSamples: {
     label: 'ღილაკების ნიმუშები',
     primary: 'მთავარი',

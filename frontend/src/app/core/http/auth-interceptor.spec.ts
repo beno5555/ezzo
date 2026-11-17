@@ -146,6 +146,22 @@ describe('authInterceptor', () => {
     expect(router.serializeUrl(target)).toBe('/sign-in?returnUrl=%2F');
   });
 
+  it('keeps the session and stays on the page when the refresh gets no answer', async () => {
+    const navigation = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+    const response = firstValueFrom(http.get('/api/posts/feed'));
+    const rejection = expect(response).rejects.toMatchObject({ status: 0 });
+
+    httpTesting.expectOne('/api/posts/feed').flush(null, unauthorized);
+    await waitForPendingWork();
+    httpTesting.expectOne('/api/auth/refresh').flush(null, { status: 0, statusText: '' });
+    await waitForPendingWork();
+    httpTesting.expectOne('/api/posts/feed').flush(null, { status: 0, statusText: '' });
+
+    await rejection;
+    expect(sessionStore.isSignedIn()).toBe(true);
+    expect(navigation).not.toHaveBeenCalled();
+  });
+
   it('never retries sign-in', async () => {
     const authApi = TestBed.inject(AuthApi);
     const signingIn = authApi.signIn({ uniqueIdentifier: 'john_doe', password: 'password123' });

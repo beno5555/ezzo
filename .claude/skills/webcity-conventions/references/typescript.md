@@ -184,7 +184,7 @@ export type FriendshipStatus = (typeof FriendshipStatus)[keyof typeof Friendship
 - One helper in `core/`, `toAppResult`, converts the `HttpClient` Observable to that promise and maps failures. It is the only place that catches HTTP errors and the only place application code needs RxJS. It is a plain function, so the `…Api` method passes it the current dictionary's `httpFailures`.
 - On the frontend, the failure branch of `AppResult` also carries `status: number` and an optional `fieldErrors` map of field name to messages.
 - Endpoints that answer without the envelope (login and refresh return `{ accessToken }`) are wrapped into `AppResult` by their `…Api` method.
-- URLs are relative (`/api/...`, `/hubs/...`), per ADR 0001. Path literals appear only in `…Api` files.
+- URLs are relative (`/api/...`, `/hubs/...`), per ADR 0001. Path literals appear only in `…Api` files, and the hub's address only in the hub client.
 - `…Api` services hold no state.
 - Lists use infinite scroll. A page shorter than the page size is the last one.
 - Where a newer request makes an older one stale (user search), ignore every response but the latest.
@@ -264,7 +264,7 @@ export class MyProfilePage implements OnInit {
 - The refresh token is an HttpOnly cookie that frontend code never reads. The access token lives only in memory, in `SessionStore`. Never write a token to `localStorage` or `sessionStorage`.
 - Every page load restores the session by calling `POST /api/auth/refresh` before the first route activates.
 - One tested function decodes the signed-in user's id, username and roles, and the token's expiry, from the access token. It must handle the claim names `nameid`, `unique_name`, `role` and `exp`; a `role` that is missing, a string or an array; and a base64url, UTF-8 payload. Decoded values decide only what the UI shows.
-- One interceptor adds the `Authorization` header to `/api` calls. On a `401` from any endpoint except login and refresh, it refreshes once and retries the call once. Simultaneous `401`s share one refresh. If the refresh fails, it clears the session and navigates to sign-in.
+- One interceptor adds the `Authorization` header to `/api` calls. On a `401` from any endpoint except login and refresh, it refreshes once and retries the call once. Simultaneous `401`s share one refresh. If the refresh is refused (a `401`), it clears the session and navigates to sign-in. A refresh that gets no answer, or any other failure (offline, a `502` from the proxy, a `429`), keeps the session, so a later attempt can refresh.
 - Refresh tokens rotate, so tabs take turns refreshing through the Web Locks API (`navigator.locks`).
 - Calls are same-origin, so the cookie travels without `withCredentials`. Never fix a cookie problem with CORS settings (ADR 0001).
 

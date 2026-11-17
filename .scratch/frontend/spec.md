@@ -371,7 +371,7 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
   - `…Api` services, against Angular's HTTP testing backend: the method, the address, the body, and the mapping of each response to `AppResult`.
   - `toAppResult`: the failure envelope, a validation response with field errors, a bodiless `401`, `403` and `404`, and a network failure.
   - The token decoder: the four claim names; `role` missing, a string and an array; base64url and UTF-8.
-  - The refresh flow, through the interceptor: a `401` leads to one refresh and one retry; simultaneous `401`s share one refresh; a failed refresh clears the session; login and refresh themselves are not retried.
+  - The refresh flow, through the interceptor: a `401` leads to one refresh and one retry; simultaneous `401`s share one refresh; a refused refresh (a `401`) clears the session, and one that gets no answer keeps it; login and refresh themselves are not retried.
   - The three guards, including the remembered return address and the refusal of an address outside the app.
   - Stores, by calling the methods the hub client calls: a message arriving for an open and for a closed conversation, seen, edited, online and offline, the unread count being read again.
   - Pure helpers: the date formatter (including a birthday west of UTC), the photo checks, the toast rules, the typing timings.
