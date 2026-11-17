@@ -53,9 +53,9 @@ Set on 2026-11-16. Two worktree lanes at a time (`docs/agents/worktrees.md`). Un
 | 2 | F29, the screenshots | T03, test classes in parallel (merged 2026-11-17) | |
 | 3 | F06, toast, dialog, confirmation, menu | B13, statistics (merged 2026-11-17) | |
 | 4 | F05, the live connection | frontend 25, friendship tests | |
-| 5 | F07, the shell | B04, remove a photo from a post | |
+| 5 | F07, the shell | n8n 01, a failure leaves as a signed event | |
 
-The n8n backend tickets take the backend lane after round 5, or a third lane once the shell lands.
+After round 5 the backend lane takes n8n 04, then 03 once 02 is done with the owner, then 08 and 11; B04 (remove a photo) waits until the backend lane is free (owner, 2026-11-17). A third lane can open once the shell lands.
 
 After the shell, both lanes take frontend tickets from **different feature areas**, so that the only shared files are the routes and the two dictionaries.
 
