@@ -44,5 +44,5 @@ Decisions are under "The six workflows" in `.scratch/n8n-automation/spec.md`. Al
 Ticket 01 built the backend's sending side (`EventPublisher`, `docs/backend/automation.md`). These limits of it affect this ticket; the full list is in ticket 01's Comments.
 
 - **What the fingerprint is.** For a request that matched a route, `{exception type}|{METHOD} {route template}`, e.g. `System.InvalidOperationException|GET /api/posts/{id:int}`, so one failure at many ids groups as one. For a request that matched no route, `{type}|{METHOD} {path}`. For a job, `{type}|{job class name}`. Group by the string as it arrives; do not take it apart.
-- **What a row keeps.** Store the fingerprint, the time, the type and `place`, which is enough for "seen N more times". Do not store `message` or `stackTrace`: the message can quote user input, and the table outlives the alert.
-- **Lost and missing events are not counted.** "Seen N more times" counts only events that reached n8n. Events lost while n8n was down, and failures that send no event at all (SignalR hub methods, startup), are not in N.
+- **What a row keeps.** Store the fingerprint, the time, the type and `place`, which is enough for "seen N more times". Do not store `stackTrace` or more of the event than the follow-up needs.
+- **Lost and missing events are not counted.** "Seen N more times" counts only events that reached n8n. Events lost while n8n was down, and failures that send no event at all (SignalR hub methods, by the owner's decision, and startup), are not in N.

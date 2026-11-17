@@ -62,6 +62,20 @@ else
 }
 ```
 
+### No user data in exception messages
+
+An exception's message leaves the process: the global handler and a failed background job send it to the developers' Telegram chat in the `exception-occurred` event (`docs/backend/automation.md`). Name the parameter, the entity and its id; never interpolate what a user wrote or owns (message or post text, an email, a username, a token).
+
+Avoid:
+```csharp
+throw new InvalidOperationException($"Could not deliver message '{message.Content}' to {receiver.Email}");
+```
+
+Prefer:
+```csharp
+throw new InvalidOperationException($"Could not deliver message {message.Id}");
+```
+
 ## 5. Narrow, known recoveries use exception filters
 
 ```csharp
