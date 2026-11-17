@@ -256,7 +256,7 @@ The six emails the backend already sends (about passwords, reactivation and deac
 
 - **Moving the six existing emails to n8n.** They stay in the backend (ADR 0008). Their plain look does not change.
 - **Stored notifications:** a table, a list, an unread count, a bell. A notification reaches only a user who is connected. Listed under "After the deadline" in the roadmap.
-- **Retried events:** an outbox and a resending job. An event sent while n8n is down is lost. Listed under "After the deadline".
+- **Retried events:** an outbox and a resending job. An event sent while n8n is down is lost. Listed under "After the deadline", and written as ticket 15 (2026-11-17).
 - **Protection against a replayed event,** and a constant-time comparison inside n8n.
 - **Moderation of direct messages,** of profile text (username, bio) and of photos added later.
 - **An automatic test of any workflow.**
