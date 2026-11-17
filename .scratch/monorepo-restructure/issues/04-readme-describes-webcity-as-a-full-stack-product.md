@@ -8,11 +8,11 @@ Together with 03, this replaces the former ticket 02.
 
 **Status:** ready-for-agent
 
-**Difficulty:** routine: writing checked against the code, once the owner has settled the open decision below.
+**Difficulty:** routine: writing checked against the code, in the layout decided below.
 
-## Open decisions (ask the owner; do not assume)
+## Decisions
 
-- **One README or three.** Either a single root README covering both halves, or a short root README plus `backend/README.md` and `frontend/README.md`. The owner left this open on 2026-11-12.
+- **One root README** for both halves (owner, 2026-11-17). If it grows too complex, the session may propose a short root README plus `backend/README.md` and `frontend/README.md`; the owner decides.
 
 ## Acceptance
 

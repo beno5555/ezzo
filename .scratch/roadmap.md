@@ -14,6 +14,7 @@ Non-visual work (backend, tests, tooling) is merged as soon as it passes the ful
 - **Test-suite-speed ticket 01: signing in costs almost nothing in the test suite**, merged 2026-11-16 (`Duration` 1 m 53 s → 49 s). Look at the setting `PasswordConfiguration:HashIterations` and its startup guard (fails below 100,000 outside Testing); `TestDataSeeder`, which now hashes through the app's hasher; and the open points under the ticket's Comments (Testing accepts 0 or a negative value).
 - **Test-suite-speed ticket 02: every test is reseeded in one round trip**, merged 2026-11-17 (`Duration` 58 s → 42 to 46 s). Look at `SeedRecorder` and `RecordedSeed` (`backend/aspnetproject.IntegrationTests/Fixtures/`), the startup check that fails the run when a replay differs from the EF seed, and the known limits under the ticket's Comments.
 - **Test-suite-speed ticket 03: test classes run in parallel, each on its own database**, merged 2026-11-17 (`Duration` 44 s → 15 to 21 s locally, 22 to 29 s in CI). Look at `TestDatabasePool`, `DatabaseLender`, `TestDatabaseNames` and `DatabaseFixture` (same folder), and the open points under the ticket's Comments. The old single `TestSocialMediaWebApiDb` can be dropped.
+- **Documented-backend-features ticket 13: an administrator sees system statistics**, merged 2026-11-17. Look at `StatisticsService` and the new `GET /api/admin/statistics` (`docs/backend/controllers.md`, AdminController), the counting helpers added to `BaseEntityRepository`, `UserRepository` and `ReportRepository`, and the online count read from `UserConnectionTracker`. The ticket records no spec review; the owner judged the code safe to merge.
 
 **Not merged yet.** Finished visual branches that wait for the owner's review. No agent merges them until the owner says so. After the merge, delete the line.
 
@@ -24,7 +25,6 @@ Non-visual work (backend, tests, tooling) is merged as soon as it passes the ful
 Settle these before the session that needs them. Each has a going-in recommendation.
 
 1. **The product's name.** The owner may replace "WebCity"; one candidate is Ezo (ეზო). It is settled in a separate name session by **Sat 21**, before the n8n emails that carry it are written. If it is not settled by then, the product ships as WebCity. `webcity-documentation.md`, already sent to the principal, says WebCity; whether to tell the principal is the owner's call.
-2. **One README or three** (monorepo ticket 04, open since 2026-11-12): one root README for both halves, or a short root README plus `backend/README.md` and `frontend/README.md`. Recommendation: one root README, the cheaper change before the deadline. Needed by Tue 24.
 
 ## Settled
 
@@ -51,7 +51,7 @@ Set on 2026-11-16. Two worktree lanes at a time (`docs/agents/worktrees.md`). Un
 | 0 | F27, design tokens (merged 2026-11-16) | B12, an administrator decides a report (merged 2026-11-16) | both merged 2026-11-16 |
 | 1 | F28, the themes | T01, then T02: cheaper sign-in, one-batch reseed | T01 merged 2026-11-16, T02 2026-11-17 |
 | 2 | F29, the screenshots | T03, test classes in parallel (merged 2026-11-17) | |
-| 3 | F06, toast, dialog, confirmation, menu | B13, statistics | |
+| 3 | F06, toast, dialog, confirmation, menu | B13, statistics (merged 2026-11-17) | |
 | 4 | F05, the live connection | frontend 25, friendship tests | |
 | 5 | F07, the shell | B04, remove a photo from a post | |
 
@@ -83,7 +83,7 @@ Frontend 30 (Impeccable) runs in a session with the owner whenever the owner is 
    - [ ] **By Sat 21: the name session** (open decision 1). It uses Playwright to look at reference sites, and writes `PRODUCT.md`. On Fable 5.2 if available.
    - [ ] **After the name: the brand session.** One approval page in two skins; the owner chooses. It replaces the provisional values in `DESIGN.md` and the token file, and adds the logo.
 2. [x] **Write the tickets.** All four groups are ticketed: the backend gaps A to F (`documented-backend-features`, 2026-11-14), the frontend (`frontend`, 2026-11-15, with the setup tickets 27 to 30 added on 2026-11-16) and n8n (`n8n-automation`, 2026-11-17). Of the n8n tickets, 01, 03, 04, 08 and 11 are backend work proven by integration tests; 02, 05, 06, 07, 09, 12 and 14 are workflows, open until the owner has run their checklist; 10 and 13 are visual frontend work.
-3. [ ] **Any time, in parallel: the open backend tickets.** Documented-backend-features 04 (remove a photo from a post) and 13 (statistics). The frontend shows "Coming soon" on whatever depends on one that is still open when its page is built.
+3. [ ] **Any time, in parallel: the last open backend ticket,** documented-backend-features 04 (remove a photo from a post). If it is still open when frontend ticket 12 is built, its control shows "Coming soon".
 4. [ ] **Mon 16, overdue, crucial: shell and auth.** Lazy-loaded feature areas, route guards, and the pages: register, sign in, password reset, account reactivation. The session, automatic refresh, session restore and the guards are done (frontend ticket 04), as are the two dictionaries (03). Still open: the shell (07) and the real auth pages (08).
 5. [ ] **Tue 17, will be late, crucial: feed, posts and comments.** Feed with pagination, create a post with photos, edit and delete, like, comment, edit and delete a comment, report a post or comment.
 6. [ ] **Wed 18, will be late, crucial: profile, friends and search.** Profile page (bio, posts, friends), edit profile, user search, friend requests (send, accept, decline, remove; the three lists), account settings (deactivate, delete, digest opt-out), the guest view.
@@ -110,7 +110,7 @@ On the frontend, in this order from the end: choosing a profile picture (the def
 
 ## What the document promises and the backend lacks
 
-Gaps A to F (`.scratch/documented-backend-features/spec.md`) are built except two endpoints: `DELETE /api/posts/{postId}/images/{imageId}` (ticket 04) and `GET /api/admin/statistics` (ticket 13). Gaps G and H, the n8n plumbing and the welcome email, are the n8n tickets.
+Gaps A to F (`.scratch/documented-backend-features/spec.md`) are built except one endpoint: `DELETE /api/posts/{postId}/images/{imageId}` (ticket 04). Gaps G and H, the n8n plumbing and the welcome email, are the n8n tickets.
 
 ## After the deadline
 

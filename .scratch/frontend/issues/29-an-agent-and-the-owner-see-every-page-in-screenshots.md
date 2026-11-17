@@ -29,4 +29,5 @@ Decisions are in `.scratch/roadmap.md` under "Settled on 2026-11-16", and the th
 - [ ] It photographs one outside public address at the three widths
 - [ ] An agent reads one of the images it produced and describes what the page shows; the description is recorded in this ticket's comments
 - [ ] `.mcp.json` is committed, and a new session lists the Playwright tools
+- [ ] The "Running the app" line in the root `CLAUDE.md` names the Playwright MCP server as an agent's first way to look at a page, with the Claude in Chrome extension as the fallback (owner's decision, 2026-11-17). A side-by-side trial of the two is not needed
 - [ ] The new page in `docs/agents/` and the line in `frontend/CLAUDE.md` exist
