@@ -1,8 +1,10 @@
 using System.Net;
 using System.Net.Http.Json;
+using aspnetproject.Data;
 using aspnetproject.Infrastructure.Dtos.Posts;
 using aspnetproject.IntegrationTests.Fixtures;
 using aspnetproject.IntegrationTests.Helpers;
+using Microsoft.EntityFrameworkCore;
 
 namespace aspnetproject.IntegrationTests.Automation;
 
@@ -138,6 +140,34 @@ public class PostEventTests : IClassFixture<DatabaseFixture>, IAsyncLifetime
             data.GetProperty("photoAddresses").EnumerateArray().Select(address => address.GetString()));
     }
 
+    // Post 1 is alice's ("Alice Post", "Alice owns this post.") and has never been edited.
+    [Theory]
+    [InlineData("Alice Post, renamed", "Alice owns this post.")]
+    [InlineData("Alice Post", "Alice owns this post, reworded.")]
+    public async Task Update_ChangingTheTitleOrTheText_SendsPostEditedAndStampsLastUpdatedAt(string title, string content)
+    {
+        await SignInAsync("alice");
+
+        var response = await UpdatePostAsync(1, title, content);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var recorded = Assert.Single(_factory.EventRecorder.Events);
+        Assert.Equal("/webhook/post-edited", recorded.Path);
+        Assert.NotNull(await GetLastUpdatedAtAsync(1));
+    }
+
+    [Fact]
+    public async Task Update_WithTheSameTitleAndText_SendsNoEventAndLeavesLastUpdatedAtEmpty()
+    {
+        await SignInAsync("alice");
+
+        var response = await UpdatePostAsync(1, "Alice Post", "Alice owns this post.");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Empty(_factory.EventRecorder.Events);
+        Assert.Null(await GetLastUpdatedAtAsync(1));
+    }
+
     [Fact]
     public async Task Update_SomeoneElsesPost_SendsNoEvent()
     {
@@ -218,6 +248,13 @@ public class PostEventTests : IClassFixture<DatabaseFixture>, IAsyncLifetime
             ImageFormFiles.Png(1), ImageFormFiles.Jpeg(2)));
 
         return await ResponseReader.ReadDataAsync<StandardPostDisplayDto>(response);
+    }
+
+    private async Task<DateTime?> GetLastUpdatedAtAsync(int postId)
+    {
+        await using var db = new ApplicationDbContext(_dbFixture.GetOptions());
+
+        return await db.Posts.IgnoreQueryFilters().Where(post => post.Id == postId).Select(post => post.LastUpdatedAt).SingleAsync();
     }
 
     private async Task<HttpResponseMessage> UpdatePostAsync(int id, string title, string content)

@@ -127,12 +127,20 @@ public class PostService : BaseService
             bool belongsToCaller = post.UserId == userId;
             if (belongsToCaller)
             {
-                post.PostTitle = updatePostDto.Title;
-                post.PostContent = updatePostDto.Content;
-                post.LastUpdatedAt = DateTime.UtcNow;
+                // Only a real change is an edit: it stamps LastUpdatedAt and sends post-edited. Saving the same text again does neither.
+                bool titleChanged   = post.PostTitle   != updatePostDto.Title;
+                bool contentChanged = post.PostContent != updatePostDto.Content;
+                bool isEdit         = titleChanged || contentChanged;
 
-                await _postRepository.SaveChangesAsync();
-                await _eventPublisher.PublishAsync(EventNames.PostEdited, PostEventMapper.ToEditedEvent(post));
+                if (isEdit)
+                {
+                    post.PostTitle = updatePostDto.Title;
+                    post.PostContent = updatePostDto.Content;
+                    post.LastUpdatedAt = DateTime.UtcNow;
+
+                    await _postRepository.SaveChangesAsync();
+                    await _eventPublisher.PublishAsync(EventNames.PostEdited, PostEventMapper.ToEditedEvent(post));
+                }
 
                 var postDisplayDto = PostMapper.ToFullDisplay(postWithStats);
                 response.Ok(postDisplayDto, ResponseMessages.PostUpdated);

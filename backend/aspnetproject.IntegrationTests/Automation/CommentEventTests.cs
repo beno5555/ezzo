@@ -126,6 +126,30 @@ public class CommentEventTests : IClassFixture<DatabaseFixture>, IAsyncLifetime
     }
 
     [Fact]
+    public async Task Update_WithTheSameText_SendsNoEventAndLeavesLastUpdatedAtEmpty()
+    {
+        await SignInAsync("alice");
+
+        var response = await _client.PutAsJsonAsync("api/comments/1", new { Content = "Alice comments on Bob's post." });
+        var comment  = await ResponseReader.ReadDataAsync<FullCommentDto>(response);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Empty(_factory.EventRecorder.Events);
+        Assert.Null(comment.LastUpdatedAt);
+    }
+
+    [Fact]
+    public async Task Update_OwnComment_StampsLastUpdatedAt()
+    {
+        await SignInAsync("alice");
+
+        var response = await _client.PutAsJsonAsync("api/comments/1", new { Content = "Alice's edited comment" });
+        var comment  = await ResponseReader.ReadDataAsync<FullCommentDto>(response);
+
+        Assert.NotNull(comment.LastUpdatedAt);
+    }
+
+    [Fact]
     public async Task Update_SomeoneElsesComment_SendsNoEvent()
     {
         await SignInAsync("alice");

@@ -186,11 +186,17 @@ public class CommentService : BaseService
             bool belongsToCaller = comment.CommenterUserId == userId;
             if (belongsToCaller)
             {
-                comment.CommentContent = editCommentDto.Content;
-                comment.LastUpdatedAt = DateTime.UtcNow;
-            
-                await _commentRepository.SaveChangesAsync();
-                await _eventPublisher.PublishAsync(EventNames.CommentEdited, CommentEventMapper.ToEditedEvent(comment));
+                // Only a real change is an edit: it stamps LastUpdatedAt and sends comment-edited. Saving the same text again does neither.
+                bool isEdit = comment.CommentContent != editCommentDto.Content;
+
+                if (isEdit)
+                {
+                    comment.CommentContent = editCommentDto.Content;
+                    comment.LastUpdatedAt = DateTime.UtcNow;
+
+                    await _commentRepository.SaveChangesAsync();
+                    await _eventPublisher.PublishAsync(EventNames.CommentEdited, CommentEventMapper.ToEditedEvent(comment));
+                }
             
                 var commentDto = CommentMapper.ToFullDisplay(comment);
                 response.Ok(commentDto, ResponseMessages.CommentUpdated);
