@@ -49,6 +49,12 @@ public static class Constants
     public const int LogActionMaxLength     = 100;
     public const int LogEntityNameMaxLength = 50;
 
+    // Events sent to the automation (docs/backend/automation.md).
+    public const string EventWebhookPathSegment       = "webhook";
+    public const string EventSignatureHeader          = "X-WebCity-Signature";
+    public const int    ExceptionEventStackTraceLines = 15;
+    public const string FingerprintSeparator          = "|";
+
     public static readonly TimeSpan EditMessageWindow = TimeSpan.FromMinutes(20);
 
     // The two windows of the administrator's activity counts; both end now.

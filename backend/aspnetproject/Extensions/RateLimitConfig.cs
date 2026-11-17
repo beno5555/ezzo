@@ -48,6 +48,10 @@ public static class RateLimitConfig
         public const string DeleteComment     = "DeleteComment";
         #endregion
 
+        #region Development
+        public const string ThrowOnPurpose = "ThrowOnPurpose";
+        #endregion
+
         #region Friendships
         public const string SendFriendRequest    = "SendFriendRequest";
         public const string ReadFriendships      = "ReadFriendships";
@@ -180,6 +184,11 @@ public static class RateLimitConfig
 
             options.AddPolicy(Policies.DeleteComment, httpContext =>
                 PerUserSlidingWindow(httpContext, 20, TimeSpan.FromMinutes(10)));
+            #endregion
+
+            #region Development (IP-based, the route is mapped only in Development)
+            options.AddPolicy(Policies.ThrowOnPurpose, httpContext =>
+                PerIpSlidingWindow(httpContext, 30, TimeSpan.FromMinutes(1)));
             #endregion
 
             #region Friendships

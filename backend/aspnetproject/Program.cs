@@ -41,6 +41,7 @@ public partial class Program
             if (app.Environment.IsDevelopment())
             {
                 // app.TestSeedEndpoint();
+                app.MapThrowingEndpoint();
                 
                 app.MapSwagger();
                 app.MapSwaggerUI();

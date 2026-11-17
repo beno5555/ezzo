@@ -1,4 +1,6 @@
 ﻿using aspnetproject.Data.Repositories;
+using aspnetproject.Infrastructure.Services.Automation;
+using aspnetproject.Infrastructure.Services.Automation.Configuration;
 using aspnetproject.Infrastructure.Dtos.Auth.Email;
 using aspnetproject.Infrastructure.Services.BackgroundJobs;
 using aspnetproject.Infrastructure.Services.BackgroundJobs.Configuration;
@@ -70,6 +72,15 @@ public static class ApplicationServicesExtensions
             .ValidateOnStart();
 
         services.Configure<ImageStorageConfiguration>(configuration.GetSection("ImageStorage"));
+
+        services.AddOptions<AutomationEventsConfiguration>()
+            .Bind(configuration.GetSection(AutomationEventsConfiguration.SectionName))
+            .Validate(config => config.HasBaseUrlIfEnabled(), AutomationEventsConfiguration.BaseUrlMissingMessage)
+            .Validate(config => config.HasSigningSecretIfEnabled(), AutomationEventsConfiguration.SigningSecretMissingMessage)
+            .Validate(config => config.HasPositiveTimeout(), AutomationEventsConfiguration.TimeoutNotPositiveMessage)
+            .ValidateOnStart();
+        // A typed client: the test host swaps its HTTP handler for a recorder.
+        services.AddHttpClient<EventPublisher>();
 
         services.Configure<OldLogsCleanupConfiguration>(configuration.GetSection("CleanupConfiguration:OldLogs"));
         services.Configure<RefreshTokenCleanupConfiguration>(configuration.GetSection("CleanupConfiguration:RefreshTokens"));

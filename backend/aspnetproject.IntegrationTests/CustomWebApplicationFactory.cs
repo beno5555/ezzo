@@ -1,4 +1,6 @@
 ﻿using aspnetproject.Data;
+using aspnetproject.Infrastructure.Services.Automation;
+using aspnetproject.IntegrationTests.Helpers;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
@@ -31,6 +33,14 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
     // What every other environment hashes with, pinned as a literal so tests catch a changed default.
     public const int ProductionHashIterations = 100_000;
 
+    // Events go to an address that does not exist, through EventRecorder, so none ever leaves the process.
+    public const string EventsEnabledSetting       = "AutomationEvents:Enabled";
+    public const string EventsBaseUrlSetting       = "AutomationEvents:BaseUrl";
+    public const string EventsSigningSecretSetting = "AutomationEvents:SigningSecret";
+    public const string EventsTimeoutSetting       = "AutomationEvents:Timeout";
+    public const string TestEventsBaseUrl          = "http://automation.webcity.test";
+    public const string TestEventsSigningSecret    = "test-signing-secret";
+
     public const string TestingEnvironment     = "Testing";
     public const string DevelopmentEnvironment = "Development";
     public const string ProductionEnvironment  = "Production";
@@ -38,23 +48,30 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
     private readonly string _connectionString;
     private readonly IReadOnlyDictionary<string, string?> _settingOverrides;
     private readonly string _environmentName;
+    private readonly bool   _recordEvents;
 
     // Each host stores uploads in its own temporary folder, removed when the host is disposed.
     public string UploadFolder { get; } =
         Path.Combine(Path.GetTempPath(), TestUploadFolderRootName, Guid.NewGuid().ToString("N"));
 
+    // Every host sends its events here instead of the network. Events are off unless the host was made with recordEvents.
+    public EventRecorder EventRecorder { get; } = new();
+
     // database is the test class's DatabaseFixture: the host uses the database the class borrowed from the pool.
     // settingOverrides win over the settings file and the suite's defaults, e.g. a lower ImageStorage:MaxFileSizeBytes.
     // environmentName is Testing unless a test needs a Development-only feature, such as the OpenAPI document.
+    // recordEvents turns events on, with the test address and signing secret; EventRecorder then holds what was sent.
     public CustomWebApplicationFactory(
         DatabaseFixture                       database,
         IReadOnlyDictionary<string, string?>? settingOverrides = null,
-        string                                environmentName  = TestingEnvironment
+        string                                environmentName  = TestingEnvironment,
+        bool                                  recordEvents     = false
         )
     {
         _connectionString = database.ConnectionString;
         _settingOverrides = settingOverrides ?? new Dictionary<string, string?>();
         _environmentName  = environmentName;
+        _recordEvents     = recordEvents;
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -73,6 +90,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             {
                 [ConnectionStringSetting] = _connectionString,
                 ["EmailConfiguration:Enabled"] = "false",
+                [EventsEnabledSetting] = "false",
                 ["Cors:AllowedOrigins:0"] = TrustedFrontendOrigin,
                 [UploadFolderSetting] = UploadFolder
             });
@@ -83,6 +101,16 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
                 config.AddInMemoryCollection(new Dictionary<string, string?>
                 {
                     [HashIterationsSetting] = TestHashIterations.ToString()
+                });
+            }
+
+            if (_recordEvents)
+            {
+                config.AddInMemoryCollection(new Dictionary<string, string?>
+                {
+                    [EventsEnabledSetting]       = "true",
+                    [EventsBaseUrlSetting]       = TestEventsBaseUrl,
+                    [EventsSigningSecretSetting] = TestEventsSigningSecret
                 });
             }
 
@@ -99,6 +127,10 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             {
                 services.Remove(serviceDescriptor);
             }
+
+            services.AddHttpClient<EventPublisher>()
+                .ConfigurePrimaryHttpMessageHandler(() => EventRecorder)
+                .SetHandlerLifetime(Timeout.InfiniteTimeSpan);
         });
     }
 
