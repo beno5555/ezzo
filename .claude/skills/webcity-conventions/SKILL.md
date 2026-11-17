@@ -59,7 +59,7 @@ When rules conflict, follow the first applicable item:
 Apply these even before you open a reference file:
 
 - **Control flow.** Outside controllers and handlers, use one `return` per method, nest the success path inside a positive `if`, and give each condition a named boolean. Controllers may return early, checking success first.
-- **Errors.** Expected failures are result values, not exceptions. One global handler deals with the unexpected.
+- **Errors.** Expected failures are result values, not exceptions. One global handler deals with the unexpected. An exception's message never carries user data: it is sent to the developers' Telegram chat.
 - **One type per file.** Each class, record, enum, interface or struct gets its own file, named after the type (`UserRepository` → `UserRepository.cs`). Never group a concept's types into one file such as `Repositories.cs` or `Dtos.cs`. Exceptions: nested types, and a response wrapper's closely tied variants (`ApplicationResponse`, `ApplicationResponse<T>`, `ListResponse<T>`) may share one file.
 - **Controllers.** Keep them thin. Services own business rules, logging and notifications. Repositories own queries.
 - **Abstractions.** Add no speculative interfaces or abstractions. Follow the codebase's choice.
