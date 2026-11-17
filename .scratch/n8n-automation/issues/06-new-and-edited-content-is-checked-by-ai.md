@@ -34,3 +34,11 @@ Decisions are under "The six workflows" and "Moderation by the automation" in `.
 - [ ] The two unconfirmed points about OpenAI are recorded as confirmed or corrected in this ticket's comments
 - [ ] The workflow file is committed with a fixed id and no pinned data; the README's checklist is written
 - [ ] The owner ran the checklist on their machine
+
+## Known limits from ticket 01
+
+Ticket 01 built the backend's sending side (`EventPublisher`, `docs/backend/automation.md`). These limits of it affect this ticket; the full list is in ticket 01's Comments.
+
+- **A lost event is content nobody checks.** A post or comment created or edited while n8n is down stays Visible until someone reports it. The backend's `Log` row names the event, not the content, so it cannot be found and checked later.
+- **Answer first.** The backend waits up to 3 seconds for n8n's answer inside the user's request. Respond to Webhook runs straight after the signature check, before any OpenAI call; the moderation calls take far longer than that.
+- **Check the signature on the raw body**, as ticket 02 does.

@@ -30,3 +30,11 @@ Decisions are under "The six workflows" in `.scratch/n8n-automation/spec.md`. Re
 - [ ] A post to the webhook with a wrong signature gets `401` and sends nothing
 - [ ] The workflow file is committed with a fixed id and no pinned data; the README's checklist is written
 - [ ] The owner ran the checklist on their machine
+
+## Known limits from ticket 01
+
+Ticket 01 built the backend's sending side (`EventPublisher`, `docs/backend/automation.md`). These limits of it affect this ticket; the full list is in ticket 01's Comments.
+
+- **A lost event is a missed alert, but not a missed count.** A report made while n8n is down raises no alert, and nothing resends it. The five-report rule recovers on the next report to the same target: its event lists the creation times of every pending report on that target, the lost one included.
+- **Answer first.** The backend waits up to 3 seconds for n8n's answer inside the reporter's request. Respond to Webhook runs straight after the signature check, before Telegram and the moderation call.
+- **Check the signature on the raw body**, as ticket 02 does.

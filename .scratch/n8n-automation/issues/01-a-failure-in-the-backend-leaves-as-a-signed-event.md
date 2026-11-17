@@ -43,3 +43,17 @@ Decisions are under "Events" and "Testing Decisions" in `.scratch/n8n-automation
 - Not tested: the event for the conflict answer (a `DbUpdateException`). It goes through the same code before the status branch in `GlobalExceptionHandler`, but no test forces one.
 - **Correction to the merge note first written here.** It said `origin/master` had been force-pushed and that the container's `master` (`685d7e6`) held commits found nowhere else. Both claims were wrong. The cloud clone was shallow, so `git fetch` reported a "forced update" and found no merge base. After `git fetch --unshallow`, `685d7e6` is an ancestor of `origin/master`. CLAUDE.md now describes this trap and forbids force-pushing `master`.
 - Merged into `master` with `--no-ff` after `master` was fast-forwarded to `origin/master` (`1978158`, which includes ticket 25). The full suite was run again on the merge before the push; its result is in the merge report.
+
+**2026-11-17, after the merge: weak links, and the tickets they are written into.** Each affected ticket has a "Known limits from ticket 01" section; this is the index.
+
+1. **The fingerprint split one failure by id.** Fixed: a request's fingerprint now uses the matched route's template (`GET /api/posts/{id:int}`), and `place` keeps the address. The throwing route takes an optional id to test it. Spec and `automation.md` updated. Written into 02 and 14.
+2. **SignalR hub exceptions, startup failures and `4xx` answers send no event.** Open decision for the owner: should hub failures alert? Written into 02 and 14.
+3. **`message` can quote user input.** The spec asks for the message and also says no user data; the two can conflict. Written into 02 (developers' chat only) and 14 (rows do not keep it).
+4. **The awaited send slows a request when n8n hangs**, by up to `AutomationEvents:Timeout` (3 seconds). Written into 04 (user-facing actions; test with a timeout) and into 02, 05, 06 and 07 (answer straight after the signature check).
+5. **Events are lost while n8n is down**; the `Log` row names the event but not the entity. Written into 02, 04, 05, 06, 07 and 14.
+6. **The signature covers the exact bytes and has no timestamp.** Verify the raw body; replays are possible (out of scope). Written into 02, 05, 06 and 07.
+7. **Nothing ties an event's name to its data**, and enums are text only through an attribute on the DTO. Written into 04.
+8. **`occurredAt` is the send time.** Publish right after the commit, never inside a transaction delegate. Written into 04.
+9. **The conflict answer's event is untested.** Not written elsewhere; a test would have to force a `DbUpdateException` through HTTP.
+
+Tickets 03, 08, 09, 10, 11, 12 and 13 receive no events and are not affected.

@@ -77,13 +77,13 @@ Data (`ExceptionOccurredEventDto`, built by `ExceptionEventMapper`):
 | `stackTrace` | The first 15 lines of the stack trace, joined with `\n` |
 | `placeKind` | `Request` or `Job` |
 | `place` | For a request, the HTTP method and the path, e.g. `GET /api/dev/throw`; for a job, its class name, e.g. `OrphanImagesCleanupService` |
-| `fingerprint` | The type and the place joined by `\|`, e.g. `System.InvalidOperationException\|GET /api/dev/throw`, so repeats of one failure can be grouped |
+| `fingerprint` | The type and where it happened, joined by `\|`, so repeats of one failure can be grouped. For a request that matched a route, the method and the route's template, not the address: `GET /api/posts/5` and `GET /api/posts/6` both give `System.InvalidOperationException\|GET /api/posts/{id:int}`. For a request that matched no route, the method and the path. For a job, its class name, as in `place` |
 
-The place never holds the query string (hub connections carry the access token there). The event carries nothing else from the request: no body, no header, no user data.
+The route template is read from `IExceptionHandlerFeature.Endpoint`, because the exception middleware clears the request's endpoint before the handler runs. The place never holds the query string (hub connections carry the access token there). The event carries nothing else from the request: no body, no header, no user data.
 
 ### The route that throws on purpose
 
-`GET api/dev/throw` throws an `InvalidOperationException`. It is mapped only in Development, as Swagger is (`DevelopmentEndpointsExtensions.MapThrowingEndpoint`), anonymous, rate-limited per IP (`ThrowOnPurpose`, 30 a minute) and left out of the OpenAPI documents. No real route can be made to fail on request, and the tests, the exception workflow's checklist and the demo all need one. In any other environment the route does not exist (`404`).
+`GET api/dev/throw`, optionally with an id (`api/dev/throw/7`, template `api/dev/throw/{id:int?}`), throws an `InvalidOperationException`. The id is never read; it lets the tests and the demo show two addresses of one route sharing one fingerprint. It is mapped only in Development, as Swagger is (`DevelopmentEndpointsExtensions.MapThrowingEndpoint`), anonymous, rate-limited per IP (`ThrowOnPurpose`, 30 a minute) and left out of the OpenAPI documents. No real route can be made to fail on request, and the tests, the exception workflow's checklist and the demo all need one. In any other environment the route does not exist (`404`).
 
 ---
 

@@ -23,10 +23,17 @@ public class GlobalExceptionHandler : IExceptionHandler
         var systemLogger = httpContext.RequestServices.GetRequiredService<SystemLogger>();
         await systemLogger.LogEndpointErrorAsync(exception, httpContext.Request.Method, httpContext.Request.Path);
 
-        // Request.Path never holds the query string, where hub connections carry the access token. Sent before the answer
-        // is written, and it never throws, so the caller gets the same answer either way.
+        // Request.Path never holds the query string, where hub connections carry the access token. The middleware clears
+        // the endpoint before this handler runs, so the matched route is read from the feature it keeps. Sent before the
+        // answer is written, and it never throws, so the caller gets the same answer either way.
+        var matchedRoute   = httpContext.Features.Get<IExceptionHandlerFeature>()?.Endpoint as RouteEndpoint;
         var eventPublisher = httpContext.RequestServices.GetRequiredService<EventPublisher>();
-        var exceptionEvent = ExceptionEventMapper.ToRequestEvent(exception, httpContext.Request.Method, httpContext.Request.Path);
+        var exceptionEvent = ExceptionEventMapper.ToRequestEvent(
+            exception,
+            httpContext.Request.Method,
+            httpContext.Request.Path,
+            matchedRoute?.RoutePattern.RawText
+            );
         await eventPublisher.PublishAsync(EventNames.ExceptionOccurred, exceptionEvent);
 
         if (exception is DbUpdateException)

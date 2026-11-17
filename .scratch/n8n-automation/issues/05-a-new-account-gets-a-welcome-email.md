@@ -28,3 +28,11 @@ Decisions are under "The six workflows" in `.scratch/n8n-automation/spec.md`.
 - [ ] The workflow file is committed with a fixed id and no pinned data, and a clean start imports and publishes it beside the first one
 - [ ] The README's checklist for this workflow is written
 - [ ] The owner ran the checklist on their machine
+
+## Known limits from ticket 01
+
+Ticket 01 built the backend's sending side (`EventPublisher`, `docs/backend/automation.md`). These limits of it affect this ticket; the full list is in ticket 01's Comments.
+
+- **A lost event is a lost welcome email.** Someone who registers while n8n is down gets no welcome, and nothing resends it. The only trace is the backend's `Log` row (action `EventPublisher.PublishAsync`, details naming `account-created`, not the user).
+- **Answer first.** The backend waits up to 3 seconds for n8n's answer inside the registration request. Respond to Webhook runs straight after the signature check, before the email is sent.
+- **Check the signature on the raw body**, as ticket 02 does; parsed and rewritten JSON never matches.

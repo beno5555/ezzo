@@ -2,7 +2,7 @@
 
 **What to build:** When the same exception happens many times in a short while, the developers' Telegram chat gets the first one at once and then one follow-up that says how many more there were, instead of a message for each.
 
-This ticket changes the exception-alert workflow from ticket 02. Nothing in the backend changes: every `exception-occurred` event already carries a fingerprint made of the exception type and the place.
+This ticket changes the exception-alert workflow from ticket 02. Nothing in the backend changes: every `exception-occurred` event already carries a fingerprint made of the exception type and the place (for a request, the route's template, not its address: see "Known limits from ticket 01" below).
 
 - **The first event of a fingerprint** sends its alert at once, as today.
 - **Every event is written as a row** to an n8n Data Table: the fingerprint, the time, and enough of the event to word the follow-up. The table has its own time column; do not rely on a system column for filtering.
@@ -38,3 +38,11 @@ Decisions are under "The six workflows" in `.scratch/n8n-automation/spec.md`. Al
 - [ ] A clean start still ends with the workflow published and the table in place, by the steps in the README
 - [ ] The workflow file is committed with its fixed id and no pinned data; the README's checklist for the exception-alert workflow is updated
 - [ ] The owner ran the checklist on their machine
+
+## Known limits from ticket 01
+
+Ticket 01 built the backend's sending side (`EventPublisher`, `docs/backend/automation.md`). These limits of it affect this ticket; the full list is in ticket 01's Comments.
+
+- **What the fingerprint is.** For a request that matched a route, `{exception type}|{METHOD} {route template}`, e.g. `System.InvalidOperationException|GET /api/posts/{id:int}`, so one failure at many ids groups as one. For a request that matched no route, `{type}|{METHOD} {path}`. For a job, `{type}|{job class name}`. Group by the string as it arrives; do not take it apart.
+- **What a row keeps.** Store the fingerprint, the time, the type and `place`, which is enough for "seen N more times". Do not store `message` or `stackTrace`: the message can quote user input, and the table outlives the alert.
+- **Lost and missing events are not counted.** "Seen N more times" counts only events that reached n8n. Events lost while n8n was down, and failures that send no event at all (SignalR hub methods, startup), are not in N.

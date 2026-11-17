@@ -150,7 +150,7 @@ The six emails the backend already sends (about passwords, reactivation and deac
 | `comment-created` | a comment is created | comment id, text, post id, author id and username, moderation status |
 | `comment-edited` | a comment's text is changed | the same as `comment-created` |
 | `report-created` | a report is created | report id, target type, target id, reason, reporter id and username, the target snapshot the reports list shows, and the creation times of every pending report on the same target (this one included) |
-| `exception-occurred` | an unhandled exception reaches the global handler, or a background job's cycle throws | exception type, message, the first 15 lines of the stack trace, the kind of place (request or job), the place (HTTP method and path without the query string, or the job's name), and a fingerprint made of the type and the place |
+| `exception-occurred` | an unhandled exception reaches the global handler, or a background job's cycle throws | exception type, message, the first 15 lines of the stack trace, the kind of place (request or job), the place (HTTP method and path without the query string, or the job's name), and a fingerprint made of the type and the place, where a request's place is its matched route's template instead of its address, so one failure at many ids groups as one (changed after ticket 01, owner, 2026-11-17) |
 
 - **Photo addresses are the relative addresses the API already returns.** n8n prefixes its own setting for the backend's address.
 - **The query string is never sent,** because hub connections carry the access token there.
