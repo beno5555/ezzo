@@ -2,6 +2,7 @@ using System.Net;
 using aspnetproject.Common.ProjectConstants;
 using aspnetproject.Common.ProjectConstants.Enums;
 using aspnetproject.Data;
+using aspnetproject.Data.Models;
 using aspnetproject.Infrastructure.Dtos.Friendships;
 using aspnetproject.Infrastructure.Dtos.Messages;
 using Microsoft.EntityFrameworkCore;
@@ -38,7 +39,7 @@ public class FriendshipControllerTests : IClassFixture<DatabaseFixture>, IAsyncL
     //              #4 bob -> charlie Declined, #5 bob -> diana Accepted.
     // So alice has friend bob, one waiting request sent to diana, one waiting request from charlie; bob has friends alice and diana.
 
-    private const int NonexistentUserId = 999;
+    private const int NonexistentUserId    = 999;
     private const int SeededFriendshipCount = 5;
 
     // ---------- every endpoint ----------
@@ -54,11 +55,36 @@ public class FriendshipControllerTests : IClassFixture<DatabaseFixture>, IAsyncL
     [InlineData("PUT", "api/friendships/4/accept")]
     [InlineData("PUT", "api/friendships/4/decline")]
     [InlineData("DELETE", "api/friendships/3")]
-    public async Task AnyEndpoint_WithoutToken_ReturnsUnauthorized(string method, string url)
+    public async Task AllEndpoints_WithoutToken_ReturnUnauthorized(string method, string url)
     {
         var response = await _client.SendAsync(new HttpRequestMessage(new HttpMethod(method), url));
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    public static TheoryData<string, string> ListsAndOutOfRangePaging()
+    {
+        var data = new TheoryData<string, string>();
+        foreach (var list in new[] { "accepted", "pending", "sent", "user/3" })
+        {
+            foreach (var query in new[] { "pageNumber=0", "pageSize=0", "pageSize=" + (Constants.MaxPageSize + 1) })
+            {
+                data.Add(list, query);
+            }
+        }
+
+        return data;
+    }
+
+    [Theory]
+    [MemberData(nameof(ListsAndOutOfRangePaging))]
+    public async Task ListEndpoints_WithPagingOutOfRange_ReturnBadRequest(string list, string query)
+    {
+        await SignInAsync("alice");
+
+        var response = await _client.GetAsync($"api/friendships/{list}?{query}");
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
     // ---------- POST /friendships/{addresseeId} ----------
@@ -136,6 +162,7 @@ public class FriendshipControllerTests : IClassFixture<DatabaseFixture>, IAsyncL
     public async Task SendRequest_AgainAfterTheSameSenderWasDeclined_ReopensTheSameRow()
     {
         await SignInAsync("bob"); // bob's request to charlie (#4) was declined
+        var declinedRow = await FindFriendshipAsync(requesterId: 3, addresseeId: 4);
 
         var response = await _client.PostAsync("api/friendships/4", null);
 
@@ -144,6 +171,9 @@ public class FriendshipControllerTests : IClassFixture<DatabaseFixture>, IAsyncL
         Assert.Equal(3, friendship.RequesterId);
         Assert.Equal(4, friendship.AddresseeId);
         Assert.Equal(nameof(FriendshipStatus.Pending), friendship.Status);
+        var reopenedRow = await FindFriendshipAsync(requesterId: 3, addresseeId: 4);
+        Assert.Equal(declinedRow!.Id, reopenedRow!.Id);
+        Assert.True(reopenedRow.SentAt > declinedRow.SentAt);
         Assert.Equal(SeededFriendshipCount, await FriendshipCountAsync());
         Assert.Contains(4, await OtherUserIdsAsync("api/friendships/sent"));
         await SignInAsync("charlie");
@@ -162,6 +192,8 @@ public class FriendshipControllerTests : IClassFixture<DatabaseFixture>, IAsyncL
         Assert.Equal(4, friendship.RequesterId);
         Assert.Equal(3, friendship.AddresseeId);
         Assert.Equal(nameof(FriendshipStatus.Pending), friendship.Status);
+        Assert.Null(await FindFriendshipAsync(requesterId: 3, addresseeId: 4));
+        Assert.NotEqual(4, (await FindFriendshipAsync(requesterId: 4, addresseeId: 3))!.Id);
         Assert.Equal(SeededFriendshipCount, await FriendshipCountAsync());
         await SignInAsync("bob");
         Assert.Contains(4, await OtherUserIdsAsync("api/friendships/pending"));
@@ -171,15 +203,15 @@ public class FriendshipControllerTests : IClassFixture<DatabaseFixture>, IAsyncL
     // ---------- GET /friendships/{friendId} ----------
 
     [Theory]
-    [InlineData("alice", 3, 3, "bob", "Accepted")]
-    [InlineData("bob", 2, 2, "alice", "Accepted")]
-    [InlineData("alice", 5, 5, "diana", "Pending")]   // a request alice sent
-    [InlineData("diana", 2, 2, "alice", "Pending")]   // the same request, seen by its addressee
-    [InlineData("alice", 4, 4, "charlie", "Pending")] // a request alice received
-    [InlineData("bob", 4, 4, "charlie", "Declined")]
-    [InlineData("charlie", 3, 3, "bob", "Declined")]
+    [InlineData("alice", 3, "bob", nameof(FriendshipStatus.Accepted))]
+    [InlineData("bob", 2, "alice", nameof(FriendshipStatus.Accepted))]
+    [InlineData("alice", 5, "diana", nameof(FriendshipStatus.Pending))]   // a request alice sent
+    [InlineData("diana", 2, "alice", nameof(FriendshipStatus.Pending))]   // the same request, seen by its addressee
+    [InlineData("alice", 4, "charlie", nameof(FriendshipStatus.Pending))] // a request alice received
+    [InlineData("bob", 4, "charlie", nameof(FriendshipStatus.Declined))]
+    [InlineData("charlie", 3, "bob", nameof(FriendshipStatus.Declined))]
     public async Task GetRelationship_WithAUserInAnyState_ReturnsTheOtherUserAndTheStatus(
-        string caller, int friendId, int expectedOtherUserId, string expectedUsername, string expectedStatus)
+        string caller, int friendId, string expectedUsername, string expectedStatus)
     {
         await SignInAsync(caller);
 
@@ -187,7 +219,7 @@ public class FriendshipControllerTests : IClassFixture<DatabaseFixture>, IAsyncL
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         var friendship = await ResponseReader.ReadDataAsync<StandardFriendshipDto>(response);
-        Assert.Equal(expectedOtherUserId, friendship.OtherUser.Id);
+        Assert.Equal(friendId, friendship.OtherUser.Id);
         Assert.Equal(expectedUsername, friendship.OtherUser.Username);
         Assert.Equal(expectedStatus, friendship.Status);
     }
@@ -211,7 +243,7 @@ public class FriendshipControllerTests : IClassFixture<DatabaseFixture>, IAsyncL
     [Theory]
     [InlineData("alice", 3, "bob")]
     [InlineData("bob", 2, "alice")]
-    public async Task GetAcceptedFriendship_WithAnAcceptedFriend_ReturnsThemWithPresence(string caller, int friendId, string expectedUsername)
+    public async Task GetAcceptedFriendship_WithAnAcceptedFriend_ReturnsTheFriend(string caller, int friendId, string expectedUsername)
     {
         await SignInAsync(caller);
 
@@ -255,6 +287,19 @@ public class FriendshipControllerTests : IClassFixture<DatabaseFixture>, IAsyncL
         Assert.Equal(ResponseMessages.AccountDeactivatedUsername, friendship.OtherUser.Username);
     }
 
+    [Fact]
+    public async Task GetAcceptedFriendship_WithAFriendWhoseAccountWasDeleted_ReturnsThemUnderTheDeletedName()
+    {
+        await SoftDeleteAsync(userId: 5);
+        await SignInAsync("bob"); // bob and diana are friends (#5)
+
+        var response = await _client.GetAsync("api/friendships/accepted/5");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var friendship = await ResponseReader.ReadDataAsync<AcceptedFriendshipDto>(response);
+        Assert.Equal(ResponseMessages.AccountDeletedUsername, friendship.OtherUser.Username);
+    }
+
     // ---------- GET /friendships/accepted ----------
 
     [Theory]
@@ -273,26 +318,32 @@ public class FriendshipControllerTests : IClassFixture<DatabaseFixture>, IAsyncL
     }
 
     [Fact]
+    public async Task GetFriendships_WithFriendsWhoseAccountsAreNotAvailable_ListsThemUnderThePlaceholderNames()
+    {
+        await DeactivateAsync(userId: 2);
+        await SoftDeleteAsync(userId: 5);
+        await SignInAsync("bob"); // friends: alice (deactivated), then diana (deleted)
+
+        var friendships = await GetFriendshipListAsync("api/friendships/accepted");
+
+        Assert.Equal(new[] { 2, 5 }, friendships.Select(friendship => friendship.OtherUser.Id!.Value));
+        Assert.Equal(
+            new[] { ResponseMessages.AccountDeactivatedUsername, ResponseMessages.AccountDeletedUsername },
+            friendships.Select(friendship => friendship.OtherUser.Username));
+    }
+
+    [Fact]
     public async Task GetFriendships_WithPageSizeOne_ReturnsOneFriendPerPageAndThenNothing()
     {
         await SignInAsync("bob"); // friends: alice, then diana
 
-        Assert.Equal(new[] { 2 }, await OtherUserIdsAsync("api/friendships/accepted?pageNumber=1&pageSize=1"));
-        Assert.Equal(new[] { 5 }, await OtherUserIdsAsync("api/friendships/accepted?pageNumber=2&pageSize=1"));
-        Assert.Empty(await OtherUserIdsAsync("api/friendships/accepted?pageNumber=3&pageSize=1"));
-    }
+        var firstPage  = await OtherUserIdsAsync("api/friendships/accepted?pageNumber=1&pageSize=1");
+        var secondPage = await OtherUserIdsAsync("api/friendships/accepted?pageNumber=2&pageSize=1");
+        var thirdPage  = await OtherUserIdsAsync("api/friendships/accepted?pageNumber=3&pageSize=1");
 
-    [Theory]
-    [InlineData("pageNumber=0")]
-    [InlineData("pageSize=0")]
-    [InlineData("pageSize=101")]
-    public async Task GetFriendships_WithPagingOutOfRange_ReturnsBadRequest(string query)
-    {
-        await SignInAsync("alice");
-
-        var response = await _client.GetAsync($"api/friendships/accepted?{query}");
-
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(new[] { 2 }, firstPage);
+        Assert.Equal(new[] { 5 }, secondPage);
+        Assert.Empty(thirdPage);
     }
 
     // ---------- GET /friendships/pending ----------
@@ -313,16 +364,20 @@ public class FriendshipControllerTests : IClassFixture<DatabaseFixture>, IAsyncL
     }
 
     [Fact]
-    public async Task GetPendingRequests_WithPageSizeTwo_PagesThroughRequestsInTheOrderTheyWereSent()
+    public async Task GetPendingRequests_WithPageSizeTwo_PagesThroughRequestsInTheOrderTheRowsWereCreated()
     {
         // diana already has alice's request; charlie and sandro_beno now ask her too.
         await SendRequestAsync("charlie", addresseeId: 5);
         await SendRequestAsync("sandro_beno", addresseeId: 5);
         await SignInAsync("diana");
 
-        Assert.Equal(new[] { 2, 4 }, await OtherUserIdsAsync("api/friendships/pending?pageNumber=1&pageSize=2"));
-        Assert.Equal(new[] { 1 }, await OtherUserIdsAsync("api/friendships/pending?pageNumber=2&pageSize=2"));
-        Assert.Empty(await OtherUserIdsAsync("api/friendships/pending?pageNumber=3&pageSize=2"));
+        var firstPage  = await OtherUserIdsAsync("api/friendships/pending?pageNumber=1&pageSize=2");
+        var secondPage = await OtherUserIdsAsync("api/friendships/pending?pageNumber=2&pageSize=2");
+        var thirdPage  = await OtherUserIdsAsync("api/friendships/pending?pageNumber=3&pageSize=2");
+
+        Assert.Equal(new[] { 2, 4 }, firstPage);
+        Assert.Equal(new[] { 1 }, secondPage);
+        Assert.Empty(thirdPage);
     }
 
     // ---------- GET /friendships/sent ----------
@@ -347,9 +402,13 @@ public class FriendshipControllerTests : IClassFixture<DatabaseFixture>, IAsyncL
     {
         await SendRequestAsync("alice", addresseeId: 1); // alice's sent requests: diana, then sandro_beno
 
-        Assert.Equal(new[] { 5 }, await OtherUserIdsAsync("api/friendships/sent?pageNumber=1&pageSize=1"));
-        Assert.Equal(new[] { 1 }, await OtherUserIdsAsync("api/friendships/sent?pageNumber=2&pageSize=1"));
-        Assert.Empty(await OtherUserIdsAsync("api/friendships/sent?pageNumber=3&pageSize=1"));
+        var firstPage  = await OtherUserIdsAsync("api/friendships/sent?pageNumber=1&pageSize=1");
+        var secondPage = await OtherUserIdsAsync("api/friendships/sent?pageNumber=2&pageSize=1");
+        var thirdPage  = await OtherUserIdsAsync("api/friendships/sent?pageNumber=3&pageSize=1");
+
+        Assert.Equal(new[] { 5 }, firstPage);
+        Assert.Equal(new[] { 1 }, secondPage);
+        Assert.Empty(thirdPage);
     }
 
     // ---------- GET /friendships/user/{userId} ----------
@@ -381,9 +440,13 @@ public class FriendshipControllerTests : IClassFixture<DatabaseFixture>, IAsyncL
     {
         await SignInAsync("alice");
 
-        Assert.Equal(new[] { 2 }, await OtherUserIdsAsync("api/friendships/user/3?pageNumber=1&pageSize=1"));
-        Assert.Equal(new[] { 5 }, await OtherUserIdsAsync("api/friendships/user/3?pageNumber=2&pageSize=1"));
-        Assert.Empty(await OtherUserIdsAsync("api/friendships/user/3?pageNumber=3&pageSize=1"));
+        var firstPage  = await OtherUserIdsAsync("api/friendships/user/3?pageNumber=1&pageSize=1");
+        var secondPage = await OtherUserIdsAsync("api/friendships/user/3?pageNumber=2&pageSize=1");
+        var thirdPage  = await OtherUserIdsAsync("api/friendships/user/3?pageNumber=3&pageSize=1");
+
+        Assert.Equal(new[] { 2 }, firstPage);
+        Assert.Equal(new[] { 5 }, secondPage);
+        Assert.Empty(thirdPage);
     }
 
     [Theory]
@@ -456,11 +519,13 @@ public class FriendshipControllerTests : IClassFixture<DatabaseFixture>, IAsyncL
     public async Task AcceptRequest_ASecondTime_ReturnsBadRequest()
     {
         await SignInAsync("alice");
-        await _client.PutAsync("api/friendships/4/accept", null);
+        var firstResponse = await _client.PutAsync("api/friendships/4/accept", null);
 
         var response = await _client.PutAsync("api/friendships/4/accept", null);
 
+        Assert.Equal(HttpStatusCode.OK, firstResponse.StatusCode);
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(ResponseMessages.PendingRequestNotFound, await ResponseReader.ReadMessageAsync(response));
     }
 
     // ---------- PUT /friendships/{requesterId}/decline ----------
@@ -524,9 +589,12 @@ public class FriendshipControllerTests : IClassFixture<DatabaseFixture>, IAsyncL
     public async Task RemoveRelationship_AcceptedFriend_RemovesThemFromBothFriendLists()
     {
         await SignInAsync("alice");
+        var messagesBefore = await ConversationMessageCountAsync(userId: 2, otherUserId: 3);
 
         var response = await _client.DeleteAsync("api/friendships/3");
 
+        Assert.True(messagesBefore > 0);
+        Assert.Equal(0, await ConversationMessageCountAsync(userId: 2, otherUserId: 3));
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
         Assert.Equal(ResponseMessages.RelationshipRemoved, await ResponseReader.ReadMessageAsync(response));
         Assert.Empty(await OtherUserIdsAsync("api/friendships/accepted"));
@@ -589,9 +657,6 @@ public class FriendshipControllerTests : IClassFixture<DatabaseFixture>, IAsyncL
         Assert.Equal(ResponseMessages.RelationshipNotFound, await ResponseReader.ReadMessageAsync(response));
         Assert.Equal(SeededFriendshipCount, await FriendshipCountAsync());
     }
-
-    // ---------- DELETE /friendships/{friendId}: photos ----------
-    // alice (2) and bob (3) are accepted friends with a seeded conversation. Removing the friendship deletes it.
 
     [Fact]
     public async Task RemoveRelationship_ConversationWithPhotos_RemovesTheirFiles()
@@ -658,6 +723,28 @@ public class FriendshipControllerTests : IClassFixture<DatabaseFixture>, IAsyncL
         await using var db = new ApplicationDbContext(_dbFixture.GetOptions());
         await db.Users.Where(user => user.Id == userId).ExecuteUpdateAsync(setters =>
             setters.SetProperty(user => user.AccountDeactivatedAt, DateTime.UtcNow));
+    }
+
+    private async Task SoftDeleteAsync(int userId)
+    {
+        await using var db = new ApplicationDbContext(_dbFixture.GetOptions());
+        await db.Users.Where(user => user.Id == userId).ExecuteUpdateAsync(setters =>
+            setters.SetProperty(user => user.AccountDeletedAt, DateTime.UtcNow));
+    }
+
+    private async Task<Friendship?> FindFriendshipAsync(int requesterId, int addresseeId)
+    {
+        await using var db = new ApplicationDbContext(_dbFixture.GetOptions());
+        return await db.Friendships.AsNoTracking().SingleOrDefaultAsync(friendship =>
+            friendship.RequesterUserId == requesterId && friendship.AddresseeUserId == addresseeId);
+    }
+
+    private async Task<int> ConversationMessageCountAsync(int userId, int otherUserId)
+    {
+        await using var db = new ApplicationDbContext(_dbFixture.GetOptions());
+        return await db.Messages.CountAsync(message =>
+            (message.SenderUserId == userId && message.ReceiverUserId == otherUserId) ||
+            (message.SenderUserId == otherUserId && message.ReceiverUserId == userId));
     }
 
     private async Task<int> FriendshipCountAsync()

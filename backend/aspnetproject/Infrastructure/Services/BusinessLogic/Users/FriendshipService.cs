@@ -189,11 +189,13 @@ public class FriendshipService : BaseService
         var response   = new ApplicationResponse<AcceptedFriendshipDto>();
         
         var friendship = await _friendshipRepository.GetAcceptedFriendshipAsync(currentUserId, otherUserId, false);
-        var otherUser  = friendship is null ? null : await ResolveOtherUserAsync(friendship, otherUserId);
 
-        if (friendship is not null && otherUser is not null)
+        if (friendship is not null)
         {
-            var friendshipDto = FriendshipMapper.ToAcceptedDisplay(friendship, otherUser);
+            // The friendship row holds a foreign key to the user, so the user exists even when the filter hides it.
+            var otherUser = await ResolveOtherUserAsync(friendship, otherUserId);
+
+            var friendshipDto = FriendshipMapper.ToAcceptedDisplay(friendship, otherUser!);
             response.Ok(friendshipDto, ResponseMessages.RelationshipFetched);           
             await LogResultAsync(response.Succeeded, nameof(GetAcceptedFriendshipAsync), nameof(Friendship), null, friendship.Id);
         }
