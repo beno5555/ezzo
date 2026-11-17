@@ -49,7 +49,8 @@ public static class ApplicationServicesExtensions
         services.AddScoped<PresenceService>();
         services.AddScoped<TypingService>();
         services.AddScoped<LogService>();
-        
+        services.AddScoped<StatisticsService>();
+
         services.AddScoped<PasswordHasher>();
         services.AddScoped<TokenGenerator>();
         services.AddScoped<UrlSecurityService>();

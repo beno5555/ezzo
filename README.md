@@ -19,7 +19,7 @@ For the earlier, API-only state of this repository and the history behind it, se
 - Typing indicator: a client calls `SendTyping` while its user writes to a friend, and the friend receives `UserTyping`. Only accepted friends get it; nothing is stored or logged
 - View a user's profile; edit own profile
 - Roles (`User`, `Administrator`): an administrator can create, update, deactivate, reactivate and soft-delete other users' accounts, delete any post or comment, and assign or remove the `Administrator` role
-- Admin reads (`api/admin`): an administrator reads the `Logs` table page by page, newest first, filtered by user, authorized or not, succeeded or not, entity, action and date range, and lists accounts in any state (active, deactivated, soft-deleted), filtered by state and username
+- Admin reads (`api/admin`): an administrator reads the `Logs` table page by page, newest first, filtered by user, authorized or not, succeeded or not, entity, action and date range, and lists accounts in any state (active, deactivated, soft-deleted), filtered by state and username. System statistics (`GET api/admin/statistics`) give one object: totals (active and deactivated accounts, posts, comments, messages, likes, reports waiting for a decision), accounts, posts, comments and messages created in the last 7 and 30 days, and how many users are online now (users with a live hub connection)
 - Moderation (`api/admin`): an administrator sets a post's or a comment's status to `Visible`, `Flagged` or `Hidden`. Hidden content is readable only by its author and by administrators, and reads as not found for everyone else; flagged content reads as visible. Post and comment shapes carry an `IsHidden` flag. The moderation queue (`GET api/admin/moderation-queue/posts` and `.../comments`) pages the flagged posts or comments, oldest first, each with a snapshot (text, photos or the post's title, author, time) so the administrator can approve or hide it
 - Reports (`api/reports`): a user reports a post, a comment or another user, with a reason, once per target while the report is pending. Hidden content, the caller's own content and the caller themselves cannot be reported. An administrator lists the reports page by page, newest first, filtered by status and target type, each with a snapshot of its target (or marked missing once the target is deleted), and decides a pending report: hide (the post or comment is hidden, or the user deactivated, and every pending report on that target is resolved) or reject (only that report)
 - Deactivate own account; reactivate it through an emailed activation token
@@ -154,7 +154,7 @@ CLAUDE.md
             /Base
             /Content
             /Users
-            LogService.cs
+            LogService.cs, StatisticsService.cs
         /Helpers
         /Logging
         /Storage
@@ -165,7 +165,7 @@ CLAUDE.md
 Program.cs
 ```
 
-Folders are grouped by domain area, not by REST noun, and the grouping repeats across layers: `AuthController`, `UserController`, `FriendshipController`, `AccountManagementController` and `AccountActivationController` all live under `Controllers/Users/`, mirroring `Services/BusinessLogic/Users/`. `AdminController` (`Controllers/Admin/`) is the administrator-only area; it calls `LogService`, `UserService` and `ModerationService` (`BusinessLogic/Content`).
+Folders are grouped by domain area, not by REST noun, and the grouping repeats across layers: `AuthController`, `UserController`, `FriendshipController`, `AccountManagementController` and `AccountActivationController` all live under `Controllers/Users/`, mirroring `Services/BusinessLogic/Users/`. `AdminController` (`Controllers/Admin/`) is the administrator-only area; it calls `LogService`, `StatisticsService`, `UserService` and `ModerationService` (`BusinessLogic/Content`).
 
 ---
 
@@ -193,7 +193,7 @@ Dependencies point one way: **Controllers / Hubs → Services → Repositories �
 
 **Repositories**: concrete classes. `BaseRepository<T>` and `BaseEntityRepository<T>` provide the shared query, pagination and transaction logic; specific repositories add domain queries.
 
-**Services**: business logic. The services under `BusinessLogic/Content` and `BusinessLogic/Users` inherit `BaseService` and consume repositories and mappers directly. `LogService` also inherits `BaseService` and serves the administrator's log read through `LogRepository`.
+**Services**: business logic. The services under `BusinessLogic/Content` and `BusinessLogic/Users` inherit `BaseService` and consume repositories and mappers directly. `LogService` and `StatisticsService` also inherit `BaseService`; they serve the administrator's log and statistics reads through the repositories (`StatisticsService` also reads the online count from `UserConnectionTracker`).
 
 **Controllers**: thin. They delegate to services and map `ApplicationResponse` outcomes to HTTP status codes. All routes are under `api/` (for example `api/posts`, `api/auth`).
 

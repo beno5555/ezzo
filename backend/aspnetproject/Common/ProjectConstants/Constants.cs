@@ -51,6 +51,10 @@ public static class Constants
 
     public static readonly TimeSpan EditMessageWindow = TimeSpan.FromMinutes(20);
 
+    // The two windows of the administrator's activity counts; both end now.
+    public static readonly TimeSpan StatisticsShortWindow = TimeSpan.FromDays(7);
+    public static readonly TimeSpan StatisticsLongWindow  = TimeSpan.FromDays(30);
+
     public const string EmailRegexPattern    = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
     // No dots: a username is an address segment (/users/:username), and a dot makes it look like a file name.
     public const string UsernameRegexPattern = "^(?=.*[a-zA-Z])[a-zA-Z0-9_-]+$";

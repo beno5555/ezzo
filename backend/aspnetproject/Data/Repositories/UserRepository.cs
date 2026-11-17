@@ -32,6 +32,29 @@ public class UserRepository : BaseEntityRepository<User>
         return await GetSingleByIgnoringQueryFilterAsync(user => user.Id == id);
     }
 
+    // The User query filter hides deactivated and soft-deleted accounts, so this counts the active ones.
+    public async Task<int> CountActiveAsync()
+    {
+        return await CountAsync();
+    }
+
+    // A soft-deleted account reads as soft-deleted even if it was also deactivated, as in the account list.
+    public async Task<int> CountDeactivatedAsync()
+    {
+        return await _dbSet
+            .IgnoreQueryFilters()
+            .CountAsync(user => user.AccountDeactivatedAt != null && user.AccountDeletedAt == null);
+    }
+
+    // Sign-ups of accounts that still exist: active and deactivated ones, not soft-deleted ones. Not the inherited
+    // CountCreatedSinceAsync, which the query filter would limit to active accounts.
+    public async Task<int> CountAccountsCreatedSinceAsync(DateTime since)
+    {
+        return await _dbSet
+            .IgnoreQueryFilters()
+            .CountAsync(user => user.AccountDeletedAt == null && user.CreatedAt >= since);
+    }
+
     // For an administrator's review: accounts in any state, until the purge removes them.
     public async Task<List<User>> GetByIdsNoFilterAsync(IReadOnlyCollection<int> ids)
     {

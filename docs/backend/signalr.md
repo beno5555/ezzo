@@ -53,7 +53,7 @@ public class MessageHub : Hub
 
 ## Presence
 
-- `UserConnectionTracker` (singleton, `ConcurrentDictionary<int, int>`) counts live connections per user — a user can have multiple tabs/devices open; presence should only flip on the *first* connect / *last* disconnect, not every socket event.
+- `UserConnectionTracker` (singleton, `ConcurrentDictionary<int, int>`) counts live connections per user — a user can have multiple tabs/devices open; presence should only flip on the *first* connect / *last* disconnect, not every socket event. `GetOnlineUserCount()` returns how many users have at least one connection; the administrator's statistics (`GET api/admin/statistics`) report it as `onlineUsers`.
 - `PresenceService`:
   - `NotifyUserOnlineAsync(userId)` — marks `User.LastOnlineAt = null` (the "online" sentinel, via `UserRepository.MarkActiveAsync`, a bulk `ExecuteUpdateAsync`), fetches the user's accepted friend ids, broadcasts `UserOnline { UserId }` to each friend's group.
   - `NotifyUserOfflineAsync(userId)` — stamps `User.LastOnlineAt = DateTime.UtcNow` (`MarkUserOfflineAsync`), broadcasts `UserOffline { UserId, LastActiveAt }` to friends.
