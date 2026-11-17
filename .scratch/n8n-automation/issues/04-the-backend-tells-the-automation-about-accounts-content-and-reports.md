@@ -34,3 +34,14 @@ Decisions are under "Events" in `.scratch/n8n-automation/spec.md`. The six email
 - [ ] With the recorder failing, creating a post still succeeds
 - [ ] The registration, password reset and reactivation flows are run, and no recorded body contains a reset token or a password
 - [ ] `docs/backend/automation.md` lists the six events and their data
+
+## Known limits from ticket 01
+
+Ticket 01 built the backend's sending side (`EventPublisher`, `docs/backend/automation.md`). These limits of it affect this ticket; the full list is in ticket 01's Comments.
+
+- **A hung n8n slows every action here.** Each event is one awaited attempt inside the user's request. If n8n refuses the connection, that costs milliseconds; if it hangs, a registration, a post, a comment or a report waits up to `AutomationEvents:Timeout` (3 seconds) before it answers. Keep the default. Prove "a failed delivery never fails the action" with `RecorderAnswer.TimeOut` and a short `AutomationEvents:Timeout` override, as `ExceptionOccurredEventTests` does, as well as with `RecorderAnswer.Fail`.
+- **Lost events.** While n8n is down an event is lost, and the only trace is a `Log` row (action `EventPublisher.PublishAsync`) whose details name the event but not the post, comment, report or user. Tickets 05 to 07 inherit this.
+- **Nothing ties an event's name to its data.** `PublishAsync(string, object)` accepts any data for any name. Add each name to `EventNames`, give each event a data DTO of its own, and assert every field of the recorded body in a test: the tests are the only guard.
+- **Enums are text only when the DTO says so.** The publisher writes JSON as the API does, with no global enum converter. A moderation status or a target type is written as its name only with `[JsonConverter(typeof(JsonStringEnumConverter<T>))]` on the property, as `StandardReportDto` does; without it, it leaves as a number.
+- **`occurredAt` is the send time.** Publish in the same method, right after the change is committed. Never publish inside an `ExecuteInTransactionAsync` delegate: a change that is rolled back must send nothing.
+- **The test seam:** `new CustomWebApplicationFactory(dbFixture, recordEvents: true)`, then `factory.EventRecorder.Events` (each with `Path`, `Body`, `Signature`, `Envelope` and `Data`). Seeded users sign in only on Testing hosts, which is the default.

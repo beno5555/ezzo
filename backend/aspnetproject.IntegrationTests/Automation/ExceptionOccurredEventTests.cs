@@ -23,6 +23,8 @@ public class ExceptionOccurredEventTests : IClassFixture<DatabaseFixture>, IAsyn
     private const string EventName         = "exception-occurred";
     private const string ExceptionType     = "System.InvalidOperationException";
     private const string RequestPlace      = "GET /api/dev/throw";
+    // The fingerprint names the route's template, not the address, so one failure at many ids groups as one.
+    private const string RequestFingerprintPlace = "GET /api/dev/throw/{id:int?}";
     private const string JobPlace          = nameof(ThrowingJob);
     private const int    MaxStackLines     = 15;
 
@@ -82,7 +84,7 @@ public class ExceptionOccurredEventTests : IClassFixture<DatabaseFixture>, IAsyn
         Assert.Equal("Thrown on purpose, to test what an unhandled exception does", data.GetProperty("message").GetString());
         Assert.Equal("Request", data.GetProperty("placeKind").GetString());
         Assert.Equal(RequestPlace, data.GetProperty("place").GetString());
-        Assert.Equal($"{ExceptionType}|{RequestPlace}", data.GetProperty("fingerprint").GetString());
+        Assert.Equal($"{ExceptionType}|{RequestFingerprintPlace}", data.GetProperty("fingerprint").GetString());
 
         string[] stackLines = data.GetProperty("stackTrace").GetString()!.Split('\n');
         Assert.InRange(stackLines.Length, 1, MaxStackLines);
@@ -123,6 +125,20 @@ public class ExceptionOccurredEventTests : IClassFixture<DatabaseFixture>, IAsyn
         Assert.Equal(RequestPlace, recorded.Data.GetProperty("place").GetString());
         Assert.DoesNotContain("access_token", Encoding.UTF8.GetString(recorded.Body));
         Assert.DoesNotContain("secret-value", Encoding.UTF8.GetString(recorded.Body));
+    }
+
+    [Fact]
+    public async Task ThrowingRoute_AtTwoIdsOfOneRoute_SendsEachAddressWithOneFingerprint()
+    {
+        await _client.GetAsync($"{ThrowingRoute}/1");
+        await _client.GetAsync($"{ThrowingRoute}/2");
+
+        var events = _development.EventRecorder.Events;
+        Assert.Equal(2, events.Count);
+        Assert.Equal($"{RequestPlace}/1", events[0].Data.GetProperty("place").GetString());
+        Assert.Equal($"{RequestPlace}/2", events[1].Data.GetProperty("place").GetString());
+        Assert.All(events, recorded => Assert.Equal(
+            $"{ExceptionType}|{RequestFingerprintPlace}", recorded.Data.GetProperty("fingerprint").GetString()));
     }
 
     [Fact]

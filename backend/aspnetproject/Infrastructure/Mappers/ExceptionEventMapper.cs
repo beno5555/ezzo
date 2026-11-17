@@ -6,18 +6,33 @@ namespace aspnetproject.Infrastructure.Mappers;
 
 public static class ExceptionEventMapper
 {
-    // path is the request path alone; a caller never passes the query string.
-    public static ExceptionOccurredEventDto ToRequestEvent(Exception exception, string httpMethod, string path)
+    // path is the request path alone; a caller never passes the query string. routeTemplate is the matched route's
+    // template (api/posts/{id:int}), null when no route matched. The place names the address; the fingerprint names the
+    // template, so one failure at many ids groups as one.
+    public static ExceptionOccurredEventDto ToRequestEvent(
+        Exception exception,
+        string    httpMethod,
+        string    path,
+        string?   routeTemplate
+        )
     {
-        return ToEvent(exception, ExceptionPlaceKind.Request, $"{httpMethod} {path}");
+        bool   matchedRoute    = routeTemplate is not null;
+        string fingerprintPath = matchedRoute ? $"/{routeTemplate!.TrimStart('/')}" : path;
+
+        return ToEvent(exception, ExceptionPlaceKind.Request, $"{httpMethod} {path}", $"{httpMethod} {fingerprintPath}");
     }
 
     public static ExceptionOccurredEventDto ToJobEvent(Exception exception, string jobName)
     {
-        return ToEvent(exception, ExceptionPlaceKind.Job, jobName);
+        return ToEvent(exception, ExceptionPlaceKind.Job, jobName, jobName);
     }
 
-    private static ExceptionOccurredEventDto ToEvent(Exception exception, ExceptionPlaceKind placeKind, string place)
+    private static ExceptionOccurredEventDto ToEvent(
+        Exception          exception,
+        ExceptionPlaceKind placeKind,
+        string             place,
+        string             fingerprintPlace
+        )
     {
         string exceptionType = exception.GetType().FullName ?? exception.GetType().Name;
 
@@ -30,7 +45,7 @@ public static class ExceptionEventMapper
             PlaceKind = placeKind,
             Place     = place,
 
-            Fingerprint = $"{exceptionType}{Constants.FingerprintSeparator}{place}"
+            Fingerprint = $"{exceptionType}{Constants.FingerprintSeparator}{fingerprintPlace}"
         };
     }
 
