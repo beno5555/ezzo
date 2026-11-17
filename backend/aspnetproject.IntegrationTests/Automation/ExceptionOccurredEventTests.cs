@@ -17,8 +17,8 @@ namespace aspnetproject.IntegrationTests.Automation;
 // host also runs the test's job.
 public class ExceptionOccurredEventTests : IClassFixture<DatabaseFixture>, IAsyncLifetime
 {
+    // Literals, not the backend's constants, so a changed name or address fails here.
     private const string ThrowingRoute     = "api/dev/throw";
-    private const string ThrowingRoutePath = "/api/dev/throw";
     private const string EventPath         = "/webhook/exception-occurred";
     private const string EventName         = "exception-occurred";
     private const string ExceptionType     = "System.InvalidOperationException";

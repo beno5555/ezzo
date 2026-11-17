@@ -52,7 +52,7 @@ Every event has the same four fields (`EventEnvelopeDto`):
 }
 ```
 
-`id` is a new GUID per event, `event` the event name, `occurredAt` the UTC time it was published. JSON is written the way the API writes it: camelCase, enums as the text their DTOs declare, times marked UTC with `Z` (`UtcDateTimeJsonConverter`, ADR 0005). No event carries a secret (ADR 0008).
+`id` is a new GUID per event, `event` the event name, `occurredAt` the UTC time of the thing that happened. The publisher takes it when it sends: every event is published in the same method as the thing it reports, so the two are milliseconds apart. JSON is written the way the API writes it: camelCase, enums as the text their DTOs declare, times marked UTC with `Z` (`UtcDateTimeJsonConverter`, ADR 0005). No event carries a secret (ADR 0008).
 
 ---
 

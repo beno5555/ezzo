@@ -71,6 +71,7 @@ public class EventPublisher
             {
                 Id         = Guid.NewGuid(),
                 Event      = eventName,
+                // Every event is published in the method where its thing happened, so the send time stands for it.
                 OccurredAt = DateTime.UtcNow,
                 Data       = data
             };
@@ -85,10 +86,7 @@ public class EventPublisher
             using var response = await _httpClient.SendAsync(request);
 
             bool accepted = response.IsSuccessStatusCode;
-            if (!accepted)
-            {
-                failure = ResponseMessages.EventRefused((int)response.StatusCode);
-            }
+            failure = accepted ? null : ResponseMessages.EventRefused((int)response.StatusCode);
         }
         catch (TaskCanceledException ex) when (ex.InnerException is TimeoutException)
         {
@@ -130,7 +128,7 @@ public class EventPublisher
                 Action     = $"{_serviceName}.{nameof(PublishAsync)}",
                 EntityName = null,
                 EntityId   = null,
-                Details    = FitToLogColumn(ResponseMessages.EventNotDelivered(eventName, failure))
+                Details    = LogDetails.FitToColumn(ResponseMessages.EventNotDelivered(eventName, failure))
             };
 
             await dbLogger.LogSystemActionAsync(log);
@@ -139,18 +137,5 @@ public class EventPublisher
         {
             // ignored: DatabaseLogger already falls back to SystemLogger, and publishing must never throw.
         }
-    }
-
-    private string FitToLogColumn(string details)
-    {
-        string fitted = details;
-
-        bool tooLong = details.Length > Constants.LogDetailsMaxLength;
-        if (tooLong)
-        {
-            fitted = details[..Constants.LogDetailsMaxLength];
-        }
-
-        return fitted;
     }
 }

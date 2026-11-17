@@ -7,6 +7,7 @@ namespace aspnetproject.IntegrationTests.Helpers;
 // never leaves the process. A test reads Events, and sets Answer to make the next deliveries fail or time out.
 public sealed class EventRecorder : HttpMessageHandler
 {
+    // The header the spec names, pinned as a literal so a renamed Constants.EventSignatureHeader fails the signature tests.
     public const string SignatureHeader = "X-WebCity-Signature";
 
     private readonly ConcurrentQueue<RecordedEvent> _events = new();

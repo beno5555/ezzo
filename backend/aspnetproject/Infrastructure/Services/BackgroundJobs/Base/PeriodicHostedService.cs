@@ -77,23 +77,9 @@ public abstract class PeriodicHostedService : BackgroundService
             EntityName = entityName,
             EntityId = null,
             
-            Details = FitToLogColumn(details),
+            Details = LogDetails.FitToColumn(details),
         };
 
         await dbLogger.LogSystemActionAsync(log);
-    }
-
-    // Exception messages (a SQL error, say) can exceed the column; an oversized value would make the log insert fail.
-    private static string? FitToLogColumn(string? details)
-    {
-        string? fitted = details;
-
-        bool tooLong = details is not null && details.Length > Constants.LogDetailsMaxLength;
-        if (tooLong)
-        {
-            fitted = details![..Constants.LogDetailsMaxLength];
-        }
-
-        return fitted;
     }
 }
