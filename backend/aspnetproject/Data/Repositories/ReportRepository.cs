@@ -28,6 +28,20 @@ public class ReportRepository : BaseEntityRepository<Report>
         return await _dbSet.CountAsync(report => report.Status == ReportStatus.Pending);
     }
 
+    // The creation times of the reports still waiting for a decision on one target, oldest first. As in CountPendingAsync,
+    // whoever made them: the reporter is not loaded, so the User query filter does not apply.
+    public async Task<List<DateTime>> GetPendingTimesForTargetAsync(ReportTargetType targetType, int targetId)
+    {
+        return await _dbSet
+            .AsNoTracking()
+            .Where(report => report.TargetType == targetType
+                             && report.TargetId == targetId
+                             && report.Status   == ReportStatus.Pending)
+            .OrderBy(report => report.CreatedAt)
+            .Select(report => report.CreatedAt)
+            .ToListAsync();
+    }
+
     // Newest first. Id breaks ties between reports written in the same millisecond, so paging is deterministic.
     public async Task<List<Report>> GetReportsAsync(ReportListQuery reportQuery)
     {

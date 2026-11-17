@@ -6,6 +6,7 @@ using aspnetproject.Data.Repositories;
 using aspnetproject.Infrastructure.Dtos.Reports;
 using aspnetproject.Infrastructure.Mappers;
 using aspnetproject.Infrastructure.Queries;
+using aspnetproject.Infrastructure.Services.Automation;
 using aspnetproject.Infrastructure.Services.BusinessLogic.Base;
 using aspnetproject.Infrastructure.Services.Helpers;
 using aspnetproject.Infrastructure.Services.Logging;
@@ -19,6 +20,7 @@ public class ReportService : BaseService
     private readonly CommentRepository      _commentRepository;
     private readonly UserRepository         _userRepository;
     private readonly AccountSecurityService _accountSecurityService;
+    private readonly EventPublisher         _eventPublisher;
 
     public ReportService(
         ReportRepository       reportRepository,
@@ -26,6 +28,7 @@ public class ReportService : BaseService
         CommentRepository      commentRepository,
         UserRepository         userRepository,
         AccountSecurityService accountSecurityService,
+        EventPublisher         eventPublisher,
         DatabaseLogger         dbLogger
         ) : base(dbLogger)
     {
@@ -34,6 +37,7 @@ public class ReportService : BaseService
         _commentRepository      = commentRepository;
         _userRepository         = userRepository;
         _accountSecurityService = accountSecurityService;
+        _eventPublisher         = eventPublisher;
     }
 
     // The target must be one the caller may read, so hidden content reads as missing, and must not be the caller or theirs.
@@ -53,6 +57,7 @@ public class ReportService : BaseService
             {
                 var report = ReportMapper.ToEntity(reporterId, createReportDto);
                 await _reportRepository.AddAsync(report);
+                await PublishReportCreatedAsync(report);
 
                 response.Ok(ReportMapper.ToStandardDisplay(report), ResponseMessages.ReportCreated);
                 await LogResultAsync(response.Succeeded, nameof(CreateReportAsync), nameof(Report), $"Reported {targetType} {targetId}", report.Id);
@@ -70,6 +75,35 @@ public class ReportService : BaseService
         }
 
         return response;
+    }
+
+    // The target is loaded the way the reports list loads it, so the automation sees what an administrator would. The
+    // pending times are read after the commit, so they include this report and only reports still waiting for a decision.
+    private async Task PublishReportCreatedAsync(Report report)
+    {
+        var reporter = await _userRepository.GetUserByIdNoFilterAsync(report.ReporterUserId);
+
+        Post?    post    = null;
+        Comment? comment = null;
+        User?    user    = null;
+
+        if (report.TargetType == ReportTargetType.Post)
+        {
+            post = (await _postRepository.GetSnapshotsByIdsAsync([report.TargetId])).SingleOrDefault();
+        }
+        else if (report.TargetType == ReportTargetType.Comment)
+        {
+            comment = (await _commentRepository.GetSnapshotsByIdsAsync([report.TargetId])).SingleOrDefault();
+        }
+        else
+        {
+            user = (await _userRepository.GetByIdsNoFilterAsync([report.TargetId])).SingleOrDefault();
+        }
+
+        var pendingTimes = await _reportRepository.GetPendingTimesForTargetAsync(report.TargetType, report.TargetId);
+        var reportEvent  = ReportEventMapper.ToCreatedEvent(report, reporter, post, comment, user, pendingTimes);
+
+        await _eventPublisher.PublishAsync(EventNames.ReportCreated, reportEvent);
     }
 
     // A report's target has no foreign key, so the page's targets are loaded afterwards: one query per target type.
