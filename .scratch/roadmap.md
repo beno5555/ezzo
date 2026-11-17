@@ -15,6 +15,7 @@ Non-visual work (backend, tests, tooling) is merged as soon as it passes the ful
 - **Test-suite-speed ticket 02: every test is reseeded in one round trip**, merged 2026-11-17 (`Duration` 58 s → 42 to 46 s). Look at `SeedRecorder` and `RecordedSeed` (`backend/aspnetproject.IntegrationTests/Fixtures/`), the startup check that fails the run when a replay differs from the EF seed, and the known limits under the ticket's Comments.
 - **Test-suite-speed ticket 03: test classes run in parallel, each on its own database**, merged 2026-11-17 (`Duration` 44 s → 15 to 21 s locally, 22 to 29 s in CI). Look at `TestDatabasePool`, `DatabaseLender`, `TestDatabaseNames` and `DatabaseFixture` (same folder), and the open points under the ticket's Comments.
 - **Documented-backend-features ticket 13: an administrator sees system statistics**, merged 2026-11-17. Look at `StatisticsService` and the new `GET /api/admin/statistics` (`docs/backend/controllers.md`, AdminController), the counting helpers added to `BaseEntityRepository`, `UserRepository` and `ReportRepository`, and the online count read from `UserConnectionTracker`. The ticket records no spec review; the owner judged the code safe to merge.
+- **Frontend ticket 25: the friendship endpoints are covered by integration tests**, merged 2026-11-17 (`Duration` 40 s for the full suite, 640 tests). Look at `FriendshipControllerTests` (99 tests), the three bugs it exposed and their fixes (list order for paging, a 500 on `GET accepted/{friendId}` for a deactivated friend, the declared type of `GetFriendsOf`), and the points left alone under the ticket's Comments.
 
 **Not merged yet.** Finished visual branches that wait for the owner's review. No agent merges them until the owner says so. After the merge, delete the line.
 
@@ -52,7 +53,7 @@ Set on 2026-11-16. Two worktree lanes at a time (`docs/agents/worktrees.md`). Un
 | 1 | F28, the themes | T01, then T02: cheaper sign-in, one-batch reseed | T01 merged 2026-11-16, T02 2026-11-17 |
 | 2 | F29, the screenshots | T03, test classes in parallel (merged 2026-11-17) | |
 | 3 | F06, toast, dialog, confirmation, menu | B13, statistics (merged 2026-11-17) | |
-| 4 | F05, the live connection | frontend 25, friendship tests | |
+| 4 | F05, the live connection | frontend 25, friendship tests (merged 2026-11-17) | |
 | 5 | F07, the shell | n8n 01, a failure leaves as a signed event | |
 
 After round 5 the backend lane takes n8n 04, then 03 once 02 is done with the owner, then 08 and 11; B04 (remove a photo) waits until the backend lane is free (owner, 2026-11-17). A third lane can open once the shell lands.
