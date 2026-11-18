@@ -1,11 +1,10 @@
 import { DOCUMENT, Injectable, effect, inject, signal } from '@angular/core';
-import { Theme } from './theme';
+import { Theme, themeStorageKey } from './theme';
 
-// The script in the head of index.html repeats both constants and the rule in startingTheme, so that the
-// marker is set before the first paint; theme-boot.spec.ts fails when the two disagree.
+// The script in the head of index.html repeats the storage key (in theme.ts), the query below and the rule
+// in startingTheme, so that the marker is set before the first paint; theme-boot.spec.ts fails when the two
+// disagree.
 
-// Where the visitor's choice is remembered between visits.
-export const themeStorageKey = 'webcity.theme';
 // The media query that matches while the operating system asks for a dark theme.
 export const darkSchemeQuery = '(prefers-color-scheme: dark)';
 

@@ -1,0 +1,15 @@
+/* The scripts under tools/, which Node 24 runs as TypeScript by stripping the types: no build step. */
+{
+  "extends": "../tsconfig.json",
+  "compilerOptions": {
+    "strict": true,
+    "noEmit": true,
+    "allowImportingTsExtensions": true,
+    "erasableSyntaxOnly": true,
+    "verbatimModuleSyntax": true,
+    "resolveJsonModule": true,
+    "importHelpers": false,
+    "types": ["node"]
+  },
+  "include": ["**/*.ts"]
+}

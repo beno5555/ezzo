@@ -18,16 +18,24 @@ Decisions are in `.scratch/roadmap.md` under "Settled on 2026-11-16", and the th
 
 **Blocked by:** 28 (A user switches between light and dark), 04 (A user signs in and stays signed in)
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Difficulty:** tricky: new tooling that drives a browser against two running servers on Windows, with a sign-in that must survive between pages; it will need debugging, and every page ticket depends on it.
 
-- [ ] One command produces twelve images for one address, and the names show the address, width, theme and language
-- [ ] It photographs a guest address and a signed-in address; the signed-in image shows the signed-in state
-- [ ] No credential is in the repo, in the command's output or in an image's name, and the image folder is ignored by Git
-- [ ] With the frontend or the backend stopped, the command ends with a message that names what is not running
-- [ ] It photographs one outside public address at the three widths
-- [ ] An agent reads one of the images it produced and describes what the page shows; the description is recorded in this ticket's comments
+- [x] One command produces twelve images for one address, and the names show the address, width, theme and language
+- [x] It photographs a guest address and a signed-in address; the signed-in image shows the signed-in state
+- [x] No credential is in the repo, in the command's output or in an image's name, and the image folder is ignored by Git
+- [x] With the frontend or the backend stopped, the command ends with a message that names what is not running
+- [x] It photographs one outside public address at the three widths
+- [x] An agent reads one of the images it produced and describes what the page shows; the description is recorded in this ticket's comments
 - [ ] `.mcp.json` is committed, and a new session lists the Playwright tools
-- [ ] The "Running the app" line in the root `CLAUDE.md` names the Playwright MCP server as an agent's first way to look at a page, with the Claude in Chrome extension as the fallback (owner's decision, 2026-11-17). A side-by-side trial of the two is not needed
-- [ ] The new page in `docs/agents/` and the line in `frontend/CLAUDE.md` exist
+- [x] The "Running the app" line in the root `CLAUDE.md` names the Playwright MCP server as an agent's first way to look at a page, with the Claude in Chrome extension as the fallback (owner's decision, 2026-11-17). A side-by-side trial of the two is not needed
+- [x] The new page in `docs/agents/` and the line in `frontend/CLAUDE.md` exist
+
+## Comments
+
+**2026-11-18, an agent's description of one image** (`home--signed-in--1280-light-en.png`, from `npm run screenshots -- / --signed-in`): the light theme at 1280 px, in English. A white header bar runs across the top: on the left "Signed in as" and the development account's name in small grey text and an outlined "Sign out" button; on the right two button pairs, "Light" (filled blue, the current choice) and "Dark", then "English" (filled blue) and "ქართული". Below the header, on the light grey page, a line of small grey text reads "0 conversations with unread messages" and "No friends online". Under it sits a row of four sample buttons: "Primary" (filled blue), "Quiet" (outlined), "Danger" (red outline and text) and "Disabled" (greyed). The main column is centred: a bold "WebCity" heading, a "Search users" label, a wide outlined text box and a grey "Search" button with a magnifier icon. The rest of the page is empty. The guest images of `/sign-in` show the sign-in form's labels with no visible input boxes: the template has no classes yet and Tailwind's base styles remove the browser's borders, so the images are faithful.
+
+**2026-11-18, Linux cloud sessions:** not tried. Nothing in the command is Windows-only (it is Node and the `playwright` package; the `MSYS_NO_PATHCONV=1` prefix is only for Git Bash), so an outside address should work once Chromium and its system libraries are installed (`npm exec --prefix frontend -- playwright install --with-deps chromium`). App addresses also need the backend and the frontend running in the session: the backend needs a SQL Server and the gitignored settings files, and `scripts/test-linux.sh` prepares those only for the integration tests, not for running the app. The Playwright MCP server in `.mcp.json` starts through `cmd /c`, so a Linux session shows it as failed and carries on without it.
+
+**2026-11-18, the unticked box:** `.mcp.json` is in this commit, and the server it starts answers over the MCP protocol with 25 `browser_*` tools (checked by starting it by hand). `claude mcp list` shows it as "Pending approval": Claude Code asks each person once before it runs a server from a project `.mcp.json`. The owner approves `playwright` in a new session (or through `/mcp`) and ticks the box once that session lists the tools.
