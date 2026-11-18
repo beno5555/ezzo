@@ -271,6 +271,17 @@ public class UserRepository : BaseEntityRepository<User>
             .ExecuteUpdateAsync(setters => setters.SetProperty(user => user.LastOnlineAt, lastActiveAt)); 
     }
 
+    /// <summary>
+    /// Stamps lastActiveAt on every user still marked online (LastOnlineAt null), deactivated and deleted accounts
+    /// included. Returns how many were marked offline.
+    /// </summary>
+    public async Task<int> MarkEveryoneOfflineAsync(DateTime lastActiveAt, CancellationToken cancellationToken)
+    {
+        return await _dbSet.IgnoreQueryFilters()
+            .Where(user => user.LastOnlineAt == null)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(user => user.LastOnlineAt, lastActiveAt), cancellationToken);
+    }
+
     public void UpdatePassword(User user, string hash, string salt)
     {
         user.PasswordHash = hash;
