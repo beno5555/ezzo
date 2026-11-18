@@ -2,7 +2,7 @@
 
 Two tools let an agent see the frontend; both are built on Playwright.
 
-- **The screenshot command** (`frontend/tools/screenshots/`) photographs a list of addresses at every width, theme and language a page must be checked in (`frontend/CLAUDE.md`, `DESIGN.md` Layout). Use it to check a page you built and to hand the owner pictures to approve.
+- **The screenshot command** (`frontend/tools/screenshots.ts`, one script) photographs a list of addresses at every width, theme and language a page must be checked in (`frontend/CLAUDE.md`, `DESIGN.md` Layout). Use it to check a page you built and to hand the owner pictures to approve.
 - **The Playwright MCP server** (`.mcp.json` at the repo root) gives a session browser tools: open a page, click, type, read the page, take one screenshot. Use it to click through a flow step by step, or to look at one state the command does not reach (an open menu, a form with an error).
 
 The Claude in Chrome extension is the fallback when the server is not available ("Running the app" in the root `CLAUDE.md`).
@@ -25,7 +25,8 @@ npm run screenshots --prefix frontend -- https://example.com        # an outside
 - **A missing server** ends the run with a message that names it and the command that starts it.
 - **Rate limits.** A signed-in run signs in once (sign-in allows 10 per hour per IP) and loads each address 4 times (once per theme and language; the widths only resize the window). Each load restores the session through `/api/auth/refresh`, which allows 60 per 10 minutes per IP, so photograph at most about a dozen addresses per signed-in run. The command stops with an explanation when the backend answers 429.
 - **To watch a run,** put `PWDEBUG=console` before the command: the browser opens in a window instead of running hidden.
-- **Chromium.** The command uses Playwright's own Chromium. If it is missing, the command prints how to install it: `npm exec --prefix frontend -- playwright install chromium`.
+- **Why a script, when Playwright has `npx playwright screenshot`:** the app rotates its refresh token on every page load, so a saved sign-in lasts one image. The script signs in once and keeps one browser open for all of them.
+- **Chromium.** The command uses Playwright's own Chromium. If it is missing, Playwright says so; install it with `npm exec --prefix frontend -- playwright install chromium`.
 - CI does not run the command.
 
 ### The development account
