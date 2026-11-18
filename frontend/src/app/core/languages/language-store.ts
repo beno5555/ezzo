@@ -1,10 +1,7 @@
 import { DOCUMENT, Injectable, computed, effect, inject, signal } from '@angular/core';
 import { Dictionary } from './dictionary';
 import { dictionaries } from './dictionaries';
-import { Language } from './language';
-
-// Where the visitor's choice is remembered between visits.
-export const languageStorageKey = 'webcity.language';
+import { Language, languageStorageKey } from './language';
 
 // The current language and its dictionary. Templates read text(), so a switch redraws in place.
 @Injectable({ providedIn: 'root' })

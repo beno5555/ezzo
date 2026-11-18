@@ -50,7 +50,15 @@ module.exports = defineConfig([
         ],
       ],
       // ADR 0003: every …Api call is a promise, so a forgotten await is a silent bug.
-      '@typescript-eslint/no-floating-promises': 'error',
+      // node:test's describe and it (the tests under tools/) return promises that the test runner awaits.
+      '@typescript-eslint/no-floating-promises': [
+        'error',
+        {
+          allowForKnownSafeCalls: [
+            { from: 'package', name: ['describe', 'it'], package: 'node:test' },
+          ],
+        },
+      ],
       '@typescript-eslint/no-explicit-any': 'error',
       // Off: the conventions use `type` for data shapes and an `interface` wherever a contract serves a purpose.
       '@typescript-eslint/consistent-type-definitions': 'off',

@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import indexHtml from '../../../index.html' with { loader: 'text' };
-import { Theme } from './theme';
-import { ThemeStore, darkSchemeQuery, themeStorageKey } from './theme-store';
+import { Theme, themeStorageKey } from './theme';
+import { ThemeStore, darkSchemeQuery } from './theme-store';
 
 // The script in the head of index.html marks the theme before the app loads. It must reach the same
 // theme as ThemeStore for every stored value and operating system setting, or a reload flashes.

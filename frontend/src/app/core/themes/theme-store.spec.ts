@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
-import { Theme } from './theme';
-import { ThemeStore, darkSchemeQuery, themeStorageKey } from './theme-store';
+import { Theme, themeStorageKey } from './theme';
+import { ThemeStore, darkSchemeQuery } from './theme-store';
 
 describe('ThemeStore', () => {
   function startStore(systemPrefersDark: boolean): ThemeStore {

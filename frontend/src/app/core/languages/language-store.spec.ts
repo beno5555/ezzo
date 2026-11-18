@@ -1,8 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { english } from './english';
 import { georgian } from './georgian';
-import { Language } from './language';
-import { LanguageStore, languageStorageKey } from './language-store';
+import { Language, languageStorageKey } from './language';
+import { LanguageStore } from './language-store';
 
 describe('LanguageStore', () => {
   function startStore(browserLanguage: string): LanguageStore {
