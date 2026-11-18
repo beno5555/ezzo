@@ -84,7 +84,7 @@ Frontend 30 (Impeccable) runs in a session with the owner whenever the owner is 
      - [ ] 28, the themes. Can start now.
      - [ ] 29, the screenshots and the Playwright MCP server on trial. After 28.
    - [ ] **Frontend ticket 30: Impeccable, with its hook on trial.** In a session with the owner, not through `/implement`. No ticket waits for it.
-   - [ ] **By Sat 21: the name session** (open decision 1). It uses Playwright to look at reference sites, and writes `PRODUCT.md`. On Fable 5.2 if available.
+   - [ ] **By Sat 21: the name session** (open decision 1). It uses Playwright to look at reference sites, and writes `PRODUCT.md`. On Opus 5.5.
    - [ ] **After the name: the brand session.** One approval page in two skins; the owner chooses. It replaces the provisional values in `DESIGN.md` and the token file, and adds the logo.
 2. [x] **Write the tickets.** All four groups are ticketed: the backend gaps A to F (`documented-backend-features`, 2026-11-14), the frontend (`frontend`, 2026-11-15, with the setup tickets 27 to 30 added on 2026-11-16) and n8n (`n8n-automation`, 2026-11-17). Of the n8n tickets, 01, 03, 04, 08 and 11 are backend work proven by integration tests; 02, 05, 06, 07, 09, 12 and 14 are workflows, open until the owner has run their checklist; 10 and 13 are visual frontend work.
 3. [ ] **Any time, in parallel: the last open backend ticket,** documented-backend-features 04 (remove a photo from a post). If it is still open when frontend ticket 12 is built, its control shows "Coming soon".
