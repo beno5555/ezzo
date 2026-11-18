@@ -1,7 +1,14 @@
 /*
- * The global stylesheet: Tailwind, the design tokens and the fonts, and nothing else.
+ * The global stylesheet: the cascade layer order, Tailwind, the design tokens and the fonts, and nothing else.
  * Component looks are Tailwind classes in the templates (see the Styling section of the conventions).
  */
+/*
+ * Angular CDK adds its overlay styles (dialogs, menus) at run time, partly in a cascade layer of its
+ * own. Naming that layer first ranks it lowest, so a Tailwind class on a dialog's pane or backdrop wins
+ * over the CDK's look (its dark backdrop, its slow fade).
+ */
+@layer cdk-overlay;
+
 /*
  * Tailwind makes a class for every class name it finds in the files it scans. source('.') limits the
  * scan to src/, so the forbidden samples in eslint-rules/*.test.js never reach the stylesheet.

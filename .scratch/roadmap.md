@@ -44,7 +44,7 @@ Dates are the day a step should finish.
 
 **Overdue, as of Tue 17.** Step 4 is overdue: its pages wait for the rest of the frontend setup (frontend ticket 29) and for frontend ticket 06. Steps 5 to 8 each wait for the step before, so each will be late by as much as step 4 is, and their dates no longer hold.
 
-**Steps 4 to 8 are crucial.** They are the pages, and the pages are the commitment. No page can be dropped or traded for an item under Last in line. Every day lost here is taken from the buffer (Tue 24) first and from the items under Last in line after that. Two chains meet at frontend ticket 07, and the slower decides the finish date: 29 (28 merged 2026-11-18), and 06 (05 merged 2026-11-18). Tickets 29 and 06 can both start now. Work on these chains comes before anything else.
+**Steps 4 to 8 are crucial.** They are the pages, and the pages are the commitment. No page can be dropped or traded for an item under Last in line. Every day lost here is taken from the buffer (Tue 24) first and from the items under Last in line after that. Two chains meet at frontend ticket 07, and the slower decides the finish date: 29 (28 merged 2026-11-18), and 06 (05 merged 2026-11-18, 06 merged 2026-11-19). Only ticket 29 is left before 07, and it can start now. Work on these chains comes before anything else.
 
 ### Lanes: which tickets run in parallel
 

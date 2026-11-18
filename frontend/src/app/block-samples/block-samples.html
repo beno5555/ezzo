@@ -1,0 +1,35 @@
+<section class="flex flex-col gap-4" [attr.aria-label]="text().blockSamples.label">
+  <div class="flex flex-wrap items-center gap-3">
+    <button appButton look="quiet" type="button" (click)="showToast()">
+      {{ text().blockSamples.toastButton }}
+    </button>
+    <button appButton look="quiet" type="button" (click)="showLinkToast()">
+      {{ text().blockSamples.linkToastButton }}
+    </button>
+    <button appButton look="quiet" type="button" (click)="showFourToasts()">
+      {{ text().blockSamples.fourToastsButton }}
+    </button>
+    <button appButton look="quiet" type="button" (click)="openDialog()">
+      {{ text().blockSamples.dialogButton }}
+    </button>
+    <button appButton look="quiet" type="button" (click)="askConfirmation()">
+      {{ text().blockSamples.confirmationButton }}
+    </button>
+    <button appButton look="quiet" type="button" (click)="askTypedConfirmation()">
+      {{ text().blockSamples.typedConfirmationButton }}
+    </button>
+    <app-menu [entries]="menuEntries()" [label]="text().blockSamples.menuLabel" />
+  </div>
+
+  <div
+    class="flex flex-wrap items-center gap-3"
+    [attr.aria-label]="text().blockSamples.avatarsLabel"
+  >
+    @for (user of sampleUsers; track user.id) {
+      <app-avatar [userId]="user.id" [username]="user.username" />
+    }
+    <app-avatar [userId]="1" username="john_doe" [isUnavailable]="true" />
+    <app-avatar [userId]="1" username="john_doe" [size]="avatarSize.Small" />
+    <app-avatar [userId]="1" username="john_doe" [size]="avatarSize.Large" />
+  </div>
+</section>

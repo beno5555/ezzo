@@ -61,6 +61,54 @@ export const english = {
     danger: 'Danger',
     disabled: 'Disabled',
   },
+  // The building blocks in shared/ that every page uses.
+  shared: {
+    dialog: {
+      closeButton: 'Close',
+    },
+    confirmation: {
+      cancelButton: 'Cancel',
+      // Followed by the word to type, in bold.
+      typedWordPrompt: 'To confirm, type',
+    },
+    menu: {
+      buttonLabel: 'More actions',
+    },
+    toasts: {
+      regionLabel: 'Notifications',
+    },
+  },
+  // The shared blocks, shown in the app shell to prove them. Ticket 07's shell removes them.
+  blockSamples: {
+    label: 'Building block samples',
+    toastButton: 'Show a toast',
+    toastMessage: 'Could not like the post. Please try again.',
+    linkToastButton: 'Show a toast with a link',
+    linkToastMessage: 'alice_smith sent you a message',
+    fourToastsButton: 'Show four toasts',
+    numberedToastMessage: (number: number) => `Toast number ${number}`,
+    dialogButton: 'Open a dialog',
+    dialogTitle: 'A dialog',
+    dialogMessage:
+      'The keyboard focus stays inside this box. Escape, a click outside or the close button closes it.',
+    dialogInputLabel: 'Something to type',
+    confirmationButton: 'Ask for a confirmation',
+    confirmationQuestion: 'Delete this post?',
+    confirmationDetail: 'The post and its comments are deleted for good.',
+    confirmationConfirm: 'Delete',
+    typedConfirmationButton: 'Ask for a typed confirmation',
+    typedConfirmationQuestion: 'Delete your account?',
+    typedConfirmationDetail: 'Your account is deleted, and you are signed out.',
+    typedConfirmationConfirm: 'Delete my account',
+    answeredYes: 'You answered yes.',
+    answeredNo: 'You answered no.',
+    menuLabel: 'Actions for the sample post',
+    menuReport: 'Report',
+    menuEdit: 'Edit',
+    menuDelete: 'Delete',
+    chosen: (entry: string) => `You chose ${entry}.`,
+    avatarsLabel: 'Profile pictures',
+  },
   auth: {
     signIn: {
       title: 'Sign in',

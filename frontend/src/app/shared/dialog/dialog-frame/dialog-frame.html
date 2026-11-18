@@ -1,0 +1,21 @@
+<div
+  class="pointer-events-auto flex flex-col gap-4 rounded-lg border border-border bg-surface-raised p-6 text-ink-strong shadow-overlay"
+>
+  <div class="flex items-start gap-2">
+    <h2 class="min-w-0 flex-1 py-2 font-display text-lg wrap-break-word" [id]="titleId">
+      {{ title() }}
+    </h2>
+    @if (hasCloseButton()) {
+      <button
+        appIconButton
+        class="-me-3"
+        type="button"
+        [attr.aria-label]="text().shared.dialog.closeButton"
+        (click)="close()"
+      >
+        <svg class="size-5" lucideX aria-hidden="true"></svg>
+      </button>
+    }
+  </div>
+  <ng-content />
+</div>

@@ -1,0 +1,24 @@
+<section
+  class="pointer-events-none fixed inset-x-0 top-0 z-10 flex flex-col items-center gap-2 p-4 md:top-auto md:bottom-0 md:items-end"
+  aria-live="polite"
+  [attr.aria-label]="text().shared.toasts.regionLabel"
+>
+  @for (toast of toasts(); track toast.id) {
+    <div
+      class="pointer-events-auto w-full max-w-96 overflow-hidden rounded-lg border border-border bg-surface-raised text-ink-strong shadow-overlay"
+    >
+      @if (toast.link; as link) {
+        <a
+          class="flex min-h-11 items-center gap-3 px-4 py-3 transition-colors hover:bg-surface-sunken focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus motion-reduce:transition-none"
+          [routerLink]="link"
+          (click)="dismissFollowed(toast)"
+        >
+          <span class="min-w-0 flex-1 wrap-break-word">{{ toast.message }}</span>
+          <svg class="size-5 shrink-0 text-ink-muted" lucideChevronRight aria-hidden="true"></svg>
+        </a>
+      } @else {
+        <p class="px-4 py-3 wrap-break-word">{{ toast.message }}</p>
+      }
+    </div>
+  }
+</section>
