@@ -8,6 +8,14 @@ The copies in `~/.claude/skills/` with the same names are **Windows directory ju
 - Remove a junction with `cmd /c rmdir <path>`, not `rm -rf`, which can delete the repo copy through the link.
 - The global SessionStart hook (`~/.claude/hooks/sync-remote.sh`) warns if a junction becomes a separate copy.
 
+## Skills for Codex
+
+Codex does not read `.claude/skills/`. It finds skills in `.agents/skills/`, which holds **git symlinks** (mode `120000`) to the skills any agent may start on its own: `webcity-conventions`, `tdd`, `codebase-design`, `domain-modeling`, `frontend-design`, `spec-review`. The skills the owner starts (`disable-model-invocation: true`, and `grilling`) get no link, because Codex would offer them to itself.
+
+- `.claude/skills/` stays the only real copy. Edit a skill there.
+- A Windows checkout needs `git config core.symlinks true` (and Windows Developer Mode, which is on). Without it, git writes each link as a small text file holding the path, and Codex finds no skills. Linux and cloud checkouts need nothing.
+- Add a link from the repo root with `MSYS=winsymlinks:nativestrict ln -s ../../.claude/skills/<name> .agents/skills/<name>`. Without the `MSYS` setting, Git Bash copies the folder instead of linking it. Remove a link with `git rm .agents/skills/<name>`, with no trailing slash.
+
 ## Design skills
 
 Two design skills from other authors serve the frontend. Each is a real folder committed under `.claude/skills/`, with no junction.
