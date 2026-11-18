@@ -1,10 +1,12 @@
 import { Component, inject } from '@angular/core';
+import { ToggleButton } from '../../../shared/toggle-button/toggle-button';
 import { dictionaries } from '../dictionaries';
 import { Language } from '../language';
 import { LanguageStore } from '../language-store';
 
 // One button per language, each named in its own language. The current one is marked in accent.
 @Component({
+  imports: [ToggleButton],
   selector: 'app-language-switch',
   templateUrl: './language-switch.html',
   styleUrl: './language-switch.css',

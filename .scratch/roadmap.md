@@ -21,7 +21,7 @@ Non-visual work (backend, tests, tooling) is merged as soon as it passes the ful
 
 **Not merged yet.** Finished visual branches that wait for the owner's review. No agent merges them until the owner says so. After the merge, delete the line.
 
-- None at the moment.
+- **Frontend ticket 28: light and dark themes**, branch `worktree-themes`, done 2026-11-18. Look at the theme switch beside the language switch in both themes; a reload in dark on a slowed network (production build, `npx ng serve --configuration production` from `frontend/`); scrollbars and a date input's calendar in dark, which could not be seen headless; and the points under the ticket's Comments (critical CSS inlining is now off, and the switches share a new `ToggleButton`).
 
 ## Open decisions
 
@@ -80,7 +80,7 @@ Frontend 30 (Impeccable) runs in a session with the owner whenever the owner is 
    - [x] **Mon 16: the design session** (planned for Sat 14). Output: ADR 0007, `DESIGN.md` with a neutral provisional skin, and the Styling rules in the conventions skill's TypeScript reference.
    - [ ] **Crucial: the frontend setup, frontend tickets 27 to 29.** Every open frontend ticket from 07 onward waits for all three (owner's decision, 2026-11-16), except 05, 06 and 25.
      - [x] 27, the design tokens. Merged 2026-11-16.
-     - [ ] 28, the themes. Can start now.
+     - [ ] 28, the themes. Done 2026-11-18; waits for the owner's review under "Not merged yet".
      - [ ] 29, the screenshots and the Playwright MCP server on trial. After 28.
    - [ ] **Frontend ticket 30: Impeccable, with its hook on trial.** In a session with the owner, not through `/implement`. No ticket waits for it.
    - [ ] **By Sat 21: the name session** (open decision 1). It uses Playwright to look at reference sites, and writes `PRODUCT.md`. On Fable 5.2 if available.

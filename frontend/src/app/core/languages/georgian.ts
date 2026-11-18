@@ -10,6 +10,11 @@ export const georgian: Dictionary = {
     ownName: 'ქართული',
     switchLabel: 'ენა',
   },
+  themes: {
+    switchLabel: 'თემა',
+    light: 'ღია',
+    dark: 'მუქი',
+  },
   httpFailures: {
     validation: 'ზოგიერთი ველი არასწორადაა შევსებული.',
     unauthorized: 'გასაგრძელებლად გთხოვთ, შეხვიდეთ სისტემაში.',

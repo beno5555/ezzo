@@ -17,6 +17,11 @@ export const english = {
     ownName: 'English',
     switchLabel: 'Language',
   },
+  themes: {
+    switchLabel: 'Theme',
+    light: 'Light',
+    dark: 'Dark',
+  },
   // Failures that bring no message of their own (see toAppResult). Server messages stay English (ADR 0006).
   httpFailures: {
     validation: 'Some fields are not valid.',
