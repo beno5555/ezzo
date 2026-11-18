@@ -1,0 +1,28 @@
+<button
+  appIconButton
+  type="button"
+  [cdkMenuTriggerFor]="list"
+  [cdkMenuPosition]="positions"
+  [attr.aria-label]="label() ?? text().shared.menu.buttonLabel"
+>
+  <svg class="size-5" lucideEllipsis aria-hidden="true"></svg>
+</button>
+
+<ng-template #list>
+  <div
+    class="my-1 flex min-w-48 flex-col rounded-md border border-border bg-surface-raised py-1 text-ink-strong shadow-overlay"
+    cdkMenu
+  >
+    @for (entry of entries(); track entry.label) {
+      <button
+        class="flex min-h-11 cursor-pointer items-center px-4 text-start outline-none hover:bg-surface-sunken focus:bg-surface-sunken focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus"
+        [class.text-danger]="entry.isDestructive"
+        type="button"
+        cdkMenuItem
+        (cdkMenuItemTriggered)="choose(entry)"
+      >
+        {{ entry.label }}
+      </button>
+    }
+  </div>
+</ng-template>

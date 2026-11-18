@@ -1,0 +1,34 @@
+<app-dialog-frame [title]="confirmation.question" [hasCloseButton]="false">
+  <form class="flex flex-col gap-6" [formGroup]="form" (ngSubmit)="confirm()">
+    @if (confirmation.detail; as detail) {
+      <p class="text-ink-muted">{{ detail }}</p>
+    }
+
+    @if (confirmation.typedWord; as word) {
+      <div class="flex flex-col gap-2">
+        <label class="text-sm text-ink-strong" [for]="typedWordInputId">
+          {{ text().shared.confirmation.typedWordPrompt }}
+          <strong class="font-bold wrap-break-word">{{ word }}</strong>
+        </label>
+        <input
+          appTextInput
+          type="text"
+          autocomplete="off"
+          autocapitalize="off"
+          spellcheck="false"
+          [id]="typedWordInputId"
+          formControlName="typedWord"
+        />
+      </div>
+    }
+
+    <div class="flex flex-wrap justify-end gap-3">
+      <button appButton look="quiet" type="button" (click)="cancel()">
+        {{ text().shared.confirmation.cancelButton }}
+      </button>
+      <button appButton type="submit" [look]="confirmLook" [disabled]="form.invalid">
+        {{ confirmation.confirmButton }}
+      </button>
+    </div>
+  </form>
+</app-dialog-frame>

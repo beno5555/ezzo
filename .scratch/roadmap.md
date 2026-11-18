@@ -22,6 +22,7 @@ Non-visual work (backend, tests, tooling) is merged as soon as it passes the ful
 
 **Not merged yet.** Finished visual branches that wait for the owner's review. No agent merges them until the owner says so. After the merge, delete the line.
 
+- **Frontend ticket 06: the pages share a toast, a dialog, a confirmation and a menu**, branch `worktree-shared-frontend-blocks`, finished 2026-11-18. Start `npm start` and look at the block buttons on the bare page (toasts, dialog, both confirmations, menu, avatars) at 360, 768 and 1280 px in both themes, then tick the last open box. Read the ticket's Comments: toasts are not a CDK overlay, repeated toasts are skipped, the dialog pane carries two `!` classes, and the build has a bundle-budget warning until ticket 07.
 
 ## Open decisions
 
@@ -43,7 +44,7 @@ Dates are the day a step should finish.
 
 **Overdue, as of Tue 17.** Step 4 is overdue: its pages wait for the rest of the frontend setup (frontend ticket 29) and for frontend ticket 06. Steps 5 to 8 each wait for the step before, so each will be late by as much as step 4 is, and their dates no longer hold.
 
-**Steps 4 to 8 are crucial.** They are the pages, and the pages are the commitment. No page can be dropped or traded for an item under Last in line. Every day lost here is taken from the buffer (Tue 24) first and from the items under Last in line after that. Two chains meet at frontend ticket 07, and the slower decides the finish date: 29 (28 merged 2026-11-18), and 06 (05 merged 2026-11-18). Tickets 29 and 06 can both start now. Work on these chains comes before anything else.
+**Steps 4 to 8 are crucial.** They are the pages, and the pages are the commitment. No page can be dropped or traded for an item under Last in line. Every day lost here is taken from the buffer (Tue 24) first and from the items under Last in line after that. Two chains meet at frontend ticket 07, and the slower decides the finish date: 29 (28 merged 2026-11-18), and 06 (05 merged 2026-11-18; 06 finished 2026-11-18 and waits under "Not merged yet" for the owner's look). Ticket 29 can start now. Work on these chains comes before anything else.
 
 ### Lanes: which tickets run in parallel
 

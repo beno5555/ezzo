@@ -1,0 +1,14 @@
+<app-dialog-frame [title]="text().blockSamples.dialogTitle">
+  <p class="text-ink-muted">{{ text().blockSamples.dialogMessage }}</p>
+  <div class="flex flex-col gap-2">
+    <label class="text-sm font-semibold text-ink-strong" for="sample-dialog-input">
+      {{ text().blockSamples.dialogInputLabel }}
+    </label>
+    <input appTextInput id="sample-dialog-input" type="text" />
+  </div>
+  <div class="flex flex-wrap justify-end gap-3">
+    <button appButton look="primary" type="button" (click)="close()">
+      {{ text().shared.dialog.closeButton }}
+    </button>
+  </div>
+</app-dialog-frame>

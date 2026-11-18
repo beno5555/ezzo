@@ -1,0 +1,15 @@
+@if (showsPicture()) {
+  <img
+    class="size-full rounded-full object-cover"
+    alt=""
+    [src]="pictureAddress()"
+    (error)="onPictureError()"
+  />
+} @else {
+  <span
+    class="flex size-full items-center justify-center rounded-full font-semibold text-on-disc select-none"
+    [class]="picture().discClass"
+  >
+    {{ picture().initials }}
+  </span>
+}
