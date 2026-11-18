@@ -42,9 +42,9 @@ Each decision is recorded where the work reads it: the n8n session (2026-11-16) 
 
 Dates are the day a step should finish.
 
-**Overdue, as of Thu 19.** Step 4 is overdue: its pages wait for the shell (frontend ticket 07), which can start now. Steps 5 to 8 each wait for the step before, so each will be late by as much as step 4 is, and their dates no longer hold.
+**Overdue, as of Thu 19.** Step 4 is overdue. The shell (frontend ticket 07) is done (2026-11-19), so its pages can be built on it now. Steps 5 to 8 each wait for the step before, so each will be late by as much as step 4 is, and their dates no longer hold.
 
-**Steps 4 to 8 are crucial.** They are the pages, and the pages are the commitment. No page can be dropped or traded for an item under Last in line. Every day lost here is taken from the buffer (Tue 24) first and from the items under Last in line after that. The two chains that met at frontend ticket 07 are done: 27 to 29 (29 merged 2026-11-18), and 05 and 06 (06 merged 2026-11-19). Ticket 07 can start now, and it comes before anything else.
+**Steps 4 to 8 are crucial.** They are the pages, and the pages are the commitment. No page can be dropped or traded for an item under Last in line. Every day lost here is taken from the buffer (Tue 24) first and from the items under Last in line after that. The two chains that met at frontend ticket 07 are done: 27 to 29 (29 merged 2026-11-18), and 05 and 06 (06 merged 2026-11-19). Ticket 07 is done (2026-11-19), and every page ticket after it builds on the shell.
 
 ### Lanes: which tickets run in parallel
 
@@ -57,7 +57,7 @@ Set on 2026-11-16. Two worktree lanes at a time (`docs/agents/worktrees.md`). Un
 | 2 | F29, the screenshots (merged 2026-11-18) | T03, test classes in parallel (merged 2026-11-17) | both merged 2026-11-18 |
 | 3 | F06, toast, dialog, confirmation, menu (merged 2026-11-19) | B13, statistics (merged 2026-11-17) | both merged 2026-11-19 |
 | 4 | F05, the live connection (merged 2026-11-18) | frontend 25, friendship tests (merged 2026-11-17) | both merged 2026-11-18 |
-| 5 | F07, the shell | n8n 01, a failure leaves as a signed event (merged 2026-11-17) | |
+| 5 | F07, the shell (done 2026-11-19, merged on your approval) | n8n 01, a failure leaves as a signed event (merged 2026-11-17) | both done 2026-11-19 |
 
 After round 5 the backend lane takes n8n 04, then 03 once 02 is done with the owner, then 08 and 11; B04 (remove a photo) waits until the backend lane is free (owner, 2026-11-17). A third lane can open once the shell lands.
 
@@ -88,7 +88,7 @@ Frontend 30 (Impeccable) runs in a session with the owner whenever the owner is 
    - [ ] **After the name: the brand session.** One approval page in two skins; the owner chooses. It replaces the provisional values in `DESIGN.md` and the token file, and adds the logo.
 2. [x] **Write the tickets.** All four groups are ticketed: the backend gaps A to F (`documented-backend-features`, 2026-11-14), the frontend (`frontend`, 2026-11-15, with the setup tickets 27 to 30 added on 2026-11-16) and n8n (`n8n-automation`, 2026-11-17). Of the n8n tickets, 01, 03, 04, 08 and 11 are backend work proven by integration tests; 02, 05, 06, 07, 09, 12 and 14 are workflows, open until the owner has run their checklist; 10 and 13 are visual frontend work.
 3. [x] **The last open backend ticket,** documented-backend-features 04 (remove a photo from a post). Merged 2026-11-18, so frontend ticket 12 can build the real control.
-4. [ ] **Mon 16, overdue, crucial: shell and auth.** Lazy-loaded feature areas, route guards, and the pages: register, sign in, password reset, account reactivation. The session, automatic refresh, session restore and the guards are done (frontend ticket 04), as are the two dictionaries (03). Still open: the shell (07) and the real auth pages (08).
+4. [ ] **Mon 16, overdue, crucial: shell and auth.** Lazy-loaded feature areas, route guards, and the pages: register, sign in, password reset, account reactivation. The session, automatic refresh, session restore and the guards are done (frontend ticket 04), as are the two dictionaries (03). The shell (07) is done (2026-11-19). Still open: the real auth pages (08).
 5. [ ] **Tue 17, will be late, crucial: feed, posts and comments.** Feed with pagination, create a post with photos, edit and delete, like, comment, edit and delete a comment, report a post or comment.
 6. [ ] **Wed 18, will be late, crucial: profile, friends and search.** Profile page (bio, posts, friends), edit profile, user search, friend requests (send, accept, decline, remove; the three lists), account settings (deactivate, delete, digest opt-out), the guest view.
 7. [ ] **Fri 20, will be late, crucial: chat and live notifications.** The SignalR service and the central state for the session, conversations, online friends and unread count. Conversation list with last message, conversation with photos, edit and delete, seen, typing, presence and last active. Toasts for a new message, comment, like and a friend coming online.

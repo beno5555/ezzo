@@ -1,61 +1,8 @@
-<!-- A bare session bar that proves sign-in and sign-out. Ticket 07's shell replaces it. -->
-<header class="border-b border-border bg-surface-raised">
-  <div class="mx-auto flex w-full max-w-wide flex-wrap items-center gap-3 px-4 py-2">
-    @if (user(); as signedInUser) {
-      <span class="text-sm text-ink-muted">{{
-        text().session.signedInAs(signedInUser.username)
-      }}</span>
-      <button appButton look="quiet" type="button" (click)="signOut()">
-        {{ text().session.signOutButton }}
-      </button>
-    } @else {
-      <a appButton look="quiet" [routerLink]="signInAddress">{{ text().session.signInLink }}</a>
-    }
-
-    <app-theme-switch class="ms-auto" />
-    <app-language-switch />
-  </div>
-</header>
-
-<!-- A bare live summary that proves the hub connection. Ticket 07's shell replaces it. -->
-@if (user()) {
-  <section
-    class="mx-auto flex w-full max-w-wide flex-wrap items-center gap-x-3 gap-y-1 px-4 pt-4 text-sm text-ink-muted"
-    [attr.aria-label]="text().live.label"
-  >
-    @let count = unreadCount();
-    @if (count !== null) {
-      <span>{{ text().live.unreadConversations(count) }}</span>
-    }
-    @if (onlineFriends().length > 0) {
-      <span>{{ text().live.onlineFriends }}</span>
-      @for (friend of onlineFriends(); track friend.id) {
-        <span class="text-ink-strong">{{ friend.username }}</span>
-      }
-    } @else {
-      <span>{{ text().live.noFriendsOnline }}</span>
-    }
-  </section>
-}
-
-<!-- The Button's looks, to prove the design tokens. Ticket 07's shell removes them. -->
-<section
-  class="mx-auto flex w-full max-w-wide flex-wrap gap-3 px-4 pt-6"
-  [attr.aria-label]="text().buttonSamples.label"
->
-  <button appButton look="primary" type="button">{{ text().buttonSamples.primary }}</button>
-  <button appButton look="quiet" type="button">{{ text().buttonSamples.quiet }}</button>
-  <button appButton look="danger" type="button">{{ text().buttonSamples.danger }}</button>
-  <button appButton look="primary" type="button" disabled>
-    {{ text().buttonSamples.disabled }}
-  </button>
-</section>
-
-<!-- One button per shared block, to prove them. Ticket 07's shell removes them. -->
-<app-block-samples class="mx-auto block w-full max-w-wide px-4 pt-6" />
+<app-top-bar />
 
 <main class="mx-auto w-full max-w-column px-4 py-8">
   <router-outlet />
 </main>
 
+<app-bottom-bar />
 <app-toast-list />

@@ -122,7 +122,8 @@ async function answers(client: APIRequestContext, origin: string): Promise<boole
 }
 
 // Signs in through the app's real sign-in form, so the refresh cookie lands in the browser as it does for a
-// person. The fields are found by their autocomplete values, which a sign-in form keeps for password managers.
+// person. The fields are found by their autocomplete values, which a sign-in form keeps for password managers,
+// and the button is the one in the password's form: the shell's search box is a form on the page too.
 async function signIn(page: Page): Promise<void> {
   const user = process.env[userVariable] ?? '';
   const password = process.env[passwordVariable] ?? '';
@@ -133,9 +134,10 @@ async function signIn(page: Page): Promise<void> {
   }
 
   await page.goto(appOrigin + appAddresses.signIn);
+  const passwordField = page.locator('input[autocomplete="current-password"]');
   await page.locator('input[autocomplete="username"]').fill(user);
-  await page.locator('input[autocomplete="current-password"]').fill(password);
-  await page.locator('form button[type="submit"]').click();
+  await passwordField.fill(password);
+  await page.locator('form', { has: passwordField }).locator('button[type="submit"]').click();
   // Either the form navigates away or it shows its failure message; the loser of the race must not reject.
   const leftSignIn = (url: URL) => url.pathname !== appAddresses.signIn;
   const alert = page.getByRole('alert');

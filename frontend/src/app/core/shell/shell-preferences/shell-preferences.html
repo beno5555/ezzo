@@ -1,0 +1,13 @@
+<div class="flex flex-col gap-3 px-3 py-2">
+  <!-- Each switch's group already carries this name for screen readers, so the visible one is hidden from them. -->
+  <div class="flex flex-col gap-1">
+    <span class="text-sm text-ink-muted" aria-hidden="true">{{
+      text().languages.switchLabel
+    }}</span>
+    <app-language-switch />
+  </div>
+  <div class="flex flex-col gap-1">
+    <span class="text-sm text-ink-muted" aria-hidden="true">{{ text().themes.switchLabel }}</span>
+    <app-theme-switch />
+  </div>
+</div>
