@@ -21,7 +21,6 @@ Non-visual work (backend, tests, tooling) is merged as soon as it passes the ful
 
 **Not merged yet.** Finished visual branches that wait for the owner's review. No agent merges them until the owner says so. After the merge, delete the line.
 
-- **Frontend ticket 28: light and dark themes**, branch `worktree-themes`, done 2026-11-18. Look at the theme switch beside the language switch in both themes; a reload in dark on a slowed network (production build, `npx ng serve --configuration production` from `frontend/`); scrollbars and a date input's calendar in dark, which could not be seen headless; and the points under the ticket's Comments (critical CSS inlining is now off, and the switches share a new `ToggleButton`).
 
 ## Open decisions
 
@@ -41,9 +40,9 @@ Each decision is recorded where the work reads it: the n8n session (2026-11-16) 
 
 Dates are the day a step should finish.
 
-**Overdue, as of Tue 17.** Step 4 is overdue: its pages wait for the rest of the frontend setup (frontend tickets 28 and 29) and for frontend ticket 06. Steps 5 to 8 each wait for the step before, so each will be late by as much as step 4 is, and their dates no longer hold.
+**Overdue, as of Tue 17.** Step 4 is overdue: its pages wait for the rest of the frontend setup (frontend ticket 29) and for frontend ticket 06. Steps 5 to 8 each wait for the step before, so each will be late by as much as step 4 is, and their dates no longer hold.
 
-**Steps 4 to 8 are crucial.** They are the pages, and the pages are the commitment. No page can be dropped or traded for an item under Last in line. Every day lost here is taken from the buffer (Tue 24) first and from the items under Last in line after that. Two chains meet at frontend ticket 07, and the slower decides the finish date: 28 → 29, and 06 (the third, 05, merged 2026-11-18). Tickets 28 and 06 can both start now. Work on these chains comes before anything else.
+**Steps 4 to 8 are crucial.** They are the pages, and the pages are the commitment. No page can be dropped or traded for an item under Last in line. Every day lost here is taken from the buffer (Tue 24) first and from the items under Last in line after that. Two chains meet at frontend ticket 07, and the slower decides the finish date: 29 (28 merged 2026-11-18), and 06 (05 merged 2026-11-18). Tickets 29 and 06 can both start now. Work on these chains comes before anything else.
 
 ### Lanes: which tickets run in parallel
 
@@ -52,7 +51,7 @@ Set on 2026-11-16. Two worktree lanes at a time (`docs/agents/worktrees.md`). Un
 | Round | Frontend lane | Backend lane | Status |
 |---|---|---|---|
 | 0 | F27, design tokens (merged 2026-11-16) | B12, an administrator decides a report (merged 2026-11-16) | both merged 2026-11-16 |
-| 1 | F28, the themes | T01, then T02: cheaper sign-in, one-batch reseed | T01 merged 2026-11-16, T02 2026-11-17 |
+| 1 | F28, the themes (merged 2026-11-18) | T01, then T02: cheaper sign-in, one-batch reseed | all merged by 2026-11-18 |
 | 2 | F29, the screenshots | T03, test classes in parallel (merged 2026-11-17) | |
 | 3 | F06, toast, dialog, confirmation, menu | B13, statistics (merged 2026-11-17) | |
 | 4 | F05, the live connection (merged 2026-11-18) | frontend 25, friendship tests (merged 2026-11-17) | both merged 2026-11-18 |
@@ -80,7 +79,7 @@ Frontend 30 (Impeccable) runs in a session with the owner whenever the owner is 
    - [x] **Mon 16: the design session** (planned for Sat 14). Output: ADR 0007, `DESIGN.md` with a neutral provisional skin, and the Styling rules in the conventions skill's TypeScript reference.
    - [ ] **Crucial: the frontend setup, frontend tickets 27 to 29.** Every open frontend ticket from 07 onward waits for all three (owner's decision, 2026-11-16), except 06 (05 and 25 are merged).
      - [x] 27, the design tokens. Merged 2026-11-16.
-     - [ ] 28, the themes. Done 2026-11-18; waits for the owner's review under "Not merged yet".
+     - [x] 28, the themes. Merged 2026-11-18.
      - [ ] 29, the screenshots and the Playwright MCP server on trial. After 28.
    - [ ] **Frontend ticket 30: Impeccable, with its hook on trial.** In a session with the owner, not through `/implement`. No ticket waits for it.
    - [ ] **By Sat 21: the name session** (open decision 1). It uses Playwright to look at reference sites, and writes `PRODUCT.md`. On Fable 5.2 if available.
