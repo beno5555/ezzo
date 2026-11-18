@@ -14,7 +14,8 @@ import { SKIP_RENEWAL } from './skip-renewal';
 const apiAddressPrefix = '/api/';
 
 // Adds the access token to /api calls. A 401 leads to one refresh, shared with any other 401 meanwhile,
-// and one retry. When the refresh fails, the session is cleared and the user is sent to sign-in.
+// and one retry. When the refresh is refused, the session is cleared and the user is sent to sign-in;
+// when it gets no answer, the user stays signed in and the call fails.
 export const authInterceptor: HttpInterceptorFn = (request, next) => {
   const isApiCall = request.url.startsWith(apiAddressPrefix);
   if (!isApiCall) {

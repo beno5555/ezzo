@@ -18,6 +18,13 @@ const administratorToken = createAccessToken({
   role: ['User', 'Administrator'],
   exp: 1900000000,
 });
+// Expired in 2001.
+const expiredToken = createAccessToken({
+  nameid: '12',
+  unique_name: 'john_doe',
+  role: 'User',
+  exp: 1000000000,
+});
 
 describe('SessionStore', () => {
   let sessionStore: SessionStore;
@@ -50,6 +57,7 @@ describe('SessionStore', () => {
 
       expect(sessionStore.isSignedIn()).toBe(true);
       expect(sessionStore.user()).toEqual({ id: 12, username: 'john_doe', roles: ['User'] });
+      expect(sessionStore.userId()).toBe(12);
       expect(sessionStore.accessToken()).toBe(userToken);
       expect(sessionStore.isAdministrator()).toBe(false);
     });
@@ -67,7 +75,17 @@ describe('SessionStore', () => {
 
       expect(sessionStore.isSignedIn()).toBe(false);
       expect(sessionStore.user()).toBeNull();
+      expect(sessionStore.userId()).toBeNull();
       expect(sessionStore.accessToken()).toBeNull();
+    });
+
+    it('stays signed out when the backend cannot be reached', async () => {
+      const restoring = sessionStore.restore();
+      await waitForPendingWork();
+      httpTesting.expectOne('/api/auth/refresh').flush(null, { status: 0, statusText: '' });
+      await restoring;
+
+      expect(sessionStore.isSignedIn()).toBe(false);
     });
 
     it('waits for another tab to finish its turn before refreshing', async () => {
@@ -118,6 +136,69 @@ describe('SessionStore', () => {
         status: 400,
       });
       expect(sessionStore.isSignedIn()).toBe(false);
+    });
+  });
+
+  describe('validAccessToken', () => {
+    it('gives the current token without refreshing while it has not expired', async () => {
+      await restoreWith(userToken);
+
+      const accessToken = await sessionStore.validAccessToken();
+
+      httpTesting.expectNone('/api/auth/refresh');
+      expect(accessToken).toBe(userToken);
+    });
+
+    it('refreshes first when the token has expired, and gives the new one', async () => {
+      await restoreWith(expiredToken);
+
+      const asking = sessionStore.validAccessToken();
+      await waitForPendingWork();
+      httpTesting.expectOne('/api/auth/refresh').flush({ accessToken: userToken });
+
+      expect(await asking).toBe(userToken);
+    });
+
+    it('gives nothing when the refresh after expiry fails', async () => {
+      await restoreWith(expiredToken);
+
+      const asking = sessionStore.validAccessToken();
+      await waitForPendingWork();
+      httpTesting
+        .expectOne('/api/auth/refresh')
+        .flush(
+          { succeeded: false, message: 'Invalid refresh token' },
+          { status: 401, statusText: 'Unauthorized' },
+        );
+
+      expect(await asking).toBeNull();
+      expect(sessionStore.isSignedIn()).toBe(false);
+    });
+
+    it('keeps the session when the backend cannot be reached, so a later attempt can refresh', async () => {
+      await restoreWith(expiredToken);
+
+      const asking = sessionStore.validAccessToken();
+      await waitForPendingWork();
+      httpTesting
+        .expectOne('/api/auth/refresh')
+        .flush(null, { status: 502, statusText: 'Bad Gateway' });
+      await asking;
+
+      expect(sessionStore.isSignedIn()).toBe(true);
+
+      const askingAgain = sessionStore.validAccessToken();
+      await waitForPendingWork();
+      httpTesting.expectOne('/api/auth/refresh').flush({ accessToken: userToken });
+
+      expect(await askingAgain).toBe(userToken);
+    });
+
+    it('gives nothing without refreshing when nobody is signed in', async () => {
+      const accessToken = await sessionStore.validAccessToken();
+
+      httpTesting.expectNone('/api/auth/refresh');
+      expect(accessToken).toBeNull();
     });
   });
 

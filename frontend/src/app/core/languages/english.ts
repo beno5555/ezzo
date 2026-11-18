@@ -37,6 +37,17 @@ export const english = {
     signOutButton: 'Sign out',
     signInLink: 'Sign in',
   },
+  // The bare live summary in the app shell, which proves the hub connection. Ticket 07's shell replaces it.
+  live: {
+    label: 'Live status',
+    unreadConversations: (count: number) =>
+      pluralize(Language.English, count, {
+        one: `${count} conversation with unread messages`,
+        other: `${count} conversations with unread messages`,
+      }),
+    onlineFriends: 'Online friends:',
+    noFriendsOnline: 'No friends online',
+  },
   // The Button's looks, shown in the app shell to prove the design tokens. Ticket 07's shell removes them.
   buttonSamples: {
     label: 'Button samples',
