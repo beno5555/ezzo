@@ -15,13 +15,13 @@ Non-visual work (backend, tests, tooling) is merged as soon as it passes the ful
 - **Test-suite-speed ticket 02: every test is reseeded in one round trip**, merged 2026-11-17 (`Duration` 58 s → 42 to 46 s). Look at `SeedRecorder` and `RecordedSeed` (`backend/aspnetproject.IntegrationTests/Fixtures/`), the startup check that fails the run when a replay differs from the EF seed, and the known limits under the ticket's Comments.
 - **Test-suite-speed ticket 03: test classes run in parallel, each on its own database**, merged 2026-11-17 (`Duration` 44 s → 15 to 21 s locally, 22 to 29 s in CI). Look at `TestDatabasePool`, `DatabaseLender`, `TestDatabaseNames` and `DatabaseFixture` (same folder), and the open points under the ticket's Comments.
 - **Documented-backend-features ticket 13: an administrator sees system statistics**, merged 2026-11-17. Look at `StatisticsService` and the new `GET /api/admin/statistics` (`docs/backend/controllers.md`, AdminController), the counting helpers added to `BaseEntityRepository`, `UserRepository` and `ReportRepository`, and the online count read from `UserConnectionTracker`. The ticket records no spec review; the owner judged the code safe to merge.
-- **Frontend ticket 29: an agent and the owner see every page in screenshots**, merged 2026-11-18. Run it yourself (`docs/agents/screenshots.md`; the development account's credentials are in `.claude/worktrees/playwright-setup/frontend/.env`, to be copied into the main checkout before the worktree goes), look at `frontend/tools/screenshots.ts` (one script, slimmed down on 2026-11-19 at your request), approve the `playwright` server from `.mcp.json` in a new session and tick the last box of the ticket, and read the open points under the ticket's Comments (Linux not tried; the MCP server opens your installed Chrome, not Playwright's Chromium).
+- **Frontend ticket 29: an agent and the owner see every page in screenshots**, merged 2026-11-18. Run it yourself (`docs/agents/screenshots.md`). The development account's `frontend/.env` was lost with the worktree on 2026-11-19, so a signed-in run first needs a new account written to `frontend/.env`, or the old password if you remember it. Look at `frontend/tools/screenshots.ts` (one script, slimmed down on 2026-11-19 at your request). The `playwright` server is approved and answered in a session on 2026-11-19, and the ticket's last box is ticked. Read the open points under the ticket's Comments (Linux not tried; the MCP server opens your installed Chrome, not Playwright's Chromium).
 - **Documented-backend-features ticket 04: a photo can be removed from a post, and deleted posts take their files with them**, merged 2026-11-18. Look at `PostService.RemovePostImageAsync` and `CheckImageRemoval` (the "text or a photo" rule, also used by `UpdatePost`), the new `DELETE /api/posts/{postId}/images/{imageId}` (all refusals are `400`), the file cleanup in `DeletePostAsync` and in the purge (`UserRepository.DeleteUsersPostsAsync`), and the ticket's Comments: its purge box is unticked for you, because a test replaced the manual run.
 - **Frontend ticket 25: the friendship endpoints are covered by integration tests**, merged 2026-11-17 (`Duration` 40 s for the full suite, 640 tests). Look at `FriendshipControllerTests` (99 tests), the three bugs it exposed and their fixes (list order for paging, a 500 on `GET accepted/{friendId}` for a deactivated friend, the declared type of `GetFriendsOf`), and the points left alone under the ticket's Comments.
 - **n8n ticket 01: a failure in the backend leaves as a signed event**, merged 2026-11-17 (`Duration` 36 s on the branch, 43 s on the merge with 662 tests). Look at `EventPublisher` and `AutomationEventsConfiguration` (`backend/aspnetproject/Infrastructure/Services/Automation/`), the two call sites (`GlobalExceptionHandler`, `PeriodicHostedService.RunOnceAsync`), the Development-only `GET api/dev/throw`, the test seam (`EventRecorder`, `recordEvents` on `CustomWebApplicationFactory`) and `docs/backend/automation.md`. The spec review ran on Opus 5.5 (Fable was at its usage limit); the additions beyond the ticket are under its Comments.
 - **n8n ticket 04: the backend tells the automation about accounts, content and reports**, merged 2026-11-17 (`Duration` 42 s, 714 tests; the merge changed no code beyond the branch). Look at the six events in `docs/backend/automation.md`, the call sites (`AuthService.RegisterAsync`, `PostService`, `CommentService`, `ReportService`), `GetPendingTimesForTargetAsync` in `ReportRepository`, and `EventSecretsTests`. Also look at the change you asked for on the way: `LastUpdatedAt` of a post or comment is stamped only when the title or text really changes. `EditMessage` and the profile edit still stamp on every save. The spec review ran on Opus 5.5 (Fable was at its usage limit).
 
-**Not merged yet.** Finished visual branches that wait for the owner's review. No agent merges them until the owner says so. After the merge, delete the line.
+**Not merged yet.** Finished visual branches that wait for the owner's review. No agent merges them until the owner says so. The merge commit deletes the line.
 
 
 ## Open decisions
@@ -42,9 +42,9 @@ Each decision is recorded where the work reads it: the n8n session (2026-11-16) 
 
 Dates are the day a step should finish.
 
-**Overdue, as of Tue 17.** Step 4 is overdue: its pages wait for the rest of the frontend setup (frontend ticket 29) and for frontend ticket 06. Steps 5 to 8 each wait for the step before, so each will be late by as much as step 4 is, and their dates no longer hold.
+**Overdue, as of Thu 19.** Step 4 is overdue: its pages wait for the shell (frontend ticket 07), which can start now. Steps 5 to 8 each wait for the step before, so each will be late by as much as step 4 is, and their dates no longer hold.
 
-**Steps 4 to 8 are crucial.** They are the pages, and the pages are the commitment. No page can be dropped or traded for an item under Last in line. Every day lost here is taken from the buffer (Tue 24) first and from the items under Last in line after that. Two chains meet at frontend ticket 07, and the slower decides the finish date: 29 (28 merged 2026-11-18), and 06 (05 merged 2026-11-18, 06 merged 2026-11-19). Only ticket 29 is left before 07, and it can start now. Work on these chains comes before anything else.
+**Steps 4 to 8 are crucial.** They are the pages, and the pages are the commitment. No page can be dropped or traded for an item under Last in line. Every day lost here is taken from the buffer (Tue 24) first and from the items under Last in line after that. The two chains that met at frontend ticket 07 are done: 27 to 29 (29 merged 2026-11-18), and 05 and 06 (06 merged 2026-11-19). Ticket 07 can start now, and it comes before anything else.
 
 ### Lanes: which tickets run in parallel
 
@@ -54,10 +54,10 @@ Set on 2026-11-16. Two worktree lanes at a time (`docs/agents/worktrees.md`). Un
 |---|---|---|---|
 | 0 | F27, design tokens (merged 2026-11-16) | B12, an administrator decides a report (merged 2026-11-16) | both merged 2026-11-16 |
 | 1 | F28, the themes (merged 2026-11-18) | T01, then T02: cheaper sign-in, one-batch reseed | all merged by 2026-11-18 |
-| 2 | F29, the screenshots | T03, test classes in parallel (merged 2026-11-17) | |
-| 3 | F06, toast, dialog, confirmation, menu | B13, statistics (merged 2026-11-17) | |
+| 2 | F29, the screenshots (merged 2026-11-18) | T03, test classes in parallel (merged 2026-11-17) | both merged 2026-11-18 |
+| 3 | F06, toast, dialog, confirmation, menu (merged 2026-11-19) | B13, statistics (merged 2026-11-17) | both merged 2026-11-19 |
 | 4 | F05, the live connection (merged 2026-11-18) | frontend 25, friendship tests (merged 2026-11-17) | both merged 2026-11-18 |
-| 5 | F07, the shell | n8n 01, a failure leaves as a signed event | |
+| 5 | F07, the shell | n8n 01, a failure leaves as a signed event (merged 2026-11-17) | |
 
 After round 5 the backend lane takes n8n 04, then 03 once 02 is done with the owner, then 08 and 11; B04 (remove a photo) waits until the backend lane is free (owner, 2026-11-17). A third lane can open once the shell lands.
 
@@ -79,10 +79,10 @@ Frontend 30 (Impeccable) runs in a session with the owner whenever the owner is 
 
 1. [ ] **Design.** The name was still open, so the design session fixed the structure and left the brand for later.
    - [x] **Mon 16: the design session** (planned for Sat 14). Output: ADR 0007, `DESIGN.md` with a neutral provisional skin, and the Styling rules in the conventions skill's TypeScript reference.
-   - [ ] **Crucial: the frontend setup, frontend tickets 27 to 29.** Every open frontend ticket from 07 onward waits for all three (owner's decision, 2026-11-16), except 06 (05 and 25 are merged).
+   - [x] **Crucial: the frontend setup, frontend tickets 27 to 29.** Every open frontend ticket from 07 onward waited for all three (owner's decision, 2026-11-16).
      - [x] 27, the design tokens. Merged 2026-11-16.
      - [x] 28, the themes. Merged 2026-11-18.
-     - [ ] 29, the screenshots and the Playwright MCP server on trial. After 28.
+     - [x] 29, the screenshots and the Playwright MCP server on trial. Merged 2026-11-18; the server approved 2026-11-19.
    - [ ] **Frontend ticket 30: Impeccable, with its hook on trial.** In a session with the owner, not through `/implement`. No ticket waits for it.
    - [ ] **By Sat 21: the name session** (open decision 1). It uses Playwright to look at reference sites, and writes `PRODUCT.md`. On Opus 5.5.
    - [ ] **After the name: the brand session.** One approval page in two skins; the owner chooses. It replaces the provisional values in `DESIGN.md` and the token file, and adds the logo.

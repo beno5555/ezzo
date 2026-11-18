@@ -19,7 +19,9 @@ Issues and specs for this repo live as markdown files in `.scratch/`.
 - **Cloud sessions open a pull request for every ticket,** visual or not, and leave the merge to the owner. The open pull request takes the place of a roadmap line, so a cloud session adds none to `.scratch/roadmap.md`. The rest of this list is for local sessions.
 - **When a done ticket is merged depends on what it changes.** The owner reviews every ticket, but not always before the merge:
   - **Visual work** (a page, a shared component, styles, design tokens; any frontend ticket whose result is checked by looking) waits for the owner's review before it is merged. The session lists its branch under "Not merged yet" in `.scratch/roadmap.md` and stops.
-  - **Everything else** (backend, tests, tooling, frontend plumbing with no visual part) is merged as soon as the build, the full test suite and `/spec-review` pass. The session then adds a line under "Awaiting the owner's review" in `.scratch/roadmap.md` that says what to look at, and the owner reviews it after the merge
+  - **Everything else** (backend, tests, tooling, frontend plumbing with no visual part) is merged as soon as the build, the full test suite and `/spec-review` pass. Before the merge, the session adds a line on the branch under "Awaiting the owner's review" in `.scratch/roadmap.md` that says what to look at, and the owner reviews it after the merge
+
+- **The roadmap is updated on the ticket's branch, before the merge** (owner, 2026-11-19). The roadmap changes a ticket causes (ticking its step, marking it merged in the lanes table, rewriting what it unblocks, the "Awaiting the owner's review" line) go into a commit on the branch, so the merge brings them to `master`. No roadmap commit follows on `master` after the merge. A visual branch is the one exception: its "Not merged yet" line has to be on `master` while the branch waits, so that line is committed on `master`. When the owner approves, the merge commit (`git merge --no-ff --no-commit`) deletes it.
 
 ## When a skill says "publish to the issue tracker"
 

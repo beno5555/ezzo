@@ -38,7 +38,7 @@ A signed-in run signs in through the app's real sign-in form as a development ac
 
 Set them in the environment, or put them in `frontend/.env` (gitignored), one `NAME=value` per line; a variable already set in the environment wins. The command never prints them: any message that would contain one shows `[hidden]` instead.
 
-The account in use was registered on 2026-11-18 through the dev backend's register endpoint; its name and password are only in the owner's `frontend/.env`. A new worktree does not get that file, so copy it in by hand, or register another account and write its credentials there. A fresh development database needs a new account.
+Register the account through the dev backend's register endpoint and write its name and password to `frontend/.env` in the main checkout. The first one, registered on 2026-11-18, was lost on 2026-11-19 along with its worktree's `.env`, so the next signed-in run starts by registering a new one. A new worktree does not get that file, so copy it in by hand. **Before you remove a worktree, copy its `frontend/.env` to the main checkout if the main checkout has none:** `git worktree remove --force` deletes gitignored files too, and they exist nowhere else. A fresh development database needs a new account.
 
 ## The Playwright MCP server (on trial)
 

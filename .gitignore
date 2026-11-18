@@ -13,6 +13,9 @@ riderModule.iml
 # dotenv files
 .env
 
+# Playwright MCP server: page snapshots and screenshots it writes
+/.playwright-mcp/
+
 #postman
 *.postman_environment.json
 /postman/

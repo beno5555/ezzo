@@ -28,7 +28,7 @@ Decisions are in `.scratch/roadmap.md` under "Settled on 2026-11-16", and the th
 - [x] With the frontend or the backend stopped, the command ends with a message that names what is not running
 - [x] It photographs one outside public address at the three widths
 - [x] An agent reads one of the images it produced and describes what the page shows; the description is recorded in this ticket's comments
-- [ ] `.mcp.json` is committed, and a new session lists the Playwright tools
+- [x] `.mcp.json` is committed, and a new session lists the Playwright tools
 - [x] The "Running the app" line in the root `CLAUDE.md` names the Playwright MCP server as an agent's first way to look at a page, with the Claude in Chrome extension as the fallback (owner's decision, 2026-11-17). A side-by-side trial of the two is not needed
 - [x] The new page in `docs/agents/` and the line in `frontend/CLAUDE.md` exist
 
@@ -41,3 +41,5 @@ Decisions are in `.scratch/roadmap.md` under "Settled on 2026-11-16", and the th
 **2026-11-18, the unticked box:** `.mcp.json` is in this commit, and the server it starts answers over the MCP protocol with 25 `browser_*` tools (checked by starting it by hand). `claude mcp list` shows it as "Pending approval": Claude Code asks each person once before it runs a server from a project `.mcp.json`. The owner approves `playwright` in a new session (or through `/mcp`) and ticks the box once that session lists the tools.
 
 **2026-11-19, slimmed down at the owner's request:** the first version (20 files, about 1,000 lines with tests) is replaced by one script, `frontend/tools/screenshots.ts`, with the same behaviour and messages and no unit tests. Playwright's own `npx playwright screenshot` covers a guest page, but a signed-in page needs one browser kept open across all twelve images, because the app rotates its refresh token on every load: that is the only reason for a script.
+
+**2026-11-19, the last box:** the owner approved `playwright` (`enabledMcpjsonServers` in `.claude/settings.local.json`). A new session listed the `browser_*` tools, opened `about:blank` and closed it. The server writes its page snapshots to `.playwright-mcp/` at the repo root, which is now in `.gitignore`. The development account's `frontend/.env` was lost when the `playwright-setup` worktree was removed, so the next signed-in run needs a new account (`docs/agents/screenshots.md`).

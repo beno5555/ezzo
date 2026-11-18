@@ -22,11 +22,11 @@ Pick tickets that touch different files. The ticket's "What to build" names the 
 
 ## Finish a lane
 
-1. In the worktree, commit on `worktree-<name>`.
+1. In the worktree, commit on `worktree-<name>`. Include the ticket's roadmap update in that branch, before the merge (see `issue-tracker.md`), so `master` never needs a separate roadmap commit afterwards.
 2. In the main checkout, on `master`: `git merge --no-ff worktree-<name>`. A worktree session can do this itself: see "Merging from a worktree session" below.
 3. Run the full suite on `master` once both lanes are merged, since each lane was tested only against its own base.
 4. Push `master`.
-5. Exit the worktree session. Claude Code asks whether to keep or remove the worktree. Deleting the branch is a separate step that the owner confirms.
+5. Exit the worktree session. Claude Code asks whether to keep or remove the worktree. Deleting the branch is a separate step that the owner confirms. Before a worktree is removed, copy any gitignored file that exists only there (above all `frontend/.env`, the screenshot account) to the main checkout: removing a worktree deletes those files too.
 
 ### Merging from a worktree session
 
