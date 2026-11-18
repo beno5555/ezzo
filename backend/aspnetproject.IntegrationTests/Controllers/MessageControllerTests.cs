@@ -250,6 +250,43 @@ public class MessageControllerTests : IClassFixture<DatabaseFixture>, IAsyncLife
         Assert.Equal(0, withAlice.LastMessageImageCount);
     }
 
+    // ---------- GET /messages/friends/no-conversation ----------
+    // Friendships: alice (2) ↔ bob (3) accepted, with a conversation. bob (3) → diana (5) accepted, no conversation.
+    // charlie (4) → alice (2) pending. bob (3) → charlie (4) declined.
+
+    [Fact]
+    public async Task GetNonConversationFriends_AcceptedFriendWithoutConversation_ReturnsOnlyThatFriend()
+    {
+        await LoginAsAsync("bob");
+
+        var friends = await ResponseReader.ReadListAsync<DisplayFriendDto>(
+            await _client.GetAsync("api/messages/friends/no-conversation?pageNumber=1&pageSize=100"));
+
+        Assert.Equal([5], friends.Select(friend => friend.Id)); // diana
+    }
+
+    [Fact]
+    public async Task GetNonConversationFriends_PendingIncomingRequest_DoesNotListRequester()
+    {
+        await LoginAsAsync("alice");
+
+        var friends = await ResponseReader.ReadListAsync<DisplayFriendDto>(
+            await _client.GetAsync("api/messages/friends/no-conversation?pageNumber=1&pageSize=100"));
+
+        Assert.DoesNotContain(friends, friend => friend.Id == 4); // charlie
+    }
+
+    [Fact]
+    public async Task GetNonConversationFriends_DeclinedIncomingRequest_DoesNotListRequester()
+    {
+        await LoginAsAsync("charlie");
+
+        var friends = await ResponseReader.ReadListAsync<DisplayFriendDto>(
+            await _client.GetAsync("api/messages/friends/no-conversation?pageNumber=1&pageSize=100"));
+
+        Assert.DoesNotContain(friends, friend => friend.Id == 3); // bob
+    }
+
     // ---------- PUT /messages/{id} ----------
     // Message 3: alice (2) → bob (3), sent at seed time, so inside the edit window.
     // Message 5: alice (2) → bob (3), sent on 2026-09-01, so past the edit window.

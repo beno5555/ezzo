@@ -193,8 +193,8 @@ public class UserRepository : BaseEntityRepository<User>
         // areFriends && haveNoConversation
         Expression<Func<User, bool>> shouldFetch = user =>
             _dbContext.Friendships.Any(friendship =>
-                (friendship.AddresseeUserId == userId && friendship.RequesterUserId == user.Id) ||
-                (friendship.AddresseeUserId == user.Id && friendship.RequesterUserId == userId) &&
+                ((friendship.AddresseeUserId == userId && friendship.RequesterUserId == user.Id) ||
+                 (friendship.AddresseeUserId == user.Id && friendship.RequesterUserId == userId)) &&
                 friendship.FriendshipStatus == FriendshipStatus.Accepted)
             &&
             !_dbContext.Messages.Any(message =>
