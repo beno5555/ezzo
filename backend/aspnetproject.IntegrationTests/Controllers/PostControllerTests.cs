@@ -716,6 +716,34 @@ public class PostControllerTests : IClassFixture<DatabaseFixture>, IAsyncLifetim
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
+    [Theory]
+    [InlineData("")]
+    [InlineData("   ")]
+    public async Task Update_ToEmptyTextOnPostWithoutPhotos_IsRefusedAndKeepsText(string emptyContent)
+    {
+        await LoginAsync("alice");
+
+        var response = await _client.PutAsJsonAsync("api/posts/1", new UpdatePostDto { Title = "Alice Post", Content = emptyContent }); // Alice Post, text and no photos
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(ResponseMessages.TextOrImageRequired, await ResponseReader.ReadMessageAsync(response));
+        var post = await ResponseReader.ReadDataAsync<FullPostDisplayDto>(await _client.GetAsync("api/posts/1")); // Alice Post
+        Assert.False(string.IsNullOrWhiteSpace(post.PostContent));
+    }
+
+    [Fact]
+    public async Task Update_ToEmptyTextOnPostWithPhotos_Succeeds()
+    {
+        var created = await CreateBobsPhotoPostWithImagesAsync();
+
+        var response = await _client.PutAsJsonAsync($"api/posts/{created.Id}", new UpdatePostDto { Title = BobsPhotoPostTitle, Content = "" });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var post = await ResponseReader.ReadDataAsync<FullPostDisplayDto>(await _client.GetAsync($"api/posts/{created.Id}"));
+        Assert.Equal("", post.PostContent);
+        Assert.Equal(2, post.Images.Count);
+    }
+
     [Fact]
     public async Task Update_WithoutToken_ReturnsUnauthorized()
     {
@@ -781,6 +809,35 @@ public class PostControllerTests : IClassFixture<DatabaseFixture>, IAsyncLifetim
     }
 
     [Fact]
+    public async Task Delete_PostWithPhotos_RemovesPostAndItsFiles()
+    {
+        var post = await CreateBobsPhotoPostWithImagesAsync();
+
+        var response = await _client.DeleteAsync($"api/posts/{post.Id}");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await _client.GetAsync($"api/posts/{post.Id}")).StatusCode);
+        foreach (var image in post.Images)
+        {
+            Assert.Equal(HttpStatusCode.NotFound, (await _client.GetAsync(image.Address)).StatusCode);
+        }
+        Assert.Empty(Directory.EnumerateFiles(_factory.UploadFolder));
+    }
+
+    [Fact]
+    public async Task Delete_PostWhoseFileCannotBeRemoved_StillSucceedsAndRemovesTheOtherFile()
+    {
+        var post = await CreateBobsPhotoPostWithImagesAsync();
+        MakeFileUnremovable(post.Images[0]);
+
+        var response = await _client.DeleteAsync($"api/posts/{post.Id}");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(HttpStatusCode.NotFound, (await _client.GetAsync($"api/posts/{post.Id}")).StatusCode);
+        Assert.False(File.Exists(StoredFilePath(post.Images[1])));
+    }
+
+    [Fact]
     public async Task Delete_WithoutToken_ReturnsUnauthorized()
     {
         var response = await _client.DeleteAsync("api/posts/1");
@@ -799,6 +856,149 @@ public class PostControllerTests : IClassFixture<DatabaseFixture>, IAsyncLifetim
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
+    // ---------- DELETE /posts/{postId}/images/{imageId} ----------
+    // bob (3) creates a post with a WebP then a PNG. alice (2) is a plain user; sandro_beno (1) is the administrator.
+
+    [Fact]
+    public async Task RemoveImage_ByAuthor_RemovesPhotoFromPostAndItsFile()
+    {
+        var post    = await CreateBobsPhotoPostWithImagesAsync();
+        var removed = post.Images[0];
+
+        var response = await _client.DeleteAsync($"api/posts/{post.Id}/images/{removed.Id}");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        var images = await ReadPostImagesAsync(post.Id);
+        Assert.DoesNotContain(images, image => image.Id == removed.Id);
+        Assert.Equal(HttpStatusCode.NotFound, (await _client.GetAsync(removed.Address)).StatusCode);
+    }
+
+    [Fact]
+    public async Task RemoveImage_AsAdmin_RemovesPhotoFromSomeoneElsesPost()
+    {
+        var post = await CreateBobsPhotoPostWithImagesAsync();
+        await LoginAsync("sandro_beno");
+
+        var response = await _client.DeleteAsync($"api/posts/{post.Id}/images/{post.Images[1].Id}");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal([post.Images[0].Id], (await ReadPostImagesAsync(post.Id)).Select(image => image.Id));
+    }
+
+    [Fact]
+    public async Task RemoveImage_BySomeoneElse_IsRefusedAndKeepsPhoto()
+    {
+        var post = await CreateBobsPhotoPostWithImagesAsync();
+        await LoginAsync("alice");
+
+        var response = await _client.DeleteAsync($"api/posts/{post.Id}/images/{post.Images[0].Id}");
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(ResponseMessages.CouldNotRemovePostImage, await ResponseReader.ReadMessageAsync(response));
+        Assert.Equal(2, (await ReadPostImagesAsync(post.Id)).Count);
+        Assert.Equal(HttpStatusCode.OK, (await _client.GetAsync(post.Images[0].Address)).StatusCode);
+    }
+
+    [Fact]
+    public async Task RemoveImage_WithoutToken_ReturnsUnauthorized()
+    {
+        var post = await CreateBobsPhotoPostWithImagesAsync();
+        _client.DefaultRequestHeaders.Authorization = null;
+
+        var response = await _client.DeleteAsync($"api/posts/{post.Id}/images/{post.Images[0].Id}");
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task RemoveImage_UnknownPost_ReturnsPostNotFound()
+    {
+        var post = await CreateBobsPhotoPostWithImagesAsync();
+
+        var response = await _client.DeleteAsync($"api/posts/9999/images/{post.Images[0].Id}");
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(ResponseMessages.PostNotFound, await ResponseReader.ReadMessageAsync(response));
+    }
+
+    [Fact]
+    public async Task RemoveImage_UnknownImage_ReturnsImageNotFound()
+    {
+        var post = await CreateBobsPhotoPostWithImagesAsync();
+
+        var response = await _client.DeleteAsync($"api/posts/{post.Id}/images/9999");
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(ResponseMessages.PostImageNotFound, await ResponseReader.ReadMessageAsync(response));
+    }
+
+    [Fact]
+    public async Task RemoveImage_ImageOfAnotherPost_ReturnsImageNotFoundAndKeepsIt()
+    {
+        var photoPost = await CreateBobsPhotoPostWithImagesAsync();
+        var otherPost = await CreatePostAsync("Bob's Other Post");
+
+        var response = await _client.DeleteAsync($"api/posts/{otherPost}/images/{photoPost.Images[0].Id}");
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(ResponseMessages.PostImageNotFound, await ResponseReader.ReadMessageAsync(response));
+        Assert.Equal(2, (await ReadPostImagesAsync(photoPost.Id)).Count);
+    }
+
+    [Fact]
+    public async Task RemoveImage_LastPhotoOfPostWithoutText_IsRefusedAndKeepsPhoto()
+    {
+        var post = await CreateBobsPhotoPostWithImagesAsync(content: null);
+        await _client.DeleteAsync($"api/posts/{post.Id}/images/{post.Images[0].Id}");
+        var lastImage = post.Images[1];
+
+        var response = await _client.DeleteAsync($"api/posts/{post.Id}/images/{lastImage.Id}");
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(ResponseMessages.LastImageOfPostWithoutText, await ResponseReader.ReadMessageAsync(response));
+        Assert.Equal([lastImage.Id], (await ReadPostImagesAsync(post.Id)).Select(image => image.Id));
+        Assert.Equal(HttpStatusCode.OK, (await _client.GetAsync(lastImage.Address)).StatusCode);
+    }
+
+    [Fact]
+    public async Task RemoveImage_LastPhotoOfPostWithText_Succeeds()
+    {
+        var post = await CreateBobsPhotoPostWithImagesAsync();
+        await _client.DeleteAsync($"api/posts/{post.Id}/images/{post.Images[0].Id}");
+
+        var response = await _client.DeleteAsync($"api/posts/{post.Id}/images/{post.Images[1].Id}");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Empty(await ReadPostImagesAsync(post.Id));
+    }
+
+    [Fact]
+    public async Task RemoveImage_MiddlePhoto_KeepsTheOrderOfTheOthers()
+    {
+        await LoginAsync("bob");
+        var post = await ResponseReader.ReadDataAsync<StandardPostDisplayDto>(await _client.PostAsync("api/posts",
+            PostForm.Create("Three", "Text", ImageFormFiles.Png(1), ImageFormFiles.Jpeg(2), ImageFormFiles.WebP(3))));
+
+        var response = await _client.DeleteAsync($"api/posts/{post.Id}/images/{post.Images[1].Id}");
+        var removal  = await ResponseReader.ReadDataAsync<FullPostDisplayDto>(response);
+
+        int[] expectedIds = [post.Images[0].Id, post.Images[2].Id];
+        Assert.Equal(expectedIds, removal.Images.Select(image => image.Id));
+        Assert.Equal(expectedIds, (await ReadPostImagesAsync(post.Id)).Select(image => image.Id));
+    }
+
+    [Fact]
+    public async Task RemoveImage_WhoseFileCannotBeRemoved_StillSucceeds()
+    {
+        var post = await CreateBobsPhotoPostWithImagesAsync();
+        MakeFileUnremovable(post.Images[0]);
+
+        var response = await _client.DeleteAsync($"api/posts/{post.Id}/images/{post.Images[0].Id}");
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal([post.Images[1].Id], (await ReadPostImagesAsync(post.Id)).Select(image => image.Id));
+    }
+
     // ---------- helpers ----------
 
     private async Task LoginAsync(string username)
@@ -812,10 +1012,35 @@ public class PostControllerTests : IClassFixture<DatabaseFixture>, IAsyncLifetim
     // Signs in as bob and creates a post with a WebP then a PNG.
     private async Task<int> CreateBobsPhotoPostAsync()
     {
-        await LoginAsync("bob");
-        var response = await _client.PostAsync("api/posts", PostForm.Create(BobsPhotoPostTitle, "Holiday", ImageFormFiles.WebP(7), ImageFormFiles.Png(8)));
-        var post = await ResponseReader.ReadDataAsync<StandardPostDisplayDto>(response);
+        var post = await CreateBobsPhotoPostWithImagesAsync();
         return post.Id;
+    }
+
+    // Signs in as bob and creates a post with a WebP then a PNG, with or without text.
+    private async Task<StandardPostDisplayDto> CreateBobsPhotoPostWithImagesAsync(string? content = "Holiday")
+    {
+        await LoginAsync("bob");
+        var response = await _client.PostAsync("api/posts", PostForm.Create(BobsPhotoPostTitle, content, ImageFormFiles.WebP(7), ImageFormFiles.Png(8)));
+        return await ResponseReader.ReadDataAsync<StandardPostDisplayDto>(response);
+    }
+
+    private string StoredFilePath(ImageDto image)
+    {
+        return Path.Combine(_factory.UploadFolder, Path.GetFileName(image.Address));
+    }
+
+    // A folder in place of the image's file: deleting a file at that path fails on every platform.
+    private void MakeFileUnremovable(ImageDto image)
+    {
+        string path = StoredFilePath(image);
+        File.Delete(path);
+        Directory.CreateDirectory(path);
+    }
+
+    private async Task<List<ImageDto>> ReadPostImagesAsync(int postId)
+    {
+        var post = await ResponseReader.ReadDataAsync<FullPostDisplayDto>(await _client.GetAsync($"api/posts/{postId}"));
+        return post.Images;
     }
 
     // Creates a text post as the signed-in user.

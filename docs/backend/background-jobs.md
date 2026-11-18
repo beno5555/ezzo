@@ -47,7 +47,7 @@ protected abstract Task RunCycleAsync(IServiceProvider serviceProvider, Cancella
 
 The base constructor takes `(IServiceScopeFactory, TimeSpan interval)`. Derived services take their own `IOptions<TConfig>` plus `IServiceScopeFactory`, forward the scope factory and `config.Value.Interval` to `base(...)`, and keep `config.Value` in a field for the rest of the settings. Config (interval, retention days, batch size) is bound from `appsettings` per job (`CleanupConfiguration:OldLogs`, `CleanupConfiguration:RefreshTokens`, `CleanupConfiguration:SoftDeletedUsers`, `CleanupConfiguration:OrphanImages`), not hardcoded, so values can change without a rebuild.
 
-All four are registered as hosted services in `ApplicationServicesExtensions.AddApplicationServices`. `OrphanImagesCleanupService` is registered as a singleton first, and its hosted-service registration hands out that singleton, so a test can resolve it.
+All four are registered as hosted services in `ApplicationServicesExtensions.AddApplicationServices`. `OrphanImagesCleanupService` and `SoftDeletedUsersCleanupService` are each registered as a singleton first, and their hosted-service registrations hand out those singletons, so a test can resolve them.
 
 ---
 
@@ -99,11 +99,11 @@ Each cycle (`UserRepository.DeleteSoftDeletedUsersBatchAsync`):
 3. Deletes the user batch itself (`IgnoreQueryFilters()` again).
 4. Repeats until a batch of users comes back empty.
 
-**Message photo files.** Before the messages go, each batch reads the addresses of their photos; the `MessageImages` rows cascade with the messages. After each batch, `RunCycleAsync` passes the addresses to `ImageStorage.DeleteAsync`, best effort (a file that cannot be removed is logged to `SystemLogger`). This step has no integration test yet; it was verified by one manual run, recorded on ticket 06. The job is now registered for tests (see **Testing a job**), so one can be added.
+**Photo files.** Before the messages go, and again before the posts go, each batch reads the addresses of their photos; the `MessageImages` and `PostImages` rows cascade with their owners. After each batch, `RunCycleAsync` passes both lists to `ImageStorage.DeleteAsync`, best effort (a file that cannot be removed is logged to `SystemLogger`). The post-photo step is covered by `SoftDeletedUsersCleanupServiceTests` (a host with `RetentionDays` 0 purges a user who just deleted their account, and their photo files go while another user's stay). The message-photo step still has no test; it was verified by one manual run, recorded on ticket 06.
 
-Result accumulation: `SoftDeleteCleanupResult` (Users/Posts/Messages/Friendships/Likes/Reports deleted counts, plus `MessageImageAddresses`) with an `operator +` for combining per-batch results into a cycle total, logged once at the end if anything was deleted.
+Result accumulation: `SoftDeleteCleanupResult` (Users/Posts/Messages/Friendships/Likes/Reports deleted counts, plus `MessageImageAddresses` and `PostImageAddresses`, whose counts the cycle's `Log` row also names) with an `operator +` for combining per-batch results into a cycle total, logged once at the end if anything was deleted.
 
-**Why `Comment.CommenterUserId` isn't touched here**: it's the one nullable, `SetNull` FK to `User` (see `data.md`) — a comment from a purged user just shows an orphaned/anonymized author, no explicit cleanup step needed. Everything else (messages, friendships, posts, likes given, reports made) has no such "show it anyway" case, hence the explicit pre-delete. The report steps are covered by `SoftDeletedUsersCleanupServiceTests`; the like and message-photo steps still have no test of their own.
+**Why `Comment.CommenterUserId` isn't touched here**: it's the one nullable, `SetNull` FK to `User` (see `data.md`) — a comment from a purged user just shows an orphaned/anonymized author, no explicit cleanup step needed. Everything else (messages, friendships, posts, likes given, reports made) has no such "show it anyway" case, hence the explicit pre-delete. The report and post-photo steps are covered by `SoftDeletedUsersCleanupServiceTests`; the like and message-photo steps still have no test of their own.
 
 ---
 
@@ -111,7 +111,7 @@ Result accumulation: `SoftDeleteCleanupResult` (Users/Posts/Messages/Friendships
 
 Config: `OrphanImagesCleanupConfiguration` (section `CleanupConfiguration:OrphanImages`, every key optional): `Interval` (default 24 hours), `MinimumAge` (default 1 hour, at least one minute), `BatchSize` (default 500).
 
-The backstop for photo files that no row points at. They are left behind when the process crashes between writing the files and saving their post or message, when a best-effort delete fails (removing a friendship, the purge above, deleting a message) or when the purge stops partway through a batch. The immediate cleanup paths stay: `ImageStorage.SaveWithOwnerAsync` removes the files when saving the owner throws, and each database delete removes its files afterwards. This job catches what those miss.
+The backstop for photo files that no row points at. They are left behind when the process crashes between writing the files and saving their post or message, when a best-effort delete fails (removing a friendship, the purge above, deleting a message or a post, removing a post's photo) or when the purge stops partway through a batch. The immediate cleanup paths stay: `ImageStorage.SaveWithOwnerAsync` removes the files when saving the owner throws, and each database delete removes its files afterwards. This job catches what those miss.
 
 Each sweep:
 1. Takes the cutoff `UtcNow - MinimumAge` and asks `ImageStorage.ListImageAddressesWrittenBefore(cutoff)` for the addresses of the files last written before it. Only files directly in the upload folder whose names `ImageStorage` makes (`{guid}` in `N` format plus `.jpg`, `.png` or `.webp`) count; anything else in the folder, subfolders included, is left alone. A missing folder lists nothing.
@@ -122,7 +122,7 @@ Each sweep:
 
 `ImageStorage` stays the only code that lists or deletes uploaded files; the job only decides which ones.
 
-Tests: `OrphanImagesCleanupServiceTests` (see **Testing a job**) cover deleting an old unreferenced file, keeping old files that a post's or a message's photo refers to, keeping a young unreferenced file, leaving files with other names alone, a missing upload folder, the `Log` row with and without removals, and a host that refuses to start with a `MinimumAge` under one minute. A file that cannot be deleted is not tested: a held file blocks deletion on Windows but not on Linux, so the test could not run the same on both.
+Tests: `OrphanImagesCleanupServiceTests` (see **Testing a job**) cover deleting an old unreferenced file, keeping old files that a post's or a message's photo refers to, keeping a young unreferenced file, leaving files with other names alone, a missing upload folder, the `Log` row with and without removals, and a host that refuses to start with a `MinimumAge` under one minute. A file that cannot be deleted is not tested here: a held file blocks deletion on Windows but not on Linux, so the test could not run the same on both. `PostControllerTests` test that case another way, with a folder in the file's place, which no platform deletes as a file.
 
 ---
 

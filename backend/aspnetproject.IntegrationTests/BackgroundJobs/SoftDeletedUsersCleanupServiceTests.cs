@@ -1,4 +1,6 @@
+using System.Net;
 using aspnetproject.Common.ProjectConstants;
+using aspnetproject.Infrastructure.Dtos.Posts;
 using aspnetproject.Infrastructure.Dtos.Reports;
 using aspnetproject.Infrastructure.Services.BackgroundJobs;
 using aspnetproject.IntegrationTests.Fixtures;
@@ -57,6 +59,53 @@ public class SoftDeletedUsersCleanupServiceTests : IClassFixture<DatabaseFixture
         Assert.Null(report.ReviewedBy!.Id);
         Assert.Equal(ResponseMessages.AccountDeletedUsername, report.ReviewedBy.Username);
         Assert.NotNull(report.ReviewedAt);
+    }
+
+    // ---------- photo files ----------
+    // A host with no retention purges an account as soon as it is soft-deleted, so a test can delete one through the API.
+    // diana (5) posts photos and deletes her account; alice (2) posts photos and stays.
+
+    [Fact]
+    public async Task Sweep_ForPurgedUsersPosts_RemovesTheirPhotoFilesAndKeepsOthers()
+    {
+        await using var factory = new CustomWebApplicationFactory(_dbFixture, new Dictionary<string, string?>
+        {
+            [RetentionDaysSetting] = "0"
+        });
+        using var client = factory.CreateClient();
+
+        var dianasPost = await CreatePhotoPostAsync(client, "diana");
+        var alicesPost = await CreatePhotoPostAsync(client, "alice");
+        await LoginAsync(client, "diana");
+        Assert.Equal(HttpStatusCode.OK, (await client.DeleteAsync("api/accounts/mine")).StatusCode);
+
+        await factory.Services.GetRequiredService<SoftDeletedUsersCleanupService>().RunOnceAsync(CancellationToken.None);
+
+        Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync($"api/posts/{dianasPost.Id}")).StatusCode);
+        foreach (var image in dianasPost.Images)
+        {
+            Assert.Equal(HttpStatusCode.NotFound, (await client.GetAsync(image.Address)).StatusCode);
+        }
+        foreach (var image in alicesPost.Images)
+        {
+            Assert.Equal(HttpStatusCode.OK, (await client.GetAsync(image.Address)).StatusCode);
+        }
+    }
+
+    private const string RetentionDaysSetting = "CleanupConfiguration:SoftDeletedUsers:RetentionDays";
+
+    private static async Task<StandardPostDisplayDto> CreatePhotoPostAsync(HttpClient client, string username)
+    {
+        await LoginAsync(client, username);
+        var response = await client.PostAsync("api/posts", PostForm.Create($"{username}'s photos", null, ImageFormFiles.Jpeg(1), ImageFormFiles.Png(2)));
+
+        return await ResponseReader.ReadDataAsync<StandardPostDisplayDto>(response);
+    }
+
+    private static async Task LoginAsync(HttpClient client, string username)
+    {
+        var token = await AuthTestHelper.LoginAsync(client, username, TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(client, token);
     }
 
     private async Task SweepAsync()

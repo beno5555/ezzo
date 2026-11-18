@@ -78,6 +78,8 @@ public static class RateLimitConfig
         public const string ReadPosts  = "ReadPosts";
         public const string UpdatePost = "UpdatePost";
         public const string DeletePost = "DeletePost";
+
+        public const string RemovePostImage = "RemovePostImage";
         #endregion
 
         #region Reports
@@ -245,6 +247,10 @@ public static class RateLimitConfig
 
             options.AddPolicy(Policies.DeletePost, httpContext =>
                 PerUserSlidingWindow(httpContext, 20, TimeSpan.FromHours(1)));
+
+            // Higher than a post delete: clearing a post of photos is one request per photo, up to ImageStorage:MaxImagesPerPost per post.
+            options.AddPolicy(Policies.RemovePostImage, httpContext =>
+                PerUserSlidingWindow(httpContext, 60, TimeSpan.FromHours(1)));
             #endregion
 
             #region Reports

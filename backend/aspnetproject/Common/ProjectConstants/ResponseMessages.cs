@@ -229,6 +229,11 @@ public static class ResponseMessages
     public const string CouldNotUpdatePost = $"{CouldNot} {Update} Post";
     public const string CouldNotDeletePost = $"{CouldNot} {Delete} Post";
 
+    public const string PostImageNotFound          = $"Post Image {NotFound}";
+    public const string PostImageRemoved           = $"Post Image {Removed} {Successfully}";
+    public const string CouldNotRemovePostImage    = $"{CouldNot} Remove Post Image";
+    public const string LastImageOfPostWithoutText = "The last Image of a Post without Text cannot be removed";
+
     public const string Feed               = "See what people have been up to!";
     public const string UserPostsRetrieved = $"User Posts {Retrieved} {Successfully}";
 

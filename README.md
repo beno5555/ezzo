@@ -10,7 +10,7 @@ For the earlier, API-only state of this repository and the history behind it, se
 
 - Register and log in; JWT access tokens plus rotating refresh tokens; password reset via an emailed token
 - Usernames `mine`, `search`, `account_deactivated` and `account_deleted` are reserved (any letter case) and refused wherever a username is set. A user's joined date is private: public profile reads leave it out, while the user's own profile and the admin account list keep it. The own profile also carries when the username was last changed
-- Create, view, update and delete posts, with up to 10 photos (JPEG, PNG or WebP, checked by content) per post; a ranked feed of friends' and other users' posts, scored by connection, activity and age. Every post read carries its like count, comment count and whether the caller liked it
+- Create, view, update and delete posts, with up to 10 photos (JPEG, PNG or WebP, checked by content) per post; remove a photo from a post (a post always keeps its text or a photo), and deleting a post removes its photo files; a ranked feed of friends' and other users' posts, scored by connection, activity and age. Every post read carries its like count, comment count and whether the caller liked it
 - Comment on posts and edit own comments; delete a comment as its author, as the post's author, or as an administrator; live `ReceiveComment` push to the post's author
 - Like and unlike posts, once per user per post; list a post's likers, newest first; live `PostLiked` push to the post's author
 - Send, accept, decline and remove friend requests; view friends, pending and sent requests; search users by username
@@ -23,7 +23,7 @@ For the earlier, API-only state of this repository and the history behind it, se
 - Moderation (`api/admin`): an administrator sets a post's or a comment's status to `Visible`, `Flagged` or `Hidden`. Hidden content is readable only by its author and by administrators, and reads as not found for everyone else; flagged content reads as visible. Post and comment shapes carry an `IsHidden` flag. The moderation queue (`GET api/admin/moderation-queue/posts` and `.../comments`) pages the flagged posts or comments, oldest first, each with a snapshot (text, photos or the post's title, author, time) so the administrator can approve or hide it
 - Reports (`api/reports`): a user reports a post, a comment or another user, with a reason, once per target while the report is pending. Hidden content, the caller's own content and the caller themselves cannot be reported. An administrator lists the reports page by page, newest first, filtered by status and target type, each with a snapshot of its target (or marked missing once the target is deleted), and decides a pending report: hide (the post or comment is hidden, or the user deactivated, and every pending report on that target is resolved) or reject (only that report)
 - Deactivate own account; reactivate it through an emailed activation token
-- Soft-delete own account; a background job later purges soft-deleted accounts and their messages (with their photo files), friendships, posts, likes and reports once a retention window has passed
+- Soft-delete own account; a background job later purges soft-deleted accounts and their messages and posts (with their photo files), friendships, likes and reports once a retention window has passed
 - Outcome logging of service calls to the `Logs` table, plus a file log for unhandled exceptions
 - Automation events: an unhandled exception, in a request or in a background job, is sent to the automation (n8n) as a signed `exception-occurred` event, and so are new accounts, posts, comments, their edits and reports (`account-created`, `post-created`, `post-edited`, `comment-created`, `comment-edited`, `report-created`). Events are off by default; a failed delivery writes a `Logs` row and nothing else. In Development, `GET api/dev/throw` throws on purpose
 - Rate limiting: a named policy on every endpoint except logout, and a global limiter over everything
@@ -263,7 +263,7 @@ app.MapHub<MessageHub>("hubs/messages");
 app.Run();
 ```
 
-`AddApplicationServices` (`Extensions/ApplicationServicesExtensions.cs`) registers SignalR, the singleton `UserConnectionTracker`, every repository and service (scoped), the two loggers (scoped), `EmailSender` (transient), `ImageStorage` (scoped), the options classes for email, image storage, automation events and the four cleanup jobs, `EventPublisher` (a typed `HttpClient`), and the four hosted services (`OrphanImagesCleanupService` also as a singleton, so the integration tests can run one sweep). `UseImageStorage` serves the upload folder as static files at `/api/images`.
+`AddApplicationServices` (`Extensions/ApplicationServicesExtensions.cs`) registers SignalR, the singleton `UserConnectionTracker`, every repository and service (scoped), the two loggers (scoped), `EmailSender` (transient), `ImageStorage` (scoped), the options classes for email, image storage, automation events and the four cleanup jobs, `EventPublisher` (a typed `HttpClient`), and the four hosted services (`OrphanImagesCleanupService` and `SoftDeletedUsersCleanupService` also as singletons, so the integration tests can run one cycle). `UseImageStorage` serves the upload folder as static files at `/api/images`.
 
 ---
 

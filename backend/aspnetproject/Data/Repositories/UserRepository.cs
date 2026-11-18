@@ -323,7 +323,7 @@ public class UserRepository : BaseEntityRepository<User>
         {
             result.MessagesDeletedCount += await DeleteUsersMessagesAsync(userIds, config.NestedBatchSize, result.MessageImageAddresses, cancellationToken);
             result.FriendshipsDeletedCount += await DeleteUsersFriendshipsAsync(userIds, config.NestedBatchSize, cancellationToken);
-            result.PostsDeletedCount += await DeleteUsersPostsAsync(userIds, config.NestedBatchSize, cancellationToken);
+            result.PostsDeletedCount += await DeleteUsersPostsAsync(userIds, config.NestedBatchSize, result.PostImageAddresses, cancellationToken);
             result.LikesDeletedCount += await DeleteUsersLikesAsync(userIds, config.NestedBatchSize, cancellationToken);
             result.ReportsDeletedCount += await DeleteUsersReportsAsync(userIds, config.NestedBatchSize, cancellationToken);
             await ClearUsersReviewsAsync(userIds, config.NestedBatchSize, cancellationToken);
@@ -374,7 +374,14 @@ public class UserRepository : BaseEntityRepository<User>
         return totalDeleted;
     }
     
-    private async Task<int> DeleteUsersPostsAsync(List<int> userIds, int batchSize, CancellationToken cancellationToken)
+    // Adds the addresses of the deleted posts' images to deletedImageAddresses, so the caller can remove the files.
+    // The image rows go with their posts (cascade).
+    private async Task<int> DeleteUsersPostsAsync(
+        List<int> userIds,
+        int batchSize,
+        List<string> deletedImageAddresses,
+        CancellationToken cancellationToken
+        )
     {
         int totalDeleted     = 0;
         int deletedThisBatch = 0;
@@ -387,6 +394,12 @@ public class UserRepository : BaseEntityRepository<User>
                 .Take(batchSize)
                 .Select(post => post.Id)
                 .ToListAsync(cancellationToken);
+
+            var imageAddresses = await _dbContext.PostImages
+                .Where(image => postIds.Contains(image.PostId))
+                .Select(image => image.Address)
+                .ToListAsync(cancellationToken);
+            deletedImageAddresses.AddRange(imageAddresses);
 
             deletedThisBatch = await _dbContext.Posts
                 .Where(post => postIds.Contains(post.Id))

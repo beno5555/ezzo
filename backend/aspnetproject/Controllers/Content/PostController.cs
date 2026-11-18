@@ -125,7 +125,24 @@ public class PostController : BaseController
         bool isAdmin = IsAdministrator();
         
         var  response = await _postService.DeletePostAsync(userId, isAdmin, id);
-    
+
+        if (response.Succeeded)
+        {
+            return Ok(response);
+        }
+
+        return BadRequest(response);
+    }
+
+    // The failures mean different things (no such post or image, not the caller's post, the post's last photo), so all are 400.
+    [HttpDelete]
+    [Route("{postId:int}/images/{imageId:int}")]
+    [EnableRateLimiting(RateLimitConfig.Policies.RemovePostImage)]
+    public async Task<ActionResult<ApplicationResponse<FullPostDisplayDto>>> RemovePostImage(int postId, int imageId)
+    {
+        int userId   = GetUserId();
+        var response = await _postService.RemovePostImageAsync(postId, imageId, userId, IsAdministrator());
+
         if (response.Succeeded)
         {
             return Ok(response);
