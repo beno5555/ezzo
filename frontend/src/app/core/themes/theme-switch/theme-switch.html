@@ -1,0 +1,7 @@
+<div class="flex flex-wrap gap-1" role="group" [attr.aria-label]="text().themes.switchLabel">
+  @for (choice of choices; track choice) {
+    <button appToggleButton type="button" [pressed]="isCurrent(choice)" (click)="choose(choice)">
+      {{ text().themes[choice] }}
+    </button>
+  }
+</div>

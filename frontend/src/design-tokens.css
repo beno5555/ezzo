@@ -117,7 +117,14 @@
  * ":root" is in the selector so this block outranks the light values whatever their order.
  */
 @layer theme {
+  /* The browser's own controls (scrollbars, a date input's calendar) follow the theme. */
+  :root {
+    color-scheme: light;
+  }
+
   :root[data-theme='dark'] {
+    color-scheme: dark;
+
     /* primary is accent, so it takes accent's dark value. */
     --color-primary: #8fb0ff;
 

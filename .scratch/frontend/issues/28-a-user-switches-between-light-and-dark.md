@@ -13,14 +13,25 @@ Decisions are in `DESIGN.md` (Colors) and under "Across the whole frontend" in `
 
 **Blocked by:** 27 (The app takes its look from design tokens)
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Difficulty:** routine (Opus 5.5 medium): the store copies the language store and is unit-tested, but a flash of the wrong theme on load is something no test catches.
 
-- [ ] The store is unit-tested: no stored choice with a dark operating system gives dark, and with a light one gives light; a stored choice wins over the operating system; switching stores the choice and changes the signal and the marker; an unknown stored value is ignored
-- [ ] The switch changes every colour of the page in place, without a reload
-- [ ] A reload in the dark theme shows no light flash, checked by eye with the network slowed in the browser's developer tools
-- [ ] With no stored choice, changing the operating system's setting and reloading changes the theme
+- [x] The store is unit-tested: no stored choice with a dark operating system gives dark, and with a light one gives light; a stored choice wins over the operating system; switching stores the choice and changes the signal and the marker; an unknown stored value is ignored
+- [x] The switch changes every colour of the page in place, without a reload
+- [x] A reload in the dark theme shows no light flash, checked by eye with the network slowed in the browser's developer tools
+- [x] With no stored choice, changing the operating system's setting and reloading changes the theme
 - [ ] Scrollbars and a date input's calendar are dark in the dark theme
-- [ ] The switch's texts come from the dictionaries, and it works with the keyboard
-- [ ] No component names a theme: the lint check from ticket 27 still passes
+- [x] The switch's texts come from the dictionaries, and it works with the keyboard
+- [x] No component names a theme: the lint check from ticket 27 still passes
+
+## Comments
+
+**2026-11-18, implementing session (Opus 5.5; review on Fable 5.2).**
+
+- **Box left open: scrollbars and the date calendar.** The Chrome extension was not connected, so checks ran in headless Chrome over the DevTools protocol. Headless Chrome draws no scrollbars and cannot open the date picker. Verified instead: the root's computed `color-scheme` is `dark` in the dark theme (the property Chrome draws both from), and the date input's own icon renders light on dark. The owner looks at both once.
+- **How the flash box was checked.** On a production build (`ng serve --configuration production`), with the network throttled to 400 ms latency and 50 kB/s and the cache off, a reload in dark was recorded frame by frame, starting from a magenta page: the first WebCity frame is already dark. With every script held back, the page is dark before the app boots.
+- **Critical CSS inlining is off** (`optimization.styles.inlineCritical: false` in `angular.json`, production). The spec review found that inlining kept only the light values and loaded the full stylesheet without blocking the first paint, so the production build flashed light. The dev server does not inline, which is why it did not show there. The reason is recorded in the Themes section of the conventions' TypeScript reference.
+- **`ToggleButton` (`shared/toggle-button/`)** now carries the look both switches share (`aria-pressed` marks the current one), per "a look that is used twice becomes a component in `shared/`". Ticket 07's menu can reuse it.
+- **The head script and the store share a rule.** `theme-boot.spec.ts` runs the script from `index.html` (imported as text) for each stored value and operating system setting, and fails when it disagrees with `ThemeStore`.
+- Not built, because the ticket does not ask for it: following a live change of the operating system's setting without a reload.

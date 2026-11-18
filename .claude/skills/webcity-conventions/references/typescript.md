@@ -139,7 +139,7 @@ The frontend is an Angular 22 app in `frontend/`. Sections 1 to 9 apply to it; t
 
 ```
 frontend/src/app/
-  core/       app-wide singletons: session, HTTP plumbing, hub client, languages, error handling
+  core/       app-wide singletons: session, HTTP plumbing, hub client, languages, themes, error handling
   shared/     reusable presentational components and pipes; nothing routed
   features/   auth/ users/ posts/ comments/ friendships/ messages/ accounts/ admin/ reports/
 ```
@@ -296,6 +296,12 @@ export class MyProfilePage implements OnInit {
 - An entry that needs a number or a plural form is a function. Use `Intl.PluralRules` for plurals.
 - Text from the backend (failure and validation messages) is shown as it arrives, in English. Never translate it by matching strings.
 - User content is never translated.
+
+### Themes
+
+- `ThemeStore` (`core/themes/`) holds the current theme as a signal, remembers a choice in `localStorage` and is the only app code that writes the `data-theme` marker on `<html>`. With no choice stored, the theme is the operating system's at each load.
+- A script in the head of `src/index.html` repeats the store's storage key and rule, so the marker is set before the first paint. Change both together: `theme-boot.spec.ts` fails when they disagree.
+- The production build does not inline critical CSS (`inlineCritical: false` in `angular.json`). Inlining keeps only rules that match the static HTML, which drops the `data-theme='dark'` block, and loads the full stylesheet without blocking the first paint, so a dark reload would paint light first.
 
 ### Dates
 

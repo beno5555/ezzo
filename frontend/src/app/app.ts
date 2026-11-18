@@ -6,13 +6,14 @@ import { LanguageSwitch } from './core/languages/language-switch/language-switch
 import { LIMITS } from './core/limits';
 import { appAddresses } from './core/routing/app-addresses';
 import { SessionStore } from './core/session/session-store';
+import { ThemeSwitch } from './core/themes/theme-switch/theme-switch';
 import { PresenceStore } from './features/friendships/presence-store';
 import { MessageApi } from './features/messages/message-api';
 import { UnreadStore } from './features/messages/unread-store';
 import { Button } from './shared/button/button';
 
 @Component({
-  imports: [RouterLink, RouterOutlet, LanguageSwitch, Button],
+  imports: [RouterLink, RouterOutlet, LanguageSwitch, ThemeSwitch, Button],
   selector: 'app-root',
   styleUrl: './app.css',
   templateUrl: './app.html',

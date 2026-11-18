@@ -6,6 +6,20 @@
     <base href="/" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="icon" type="image/x-icon" href="favicon.ico" />
+    <!--
+      Marks the theme before the first paint, so a reload in the dark theme never shows a light page.
+      It repeats ThemeStore's storage key and rule (src/app/core/themes/theme-store.ts); the store takes
+      over once the app loads, and theme-boot.spec.ts fails when the two disagree.
+    -->
+    <script>
+      (() => {
+        const stored = localStorage.getItem('webcity.theme');
+        const isTheme = stored === 'light' || stored === 'dark';
+        const systemPrefersDark = matchMedia('(prefers-color-scheme: dark)').matches;
+        const systemTheme = systemPrefersDark ? 'dark' : 'light';
+        document.documentElement.dataset.theme = isTheme ? stored : systemTheme;
+      })();
+    </script>
   </head>
   <body class="bg-surface-page text-base text-ink-strong">
     <app-root></app-root>
