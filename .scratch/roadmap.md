@@ -22,7 +22,7 @@ Non-visual work (backend, tests, tooling) is merged as soon as it passes the ful
 
 **Not merged yet.** Finished visual branches that wait for the owner's review. No agent merges them until the owner says so. After the merge, delete the line.
 
-- **Frontend ticket 06: the pages share a toast, a dialog, a confirmation and a menu**, branch `worktree-shared-frontend-blocks`, finished 2026-11-18. Start `npm start` and look at the block buttons on the bare page (toasts, dialog, both confirmations, menu, avatars) at 360, 768 and 1280 px in both themes, then tick the last open box. Read the ticket's Comments: toasts are not a CDK overlay, repeated toasts are skipped, the dialog pane carries two `!` classes, and the build has a bundle-budget warning until ticket 07.
+- **Frontend ticket 06: the pages share a toast, a dialog, a confirmation and a menu**, branch `worktree-shared-frontend-blocks`, finished 2026-11-18, all boxes ticked and the ticket's Comments approved by the owner the same day. It waits only for the owner's word to merge.
 
 ## Open decisions
 

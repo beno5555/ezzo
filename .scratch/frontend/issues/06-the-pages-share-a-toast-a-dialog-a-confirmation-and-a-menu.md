@@ -23,12 +23,12 @@ Decisions are under "Toasts", "Actions on content" and "Across the whole fronten
 - [x] The dialog keeps focus inside, closes on Escape, and returns focus to the button that opened it
 - [x] The menu opens, moves and chooses with the keyboard
 - [x] The default profile picture's rules are unit-tested: a username in two parts gives both first letters, any other gives its first two letters, the same id always gives the same disc colour, and an unavailable account gives the grey disc with no letters
-- [ ] Each block is checked on the bare page at 360, 768 and 1280 px, in both themes, for the owner's approval. This ticket does not wait for tickets 28 and 29: until they land, show the dark theme by putting `data-theme="dark"` on the root element by hand, and check by eye; once ticket 29 has landed, use its screenshots
+- [x] Each block is checked on the bare page at 360, 768 and 1280 px, in both themes, for the owner's approval. This ticket does not wait for tickets 28 and 29: until they land, show the dark theme by putting `data-theme="dark"` on the root element by hand, and check by eye; once ticket 29 has landed, use its screenshots
 - [x] All texts come from the dictionaries, and all colours, sizes and spacing from design tokens
 
 ## Comments
 
-- **Your approval (the 360/768/1280 box) is still open.** I checked every block in Chrome at 360, 768 and 1280 px, in both themes, with the dark theme set by hand. The window cannot narrow to 360 px at the screen's 150 % scale, so I used same-origin iframes of fixed widths instead. Look at the bare page (`npm start`), then tick the box.
+- **Approved by the owner on 2026-11-18,** together with every point below. I checked every block in Chrome at 360, 768 and 1280 px, in both themes, with the dark theme set by hand. The window cannot narrow to 360 px at the screen's 150 % scale, so I used same-origin iframes of fixed widths instead.
 - **Repeated toasts are skipped.** You chose this during the work. A toast equal to one already shown or waiting (same message, same link) is not queued again. Clicking a failing action twenty times shows one toast, where it used to queue about 35 seconds of the same message. Once the toast has left, the same message can show again.
 - **Toasts are not a CDK overlay.**
   - `DESIGN.md` says dialogs, menus and toasts take their behaviour from Angular CDK. The toast list is a plain fixed `<section aria-live="polite">` instead, because a toast needs no focus handling, positioning or backdrop.
