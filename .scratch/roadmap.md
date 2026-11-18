@@ -41,9 +41,9 @@ Each decision is recorded where the work reads it: the n8n session (2026-11-16) 
 
 Dates are the day a step should finish.
 
-**Overdue, as of Tue 17.** Step 4 is overdue: its pages wait for the rest of the frontend setup (frontend tickets 28 and 29) and for frontend tickets 05 and 06. Steps 5 to 8 each wait for the step before, so each will be late by as much as step 4 is, and their dates no longer hold.
+**Overdue, as of Tue 17.** Step 4 is overdue: its pages wait for the rest of the frontend setup (frontend tickets 28 and 29) and for frontend ticket 06. Steps 5 to 8 each wait for the step before, so each will be late by as much as step 4 is, and their dates no longer hold.
 
-**Steps 4 to 8 are crucial.** They are the pages, and the pages are the commitment. No page can be dropped or traded for an item under Last in line. Every day lost here is taken from the buffer (Tue 24) first and from the items under Last in line after that. Three chains meet at frontend ticket 07, and the slowest decides the finish date: 28 → 29, 06, and 05. Tickets 28, 06 and 05 can all start now. Work on these chains comes before anything else.
+**Steps 4 to 8 are crucial.** They are the pages, and the pages are the commitment. No page can be dropped or traded for an item under Last in line. Every day lost here is taken from the buffer (Tue 24) first and from the items under Last in line after that. Two chains meet at frontend ticket 07, and the slower decides the finish date: 28 → 29, and 06 (the third, 05, merged 2026-11-18). Tickets 28 and 06 can both start now. Work on these chains comes before anything else.
 
 ### Lanes: which tickets run in parallel
 
@@ -55,7 +55,7 @@ Set on 2026-11-16. Two worktree lanes at a time (`docs/agents/worktrees.md`). Un
 | 1 | F28, the themes | T01, then T02: cheaper sign-in, one-batch reseed | T01 merged 2026-11-16, T02 2026-11-17 |
 | 2 | F29, the screenshots | T03, test classes in parallel (merged 2026-11-17) | |
 | 3 | F06, toast, dialog, confirmation, menu | B13, statistics (merged 2026-11-17) | |
-| 4 | F05, the live connection | frontend 25, friendship tests (merged 2026-11-17) | |
+| 4 | F05, the live connection (merged 2026-11-18) | frontend 25, friendship tests (merged 2026-11-17) | both merged 2026-11-18 |
 | 5 | F07, the shell | n8n 01, a failure leaves as a signed event | |
 
 After round 5 the backend lane takes n8n 04, then 03 once 02 is done with the owner, then 08 and 11; B04 (remove a photo) waits until the backend lane is free (owner, 2026-11-17). A third lane can open once the shell lands.
@@ -78,7 +78,7 @@ Frontend 30 (Impeccable) runs in a session with the owner whenever the owner is 
 
 1. [ ] **Design.** The name was still open, so the design session fixed the structure and left the brand for later.
    - [x] **Mon 16: the design session** (planned for Sat 14). Output: ADR 0007, `DESIGN.md` with a neutral provisional skin, and the Styling rules in the conventions skill's TypeScript reference.
-   - [ ] **Crucial: the frontend setup, frontend tickets 27 to 29.** Every open frontend ticket from 07 onward waits for all three (owner's decision, 2026-11-16), except 05, 06 and 25.
+   - [ ] **Crucial: the frontend setup, frontend tickets 27 to 29.** Every open frontend ticket from 07 onward waits for all three (owner's decision, 2026-11-16), except 06 (05 and 25 are merged).
      - [x] 27, the design tokens. Merged 2026-11-16.
      - [ ] 28, the themes. Can start now.
      - [ ] 29, the screenshots and the Playwright MCP server on trial. After 28.
