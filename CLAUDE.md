@@ -105,3 +105,4 @@ Follow the project skill `.claude/skills/webcity-conventions` (it overrides the 
 - **Skills:** Matt Pocock's skills in `.claude/skills/` are linked from `~/.claude/skills/` by Windows junctions (`webcity-conventions` and the design skill `frontend-design` are not). Never remove one with `rm -rf` (it can delete the repo copy); read `docs/agents/skills.md` before touching either folder.
 - **Issue tracker:** issues and specs live as local markdown files under `.scratch/<feature>/`. See `docs/agents/issue-tracker.md`.
 - **Domain docs:** single-context, one `GLOSSARY.md` and `docs/adr/` at the repo root, created lazily. See `docs/agents/domain.md`.
+- **Codex:** OpenAI's Codex reviews branches and can run a lane. It reads `AGENTS.md`, which repeats the owner's rules from your project memory. When you add or change a memory rule that applies to every agent, update that list in the same task. See `docs/agents/codex.md`.
