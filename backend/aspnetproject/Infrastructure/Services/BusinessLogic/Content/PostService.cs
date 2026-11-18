@@ -123,9 +123,10 @@ public class PostService : BaseService
         var postWithStats = await _postRepository.GetPostByIdAsync(id, userId, isAdmin);
         if (postWithStats is not null)
         {
-            var  post            = postWithStats.Post;
-            bool belongsToCaller = post.UserId == userId;
-            if (belongsToCaller)
+            var  post             = postWithStats.Post;
+            bool belongsToCaller  = post.UserId == userId;
+            bool keepsTextOrImage = KeepsTextOrImage(updatePostDto.Content, post.Images.Count);
+            if (belongsToCaller && keepsTextOrImage)
             {
                 // Only a real change is an edit: it stamps LastUpdatedAt and sends post-edited. Saving the same text again does neither.
                 bool titleChanged   = post.PostTitle   != updatePostDto.Title;
@@ -146,6 +147,12 @@ public class PostService : BaseService
                 response.Ok(postDisplayDto, ResponseMessages.PostUpdated);
                 await LogResultAsync(response.Succeeded, nameof(UpdatePost), nameof(Post), null, id);
             }
+            else if (belongsToCaller)
+            {
+                // A post keeps text or at least one image, so text can be emptied only on a post with photos.
+                response.Fail(ResponseMessages.TextOrImageRequired);
+                await LogResultAsync(response.Succeeded, nameof(UpdatePost), nameof(Post), response.Message, id);
+            }
             else
             {
                 response.Fail(ResponseMessages.CouldNotUpdatePost);
@@ -164,18 +171,24 @@ public class PostService : BaseService
     public async Task<ApplicationResponse> DeletePostAsync(int callerId, bool isAdmin, int id)
     {
         var response = new ApplicationResponse();
-        var post     = await _postRepository.GetReadablePostAsync(id, callerId, isAdmin);
+        var post     = await _postRepository.GetReadablePostWithImagesAsync(id, callerId, isAdmin);
 
         if (post is not null)
         {
             bool belongsToCaller = post.UserId == callerId;
             if (belongsToCaller || isAdmin)
             {
+                // Read before the rows go; the database cascades the image rows with their post.
+                var imageAddresses = post.Images.Select(image => image.Address).ToList();
+
                 await _postRepository.ExecuteInTransactionAsync(async () =>
                 {
                     await _commentRepository.DeletePostCommentsAsync(post.Id);
                     await _postRepository.DeleteWithoutChangeTrackingAsync(post.Id);
                 });
+
+                // After the commit, best effort: a file that cannot be removed is logged by the storage.
+                await _imageStorage.DeleteAsync(imageAddresses);
 
                 response.Ok(ResponseMessages.PostDeleted);
                 await LogResultAsync(response.Succeeded, nameof(DeletePostAsync), nameof(Post), null, id);
@@ -193,6 +206,89 @@ public class PostService : BaseService
         }
 
         return response;
+    }
+
+    // The file goes after the row, best effort: one that cannot be removed is logged by the storage and does not fail the request.
+    public async Task<ApplicationResponse<FullPostDisplayDto>> RemovePostImageAsync(int postId, int imageId, int callerId, bool isAdmin)
+    {
+        var response = new ApplicationResponse<FullPostDisplayDto>();
+
+        var postWithStats = await _postRepository.GetPostByIdAsync(postId, callerId, isAdmin);
+        var imageCheck    = CheckImageRemoval(postWithStats?.Post, imageId, callerId, isAdmin);
+
+        if (imageCheck.Succeeded)
+        {
+            var post  = postWithStats!.Post;
+            var image = imageCheck.Data!;
+
+            // A required relationship: the image row taken out of the collection is deleted on save.
+            post.Images.Remove(image);
+            post.LastUpdatedAt = DateTime.UtcNow;
+
+            await _postRepository.SaveChangesAsync();
+            await _imageStorage.DeleteAsync([image.Address]);
+
+            response.Ok(PostMapper.ToFullDisplay(postWithStats), ResponseMessages.PostImageRemoved);
+        }
+        else
+        {
+            response.Fail(imageCheck.Message);
+        }
+
+        string? failureDetails = response.Succeeded ? null : $"{response.Message}. Image {imageId}";
+        await LogResultAsync(response.Succeeded, nameof(RemovePostImageAsync), nameof(Post), failureDetails, postId);
+
+        return response;
+    }
+
+    // post is null when it does not exist or the caller may not read it. Returns the image to remove.
+    // A post must keep text or at least one image, so the last image of a post without text stays.
+    private ApplicationResponse<PostImage> CheckImageRemoval(Post? post, int imageId, int callerId, bool isAdmin)
+    {
+        var response = new ApplicationResponse<PostImage>();
+
+        // An image of another post is not in this post's collection, so it reads as not found too.
+        var  image            = post?.Images.FirstOrDefault(postImage => postImage.Id == imageId);
+        bool mayRemove        = post is not null && (post.UserId == callerId || isAdmin);
+        bool keepsTextOrImage = post is not null && KeepsTextOrImage(post.PostContent, post.Images.Count - 1); // the images left once this one goes
+
+        if (post is not null)
+        {
+            if (mayRemove)
+            {
+                if (image is not null)
+                {
+                    if (keepsTextOrImage)
+                    {
+                        response.Ok(image);
+                    }
+                    else
+                    {
+                        response.Fail(ResponseMessages.LastImageOfPostWithoutText);
+                    }
+                }
+                else
+                {
+                    response.Fail(ResponseMessages.PostImageNotFound);
+                }
+            }
+            else
+            {
+                response.Fail(ResponseMessages.CouldNotRemovePostImage);
+            }
+        }
+        else
+        {
+            response.Fail(ResponseMessages.PostNotFound);
+        }
+
+        return response;
+    }
+
+    // The rule every post meets: text or at least one image. Whitespace-only text counts as none, as it does when a post is created.
+    private bool KeepsTextOrImage(string? content, int imageCount)
+    {
+        return !string.IsNullOrWhiteSpace(content) || imageCount > 0;
     }
 
     // Every rule a new post must meet, images included. Nothing is stored until all of them pass.

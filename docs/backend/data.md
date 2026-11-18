@@ -72,7 +72,7 @@ public class BaseEntity
 }
 ```
 
-- `LastUpdatedAt` is nullable and defaults to `null` (not DB-defaulted) — stamped explicitly by service code on update, and doubles as a semantic flag (`Message.IsEdited`). A post or comment edit stamps it only when the title or text really changes (`PostService.UpdatePost`, `CommentService.EditCommentAsync`); `EditMessage` and the profile edit still stamp it on every saved edit.
+- `LastUpdatedAt` is nullable and defaults to `null` (not DB-defaulted) — stamped explicitly by service code on update, and doubles as a semantic flag (`Message.IsEdited`). A post or comment edit stamps it only when the title or text really changes (`PostService.UpdatePost`, `CommentService.EditCommentAsync`); removing a photo from a post stamps it too (`PostService.RemovePostImageAsync`); `EditMessage` and the profile edit still stamp it on every saved edit.
 - `Friendship` now inherits `BaseEntity` (unlike the earlier composite-PK design) — it has an `Id`, but controllers still route by the other user's id, not by `Friendship.Id`.
 - `UserRole` does not inherit `BaseEntity` — composite PK `(UserId, RoleId)`.
 - `FriendshipStatus` is stored as a string in the database, lives under `Common/ProjectConstants/Enums`.
@@ -104,7 +104,7 @@ SQL Server disallows multiple cascade paths, so most user-referencing FKs are no
 - `Post.UserId`, `Message.SenderUserId`/`ReceiverUserId`, `Friendship.RequesterUserId`/`AddresseeUserId` → `NoAction`/`Restrict`, non-nullable. Service/background-job code must explicitly delete a user's posts/messages/friendships before the user row itself.
 - `Comment.CommenterUserId` → `SetNull`, nullable — the one FK that tolerates a "deleted account" comment author, since displaying an orphaned comment is a real UX case; other resources don't have an equivalent display need.
 - `Post → Comment` → `Cascade` (deleting a post deletes its comments).
-- `Post → PostImage` → `Cascade`. The rows go with the post; the image files on disk do not yet.
+- `Post → PostImage` → `Cascade`, so a deleted post (`PostService.DeletePostAsync`) and the purge's bulk post deletes take the rows with them. Both read the image addresses first and remove the files afterwards through `ImageStorage`. A single photo is removed by taking it out of its tracked post's `Images` collection: the relationship is required, so EF deletes the orphaned row on save (`PostService.RemovePostImageAsync`).
 - `Message → MessageImage` → `Cascade`, so bulk message deletes with `ExecuteDeleteAsync` (a removed friendship, the purge) take the rows with them. The code that deletes messages reads the image addresses first and removes the files afterwards through `ImageStorage`.
 - `Post → PostLike` → `Cascade` (deleting a post deletes its likes).
 - `PostLike.UserId` → `NoAction`, and the relationship is optional although the column is not nullable. Likes already cascade from `Post`, and a post points at a user, so a cascade from `User` would be a second path. The purge job deletes the likes a user gave itself. Optional, like `Post`'s link to `User`, so a like by a deactivated or soft-deleted user stays readable while the global query filter hides that user (the liker list shows a placeholder name).

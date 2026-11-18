@@ -35,7 +35,7 @@ public class SoftDeletedUsersCleanupService : PeriodicHostedService
             totalResult += batchResult;
 
             // After the rows are gone, and best effort: a file that cannot be removed is logged by the storage.
-            await imageStorage.DeleteAsync(batchResult.MessageImageAddresses);
+            await imageStorage.DeleteAsync([..batchResult.MessageImageAddresses, ..batchResult.PostImageAddresses]);
         }
         while(batchResult.UsersDeletedCount > 0 && !stoppingToken.IsCancellationRequested);
         
@@ -43,7 +43,7 @@ public class SoftDeletedUsersCleanupService : PeriodicHostedService
         {
             await LogResultAsync(dbLogger, true, nameof(User),
                 $"Removed {totalResult.UsersDeletedCount} soft deleted users past retention. " +
-                $"(Messages: {totalResult.MessagesDeletedCount}, Message images: {totalResult.MessageImageAddresses.Count}, Friendships: {totalResult.FriendshipsDeletedCount}, Posts: {totalResult.PostsDeletedCount}, Likes: {totalResult.LikesDeletedCount}, Reports: {totalResult.ReportsDeletedCount})");
+                $"(Messages: {totalResult.MessagesDeletedCount}, Message images: {totalResult.MessageImageAddresses.Count}, Friendships: {totalResult.FriendshipsDeletedCount}, Posts: {totalResult.PostsDeletedCount}, Post images: {totalResult.PostImageAddresses.Count}, Likes: {totalResult.LikesDeletedCount}, Reports: {totalResult.ReportsDeletedCount})");
         }
     }
 }

@@ -53,6 +53,16 @@ public class PostRepository : BaseEntityRepository<Post>
             .FirstOrDefaultAsync();
     }
 
+    // As GetReadablePostAsync, with the post's images, so a caller deleting the post knows which files to remove.
+    public async Task<Post?> GetReadablePostWithImagesAsync(int id, int? callerId, bool isAdmin)
+    {
+        return await _dbSet
+            .Include(post => post.Images)
+            .Where(post => post.Id == id)
+            .Where(ModerationVisibility.PostReadableBy(callerId, isAdmin))
+            .FirstOrDefaultAsync();
+    }
+
     // For an administrator's review: hidden posts included, and authors in any account state, so the mapper can name that state.
     public async Task<List<Post>> GetSnapshotsByIdsAsync(IReadOnlyCollection<int> ids)
     {
