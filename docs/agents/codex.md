@@ -1,6 +1,6 @@
 # Working with Codex beside Claude Code
 
-The owner has a Claude plan and a ChatGPT plan. Claude Code does most of the implementing: it holds the project memory, the skills and the browser tools. Codex (OpenAI's CLI, `codex`) adds a second model. Its main job is reviewing, because a model from another vendor misses different things than the model that wrote the code. Codex reads `AGENTS.md` (root), which sends it to `CLAUDE.md` and repeats the owner's rules from Claude's memory.
+The owner has a Claude plan and a ChatGPT plan. Claude Code does most of the implementing: it holds the project memory, the skills and the browser tools. Codex (OpenAI's CLI, `codex`) adds a second model. Its main job is reviewing, because a model from another vendor misses different things than the model that wrote the code. Codex reads `AGENTS.md` (root), which sends it to `CLAUDE.md` and repeats the owner's rules from Claude's memory. It finds the shared skills through the symlinks in `.agents/skills/` ("Skills for Codex" in `skills.md`).
 
 ## Review order for a branch
 

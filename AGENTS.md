@@ -5,13 +5,13 @@ This file is for agents other than Claude Code, such as OpenAI's Codex. Claude C
 ## Read first
 
 1. **`CLAUDE.md`** at the repo root. It is this project's instructions, and every rule in it applies to you. Where it names a Claude Code feature, follow the translation below.
-2. **Code style:** `.claude/skills/webcity-conventions/SKILL.md`. Do what its "How to use this skill" section says: read `references/control-flow.md` and the file for the language you are editing, then run its checklist before you finish.
+2. **Code style:** the `webcity-conventions` skill. Use it on every code change, reading `references/control-flow.md` and the file for the language you are editing as its "How to use this skill" section says.
 3. **Frontend work:** `frontend/CLAUDE.md` (its hard styling rules) and `DESIGN.md`, before you edit a template or a style.
 4. **Per-area docs:** the files under `docs/backend/` and `docs/agents/` that `CLAUDE.md` points to for the area you touch.
 
 ## Claude Code terms and what to do instead
 
-- **A skill** (`/name`, or "the X skill"): read `.claude/skills/<name>/SKILL.md` and follow it. Never run a skill whose front matter has `disable-model-invocation: true` (`implement`, `to-spec`, `to-tickets`, `handoff`, `grill-with-docs`, `setup-matt-pocock-skills`). Only the owner starts those.
+- **Skills:** `.agents/skills/` holds symlinks to the skills under `.claude/skills/` that any agent may use, so they are in your skills list. Never run any other skill there, even when `CLAUDE.md` or a ticket names it (`implement`, `to-spec`, `to-tickets`, `handoff`, `grill-with-docs`, `grilling`, `setup-matt-pocock-skills`). Only the owner starts those.
 - **Subagents** (for example, the two parallel reviews in `spec-review`): do each part yourself, one after another.
 - **Claude in Chrome and the Playwright MCP server:** if you have no browser tool, use the screenshot command (`npm run screenshots` in `frontend/CLAUDE.md`, once it is on `master`). If neither exists, say the page was not checked in a browser. Never claim it was.
 - **`claude --worktree`:** a Codex lane makes its own worktree under `.claude/worktrees/` (steps in `docs/agents/codex.md`).
