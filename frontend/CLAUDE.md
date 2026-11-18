@@ -19,7 +19,7 @@ Run from `frontend/`:
 ```bash
 npm start                    # dev server on http://localhost:4200, /api and /hubs proxied to the backend
 npm test -- --watch=false    # Vitest unit tests, once
-npm run lint                 # ESLint (design token rule included), type check of tools/, then the tests of eslint-rules/ and tools/
+npm run lint                 # ESLint (design token rule included), type check of tools/, then the tests of eslint-rules/
 npm run build
 npx prettier --write .       # Prettier owns formatting
 npm run screenshots -- /sign-in [https://example.com] [--signed-in]   # 12 images per app address into screenshots/
