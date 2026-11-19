@@ -63,6 +63,8 @@ After round 5 the backend lane takes n8n 04, then 03 once 02 is done with the ow
 
 After the shell, both lanes take frontend tickets from **different feature areas**, so that the only shared files are the routes and the two dictionaries.
 
+F32 (the first download fits its budget) is plumbing with no visual part. It runs beside round 6 in a cloud session or a third lane, and is merged once its checks pass (owner, 2026-11-19).
+
 | Round | Lane 1 | Lane 2 |
 |---|---|---|
 | 6 | F08, the auth pages | F09, the feed |
