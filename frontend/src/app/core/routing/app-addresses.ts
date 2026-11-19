@@ -1,9 +1,27 @@
-// The app's own addresses that code navigates to (the table under "Addresses" in .scratch/frontend/spec.md).
+// The app's own addresses that code and the shell link to (the table under "Addresses" in
+// .scratch/frontend/spec.md). app.routes.ts holds the patterns; this file holds the addresses.
 export const appAddresses = {
   // The home address. Ticket 26 sends a signed-in user on from here to the feed.
   home: '/',
+  feed: '/feed',
   signIn: '/sign-in',
+  register: '/register',
+  search: '/search',
+  settings: '/settings',
+  friends: '/friends',
+  messages: '/messages',
+  admin: '/admin',
+  // As router link commands, so the username is encoded as one segment.
+  profile: (username: string) => ['/users', username],
 } as const;
 
 // The query parameter that carries the address a guard turned the user away from.
 export const returnAddressParameter = 'returnUrl';
+
+// The query parameter of the search page that carries what to search for.
+export const searchQueryParameter = 'q';
+
+// The query parameters of the search page for a query: an empty one leaves ?q= out of the address.
+export function searchQueryParameters(query: string): Record<string, string | null> {
+  return { [searchQueryParameter]: query === '' ? null : query };
+}

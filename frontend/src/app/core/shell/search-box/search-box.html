@@ -1,0 +1,17 @@
+<form class="flex min-w-0 items-center gap-1" role="search" (submit)="search($event, query.value)">
+  <!-- A bar has no room for a label above the field, so screen readers read the label and the
+       placeholder shows the same words: a deviation from the visible-label rule in DESIGN.md (ticket 07). -->
+  <label class="sr-only" for="shell-search">{{ text().shell.searchLabel }}</label>
+  <input
+    appTextInput
+    class="w-full"
+    id="shell-search"
+    type="search"
+    #query
+    [maxLength]="queryMaxLength"
+    [placeholder]="text().shell.searchLabel"
+  />
+  <button appIconButton type="submit" [attr.aria-label]="text().shell.searchButton">
+    <svg class="size-5" lucideSearch aria-hidden="true"></svg>
+  </button>
+</form>

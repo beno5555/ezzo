@@ -36,30 +36,63 @@ export const english = {
     message: 'There is nothing at this address.',
     homeLink: 'Go to the home page',
   },
-  // The bare session bar in the app shell. Ticket 07's shell replaces it.
-  session: {
-    signedInAs: (username: string) => `Signed in as ${username}`,
+  // Each page's name, by its route's title key (app.routes.ts). PageTitleStrategy puts it in the
+  // browser tab as "<page> – WebCity".
+  pages: {
+    home: 'Home',
+    feed: 'Feed',
+    signIn: 'Sign in',
+    register: 'Register',
+    forgotPassword: 'Forgot password',
+    resetPassword: 'Choose a new password',
+    reactivateAccount: 'Reactivate your account',
+    post: 'Post',
+    profile: 'Profile',
+    search: 'Search',
+    settings: 'Settings',
+    friends: 'Friends',
+    messages: 'Messages',
+    conversation: 'Conversation',
+    adminUsers: 'Users',
+    adminReports: 'Reports',
+    adminModeration: 'Moderation queue',
+    adminLogs: 'Logs',
+    adminStatistics: 'Statistics',
+    notFound: 'Page not found',
+  },
+  // A page whose route exists before the page is built; its ticket replaces it.
+  pagePlaceholder: {
+    message: 'This page is not ready yet.',
+  },
+  // The shell around every page: the top bar, the phone's bottom bar and the menus in them (core/shell).
+  shell: {
+    navigationLabel: 'Main',
+    feedLink: 'Feed',
+    friendsLink: 'Friends',
+    messagesLink: 'Messages',
+    // The phone's bottom bar gives each link a fifth of 360 px, so its words are the shortest that still
+    // say where the link leads.
+    bottomBar: {
+      feedLink: 'Feed',
+      searchLink: 'Search',
+      friendsLink: 'Friends',
+      messagesLink: 'Messages',
+      profileLink: 'Profile',
+    },
+    searchLabel: 'Search users',
+    searchButton: 'Search',
+    userMenuLabel: 'Your menu',
+    preferencesMenuLabel: 'Language and theme',
+    signedInAs: 'Signed in as',
+    myProfileLink: 'My profile',
+    settingsLink: 'Settings',
+    adminLink: 'Admin',
     signOutButton: 'Sign out',
     signInLink: 'Sign in',
-  },
-  // The bare live summary in the app shell, which proves the hub connection. Ticket 07's shell replaces it.
-  live: {
-    label: 'Live status',
-    unreadConversations: (count: number) =>
-      pluralize(Language.English, count, {
-        one: `${count} conversation with unread messages`,
-        other: `${count} conversations with unread messages`,
-      }),
-    onlineFriends: 'Online friends:',
-    noFriendsOnline: 'No friends online',
-  },
-  // The Button's looks, shown in the app shell to prove the design tokens. Ticket 07's shell removes them.
-  buttonSamples: {
-    label: 'Button samples',
-    primary: 'Primary',
-    quiet: 'Quiet',
-    danger: 'Danger',
-    disabled: 'Disabled',
+    registerLink: 'Register',
+    // Read by screen readers after the link's name; the badge itself shows only the number.
+    unreadBadge: (badge: string) => `${badge} unread`,
+    waitingBadge: (badge: string) => `${badge} waiting`,
   },
   // The building blocks in shared/ that every page uses.
   shared: {
@@ -77,37 +110,6 @@ export const english = {
     toasts: {
       regionLabel: 'Notifications',
     },
-  },
-  // The shared blocks, shown in the app shell to prove them. Ticket 07's shell removes them.
-  blockSamples: {
-    label: 'Building block samples',
-    toastButton: 'Show a toast',
-    toastMessage: 'Could not like the post. Please try again.',
-    linkToastButton: 'Show a toast with a link',
-    linkToastMessage: 'alice_smith sent you a message',
-    fourToastsButton: 'Show four toasts',
-    numberedToastMessage: (number: number) => `Toast number ${number}`,
-    dialogButton: 'Open a dialog',
-    dialogTitle: 'A dialog',
-    dialogMessage:
-      'The keyboard focus stays inside this box. Escape, a click outside or the close button closes it.',
-    dialogInputLabel: 'Something to type',
-    confirmationButton: 'Ask for a confirmation',
-    confirmationQuestion: 'Delete this post?',
-    confirmationDetail: 'The post and its comments are deleted for good.',
-    confirmationConfirm: 'Delete',
-    typedConfirmationButton: 'Ask for a typed confirmation',
-    typedConfirmationQuestion: 'Delete your account?',
-    typedConfirmationDetail: 'Your account is deleted, and you are signed out.',
-    typedConfirmationConfirm: 'Delete my account',
-    answeredYes: 'You answered yes.',
-    answeredNo: 'You answered no.',
-    menuLabel: 'Actions for the sample post',
-    menuReport: 'Report',
-    menuEdit: 'Edit',
-    menuDelete: 'Delete',
-    chosen: (entry: string) => `You chose ${entry}.`,
-    avatarsLabel: 'Profile pictures',
   },
   auth: {
     signIn: {

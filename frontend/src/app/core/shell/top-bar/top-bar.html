@@ -1,0 +1,50 @@
+<header class="border-b border-border bg-surface-raised">
+  <div class="mx-auto flex w-full max-w-wide flex-wrap items-center gap-2 px-4 py-2 md:flex-nowrap">
+    <app-logo class="me-auto md:me-2" />
+
+    @if (isSignedIn()) {
+      <!-- On a phone the bottom bar's Search link takes the box's place. Between 768 and 1024 px the links
+           show only their icons, so the box keeps its room; screen readers still read each word. -->
+      @if (!isOnSearchPage()) {
+        <app-search-box class="hidden min-w-0 flex-1 md:block md:min-w-40 md:max-w-80" />
+      }
+
+      <nav
+        class="hidden items-center gap-1 md:ms-auto md:flex"
+        [attr.aria-label]="text().shell.navigationLabel"
+      >
+        <a appTopBarLink [routerLink]="addresses.feed">
+          <svg class="size-5 shrink-0" lucideHouse aria-hidden="true"></svg>
+          <span class="sr-only lg:not-sr-only">{{ text().shell.feedLink }}</span>
+        </a>
+        <a appTopBarLink [routerLink]="addresses.friends">
+          <svg class="size-5 shrink-0" lucideUsers aria-hidden="true"></svg>
+          <span class="sr-only lg:not-sr-only">{{ text().shell.friendsLink }}</span>
+          <app-count-badge [text]="waitingBadge()" [labelFor]="text().shell.waitingBadge" />
+        </a>
+        <a appTopBarLink [routerLink]="addresses.messages">
+          <svg class="size-5 shrink-0" lucideMessageCircle aria-hidden="true"></svg>
+          <span class="sr-only lg:not-sr-only">{{ text().shell.messagesLink }}</span>
+          <app-count-badge [text]="unreadBadge()" [labelFor]="text().shell.unreadBadge" />
+        </a>
+      </nav>
+
+      <app-user-menu />
+    } @else {
+      <!-- On a phone the box takes a row of its own, under the logo and the buttons. -->
+      @if (!isOnSearchPage()) {
+        <app-search-box
+          class="order-last block min-w-0 basis-full md:order-none md:max-w-80 md:flex-1 md:basis-auto"
+        />
+      }
+
+      <div class="flex items-center gap-2 md:ms-auto">
+        <a appButton look="quiet" [routerLink]="addresses.signIn">{{ text().shell.signInLink }}</a>
+        <a appButton look="primary" [routerLink]="addresses.register">{{
+          text().shell.registerLink
+        }}</a>
+        <app-preferences-menu />
+      </div>
+    }
+  </div>
+</header>

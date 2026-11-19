@@ -1,5 +1,11 @@
-<div class="flex flex-col items-start gap-4">
+<section class="flex flex-col items-center gap-4 py-12 text-center">
+  <span
+    class="flex size-16 items-center justify-center rounded-full bg-surface-sunken text-ink-muted"
+    aria-hidden="true"
+  >
+    <svg class="size-8" lucideMapPinOff></svg>
+  </span>
   <h1 class="font-display text-2xl text-ink-strong">{{ text().notFound.title }}</h1>
-  <p class="text-ink-muted">{{ text().notFound.message }}</p>
-  <a appButton look="primary" routerLink="/">{{ text().notFound.homeLink }}</a>
-</div>
+  <p class="max-w-80 text-ink-muted">{{ text().notFound.message }}</p>
+  <a appButton look="primary" [routerLink]="homeAddress">{{ text().notFound.homeLink }}</a>
+</section>

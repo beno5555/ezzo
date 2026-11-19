@@ -1,7 +1,7 @@
 <div class="flex flex-col gap-6">
-  <h1 class="font-display text-2xl text-ink-strong">{{ text().app.name }}</h1>
+  <h1 class="font-display text-2xl text-ink-strong">{{ text().pages.search }}</h1>
 
-  <form class="flex flex-col gap-2" [formGroup]="form" (ngSubmit)="search()">
+  <form class="flex flex-col gap-2" [formGroup]="form" (ngSubmit)="submit()">
     <label class="text-sm font-semibold text-ink-strong" for="username">{{
       text().users.search.label
     }}</label>

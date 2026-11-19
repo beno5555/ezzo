@@ -1,0 +1,32 @@
+<button
+  appIconButton
+  type="button"
+  cdkOverlayOrigin
+  #origin="cdkOverlayOrigin"
+  aria-haspopup="dialog"
+  [attr.aria-expanded]="isOpen()"
+  [attr.aria-label]="label()"
+  (click)="toggle()"
+>
+  <ng-content select="[appPopoverTrigger]" />
+</button>
+
+<ng-template
+  cdkConnectedOverlay
+  [cdkConnectedOverlayOrigin]="origin"
+  [cdkConnectedOverlayOpen]="isOpen()"
+  [cdkConnectedOverlayPositions]="positions"
+  [cdkConnectedOverlayViewportMargin]="viewportMargin"
+  (detach)="close()"
+  (overlayOutsideClick)="close()"
+>
+  <div
+    class="my-1 flex w-72 max-w-full flex-col gap-1 rounded-lg border border-border bg-surface-raised p-2 text-ink-strong shadow-overlay"
+    role="dialog"
+    [attr.aria-label]="label()"
+    cdkTrapFocus
+    cdkTrapFocusAutoCapture
+  >
+    <ng-content />
+  </div>
+</ng-template>

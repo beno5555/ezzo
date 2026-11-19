@@ -1,0 +1,39 @@
+@if (user(); as signedInUser) {
+  <app-shell-popover #menu [label]="text().shell.userMenuLabel">
+    <app-avatar
+      appPopoverTrigger
+      [userId]="signedInUser.id"
+      [username]="signedInUser.username"
+      [size]="avatarSize"
+    />
+
+    <p class="px-3 pt-2 pb-1 text-sm text-ink-muted wrap-break-word">
+      {{ text().shell.signedInAs }}
+      <span class="font-semibold text-ink-strong">{{ signedInUser.username }}</span>
+    </p>
+
+    <a appMenuRow [routerLink]="addresses.profile(signedInUser.username)" (click)="menu.close()">
+      <svg class="size-5 shrink-0 text-ink-muted" lucideUserRound aria-hidden="true"></svg>
+      {{ text().shell.myProfileLink }}
+    </a>
+    <a appMenuRow [routerLink]="addresses.settings" (click)="menu.close()">
+      <svg class="size-5 shrink-0 text-ink-muted" lucideSettings aria-hidden="true"></svg>
+      {{ text().shell.settingsLink }}
+    </a>
+    @if (isAdministrator()) {
+      <a appMenuRow [routerLink]="addresses.admin" (click)="menu.close()">
+        <svg class="size-5 shrink-0 text-ink-muted" lucideShield aria-hidden="true"></svg>
+        {{ text().shell.adminLink }}
+      </a>
+    }
+
+    <hr class="my-1 border-border" />
+    <app-shell-preferences />
+    <hr class="my-1 border-border" />
+
+    <button appMenuRow type="button" (click)="signOut()">
+      <svg class="size-5 shrink-0 text-ink-muted" lucideLogOut aria-hidden="true"></svg>
+      {{ text().shell.signOutButton }}
+    </button>
+  </app-shell-popover>
+}
