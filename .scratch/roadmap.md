@@ -23,8 +23,6 @@ Non-visual work (backend, tests, tooling) is merged as soon as it passes the ful
 
 **Not merged yet.** Finished visual branches that wait for the owner's review. No agent merges them until the owner says so. The merge commit deletes the line.
 
-- **`frontend-07-shell`: frontend ticket 07, the shell**, done 2026-11-19. Look at the screenshots in `frontend/screenshots/` and decide the deviations under the ticket's Comments (the guest's preferences menu, the hidden search label, the short Georgian bottom-bar words, the 8.5 kB over the bundle budget). Merge with `git merge --no-ff --no-commit frontend-07-shell` and delete this line in the merge.
-
 
 ## Open decisions
 
