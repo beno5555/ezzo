@@ -58,6 +58,7 @@ Decisions are under "Shell" and "Addresses" in `.scratch/frontend/spec.md`.
   - The not-found page has an icon.
   - The screenshot command's sign-in clicks the button in the password's form, because the shell's search box is a form on every page too.
   - Presence is no longer loaded at startup. The bare page that showed it is gone, and ticket 18 loads presence where it is shown.
+- **Changed after your review (2026-11-19):** the search page showed two search boxes, the top bar's and its own: for a signed-in user from 768 px up, and for a guest at every width. The top bar now leaves its box out on `/search` only (`isOnSearchPage` in `TopBar`), so the page's labelled box is the one left. Every other page is unchanged. Checked with the screenshot command on `/search?q=shell` and `/feed`, as a guest and signed in. Your note on the avatar went into ticket 31, under Last in line.
 - **Review points left alone:**
   - The preferences popover is `w-72 max-w-full`. That is a fixed width with a cap, because a CDK overlay pane takes its size from its content.
   - The unread badge text is built in the top bar and the bottom bar. The waiting badge text is built in its store. The waiting store has to build it, because only the store knows whether the page was full ("99+").

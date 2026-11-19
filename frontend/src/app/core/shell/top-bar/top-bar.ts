@@ -1,5 +1,5 @@
 import { Component, computed, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
+import { Router, RouterLink, isActive } from '@angular/router';
 import { LucideHouse, LucideMessageCircle, LucideUsers } from '@lucide/angular';
 import { IncomingRequestsStore } from '../../../features/friendships/incoming-requests-store';
 import { UnreadStore } from '../../../features/messages/unread-store';
@@ -19,6 +19,7 @@ import { UserMenu } from '../user-menu/user-menu';
 // search box, Feed, Friends and Messages with their counts, and the menu under the profile picture. On a
 // phone the bar keeps the logo and the menu, and the bottom bar carries the rest. A guest gets the logo,
 // the search box, Sign in, Register and the language and theme menu, on every width.
+// The search page has its own labelled box, so the bar leaves its box out there, on every width.
 @Component({
   selector: 'app-top-bar',
   imports: [
@@ -45,4 +46,8 @@ export class TopBar {
   protected readonly addresses = appAddresses;
   protected readonly unreadBadge = computed(() => countBadgeText(this.unreadCount()));
   protected readonly waitingBadge = inject(IncomingRequestsStore).badge;
+  protected readonly isOnSearchPage = isActive(appAddresses.search, inject(Router), {
+    paths: 'exact',
+    queryParams: 'ignored',
+  });
 }
