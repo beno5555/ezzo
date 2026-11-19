@@ -5,6 +5,7 @@ import { LanguageStore } from '../../../core/languages/language-store';
 import { LIMITS } from '../../../core/limits';
 import { appAddresses } from '../../../core/routing/app-addresses';
 import { SessionStore } from '../../../core/session/session-store';
+import { FieldRules } from '../../../shared/form-field/field-rules';
 import { Button } from '../../../shared/button/button';
 import { AppValidators } from '../../../shared/form-field/app-validators';
 import { applyFieldErrors, setServerErrors } from '../../../shared/form-field/apply-field-errors';
@@ -49,32 +50,9 @@ export class RegisterPage {
   protected readonly limits = LIMITS.users;
 
   protected readonly form = inject(NonNullableFormBuilder).group({
-    username: [
-      '',
-      [
-        Validators.required,
-        Validators.minLength(LIMITS.users.usernameMinLength),
-        Validators.maxLength(LIMITS.users.usernameMaxLength),
-        AppValidators.usernameCharacters,
-      ],
-    ],
-    email: [
-      '',
-      [
-        Validators.required,
-        Validators.minLength(LIMITS.users.emailMinLength),
-        Validators.maxLength(LIMITS.users.emailMaxLength),
-        AppValidators.emailFormat,
-      ],
-    ],
-    password: [
-      '',
-      [
-        Validators.required,
-        Validators.minLength(LIMITS.users.passwordMinLength),
-        Validators.maxLength(LIMITS.users.passwordMaxLength),
-      ],
-    ],
+    username: ['', FieldRules.username],
+    email: ['', FieldRules.email],
+    password: ['', FieldRules.password],
     dateOfBirth: [
       '',
       [Validators.required, AppValidators.ageBetween(LIMITS.users.minAge, LIMITS.users.maxAge)],

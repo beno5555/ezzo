@@ -2,10 +2,9 @@ import { Component, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { LanguageStore } from '../../../core/languages/language-store';
-import { LIMITS } from '../../../core/limits';
 import { appAddresses } from '../../../core/routing/app-addresses';
+import { FieldRules } from '../../../shared/form-field/field-rules';
 import { Button } from '../../../shared/button/button';
-import { AppValidators } from '../../../shared/form-field/app-validators';
 import { applyFieldErrors } from '../../../shared/form-field/apply-field-errors';
 import { FormField } from '../../../shared/form-field/form-field';
 import { FormMessage } from '../../../shared/form-message/form-message';
@@ -45,15 +44,7 @@ export class ReactivateAccountPage {
   protected readonly addresses = appAddresses;
 
   protected readonly emailForm = this.formBuilder.group({
-    email: [
-      '',
-      [
-        Validators.required,
-        Validators.minLength(LIMITS.users.emailMinLength),
-        Validators.maxLength(LIMITS.users.emailMaxLength),
-        AppValidators.emailFormat,
-      ],
-    ],
+    email: ['', FieldRules.email],
   });
   protected readonly codeForm = this.formBuilder.group({
     code: ['', [Validators.required]],

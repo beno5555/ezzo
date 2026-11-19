@@ -6,6 +6,7 @@ import { LIMITS } from '../../../core/limits';
 import { appAddresses } from '../../../core/routing/app-addresses';
 import { toReturnAddress } from '../../../core/routing/to-return-address';
 import { SessionStore } from '../../../core/session/session-store';
+import { FieldRules } from '../../../shared/form-field/field-rules';
 import { Button } from '../../../shared/button/button';
 import { applyFieldErrors } from '../../../shared/form-field/apply-field-errors';
 import { FormField } from '../../../shared/form-field/form-field';
@@ -54,14 +55,7 @@ export class SignInPage {
       this.pageState.identifier ?? '',
       [Validators.required, Validators.maxLength(LIMITS.users.usernameMaxLength)],
     ],
-    password: [
-      '',
-      [
-        Validators.required,
-        Validators.minLength(LIMITS.users.passwordMinLength),
-        Validators.maxLength(LIMITS.users.passwordMaxLength),
-      ],
-    ],
+    password: ['', FieldRules.password],
   });
   protected readonly isSubmitting = signal(false);
   protected readonly failureMessage = signal<string | null>(null);

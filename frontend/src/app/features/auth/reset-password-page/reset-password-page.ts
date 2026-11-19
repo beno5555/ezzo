@@ -1,9 +1,10 @@
 import { Component, computed, inject, input, signal } from '@angular/core';
-import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { LIMITS } from '../../../core/limits';
 import { appAddresses } from '../../../core/routing/app-addresses';
+import { FieldRules } from '../../../shared/form-field/field-rules';
 import { Button } from '../../../shared/button/button';
 import { applyFieldErrors } from '../../../shared/form-field/apply-field-errors';
 import { FormField } from '../../../shared/form-field/form-field';
@@ -49,14 +50,7 @@ export class ResetPasswordPage {
   private readonly tokenOrEmpty = computed(() => this.token() ?? '');
   protected readonly hasToken = computed(() => this.tokenOrEmpty() !== '');
   protected readonly form = inject(NonNullableFormBuilder).group({
-    newPassword: [
-      '',
-      [
-        Validators.required,
-        Validators.minLength(LIMITS.users.passwordMinLength),
-        Validators.maxLength(LIMITS.users.passwordMaxLength),
-      ],
-    ],
+    newPassword: ['', FieldRules.password],
   });
   protected readonly isSubmitting = signal(false);
   protected readonly failureMessage = signal<string | null>(null);
