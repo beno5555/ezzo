@@ -1,0 +1,18 @@
+<section class="mx-auto flex w-full max-w-104 flex-col gap-6 md:pt-6">
+  <header class="flex flex-col gap-2">
+    <h1 class="font-display text-2xl text-ink-strong">{{ heading() }}</h1>
+    @if (lead(); as lead) {
+      <p class="text-ink-muted">{{ lead }}</p>
+    }
+  </header>
+
+  <div
+    class="flex flex-col gap-5 rounded-lg border border-border bg-surface-raised p-4 shadow-raised md:p-6"
+  >
+    <ng-content />
+  </div>
+
+  <nav class="flex flex-col text-ink-muted" [attr.aria-label]="text().auth.linksLabel">
+    <ng-content select="[authLink]" />
+  </nav>
+</section>

@@ -1,0 +1,11 @@
+<p
+  class="flex items-start gap-2 rounded-md border px-3 py-2 wrap-break-word"
+  [class]="isDanger() ? 'border-danger text-danger' : 'border-success text-success'"
+>
+  @if (isDanger()) {
+    <svg class="mt-0.5 size-5 shrink-0" lucideCircleExclamationPoint aria-hidden="true"></svg>
+  } @else {
+    <svg class="mt-0.5 size-5 shrink-0" lucideCircleCheck aria-hidden="true"></svg>
+  }
+  <span>{{ message() }}</span>
+</p>

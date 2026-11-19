@@ -10,6 +10,7 @@ import { SessionStore } from '../../session/session-store';
 import { TopBarLink } from '../bar-link/top-bar-link';
 import { CountBadge } from '../count-badge/count-badge';
 import { countBadgeText } from '../count-badge/count-badge-text';
+import { isOnAccountPage } from '../is-on-account-page';
 import { Logo } from '../logo/logo';
 import { PreferencesMenu } from '../preferences-menu/preferences-menu';
 import { SearchBox } from '../search-box/search-box';
@@ -19,7 +20,8 @@ import { UserMenu } from '../user-menu/user-menu';
 // search box, Feed, Friends and Messages with their counts, and the menu under the profile picture. On a
 // phone the bar keeps the logo and the menu, and the bottom bar carries the rest. A guest gets the logo,
 // the search box, Sign in, Register and the language and theme menu, on every width.
-// The search page has its own labelled box, so the bar leaves its box out there, on every width.
+// The search page has its own labelled box, so the bar leaves its box out there, on every width. An
+// account page (sign-in, register, the password pages and reactivation) keeps only the logo.
 @Component({
   selector: 'app-top-bar',
   imports: [
@@ -50,4 +52,5 @@ export class TopBar {
     paths: 'exact',
     queryParams: 'ignored',
   });
+  protected readonly isOnAccountPage = isOnAccountPage();
 }

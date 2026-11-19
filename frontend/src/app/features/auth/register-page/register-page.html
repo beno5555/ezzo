@@ -1,0 +1,86 @@
+<app-auth-frame [heading]="text().auth.register.title" [lead]="text().auth.register.lead">
+  <form class="flex flex-col gap-5" [formGroup]="form" (ngSubmit)="register()">
+    <app-form-field
+      fieldId="username"
+      [label]="text().auth.register.usernameLabel"
+      [hint]="text().auth.register.usernameHint(limits.usernameMinLength, limits.usernameMaxLength)"
+      [control]="form.controls.username"
+    >
+      <input
+        appTextInput
+        id="username"
+        type="text"
+        autocomplete="username"
+        autocapitalize="none"
+        spellcheck="false"
+        formControlName="username"
+      />
+    </app-form-field>
+
+    <app-form-field
+      fieldId="email"
+      [label]="text().auth.register.emailLabel"
+      [control]="form.controls.email"
+    >
+      <input
+        appTextInput
+        id="email"
+        type="email"
+        autocomplete="email"
+        spellcheck="false"
+        formControlName="email"
+      />
+    </app-form-field>
+
+    <app-form-field
+      fieldId="password"
+      [label]="text().auth.register.passwordLabel"
+      [hint]="text().auth.passwordHint(limits.passwordMinLength)"
+      [control]="form.controls.password"
+    >
+      <input
+        appTextInput
+        id="password"
+        type="password"
+        autocomplete="new-password"
+        formControlName="password"
+      />
+    </app-form-field>
+
+    <app-form-field
+      fieldId="dateOfBirth"
+      [label]="text().auth.register.dateOfBirthLabel"
+      [control]="form.controls.dateOfBirth"
+    >
+      <input
+        appTextInput
+        id="dateOfBirth"
+        type="date"
+        autocomplete="bday"
+        formControlName="dateOfBirth"
+      />
+    </app-form-field>
+
+    <app-form-field
+      fieldId="bio"
+      [label]="text().auth.register.bioLabel"
+      [hint]="text().auth.register.bioHint(limits.bioMaxLength)"
+      [control]="form.controls.bio"
+    >
+      <textarea appTextInput id="bio" rows="3" formControlName="bio"></textarea>
+    </app-form-field>
+
+    @if (failureMessage(); as message) {
+      <app-form-message tone="danger" [message]="message" />
+    }
+
+    <button appButton look="primary" type="submit" [disabled]="form.invalid || isSubmitting()">
+      {{ text().auth.register.submitButton }}
+    </button>
+  </form>
+
+  <p authLink class="flex flex-wrap items-center gap-x-1">
+    {{ text().auth.register.signInPrompt }}
+    <a appTextLink [routerLink]="addresses.signIn">{{ text().auth.signInLink }}</a>
+  </p>
+</app-auth-frame>

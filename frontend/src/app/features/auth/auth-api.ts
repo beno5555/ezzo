@@ -2,10 +2,14 @@ import { HttpClient, HttpContext } from '@angular/common/http';
 import { Injectable, inject } from '@angular/core';
 import { AppResult } from '../../core/http/app-result';
 import { SKIP_RENEWAL } from '../../core/http/skip-renewal';
-import { toAppResultWithoutEnvelope } from '../../core/http/to-app-result';
+import { ApplicationResponse } from '../../core/http/application-response';
+import { toAppResult, toAppResultWithoutEnvelope } from '../../core/http/to-app-result';
 import { LanguageStore } from '../../core/languages/language-store';
 import { AccessTokenResponse } from './access-token-response';
+import { ForgotPasswordDto } from './forgot-password-dto';
 import { LoginDto } from './login-dto';
+import { RegisterDto } from './register-dto';
+import { ResetPasswordDto } from './reset-password-dto';
 
 // The refresh token travels as an HttpOnly cookie on these calls; frontend code never reads it (ADR 0004).
 @Injectable({ providedIn: 'root' })
@@ -16,6 +20,28 @@ export class AuthApi {
   signIn(login: LoginDto): Promise<AppResult<AccessTokenResponse>> {
     return toAppResultWithoutEnvelope(
       this.http.post<AccessTokenResponse>('/api/auth/login', login, { context: skipRenewal() }),
+      this.languageStore.text().httpFailures,
+    );
+  }
+
+  // Hands out no session: the register page signs in afterwards. The new user's FullUserDto is not read.
+  register(registration: RegisterDto): Promise<AppResult<void>> {
+    return toAppResult(
+      this.http.post<ApplicationResponse<void>>('/api/auth/register', registration),
+      this.languageStore.text().httpFailures,
+    );
+  }
+
+  requestPasswordReset(request: ForgotPasswordDto): Promise<AppResult<void>> {
+    return toAppResult(
+      this.http.put<ApplicationResponse<void>>('/api/auth/request-password-reset', request),
+      this.languageStore.text().httpFailures,
+    );
+  }
+
+  resetPassword(reset: ResetPasswordDto): Promise<AppResult<void>> {
+    return toAppResult(
+      this.http.put<ApplicationResponse<void>>('/api/auth/reset-password', reset),
       this.languageStore.text().httpFailures,
     );
   }

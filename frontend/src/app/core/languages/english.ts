@@ -110,13 +110,115 @@ export const english = {
     toasts: {
       regionLabel: 'Notifications',
     },
+    // What a form field shows under itself once it was touched (fieldErrorMessage). The server's own
+    // messages are shown as they arrive instead.
+    formField: {
+      errors: {
+        required: 'Fill in this field.',
+        minLength: (length: number) =>
+          pluralize(Language.English, length, {
+            one: `Use at least ${length} character.`,
+            other: `Use at least ${length} characters.`,
+          }),
+        maxLength: (length: number) =>
+          pluralize(Language.English, length, {
+            one: `Use at most ${length} character.`,
+            other: `Use at most ${length} characters.`,
+          }),
+        usernameCharacters: 'Use letters, digits, _ and -, with at least one letter.',
+        emailFormat: 'Enter an email address, like name@example.com.',
+        futureDate: 'The date of birth cannot be in the future.',
+        tooYoung: (minAge: number) =>
+          pluralize(Language.English, minAge, {
+            one: `You must be at least ${minAge} year old.`,
+            other: `You must be at least ${minAge} years old.`,
+          }),
+        tooOld: (maxAge: number) =>
+          pluralize(Language.English, maxAge, {
+            one: `Enter an age of ${maxAge} year or less.`,
+            other: `Enter an age of ${maxAge} years or less.`,
+          }),
+        invalid: 'This value is not valid.',
+      },
+    },
   },
+  // The account pages: sign-in, register, forgotten password, reset and reactivation.
   auth: {
+    // The name of the links under each form that lead to the other account pages.
+    linksLabel: 'Other account pages',
     signIn: {
       title: 'Sign in',
+      lead: 'Welcome back.',
       identifierLabel: 'Username or email',
       passwordLabel: 'Password',
+      forgotPasswordLink: 'Forgot password?',
       submitButton: 'Sign in',
+      registerPrompt: 'New here?',
+      registerLink: 'Create an account',
+      reactivatePrompt: 'Deactivated your account?',
+      reactivateLink: 'Reactivate it',
+      // By SignInNotice: what another page sent the user here after.
+      notices: {
+        accountCreated: 'Your account was created. Sign in to continue.',
+        accountReactivated: 'Your account is active again. Sign in to continue.',
+        passwordReset: 'Your password was changed. Sign in with the new one.',
+      },
+    },
+    // The link back to sign-in under the other forms, after each page's own prompt.
+    signInLink: 'Sign in',
+    // Under a new password's field, on register and on reset.
+    passwordHint: (min: number) =>
+      pluralize(Language.English, min, {
+        one: `At least ${min} character.`,
+        other: `At least ${min} characters.`,
+      }),
+    register: {
+      title: 'Create an account',
+      lead: 'It takes a minute.',
+      usernameLabel: 'Username',
+      usernameHint: (min: number, max: number) =>
+        `${min} to ${max} characters: letters, digits, _ and -.`,
+      emailLabel: 'Email',
+      passwordLabel: 'Password',
+      dateOfBirthLabel: 'Date of birth',
+      bioLabel: 'Bio (optional)',
+      bioHint: (max: number) =>
+        pluralize(Language.English, max, {
+          one: `A line about you, up to ${max} character.`,
+          other: `A line about you, up to ${max} characters.`,
+        }),
+      submitButton: 'Create account',
+      signInPrompt: 'Already have an account?',
+    },
+    forgotPassword: {
+      title: 'Forgot your password?',
+      lead: "Enter your account's email, and we will send you a link to choose a new password.",
+      emailLabel: 'Email',
+      submitButton: 'Send the link',
+      sent: (email: string) => `We sent a link to ${email}. Open it to choose a new password.`,
+      signInPrompt: 'Remembered it?',
+    },
+    resetPassword: {
+      title: 'Choose a new password',
+      lead: 'Your new password replaces the old one at once.',
+      passwordLabel: 'New password',
+      submitButton: 'Change password',
+      // When the address carries no token: the link was cut short on its way here.
+      missingToken: 'This link is incomplete. Ask for a new one below.',
+      newLinkPrompt: 'Link no longer works?',
+      newLinkLink: 'Ask for a new one',
+      signInPrompt: 'Remembered it?',
+    },
+    reactivate: {
+      title: 'Reactivate your account',
+      lead: 'We will email you a code that turns your account back on.',
+      emailLabel: 'Email',
+      requestButton: 'Send the code',
+      codeSent: (email: string) => `We sent a code to ${email}. Paste it below.`,
+      codeLabel: 'Code from the email',
+      activateButton: 'Reactivate',
+      otherEmailButton: 'Use another email',
+      signInPrompt: 'Account still active?',
     },
   },
   admin: {
