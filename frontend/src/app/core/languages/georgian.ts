@@ -93,13 +93,98 @@ export const georgian: Dictionary = {
     toasts: {
       regionLabel: 'შეტყობინებები',
     },
+    formField: {
+      errors: {
+        required: 'შეავსეთ ეს ველი.',
+        minLength: (length: number) =>
+          pluralize(Language.Georgian, length, {
+            other: `გამოიყენეთ მინიმუმ ${length} სიმბოლო.`,
+          }),
+        maxLength: (length: number) =>
+          pluralize(Language.Georgian, length, {
+            other: `გამოიყენეთ მაქსიმუმ ${length} სიმბოლო.`,
+          }),
+        usernameCharacters: 'გამოიყენეთ ლათინური ასოები, ციფრები, _ და -, მინიმუმ ერთი ასოთი.',
+        emailFormat: 'შეიყვანეთ ელფოსტის მისამართი, მაგალითად name@example.com.',
+        futureDate: 'დაბადების თარიღი მომავალში ვერ იქნება.',
+        tooYoung: (minAge: number) =>
+          pluralize(Language.Georgian, minAge, { other: `მინიმუმ ${minAge} წლის უნდა იყოთ.` }),
+        tooOld: (maxAge: number) =>
+          pluralize(Language.Georgian, maxAge, {
+            other: `ასაკი არ უნდა აღემატებოდეს ${maxAge} წელს.`,
+          }),
+        invalid: 'მნიშვნელობა არასწორია.',
+      },
+    },
   },
   auth: {
+    linksLabel: 'ანგარიშის სხვა გვერდები',
     signIn: {
       title: 'შესვლა',
+      lead: 'კეთილი იყოს თქვენი დაბრუნება.',
       identifierLabel: 'მომხმარებლის სახელი ან ელფოსტა',
       passwordLabel: 'პაროლი',
+      forgotPasswordLink: 'დაგავიწყდათ პაროლი?',
       submitButton: 'შესვლა',
+      registerPrompt: 'ახალი ხართ?',
+      registerLink: 'შექმენით ანგარიში',
+      reactivatePrompt: 'ანგარიში დეაქტივირებული გაქვთ?',
+      reactivateLink: 'აღადგინეთ',
+      notices: {
+        accountCreated: 'ანგარიში შეიქმნა. გასაგრძელებლად შედით.',
+        accountReactivated: 'თქვენი ანგარიში ისევ აქტიურია. გასაგრძელებლად შედით.',
+        passwordReset: 'პაროლი შეიცვალა. შედით ახალი პაროლით.',
+      },
+    },
+    signInLink: 'შესვლა',
+    passwordHint: (min: number) =>
+      pluralize(Language.Georgian, min, { other: `მინიმუმ ${min} სიმბოლო.` }),
+    register: {
+      title: 'ანგარიშის შექმნა',
+      lead: 'ამას ერთი წუთი სჭირდება.',
+      usernameLabel: 'მომხმარებლის სახელი',
+      usernameHint: (min: number, max: number) =>
+        `${min}–${max} სიმბოლო: ლათინური ასოები, ციფრები, _ და -.`,
+      emailLabel: 'ელფოსტა',
+      passwordLabel: 'პაროლი',
+      dateOfBirthLabel: 'დაბადების თარიღი',
+      bioLabel: 'ბიოგრაფია (არასავალდებულო)',
+      bioHint: (max: number) =>
+        pluralize(Language.Georgian, max, {
+          other: `რამდენიმე სიტყვა თქვენ შესახებ, მაქსიმუმ ${max} სიმბოლო.`,
+        }),
+      submitButton: 'ანგარიშის შექმნა',
+      signInPrompt: 'უკვე გაქვთ ანგარიში?',
+    },
+    forgotPassword: {
+      title: 'დაგავიწყდათ პაროლი?',
+      lead: 'შეიყვანეთ ანგარიშის ელფოსტა და გამოგიგზავნით ბმულს ახალი პაროლის ასარჩევად.',
+      emailLabel: 'ელფოსტა',
+      submitButton: 'ბმულის გაგზავნა',
+      sent: (email: string) =>
+        `ბმული გავგზავნეთ მისამართზე ${email}. გახსენით და აირჩიეთ ახალი პაროლი.`,
+      signInPrompt: 'გაიხსენეთ?',
+    },
+    resetPassword: {
+      title: 'ახალი პაროლის არჩევა',
+      lead: 'ახალი პაროლი ძველს მაშინვე ჩაანაცვლებს.',
+      passwordLabel: 'ახალი პაროლი',
+      submitButton: 'პაროლის შეცვლა',
+      missingToken: 'ეს ბმული არასრულია. ქვემოთ მოითხოვეთ ახალი.',
+      newLinkPrompt: 'ბმული აღარ მუშაობს?',
+      newLinkLink: 'მოითხოვეთ ახალი',
+      signInPrompt: 'გაიხსენეთ?',
+    },
+    reactivate: {
+      title: 'ანგარიშის ხელახლა გააქტიურება',
+      lead: 'ელფოსტაზე გამოგიგზავნით კოდს, რომელიც ანგარიშს ისევ ჩართავს.',
+      emailLabel: 'ელფოსტა',
+      requestButton: 'კოდის გაგზავნა',
+      codeSent: (email: string) => `კოდი გავგზავნეთ მისამართზე ${email}. ჩასვით ქვემოთ.`,
+      codeLabel: 'კოდი ელფოსტიდან',
+      activateButton: 'გააქტიურება',
+      otherEmailButton: 'სხვა ელფოსტის გამოყენება',
+      signInPrompt: 'ანგარიში ისევ აქტიურია?',
     },
   },
   admin: {

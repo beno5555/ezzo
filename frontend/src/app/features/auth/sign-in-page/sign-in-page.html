@@ -1,22 +1,59 @@
-<h1>{{ text().auth.signIn.title }}</h1>
-
-<form [formGroup]="form" (ngSubmit)="signIn()">
-  <label for="uniqueIdentifier">{{ text().auth.signIn.identifierLabel }}</label>
-  <input
-    id="uniqueIdentifier"
-    type="text"
-    autocomplete="username"
-    formControlName="uniqueIdentifier"
-  />
-
-  <label for="password">{{ text().auth.signIn.passwordLabel }}</label>
-  <input id="password" type="password" autocomplete="current-password" formControlName="password" />
-
-  @if (failureMessage(); as message) {
-    <p role="alert">{{ message }}</p>
+<app-auth-frame [heading]="text().auth.signIn.title" [lead]="text().auth.signIn.lead">
+  @if (noticeMessage(); as notice) {
+    <app-form-message tone="success" [message]="notice" />
   }
 
-  <button type="submit" [disabled]="form.invalid || isSubmitting()">
-    {{ text().auth.signIn.submitButton }}
-  </button>
-</form>
+  <form class="flex flex-col gap-5" [formGroup]="form" (ngSubmit)="signIn()">
+    <app-form-field
+      fieldId="uniqueIdentifier"
+      [label]="text().auth.signIn.identifierLabel"
+      [control]="form.controls.uniqueIdentifier"
+    >
+      <input
+        appTextInput
+        id="uniqueIdentifier"
+        type="text"
+        autocomplete="username"
+        autocapitalize="none"
+        spellcheck="false"
+        formControlName="uniqueIdentifier"
+      />
+    </app-form-field>
+
+    <app-form-field
+      fieldId="password"
+      [label]="text().auth.signIn.passwordLabel"
+      [control]="form.controls.password"
+    >
+      <a appTextLink fieldAction class="text-sm" [routerLink]="addresses.forgotPassword">{{
+        text().auth.signIn.forgotPasswordLink
+      }}</a>
+      <input
+        appTextInput
+        id="password"
+        type="password"
+        autocomplete="current-password"
+        formControlName="password"
+      />
+    </app-form-field>
+
+    @if (failureMessage(); as message) {
+      <app-form-message tone="danger" [message]="message" />
+    }
+
+    <button appButton look="primary" type="submit" [disabled]="form.invalid || isSubmitting()">
+      {{ text().auth.signIn.submitButton }}
+    </button>
+  </form>
+
+  <p appAuthLink>
+    {{ text().auth.signIn.registerPrompt }}
+    <a appTextLink [routerLink]="addresses.register">{{ text().auth.signIn.registerLink }}</a>
+  </p>
+  <p appAuthLink>
+    {{ text().auth.signIn.reactivatePrompt }}
+    <a appTextLink [routerLink]="addresses.reactivateAccount">{{
+      text().auth.signIn.reactivateLink
+    }}</a>
+  </p>
+</app-auth-frame>

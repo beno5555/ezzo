@@ -2,7 +2,9 @@
   <div class="mx-auto flex w-full max-w-wide flex-wrap items-center gap-2 px-4 py-2 md:flex-nowrap">
     <app-logo class="me-auto md:me-2" />
 
-    @if (isSignedIn()) {
+    @if (isOnAccountPage()) {
+      <!-- An account page keeps only the logo: a short stop needs no search, links or menus. -->
+    } @else if (isSignedIn()) {
       <!-- On a phone the bottom bar's Search link takes the box's place. Between 768 and 1024 px the links
            show only their icons, so the box keeps its room; screen readers still read each word. -->
       @if (!isOnSearchPage()) {

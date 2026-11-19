@@ -25,10 +25,37 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/auth/sign-in-page/sign-in-page').then((m) => m.SignInPage),
   },
-  { ...placeholderPage('register', 'register'), canActivate: [guestGuard] },
-  placeholderPage('forgot-password', 'forgotPassword'),
-  placeholderPage('reset-password', 'resetPassword'),
-  placeholderPage('reactivate-account', 'reactivateAccount'),
+  {
+    path: 'register',
+    title: 'register',
+    canActivate: [guestGuard],
+    loadComponent: () =>
+      import('./features/auth/register-page/register-page').then((m) => m.RegisterPage),
+  },
+  {
+    path: 'forgot-password',
+    title: 'forgotPassword',
+    loadComponent: () =>
+      import('./features/auth/forgot-password-page/forgot-password-page').then(
+        (m) => m.ForgotPasswordPage,
+      ),
+  },
+  {
+    path: 'reset-password',
+    title: 'resetPassword',
+    loadComponent: () =>
+      import('./features/auth/reset-password-page/reset-password-page').then(
+        (m) => m.ResetPasswordPage,
+      ),
+  },
+  {
+    path: 'reactivate-account',
+    title: 'reactivateAccount',
+    loadComponent: () =>
+      import('./features/auth/reactivate-account-page/reactivate-account-page').then(
+        (m) => m.ReactivateAccountPage,
+      ),
+  },
   placeholderPage('posts/:postId', 'post'),
   placeholderPage('users/:username', 'profile'),
   {

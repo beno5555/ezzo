@@ -1,0 +1,76 @@
+<app-auth-frame [heading]="text().auth.reactivate.title" [lead]="text().auth.reactivate.lead">
+  @if (sentTo(); as email) {
+    <app-form-message tone="success" [message]="text().auth.reactivate.codeSent(email)" />
+
+    <form class="flex flex-col gap-5" [formGroup]="codeForm" (ngSubmit)="reactivate()">
+      <app-form-field
+        fieldId="code"
+        [label]="text().auth.reactivate.codeLabel"
+        [control]="codeForm.controls.code"
+      >
+        <input
+          appTextInput
+          id="code"
+          type="text"
+          autocomplete="one-time-code"
+          autocapitalize="none"
+          spellcheck="false"
+          formControlName="code"
+        />
+      </app-form-field>
+
+      @if (failureMessage(); as message) {
+        <app-form-message tone="danger" [message]="message" />
+      }
+
+      <div class="flex flex-col gap-2">
+        <button
+          appButton
+          look="primary"
+          type="submit"
+          [disabled]="codeForm.invalid || isSubmitting()"
+        >
+          {{ text().auth.reactivate.activateButton }}
+        </button>
+        <button appButton look="quiet" type="button" (click)="useAnotherEmail()">
+          {{ text().auth.reactivate.otherEmailButton }}
+        </button>
+      </div>
+    </form>
+  } @else {
+    <form class="flex flex-col gap-5" [formGroup]="emailForm" (ngSubmit)="sendCode()">
+      <app-form-field
+        fieldId="email"
+        [label]="text().auth.reactivate.emailLabel"
+        [control]="emailForm.controls.email"
+      >
+        <input
+          appTextInput
+          id="email"
+          type="email"
+          autocomplete="email"
+          spellcheck="false"
+          formControlName="email"
+        />
+      </app-form-field>
+
+      @if (failureMessage(); as message) {
+        <app-form-message tone="danger" [message]="message" />
+      }
+
+      <button
+        appButton
+        look="primary"
+        type="submit"
+        [disabled]="emailForm.invalid || isSubmitting()"
+      >
+        {{ text().auth.reactivate.requestButton }}
+      </button>
+    </form>
+  }
+
+  <p appAuthLink>
+    {{ text().auth.reactivate.signInPrompt }}
+    <a appTextLink [routerLink]="addresses.signIn">{{ text().auth.signInLink }}</a>
+  </p>
+</app-auth-frame>

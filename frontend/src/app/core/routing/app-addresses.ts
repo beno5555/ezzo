@@ -6,6 +6,11 @@ export const appAddresses = {
   feed: '/feed',
   signIn: '/sign-in',
   register: '/register',
+  forgotPassword: '/forgot-password',
+  // The reset email links here with ?token=…, so the backend must accept this page's origin
+  // (Cors:AllowedOrigins, docs/backend/auth.md).
+  resetPassword: '/reset-password',
+  reactivateAccount: '/reactivate-account',
   search: '/search',
   settings: '/settings',
   friends: '/friends',
