@@ -42,8 +42,11 @@ export class BottomBar {
   private readonly isOnAccountPage = isOnAccountPage();
 
   protected readonly text = inject(LanguageStore).text;
-  // The signed-in user while the bar shows; an account page shows no bottom bar.
-  protected readonly shownFor = computed(() => (this.isOnAccountPage() ? null : this.user()));
+  // Who the bar is shown for: the signed-in user, or null when it stays hidden (for a guest, and on an
+  // account page for everyone).
+  protected readonly userToShowBarFor = computed(() =>
+    this.isOnAccountPage() ? null : this.user(),
+  );
   protected readonly addresses = appAddresses;
   protected readonly unreadBadge = computed(() => countBadgeText(this.unreadCount()));
   protected readonly waitingBadge = inject(IncomingRequestsStore).badge;

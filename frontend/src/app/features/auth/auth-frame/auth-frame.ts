@@ -3,7 +3,7 @@ import { LanguageStore } from '../../../core/languages/language-store';
 
 // The frame the account pages share (sign-in, register, the two password pages, reactivation): the
 // heading and an optional line under it, the form on a card in a narrow column, and the links to the
-// other pages below. The content goes on the card; each element with the authLink attribute goes in
+// other pages below. The content goes on the card; each element with the appAuthLink attribute goes in
 // the links below it.
 @Component({
   selector: 'app-auth-frame',

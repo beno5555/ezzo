@@ -13,6 +13,7 @@ import { TextInput } from '../../../shared/text-input/text-input';
 import { TextLink } from '../../../shared/text-link/text-link';
 import { AccountActivationApi } from '../../accounts/account-activation-api';
 import { AuthFrame } from '../auth-frame/auth-frame';
+import { AuthLink } from '../auth-frame/auth-link';
 import { SignInNotice } from '../sign-in-page/sign-in-notice';
 import { SignInPageState } from '../sign-in-page/sign-in-page-state';
 
@@ -25,6 +26,7 @@ import { SignInPageState } from '../sign-in-page/sign-in-page-state';
     ReactiveFormsModule,
     RouterLink,
     AuthFrame,
+    AuthLink,
     Button,
     FormField,
     FormMessage,

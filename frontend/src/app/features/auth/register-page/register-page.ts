@@ -14,6 +14,7 @@ import { TextInput } from '../../../shared/text-input/text-input';
 import { TextLink } from '../../../shared/text-link/text-link';
 import { AuthApi } from '../auth-api';
 import { AuthFrame } from '../auth-frame/auth-frame';
+import { AuthLink } from '../auth-frame/auth-link';
 import { RegisterDto } from '../register-dto';
 import { SignInNotice } from '../sign-in-page/sign-in-notice';
 import { SignInPageState } from '../sign-in-page/sign-in-page-state';
@@ -28,6 +29,7 @@ import { registerRefusalFields } from './register-refusal-fields';
     ReactiveFormsModule,
     RouterLink,
     AuthFrame,
+    AuthLink,
     Button,
     FormField,
     FormMessage,

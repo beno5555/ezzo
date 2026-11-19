@@ -13,6 +13,7 @@ import { TextInput } from '../../../shared/text-input/text-input';
 import { TextLink } from '../../../shared/text-link/text-link';
 import { AuthApi } from '../auth-api';
 import { AuthFrame } from '../auth-frame/auth-frame';
+import { AuthLink } from '../auth-frame/auth-link';
 
 // The forgotten-password page. The request carries this app's own reset page as the return address, so
 // the email holds a link to it (spec, Auth pages). The backend accepts the address only from an origin
@@ -23,6 +24,7 @@ import { AuthFrame } from '../auth-frame/auth-frame';
     ReactiveFormsModule,
     RouterLink,
     AuthFrame,
+    AuthLink,
     Button,
     FormField,
     FormMessage,

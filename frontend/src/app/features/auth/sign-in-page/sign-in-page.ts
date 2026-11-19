@@ -13,6 +13,7 @@ import { FormMessage } from '../../../shared/form-message/form-message';
 import { TextInput } from '../../../shared/text-input/text-input';
 import { TextLink } from '../../../shared/text-link/text-link';
 import { AuthFrame } from '../auth-frame/auth-frame';
+import { AuthLink } from '../auth-frame/auth-link';
 import { toSignInPageState } from './sign-in-page-state';
 
 // The sign-in page. One field takes a username or an email (LoginDto). On success it returns the user to
@@ -25,6 +26,7 @@ import { toSignInPageState } from './sign-in-page-state';
     ReactiveFormsModule,
     RouterLink,
     AuthFrame,
+    AuthLink,
     Button,
     FormField,
     FormMessage,

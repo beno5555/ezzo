@@ -46,11 +46,11 @@
     </button>
   </form>
 
-  <p authLink class="flex flex-wrap items-center gap-x-1">
+  <p appAuthLink>
     {{ text().auth.signIn.registerPrompt }}
     <a appTextLink [routerLink]="addresses.register">{{ text().auth.signIn.registerLink }}</a>
   </p>
-  <p authLink class="flex flex-wrap items-center gap-x-1">
+  <p appAuthLink>
     {{ text().auth.signIn.reactivatePrompt }}
     <a appTextLink [routerLink]="addresses.reactivateAccount">{{
       text().auth.signIn.reactivateLink
