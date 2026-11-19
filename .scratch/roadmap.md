@@ -68,7 +68,7 @@ F32 (the first download fits its budget) is plumbing with no visual part. It run
 | Round | Lane 1 | Lane 2 |
 |---|---|---|
 | 6 | F08, the auth pages (merged 2026-11-20 on your approval) | F09, the feed |
-| 7 | F10, write a post | F18, chat: list and reading |
+| 7 | F33, reactivate from the email's link, then F10, write a post | F18, chat: list and reading |
 | 8 | F11, the post page | F22, admin: layout and users |
 | 9 | F12, edit and delete a post | F19, chat: send and receive live |
 | 10 | F13, reports from the normal pages | F20, chat: edit, delete, typing |
