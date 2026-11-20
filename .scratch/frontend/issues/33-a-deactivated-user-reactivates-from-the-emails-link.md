@@ -34,9 +34,9 @@ Decided with the owner on 2026-11-20, after ticket 08 shipped the paste-the-toke
 **2026-11-20, implementation (Claude).** Points for the owner's review:
 
 - **Unticked box: the real email.** The development settings do not list `http://localhost:4200` in `Cors:AllowedOrigins`, so a request sent from the dev page is refused with "Url origin not allowed". Add the origin to `backend/aspnetproject/appsettings.Development.json`, then send yourself one reactivation email.
-- **A dead link shows "User not found".** The activate endpoint already answered an expired, used or unknown token with `UserNotFound`, and the page shows the backend's message as the ticket asks. A reader may take it to mean their account is gone; the reset flow says `InvalidPasswordResetToken` instead. A message of its own would be a small follow-up.
+- **A dead link shows "User not found".** The activate endpoint already answered an expired, used or unknown token with `UserNotFound`, and the page shows the backend's message as the ticket asks. A reader may take it to mean their account is gone; the reset flow says `InvalidPasswordResetToken` instead. A message of its own is listed under "Last in line" in the roadmap (owner, 2026-11-20).
 - **The reset email changed too.** Both emails now build their link with one helper (`AccountSecurityService.BuildTokenLink`: `QueryHelpers.AddQueryString`, then HTML escaping). An address that already holds a query keeps it and gets `&token=`; `AuthControllerTests` pins this.
 - **A failed send is now an error.** The reactivation request answered `200` with `CouldNotDeactivateAccount` when the email failed; it now fails with `CouldNotSendEmail`, as the reset request does. No test covers the failure, because the email recorder never fails.
 - **Sign-in no longer fills in the email** after a reactivation: the page opened from the link does not know it. Story 26 asks only for the message.
 - **Page tests are class-level** (no DOM), as agreed on 2026-11-20.
-- **`ActivationRequestDto.Email` still lacks `[Required][EmailAddress]`**, which `ForgotPasswordDto` has. This is older than the ticket and is left alone.
+- **`ActivationRequestDto.Email` now has `[Required][EmailAddress]`**, as `ForgotPasswordDto` has (owner, 2026-11-20): a missing or malformed email gets the framework's validation `ProblemDetails`, no longer `UserNotFound`.

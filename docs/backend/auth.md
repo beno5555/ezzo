@@ -33,7 +33,7 @@ Password hashing is PBKDF2 (`Rfc2898DeriveBytes.Pbkdf2`, SHA-256, 32-byte salt a
 
 #### Return address (`RedirectUrl`) on the reset and reactivation requests
 
-The bodies of `request-password-reset` (`ForgotPasswordDto`) and `request-activate` (`ActivationRequestDto`, see Account activation below) are `Email` plus an optional `RedirectUrl`: the page of the app that hosts the reset form or the reactivation button. Both requests treat it the same way.
+The bodies of `request-password-reset` (`ForgotPasswordDto`) and `request-activate` (`ActivationRequestDto`, see Account activation below) are `Email` plus an optional `RedirectUrl`: the page of the app that hosts the reset form or the reactivation button. Both requests treat them the same way: a missing or malformed `Email` is refused by validation (`ProblemDetails`) before any account is looked up.
 
 - **Omitted (`null`):** the email carries the raw token and no link. The flow works without a link.
 - **Provided:** the email carries a link to `RedirectUrl` with the token added as the `token` query parameter (`QueryHelpers.AddQueryString`, so an address that already has a query keeps it), HTML-escaped inside the email, but only if `UrlSecurityService.IsAllowedRedirect` accepts it. Any provided value, including an empty string, goes through the check. A rejected value fails the request with `400` and the `Url origin not allowed` message, and no token is issued or emailed. The check runs only once the email matches an account (for reactivation, a deactivated one); an unknown email fails with `400` and the user-not-found message whatever the `RedirectUrl`.

@@ -3,8 +3,10 @@ using System.Net.Http.Json;
 using System.Text.RegularExpressions;
 using aspnetproject.Common.Domain;
 using aspnetproject.Common.ProjectConstants;
+using aspnetproject.Infrastructure.Dtos.Accounts;
 using aspnetproject.IntegrationTests.Fixtures;
 using aspnetproject.IntegrationTests.Helpers;
+using Microsoft.AspNetCore.Mvc;
 
 namespace aspnetproject.IntegrationTests.Controllers;
 
@@ -248,6 +250,23 @@ public class AccountActivationControllerTests : IClassFixture<DatabaseFixture>, 
         });
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    // Refused by validation before the service runs, like the reset request's email.
+    [Theory]
+    [InlineData("")]
+    [InlineData("not-an-email")]
+    public async Task RequestActivate_WithMissingOrMalformedEmail_ReturnsValidationProblem(string email)
+    {
+        var response = await _client.PatchAsJsonAsync("api/accounts/request-activate", new
+        {
+            Email = email
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+        var body = await response.Content.ReadFromJsonAsync<ValidationProblemDetails>();
+        Assert.Contains(nameof(ActivationRequestDto.Email), body!.Errors.Keys);
     }
 
     // ---------- PATCH /accounts/activate (anonymous, consume token) ----------

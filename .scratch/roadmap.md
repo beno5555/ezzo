@@ -114,6 +114,8 @@ If time runs short, these are finished last, in this order from the end: the wee
 
 On the frontend, in this order from the end: the default picture's new look (a ring coloured by the id around a faceless silhouette, frontend ticket 31; the current initials on a coloured disc stay until then), choosing a profile picture (the default picture is built either way), the dark theme (its switch is hidden if it is not checked on every page), the account history in settings (needs a new table, because `AccountDeactivatedAt` is cleared on reactivation), live friend requests (a new hub event, a live badge and incoming list on `/friends`, and their own toast), and the dialog that lists who liked a post.
 
+If time is left: **a dead reactivation link says what happened** (owner, 2026-11-20, from ticket 33's review). `PATCH api/accounts/activate` answers an expired, used or unknown token with `UserNotFound`, and `/reactivate-account` shows that message, so a person whose link is dead reads that their account does not exist. Give the activate endpoint its own message for a bad token, as the reset flow has `InvalidPasswordResetToken`, and keep `UserNotFound` for a request whose email matches no account. Backend only: the page already shows the backend's message and offers a new link. Its tests and `docs/backend/auth.md` (Reactivation) change with it.
+
 ## What the document promises and the backend lacks
 
 Gaps A to F (`.scratch/documented-backend-features/spec.md`) are built except one endpoint: `DELETE /api/posts/{postId}/images/{imageId}` (ticket 04). Gaps G and H, the n8n plumbing and the welcome email, are the n8n tickets.
