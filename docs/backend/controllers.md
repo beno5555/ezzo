@@ -289,7 +289,7 @@ Route: `api/accounts` (shares the prefix with `AccountManagementController` — 
 | PATCH  | `api/accounts/{id}/deactivate`  | `Administrator` | Deactivate another account — `Administrator` role only (`[Authorize(Roles = nameof(RoleName.Administrator))]`)                |
 | PATCH  | `api/accounts/{id}/activate`    | `Administrator` | Admin-reactivate, immediate                                                                                                   |
 | PATCH  | `api/accounts/activate`         | Anonymous       | Self-reactivate via emailed token (body: `ActivateAccountDto`)                                                                |
-| PATCH  | `api/accounts/request-activate` | Anonymous       | Request a reactivation token by email (body: `ActivationRequestDto`)                                                          |
+| PATCH  | `api/accounts/request-activate` | Anonymous       | Email a reactivation link to `RedirectUrl`, or the plain token without one (body: `ActivationRequestDto`)                     |
 
 See `auth.md` for the full activation/deactivation flow and email notifications.
 

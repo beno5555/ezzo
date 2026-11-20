@@ -68,7 +68,7 @@ F32 (the first download fits its budget) is plumbing with no visual part. It run
 | Round | Lane 1 | Lane 2 |
 |---|---|---|
 | 6 | F08, the auth pages (merged 2026-11-20 on your approval) | F09, the feed (merged 2026-11-20 on your approval) |
-| 7 | F33, reactivate from the email's link, then F10, write a post | F18, chat: list and reading |
+| 7 | F33, reactivate from the email's link (done 2026-11-20, merged on your approval), then F10, write a post | F18, chat: list and reading |
 | 8 | F11, the post page | F22, admin: layout and users |
 | 9 | F12, edit and delete a post | F19, chat: send and receive live |
 | 10 | F13, reports from the normal pages | F20, chat: edit, delete, typing |
@@ -113,6 +113,8 @@ The owner expects to lose more than a day, which is more than the buffer. Work t
 If time runs short, these are finished last, in this order from the end: the weekly digest, birthday notifications, grouping of repeated exception alerts, automatic hiding after several reports, the activity part of the statistics page.
 
 On the frontend, in this order from the end: the default picture's new look (a ring coloured by the id around a faceless silhouette, frontend ticket 31; the current initials on a coloured disc stay until then), choosing a profile picture (the default picture is built either way), the dark theme (its switch is hidden if it is not checked on every page), the account history in settings (needs a new table, because `AccountDeactivatedAt` is cleared on reactivation), live friend requests (a new hub event, a live badge and incoming list on `/friends`, and their own toast), and the dialog that lists who liked a post.
+
+If time is left (owner, 2026-11-20), each can run in a cloud session because nobody has to look at a page: frontend ticket 34, a dead reactivation link says the link is no longer valid instead of "User not found" (after ticket 33 is merged), and test-suite-speed ticket 04, the frontend unit tests stop spending 91% of their run building fake browser pages.
 
 ## What the document promises and the backend lacks
 

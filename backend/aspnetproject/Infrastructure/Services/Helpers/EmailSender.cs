@@ -15,7 +15,8 @@ public class EmailSender
         _emailConfiguration = emailConfiguration.Value;
     }
 
-    public async Task<bool> SendAsync(string to, string subject, string body)
+    // Virtual only so the integration tests can record emails instead of sending them (EmailRecorder).
+    public virtual async Task<bool> SendAsync(string to, string subject, string body)
     {
         bool sentEmail = true;
 

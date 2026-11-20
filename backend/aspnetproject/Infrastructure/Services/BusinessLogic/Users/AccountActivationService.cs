@@ -2,6 +2,7 @@
 using aspnetproject.Common.ProjectConstants;
 using aspnetproject.Data.Models;
 using aspnetproject.Data.Repositories;
+using aspnetproject.Infrastructure.Dtos.Accounts;
 using aspnetproject.Infrastructure.Dtos.Users;
 using aspnetproject.Infrastructure.Mappers;
 using aspnetproject.Infrastructure.Services.BusinessLogic.Base;
@@ -15,17 +16,20 @@ public class AccountActivationService : BaseService
     private readonly UserRepository         _userRepository;
     private readonly AccountSecurityService _accountSecurityService;
     private readonly TokenGenerator         _tokenGenerator;
+    private readonly UrlSecurityService     _urlSecurityService;
 
     public AccountActivationService(
         UserRepository userRepository,
         AccountSecurityService accountSecurityService,
         TokenGenerator tokenGenerator,
+        UrlSecurityService urlSecurityService,
         DatabaseLogger dbLogger
         ) : base(dbLogger)
     {
         _userRepository = userRepository;
         _accountSecurityService = accountSecurityService;
         _tokenGenerator = tokenGenerator;
+        _urlSecurityService = urlSecurityService;
     }
     
     
@@ -75,23 +79,33 @@ public class AccountActivationService : BaseService
 
         return response;
     }
-    public async Task<ApplicationResponse> RequestAccountActivationAsync(string email)
+    // The return address is checked before a token is issued, so a refused request sends no email and leaves any
+    // earlier token working.
+    public async Task<ApplicationResponse> RequestAccountActivationAsync(ActivationRequestDto activationRequestDto)
     {
         var response = new ApplicationResponse();
-        
-        var user = await _userRepository.GetDeactivatedByEmailAsync(email);
+
+        var user = await _userRepository.GetDeactivatedByEmailAsync(activationRequestDto.Email);
         if (user is not null)
         {
-            bool emailSent = await _accountSecurityService.HandleAccountActivationRequest(user);
-
-            if (emailSent)
+            bool urlAllowed = activationRequestDto.RedirectUrl is null || _urlSecurityService.IsAllowedRedirect(activationRequestDto.RedirectUrl);
+            if (urlAllowed)
             {
-                response.Ok(ResponseMessages.AccountActivationTokenSentToEmail);
-                await LogResultAsync(response.Succeeded, nameof(RequestAccountActivationAsync), nameof(User), null, user.Id);
+                bool emailSent = await _accountSecurityService.HandleAccountActivationRequest(user, activationRequestDto.RedirectUrl);
+                if (emailSent)
+                {
+                    response.Ok(ResponseMessages.AccountActivationTokenSentToEmail);
+                    await LogResultAsync(response.Succeeded, nameof(RequestAccountActivationAsync), nameof(User), null, user.Id);
+                }
+                else
+                {
+                    response.Fail(ResponseMessages.CouldNotSendEmail);
+                    await LogResultAsync(response.Succeeded, nameof(RequestAccountActivationAsync), nameof(User), response.Message, user.Id);
+                }
             }
             else
             {
-                response.Ok(ResponseMessages.CouldNotDeactivateAccount);
+                response.Fail(ResponseMessages.UrlOriginNotAllowed);
                 await LogResultAsync(response.Succeeded, nameof(RequestAccountActivationAsync), nameof(User), response.Message, user.Id);
             }
         }

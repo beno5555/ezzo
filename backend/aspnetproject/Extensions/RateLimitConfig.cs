@@ -129,20 +129,23 @@ public static class RateLimitConfig
             #endregion
 
             #region Auth (IP-based, pre-authentication)
+            // Per IP, so everyone behind one address (a classroom, a mobile network) shares each limit. Login has no
+            // account lockout behind it, so it stays limited; the token steps (ResetPassword, ConfirmActivation) carry
+            // an unguessable token, so their limits only stop hammering (owner, 2026-11-20).
             options.AddPolicy(Policies.Login, httpContext =>
-                PerIpSlidingWindow(httpContext, 10, TimeSpan.FromHours(1)));
+                PerIpSlidingWindow(httpContext, 20, TimeSpan.FromMinutes(15)));
 
             options.AddPolicy(Policies.Register, httpContext =>
-                PerIpSlidingWindow(httpContext, 5, TimeSpan.FromMinutes(60)));
+                PerIpSlidingWindow(httpContext, 10, TimeSpan.FromHours(1)));
 
             options.AddPolicy(Policies.Refresh, httpContext =>
                 PerIpSlidingWindow(httpContext, 60, TimeSpan.FromMinutes(10)));
 
             options.AddPolicy(Policies.RequestPasswordReset, httpContext =>
-                PerIpSlidingWindow(httpContext, 3, TimeSpan.FromMinutes(15)));
+                PerIpSlidingWindow(httpContext, 10, TimeSpan.FromMinutes(15)));
 
             options.AddPolicy(Policies.ResetPassword, httpContext =>
-                PerIpSlidingWindow(httpContext, 5, TimeSpan.FromMinutes(15)));
+                PerIpSlidingWindow(httpContext, 20, TimeSpan.FromMinutes(15)));
             #endregion
 
             #region Account Management 
@@ -161,11 +164,13 @@ public static class RateLimitConfig
             options.AddPolicy(Policies.AdminActivateAccount, httpContext =>
                 PerUserSlidingWindow(httpContext, 30, TimeSpan.FromHours(1)));
 
+            // Per IP, like the reset request: each call sends an email, and a retry after a typo or a mail in the
+            // spam folder must still get through.
             options.AddPolicy(Policies.RequestActivation, httpContext =>
-                PerIpSlidingWindow(httpContext, 3, TimeSpan.FromMinutes(15)));
+                PerIpSlidingWindow(httpContext, 10, TimeSpan.FromMinutes(15)));
 
             options.AddPolicy(Policies.ConfirmActivation, httpContext =>
-                PerIpSlidingWindow(httpContext, 5, TimeSpan.FromMinutes(15)));
+                PerIpSlidingWindow(httpContext, 20, TimeSpan.FromMinutes(15)));
             #endregion
 
             #region Comments
@@ -237,7 +242,7 @@ public static class RateLimitConfig
 
             #region Posts
             options.AddPolicy(Policies.CreatePost, httpContext =>
-                PerUserSlidingWindow(httpContext, 10, TimeSpan.FromHours(1)));
+                PerUserSlidingWindow(httpContext, 30, TimeSpan.FromHours(1)));
 
             options.AddPolicy(Policies.ReadPosts, httpContext =>
                 PerUserSlidingWindow(httpContext, 120, TimeSpan.FromMinutes(1)));
@@ -272,10 +277,10 @@ public static class RateLimitConfig
                 PerUserSlidingWindow(httpContext, 120, TimeSpan.FromMinutes(1)));
 
             options.AddPolicy(Policies.SearchUsers, httpContext =>
-                PerUserSlidingWindow(httpContext, 30, TimeSpan.FromMinutes(1)));
+                PerUserSlidingWindow(httpContext, 60, TimeSpan.FromMinutes(1)));
 
             options.AddPolicy(Policies.UpdateOwnProfile, httpContext =>
-                PerUserSlidingWindow(httpContext, 10, TimeSpan.FromHours(1)));
+                PerUserSlidingWindow(httpContext, 30, TimeSpan.FromHours(1)));
 
             options.AddPolicy(Policies.AdminUpdateUser, httpContext =>
                 PerUserSlidingWindow(httpContext, 30, TimeSpan.FromHours(1)));

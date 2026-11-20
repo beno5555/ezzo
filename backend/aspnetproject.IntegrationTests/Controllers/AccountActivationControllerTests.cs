@@ -1,12 +1,22 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
+using System.Text.RegularExpressions;
+using aspnetproject.Common.Domain;
+using aspnetproject.Common.ProjectConstants;
+using aspnetproject.Infrastructure.Dtos.Accounts;
 using aspnetproject.IntegrationTests.Fixtures;
 using aspnetproject.IntegrationTests.Helpers;
+using Microsoft.AspNetCore.Mvc;
 
 namespace aspnetproject.IntegrationTests.Controllers;
 
 public class AccountActivationControllerTests : IClassFixture<DatabaseFixture>, IAsyncLifetime
 {
+    // erin (Id 6) is deactivated in the seed.
+    private const string DeactivatedUserEmail    = "erin@example.com";
+    private const string DeactivatedUserUsername = "erin_deactivated";
+    private static readonly string ReactivationPageAddress = $"{CustomWebApplicationFactory.TrustedFrontendOrigin}/reactivate-account";
+
     private readonly DatabaseFixture _dbFixture;
     private readonly CustomWebApplicationFactory _factory;
     private readonly HttpClient _client;
@@ -173,6 +183,65 @@ public class AccountActivationControllerTests : IClassFixture<DatabaseFixture>, 
     }
 
     [Fact]
+    public async Task RequestActivate_WithAllowedRedirectUrl_EmailsLinkToThatAddressWithToken()
+    {
+        var response = await RequestActivationAsync(ReactivationPageAddress);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var email = Assert.Single(_factory.EmailRecorder.Emails);
+        Assert.Equal(DeactivatedUserEmail, email.To);
+
+        var link = EmailLinks.ReadLink(email.Body);
+        Assert.Equal(ReactivationPageAddress, link.GetLeftPart(UriPartial.Path));
+        Assert.False(string.IsNullOrEmpty(EmailLinks.ReadToken(link)));
+    }
+
+    [Theory]
+    [InlineData("https://attacker.example/reactivate-account")]          // untrusted host
+    [InlineData("http://frontend.webcity.test:5500/reactivate-account")]  // trusted host, other port
+    [InlineData("https://frontend.webcity.test:4200/reactivate-account")] // trusted host and port, other scheme
+    [InlineData("/reactivate-account")]                                   // not an absolute URL
+    public async Task RequestActivate_WithDisallowedRedirectUrl_ReturnsBadRequestAndSendsNoEmail(string redirectUrl)
+    {
+        var response = await RequestActivationAsync(redirectUrl);
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+        var body = await response.Content.ReadFromJsonAsync<ApplicationResponse>();
+        Assert.False(body!.Succeeded);
+        Assert.Equal(ResponseMessages.UrlOriginNotAllowed, body.Message);
+        Assert.Empty(_factory.EmailRecorder.Emails);
+    }
+
+    [Fact]
+    public async Task RequestActivate_WithDisallowedRedirectUrl_KeepsEarlierTokenWorking()
+    {
+        await RequestActivationAsync(ReactivationPageAddress);
+        var earlierToken = EmailLinks.ReadToken(EmailLinks.ReadLink(_factory.EmailRecorder.Emails.Single().Body));
+
+        await RequestActivationAsync("https://attacker.example/reactivate-account");
+        var activateResponse = await ActivateAsync(earlierToken!);
+
+        Assert.Equal(HttpStatusCode.OK, activateResponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task RequestActivate_WithoutRedirectUrl_EmailsPlainToken()
+    {
+        var response = await RequestActivationAsync(null);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        var email = Assert.Single(_factory.EmailRecorder.Emails);
+        Assert.DoesNotContain("href=", email.Body);
+
+        var activateResponse = await ActivateAsync(ReadPlainToken(email.Body));
+
+        Assert.Equal(HttpStatusCode.OK, activateResponse.StatusCode);
+    }
+
+    [Fact]
     public async Task RequestActivate_ForNonexistentEmail_ReturnsBadRequest()
     {
         var response = await _client.PatchAsJsonAsync("api/accounts/request-activate", new
@@ -181,6 +250,23 @@ public class AccountActivationControllerTests : IClassFixture<DatabaseFixture>, 
         });
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    // Refused by validation before the service runs, like the reset request's email.
+    [Theory]
+    [InlineData("")]
+    [InlineData("not-an-email")]
+    public async Task RequestActivate_WithMissingOrMalformedEmail_ReturnsValidationProblem(string email)
+    {
+        var response = await _client.PatchAsJsonAsync("api/accounts/request-activate", new
+        {
+            Email = email
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+
+        var body = await response.Content.ReadFromJsonAsync<ValidationProblemDetails>();
+        Assert.Contains(nameof(ActivationRequestDto.Email), body!.Errors.Keys);
     }
 
     // ---------- PATCH /accounts/activate (anonymous, consume token) ----------
@@ -209,11 +295,36 @@ public class AccountActivationControllerTests : IClassFixture<DatabaseFixture>, 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
-    // NOTE: a full happy-path test for RequestActivate -> Activate would need to
-    // intercept the emailed token (EmailSender is real MailKit/MimeKit per README.md).
-    // Recommend swapping EmailSender for a test double in CustomWebApplicationFactory
-    // that captures the token instead of sending mail, so this round trip is testable
-    // without a real inbox. Flagging rather than assuming — want me to add that?
+    [Fact]
+    public async Task Activate_WithTokenFromEmailLink_ReactivatesAccountAndSignInWorks()
+    {
+        await RequestActivationAsync(ReactivationPageAddress);
+        var token = EmailLinks.ReadToken(EmailLinks.ReadLink(_factory.EmailRecorder.Emails.Single().Body));
+
+        var activateResponse = await ActivateAsync(token!);
+
+        Assert.Equal(HttpStatusCode.OK, activateResponse.StatusCode);
+
+        var loginResponse = await _client.PostAsJsonAsync("api/auth/login", new
+        {
+            UniqueIdentifier = DeactivatedUserUsername,
+            Password = TestDataSeeder.SharedPlaintextPassword
+        });
+
+        Assert.Equal(HttpStatusCode.OK, loginResponse.StatusCode);
+    }
+
+    [Fact]
+    public async Task Activate_WithUsedToken_ReturnsBadRequest()
+    {
+        await RequestActivationAsync(ReactivationPageAddress);
+        var token = EmailLinks.ReadToken(EmailLinks.ReadLink(_factory.EmailRecorder.Emails.Single().Body));
+        await ActivateAsync(token!);
+
+        var secondResponse = await ActivateAsync(token!);
+
+        Assert.Equal(HttpStatusCode.BadRequest, secondResponse.StatusCode);
+    }
 
     // ---------- Rate-limit policy check (flagged as possibly swapped) ----------
 
@@ -233,5 +344,31 @@ public class AccountActivationControllerTests : IClassFixture<DatabaseFixture>, 
         var response = await _client.PatchAsync("api/accounts/mine/deactivate", null);
 
         Assert.NotEqual((HttpStatusCode)429, response.StatusCode);
+    }
+
+    private async Task<HttpResponseMessage> RequestActivationAsync(string? redirectUrl)
+    {
+        return await _client.PatchAsJsonAsync("api/accounts/request-activate", new
+        {
+            Email = DeactivatedUserEmail,
+            RedirectUrl = redirectUrl
+        });
+    }
+
+    private async Task<HttpResponseMessage> ActivateAsync(string activationToken)
+    {
+        return await _client.PatchAsJsonAsync("api/accounts/activate", new
+        {
+            ActivationToken = activationToken
+        });
+    }
+
+    // The token an email without a link spells out, up to the end of its paragraph.
+    private static string ReadPlainToken(string emailBody)
+    {
+        var token = Regex.Match(emailBody, "token: ([^<\\s]+)</p>");
+        Assert.True(token.Success, $"The email holds no plain token: {emailBody}");
+
+        return token.Groups[1].Value;
     }
 }

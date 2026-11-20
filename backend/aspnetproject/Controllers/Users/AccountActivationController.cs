@@ -92,7 +92,7 @@ public class AccountActivationController : BaseController
     [EnableRateLimiting(RateLimitConfig.Policies.RequestActivation)]
     public async Task<ActionResult<ApplicationResponse<FullUserDto>>> RequestAccountActivation([FromBody] ActivationRequestDto activationRequestDto)
     {
-        var response = await _accountActivationService.RequestAccountActivationAsync(activationRequestDto.Email);
+        var response = await _accountActivationService.RequestAccountActivationAsync(activationRequestDto);
 
         if (response.Succeeded)
         {

@@ -2,8 +2,7 @@ import { SignInNotice } from './sign-in-notice';
 
 // What another page hands to sign-in in the navigation's state, kept out of the address so that a
 // username or an email never lands in the history or a shared link:
-// - identifier: filled in, the username after a registration whose sign-in failed, or the email after a
-//   reactivation
+// - identifier: filled in, the username after a registration whose sign-in failed
 // - notice: shown at the form's top, after a registration, a reactivation or a password reset
 export type SignInPageState = {
   identifier?: string;

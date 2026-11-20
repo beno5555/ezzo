@@ -1,11 +1,13 @@
 ﻿using aspnetproject.Data;
 using aspnetproject.Infrastructure.Services.Automation;
+using aspnetproject.Infrastructure.Services.Helpers;
 using aspnetproject.IntegrationTests.Helpers;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 
 namespace aspnetproject.IntegrationTests;
@@ -56,6 +58,9 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 
     // Every host sends its events here instead of the network. Events are off unless the host was made with recordEvents.
     public EventRecorder EventRecorder { get; } = new();
+
+    // Every host records its emails here instead of sending them.
+    public EmailRecorder EmailRecorder { get; } = new();
 
     // database is the test class's DatabaseFixture: the host uses the database the class borrowed from the pool.
     // settingOverrides win over the settings file and the suite's defaults, e.g. a lower ImageStorage:MaxFileSizeBytes.
@@ -131,6 +136,9 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
             services.AddHttpClient<EventPublisher>()
                 .ConfigurePrimaryHttpMessageHandler(() => EventRecorder)
                 .SetHandlerLifetime(Timeout.InfiniteTimeSpan);
+
+            services.RemoveAll<EmailSender>();
+            services.AddSingleton<EmailSender>(EmailRecorder);
         });
     }
 

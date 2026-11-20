@@ -14,6 +14,7 @@ public class RateLimitRejectionTests : IClassFixture<DatabaseFixture>, IAsyncLif
 {
     // One more than the old limit of 5: six page reloads in a row must all get through.
     private const int ReloadsInARow = 6;
+    private const int TokenEmailRequestsInARow = 4;
 
     private readonly CustomWebApplicationFactory _factory;
     private readonly HttpClient _client;
@@ -56,6 +57,28 @@ public class RateLimitRejectionTests : IClassFixture<DatabaseFixture>, IAsyncLif
         for (var reload = 0; reload < ReloadsInARow; reload++)
         {
             response = await _client.PostAsync("api/auth/refresh", null);
+        }
+
+        Assert.NotEqual(HttpStatusCode.TooManyRequests, response.StatusCode);
+    }
+
+    // ---------- Token email requests (per IP) ----------
+    // One more than the old limit of 3 (owner, 2026-11-20): a person who retries after a typo or a mail in the spam
+    // folder, or several people behind one address, must not be shut out. The email matches no account, so none is sent.
+
+    [Theory]
+    [InlineData("PATCH", "api/accounts/request-activate")]
+    [InlineData("PUT", "api/auth/request-password-reset")]
+    public async Task TokenEmailRequest_OnFourthCallFromOneAddress_IsNotRejectedWithTooManyRequests(string method, string route)
+    {
+        HttpResponseMessage response = null!;
+
+        for (var request = 0; request < TokenEmailRequestsInARow; request++)
+        {
+            response = await _client.SendAsync(new HttpRequestMessage(new HttpMethod(method), route)
+            {
+                Content = JsonContent.Create(new { Email = "nobody@example.com" })
+            });
         }
 
         Assert.NotEqual(HttpStatusCode.TooManyRequests, response.StatusCode);
