@@ -101,6 +101,13 @@ public static class ResponseMessages
     public const string AutomationMayOnlyRaiseModerationStatus = "The automation may only raise a moderation status";
 
     #endregion
+
+    #region Internal
+
+    public const string BirthdaysRetrieved = $"Birthdays {Retrieved} {Successfully}";
+    public const string NotificationSent   = "Notification sent to every recipient who is connected";
+
+    #endregion
     
     #region Auth
 

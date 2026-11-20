@@ -91,6 +91,7 @@ Policy name: `OriginPolicy` (`CorsExtensions.AddCorsPolicies`), applied globally
 | `NotifyCommentDto` | Live comment push (`ReceiveComment`) | Id, AuthorUsername, Content |
 | `UserTypingDto` | Typing signal (`UserTyping`) | UserId (the sender) |
 | `PostLikedDto` | Like push (`PostLiked`) | PostId, LikedBy (`MinimalUserDto`: Id, Username), LikeCount (the post's count after the like) |
+| `PushNotificationDto` | Automation notification (`ReceiveNotification`) | Kind (written as a name, `BIRTHDAY`), Data (`BirthdayNotificationDataDto`: Friends, a list of `MinimalUserDto`) |
 
 `Images` on the three message DTOs is a list of `ImageDto` (`Id`, `Address`, `OrderIndex`) in upload order, empty for a text-only message. The addresses are relative (`/api/images/{name}`) and served as static files without a token, so the receiver can show a photo as soon as `ReceiveMessage` arrives. `MessageEditedDto` carries no images, because the photos of a sent message cannot be changed.
 
@@ -106,6 +107,7 @@ Policy name: `OriginPolicy` (`CorsExtensions.AddCorsPolicies`), applied globally
 | `UserOnline` | A user's first connection opens | `{ UserId }` | Each accepted friend's group |
 | `UserOffline` | A user's last connection closes | `{ UserId, LastActiveAt }` | Each accepted friend's group |
 | `UserTyping` | An accepted friend calls `SendTyping` for this user | `UserTypingDto` | Receiver's group only |
+| `ReceiveNotification` | The automation calls `POST api/internal/notifications` | `PushNotificationDto` (`{ kind, data }`; `kind` is `BIRTHDAY`, `data.friends` the friends whose birthday it is) | Each named recipient's group, once |
 
 ## Hub methods (client → server)
 

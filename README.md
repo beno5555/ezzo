@@ -26,6 +26,7 @@ For the earlier, API-only state of this repository and the history behind it, se
 - Soft-delete own account; a background job later purges soft-deleted accounts and their messages and posts (with their photo files), friendships, likes and reports once a retention window has passed
 - Outcome logging of service calls to the `Logs` table, plus a file log for unhandled exceptions
 - Automation events: an unhandled exception, in a request or in a background job, is sent to the automation (n8n) as a signed `exception-occurred` event, and so are new accounts, posts, comments, their edits and reports (`account-created`, `post-created`, `post-edited`, `comment-created`, `comment-edited`, `report-created`). Events are off by default; a failed delivery writes a `Logs` row and nothing else. In Development, `GET api/dev/throw` throws on purpose
+- Internal routes for the automation (`api/internal`, its API key only): list the users with a friend whose birthday is today, and push a `ReceiveNotification` to the users it names who are connected
 - Rate limiting: a named policy on every endpoint except logout, and a global limiter over everything
 
 ---
@@ -35,7 +36,7 @@ For the earlier, API-only state of this repository and the history behind it, se
 - ASP.NET Core Web API (C#), target framework `net10.0`
 - Entity Framework Core (SQL Server, code-first migrations)
 - JWT bearer authentication
-- SignalR (real-time push: messages, comments, likes, presence, typing)
+- SignalR (real-time push: messages, comments, likes, presence, typing, automation notifications)
 - ASP.NET Core rate limiting middleware
 - MailKit (SMTP email delivery)
 - Swashbuckle and `Microsoft.AspNetCore.OpenApi` (Swagger UI and OpenAPI, Development only)
@@ -169,7 +170,7 @@ CLAUDE.md
 Program.cs
 ```
 
-Folders are grouped by domain area, not by REST noun, and the grouping repeats across layers: `AuthController`, `UserController`, `FriendshipController`, `AccountManagementController` and `AccountActivationController` all live under `Controllers/Users/`, mirroring `Services/BusinessLogic/Users/`. `AdminController` (`Controllers/Admin/`) is the administrator-only area; it calls `LogService`, `StatisticsService`, `UserService` and `ModerationService` (`BusinessLogic/Content`). `ModerationController`, beside it, holds the two routes that set a moderation status, because the automation may call those with its API key too.
+Folders are grouped by domain area, not by REST noun, and the grouping repeats across layers: `AuthController`, `UserController`, `FriendshipController`, `AccountManagementController` and `AccountActivationController` all live under `Controllers/Users/`, mirroring `Services/BusinessLogic/Users/`. `AdminController` (`Controllers/Admin/`) is the administrator-only area; it calls `LogService`, `StatisticsService`, `UserService` and `ModerationService` (`BusinessLogic/Content`). `ModerationController`, beside it, holds the two routes that set a moderation status, because the automation may call those with its API key too. `InternalController` (`Controllers/Internal/`) holds the routes only the automation may call, on `BirthdayService` and `NotificationService` (`BusinessLogic/Internal/`).
 
 ---
 

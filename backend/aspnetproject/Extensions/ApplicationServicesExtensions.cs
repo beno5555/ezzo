@@ -7,6 +7,7 @@ using aspnetproject.Infrastructure.Services.BackgroundJobs.Configuration;
 using aspnetproject.Infrastructure.Services.BusinessLogic;
 using aspnetproject.Infrastructure.Services.BusinessLogic.Content;
 using aspnetproject.Infrastructure.Services.BusinessLogic.Users;
+using aspnetproject.Infrastructure.Services.BusinessLogic.Internal;
 using aspnetproject.Infrastructure.Services.Helpers;
 using aspnetproject.Infrastructure.Services.Helpers.Configuration;
 using aspnetproject.Infrastructure.Services.Logging;
@@ -51,6 +52,8 @@ public static class ApplicationServicesExtensions
         services.AddScoped<PostService>();
         services.AddScoped<PostLikeService>();
         services.AddScoped<ReportService>();
+        services.AddScoped<BirthdayService>();
+        services.AddScoped<NotificationService>();
         services.AddScoped<PresenceService>();
         services.AddScoped<TypingService>();
         services.AddScoped<LogService>();

@@ -62,6 +62,11 @@ public static class RateLimitConfig
         public const string RemoveFriend         = "RemoveFriend";
         #endregion
 
+        #region Internal
+        public const string InternalReadBirthdays     = "InternalReadBirthdays";
+        public const string InternalSendNotifications = "InternalSendNotifications";
+        #endregion
+
         #region Likes
         public const string LikePost      = "LikePost";
         public const string UnlikePost    = "UnlikePost";
@@ -213,6 +218,16 @@ public static class RateLimitConfig
 
             options.AddPolicy(Policies.RemoveFriend, httpContext =>
                 PerUserSlidingWindow(httpContext, 30, TimeSpan.FromHours(1)));
+            #endregion
+
+            #region Internal (only the API key opens these, so they count in the automation's bucket: AutomationPartitionKey)
+            // Read once a day, a page at a time.
+            options.AddPolicy(Policies.InternalReadBirthdays, httpContext =>
+                PerUserSlidingWindow(httpContext, 30, TimeSpan.FromMinutes(1)));
+
+            // A call per recipient or per batch, each naming up to Constants.MaxNotificationRecipients users.
+            options.AddPolicy(Policies.InternalSendNotifications, httpContext =>
+                PerUserSlidingWindow(httpContext, 60, TimeSpan.FromMinutes(1)));
             #endregion
 
             #region Likes
