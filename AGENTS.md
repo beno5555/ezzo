@@ -13,7 +13,7 @@ This file is for agents other than Claude Code, such as OpenAI's Codex. Claude C
 
 - **Skills:** `.agents/skills/` holds symlinks to the skills under `.claude/skills/` that any agent may use, so they are in your skills list. Never run any other skill there, even when `CLAUDE.md` or a ticket names it (`implement`, `to-spec`, `to-tickets`, `handoff`, `grill-with-docs`, `grilling`, `setup-matt-pocock-skills`). Only the owner starts those.
 - **Subagents** (for example, the two parallel reviews in `spec-review`): do each part yourself, one after another.
-- **Claude in Chrome and the Playwright MCP server:** if you have no browser tool, use the screenshot command (`npm run screenshots` in `frontend/CLAUDE.md`, once it is on `master`). If neither exists, say the page was not checked in a browser. Never claim it was.
+- **Claude in Chrome and the Playwright MCP server:** if you have no browser tool, use the screenshot command (`npm run screenshots` in `frontend/CLAUDE.md`). If neither exists, say the page was not checked in a browser. Never claim it was.
 - **`claude --worktree`:** a Codex lane makes its own worktree under `.claude/worktrees/` (steps in `docs/agents/codex.md`).
 - **Commit attribution:** the owner is the author, as `CLAUDE.md` says. End the message with `Co-Authored-By: Codex <noreply@openai.com>` instead of the Claude line, and add nothing after it.
 
@@ -28,11 +28,9 @@ Claude Code keeps these in a memory you cannot read. They apply to you too.
 - **Tickets are made only by the owner's `/to-tickets` run.** Never write a ticket file by hand. Put findings in your reply as input for `/to-tickets`.
 - **When the owner asks "should I ...?", answer and stop.** Don't start the workflow yourself.
 - **When advice conflicts with a project document,** give both arguments and let the owner decide. A document does not win by default.
-- **Stop every server, browser and script you started** before you report. Confirm that ports 4200 and 7102 are free.
+- **Stop every browser and script you started** before you report, not only the servers `CLAUDE.md` names.
 - **When you change a rule in the docs,** also look for what the change makes obsolete or contradicts, and remove it in the same edit. Don't only add.
 - **After a ticket,** end your report with every file you changed, grouped by kind (services, tests, docs, ...), with new files marked.
-- **When you report a test run,** include its `Duration:`.
-
 ## Working beside Claude Code
 
 - Claude and you share no memory. What one of you knows reaches the other only through commits, `.scratch/` tickets and the roadmap, and the docs. Write down there anything the other needs.
