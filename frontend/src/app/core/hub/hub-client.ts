@@ -6,17 +6,13 @@ import {
   inject,
   signal,
 } from '@angular/core';
-import {
-  HubConnection,
-  HubConnectionBuilder,
-  IRetryPolicy,
-  LogLevel,
-  RetryContext,
-} from '@microsoft/signalr';
+// Types only: the library itself is loaded on demand by SignalRLoader, so it stays out of the first download.
+import type { HubConnection, IRetryPolicy, RetryContext } from '@microsoft/signalr';
 import { PresenceStore } from '../../features/friendships/presence-store';
 import { UnreadStore } from '../../features/messages/unread-store';
 import { SessionStore } from '../session/session-store';
 import { HubEvent } from './hub-event';
+import { SignalRLibrary, SignalRLoader } from './signalr-loader';
 import { UserOfflineDto } from './user-offline-dto';
 import { UserOnlineDto } from './user-online-dto';
 
@@ -41,6 +37,7 @@ export class HubClient {
   private readonly sessionStore = inject(SessionStore);
   private readonly presenceStore = inject(PresenceStore);
   private readonly unreadStore = inject(UnreadStore);
+  private readonly signalRLoader = inject(SignalRLoader);
 
   private connection: HubConnection | null = null;
   // Connecting and disconnecting run one after another, in the order the session changed.
@@ -60,7 +57,7 @@ export class HubClient {
     );
   }
 
-  // A turn that fails is reported as a bug, and the turns after it still run.
+  // A turn that fails is reported as a bug, and the turns after it still run. A failed load of the library is one.
   private async followInTurn(previousTurn: Promise<void>, userId: number | null): Promise<void> {
     await previousTurn;
 
@@ -76,11 +73,17 @@ export class HubClient {
 
     const isSignedIn = userId !== null;
     if (isSignedIn) {
-      this.connect();
+      const library = await this.signalRLoader.load();
+      // The session may have changed while the library loaded; the turn queued for that change connects instead.
+      const isStillSignedIn = this.sessionStore.userId() === userId;
+
+      if (isStillSignedIn) {
+        this.connect(library);
+      }
     }
   }
 
-  private connect(): void {
+  private connect({ HubConnectionBuilder, LogLevel }: SignalRLibrary): void {
     const connection = new HubConnectionBuilder()
       .withUrl(hubAddress, {
         // Asked on every connect and reconnect, so a connection that outlives its token comes back with a valid one.

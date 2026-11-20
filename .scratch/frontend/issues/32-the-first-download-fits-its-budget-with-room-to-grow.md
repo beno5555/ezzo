@@ -11,7 +11,7 @@ Decided with the owner on 2026-11-19, reviewing ticket 07 (its Comments propose 
 
 **Blocked by:** 07 (The shell gives navigation on a desktop, on a phone and to a guest), so the size is measured on top of the shell
 
-**Status:** ready-for-agent
+**Status:** in-progress
 
 **Difficulty:** routine (Opus 5.5 medium): fully specified, but it changes the live connection that ticket 05 built, which has no unit test of its own, so a slip in the order of connecting and disconnecting would not be caught by tests.
 
