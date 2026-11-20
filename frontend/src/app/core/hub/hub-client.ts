@@ -12,7 +12,8 @@ import { PresenceStore } from '../../features/friendships/presence-store';
 import { UnreadStore } from '../../features/messages/unread-store';
 import { SessionStore } from '../session/session-store';
 import { HubEvent } from './hub-event';
-import { SignalRLibrary, SignalRLoader } from './signalr-loader';
+import { SignalRLibrary } from './signalr-library';
+import { SignalRLoader } from './signalr-loader';
 import { UserOfflineDto } from './user-offline-dto';
 import { UserOnlineDto } from './user-online-dto';
 
@@ -57,7 +58,8 @@ export class HubClient {
     );
   }
 
-  // A turn that fails is reported as a bug, and the turns after it still run. A failed load of the library is one.
+  // A turn that fails is reported as a bug, and the turns after it still run.
+  // A failed load of the SignalR library fails its turn this way; the next sign-in loads it again.
   private async followInTurn(previousTurn: Promise<void>, userId: number | null): Promise<void> {
     await previousTurn;
 

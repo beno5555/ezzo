@@ -20,6 +20,7 @@ Non-visual work (backend, tests, tooling) is merged as soon as it passes the ful
 - **Frontend ticket 25: the friendship endpoints are covered by integration tests**, merged 2026-11-17 (`Duration` 40 s for the full suite, 640 tests). Look at `FriendshipControllerTests` (99 tests), the three bugs it exposed and their fixes (list order for paging, a 500 on `GET accepted/{friendId}` for a deactivated friend, the declared type of `GetFriendsOf`), and the points left alone under the ticket's Comments.
 - **n8n ticket 01: a failure in the backend leaves as a signed event**, merged 2026-11-17 (`Duration` 36 s on the branch, 43 s on the merge with 662 tests). Look at `EventPublisher` and `AutomationEventsConfiguration` (`backend/aspnetproject/Infrastructure/Services/Automation/`), the two call sites (`GlobalExceptionHandler`, `PeriodicHostedService.RunOnceAsync`), the Development-only `GET api/dev/throw`, the test seam (`EventRecorder`, `recordEvents` on `CustomWebApplicationFactory`) and `docs/backend/automation.md`. The spec review ran on Opus 5.5 (Fable was at its usage limit); the additions beyond the ticket are under its Comments.
 - **n8n ticket 04: the backend tells the automation about accounts, content and reports**, merged 2026-11-17 (`Duration` 42 s, 714 tests; the merge changed no code beyond the branch). Look at the six events in `docs/backend/automation.md`, the call sites (`AuthService.RegisterAsync`, `PostService`, `CommentService`, `ReportService`), `GetPendingTimesForTargetAsync` in `ReportRepository`, and `EventSecretsTests`. Also look at the change you asked for on the way: `LastUpdatedAt` of a post or comment is stamped only when the title or text really changes. `EditMessage` and the profile edit still stamp on every save. The spec review ran on Opus 5.5 (Fable was at its usage limit).
+- **Frontend ticket 32: the first download fits its budget**, done 2026-11-20 (first download 559.7 kB → 503.7 kB raw, 130.6 → 118.6 kB compressed). Look at `SignalRLoader` and the load inside `HubClient.follow` (`frontend/src/app/core/hub/`), its new spec, the 600 kB warning in `frontend/angular.json` and ADR 0009. Two points wait for you under the ticket's Comments: the live unread count was not checked in the app, and a failed load of the library is reported, not retried.
 
 **Not merged yet.** Finished visual branches that wait for the owner's review. No agent merges them until the owner says so. The merge commit deletes the line.
 
@@ -63,7 +64,7 @@ After round 5 the backend lane takes n8n 04, then 03 once 02 is done with the ow
 
 After the shell, both lanes take frontend tickets from **different feature areas**, so that the only shared files are the routes and the two dictionaries.
 
-F32 (the first download fits its budget) is plumbing with no visual part. It runs beside round 6 in a cloud session or a third lane, and is merged once its checks pass (owner, 2026-11-19).
+F32 (the first download fits its budget) is plumbing with no visual part. It ran in a third lane and was done 2026-11-20; it is merged once its checks pass (owner, 2026-11-19).
 
 | Round | Lane 1 | Lane 2 |
 |---|---|---|

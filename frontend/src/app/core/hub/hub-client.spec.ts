@@ -1,12 +1,13 @@
 import { ErrorHandler, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
-import { IHttpConnectionOptions } from '@microsoft/signalr';
+import type { IHttpConnectionOptions } from '@microsoft/signalr';
 import { PresenceStore } from '../../features/friendships/presence-store';
 import { UnreadStore } from '../../features/messages/unread-store';
 import { SessionStore } from '../session/session-store';
 import { waitForPendingWork } from '../session/testing/wait-for-pending-work';
 import { HubClient } from './hub-client';
-import { SignalRLibrary, SignalRLoader } from './signalr-loader';
+import { SignalRLibrary } from './signalr-library';
+import { SignalRLoader } from './signalr-loader';
 
 // Stands in for a real connection: it starts at once and records whether it was stopped.
 class FakeConnection {
@@ -74,7 +75,7 @@ describe('HubClient', () => {
 
     return {
       HubConnectionBuilder: FakeBuilder,
-      LogLevel: { Warning: 3 },
+      LogLevel: { Warning: 'fake warning level' }, // the fake builder ignores the level
     } as unknown as SignalRLibrary;
   }
 
@@ -178,7 +179,7 @@ describe('HubClient', () => {
     expect(await connections[0].options.accessTokenFactory?.()).toBe('token-of-8');
   });
 
-  it('reports a failed load and still connects on the next sign-in', async () => {
+  it('reports a failed load and opens no connection', async () => {
     const loadError = new Error('The chunk could not be fetched');
 
     signIn(7);
@@ -188,6 +189,13 @@ describe('HubClient', () => {
 
     expect(handleError).toHaveBeenCalledWith(loadError);
     expect(connections).toHaveLength(0);
+  });
+
+  it('connects on the next sign-in after a failed load', async () => {
+    signIn(7);
+    await waitForPendingWork();
+    failLoading(new Error('The chunk could not be fetched'));
+    await waitForPendingWork();
 
     signIn(null);
     signIn(8);
