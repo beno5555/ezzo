@@ -311,15 +311,17 @@ public class AccountActivationControllerTests : IClassFixture<DatabaseFixture>, 
     }
 
     [Fact]
-    public async Task Activate_ForAlreadyActiveAccount_ReturnsBadRequest()
+    public async Task Activate_ForAccountAnAdministratorAlreadyReactivated_ReturnsBadRequestWithInvalidOrExpiredMessage()
     {
-        var response = await _client.PatchAsJsonAsync("api/accounts/activate", new
-        {
-            Email = "alice@example.com",
-            Token = "irrelevant-since-account-is-active"
-        });
+        await RequestActivationAsync(ReactivationPageAddress);
+        var token = EmailLinks.ReadToken(EmailLinks.ReadLink(_factory.EmailRecorder.Emails.Single().Body));
+        var adminToken = await AuthTestHelper.LoginAsync(_client, "sandro_beno", TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(_client, adminToken);
+        await _client.PatchAsync("api/accounts/6/activate", null); // erin, whose emailed link is still unexpired
 
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var response = await ActivateAsync(token!);
+
+        await AssertInvalidOrExpiredTokenAsync(response);
     }
 
     [Fact]
