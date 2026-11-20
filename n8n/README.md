@@ -72,11 +72,13 @@ Every command below runs from the repo root. It needs Docker Desktop running (`d
 
 Then one Telegram message to the developers' chat (`TELEGRAM_DEVELOPERS_CHAT_ID`): the product's name, the exception's type, its message (cut to 1000 characters), the place and its kind, the time in `Asia/Tbilisi`, and the stack lines (cut to 2500 characters, as Telegram refuses a message over 4096). The message is sent with parse mode HTML, every inserted value is escaped (`&`, `<`, `>`, which are the only markup in HTML mode, so `_` and `*` stay plain text), and n8n's attribution line is off.
 
-**Checklist** (with the bot token and the developers' chat id filled in, n8n started after the change, and the backend running with `dotnet run --project backend/aspnetproject --launch-profile https`):
+**Checklist.** The first two steps prove the setup itself, so every later workflow can rely on it. Fill in the bot token and the developers' chat id first, and run the backend with `dotnet run --project backend/aspnetproject --launch-profile https`.
 
+- [ ] A clean start: `docker compose -f n8n/compose.yaml down -v` (this deletes the owner account and the run history), then `docker compose -f n8n/compose.yaml up -d`. `docker compose -f n8n/compose.yaml logs n8n-import` ends with a publish line for `wcExceptionAlert`, and <http://localhost:5678> lists Exception alerts as published, with no click.
+- [ ] The container reaches the backend: `docker compose -f n8n/compose.yaml exec -T n8n node -e "process.env.NODE_TLS_REJECT_UNAUTHORIZED='0'; fetch(process.env.WEBCITY_BACKEND_URL + '/api/posts').then(r => console.log('backend answered', r.status))"` prints `backend answered` with a status code (a warning about certificate checks is expected).
 - [ ] Open <https://localhost:7102/api/dev/throw/7>, or run `curl.exe -k https://localhost:7102/api/dev/throw/7`. One message arrives in the developers' chat with the type, the message, the place (`GET /api/dev/throw/7`), the time and the stack lines, all readable.
 - [ ] `pwsh -File n8n/send-test-exception.ps1` prints `n8n answered 200`, and the message shows `_`, `*`, `<b>`, `&` and the backticks as plain text, with nothing missing.
-- [ ] `pwsh -File n8n/send-test-exception.ps1 -WrongSignature` prints `n8n answered 401`, and no message arrives.
+- [ ] `pwsh -File n8n/send-test-exception.ps1 -Signature Wrong` and `pwsh -File n8n/send-test-exception.ps1 -Signature None` each print `n8n answered 401`, and no message arrives.
 
 ## What was checked against the real n8n
 

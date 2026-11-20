@@ -9,7 +9,8 @@ const [, , inputPath, outputPath] = process.argv;
 const exported = JSON.parse(fs.readFileSync(inputPath, 'utf8'));
 const workflow = Array.isArray(exported) ? exported[0] : exported;
 
-if (!workflow || typeof workflow.id !== 'string' || workflow.id.length === 0) {
+const hasWorkflowId = Boolean(workflow) && typeof workflow.id === 'string' && workflow.id.length > 0;
+if (!hasWorkflowId) {
   console.error(`${inputPath} holds no workflow with an id.`);
   process.exit(1);
 }

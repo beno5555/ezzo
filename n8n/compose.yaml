@@ -9,8 +9,8 @@ x-n8n: &n8n
     - path: .env # per-machine values and the encryption key; workflows read them through $env
       required: true
   environment:
-    GENERIC_TIMEZONE: Asia/Tbilisi # schedules and dates in workflows
-    TZ: Asia/Tbilisi
+    GENERIC_TIMEZONE: &timezone Asia/Tbilisi # schedules and dates in workflows
+    TZ: *timezone
     N8N_BLOCK_ENV_ACCESS_IN_NODE: "false" # lets workflows read $env; safe on an instance with one owner
     N8N_DIAGNOSTICS_ENABLED: "false"
 
@@ -41,12 +41,12 @@ services:
     <<: *n8n
     restart: unless-stopped
     ports:
-      - "127.0.0.1:5678:5678" # this machine only; the backend sends events to http://localhost:5678
+      - "127.0.0.1:5678:5678" # this machine only, IPv4 only: the backend sends events to http://127.0.0.1:5678
     volumes:
       - n8n_data:/home/node/.n8n
       - type: bind
         source: ./tools
-        target: /opt/webcity-tools
+        target: /opt/webcity-tools # export-workflow.ps1 runs clean-workflow.js from here
         read_only: true
     depends_on:
       n8n-import:

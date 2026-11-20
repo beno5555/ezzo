@@ -9,10 +9,11 @@
     The backend's throwing route has a fixed message, so it cannot show that _, *, <, > and & arrive intact. This
     script signs the event the way EventPublisher does (HMAC-SHA256 over the exact bytes, keyed with
     AutomationEvents:SigningSecret from the backend's development settings) and posts it to n8n's webhook.
-    Add -WrongSignature to check that n8n answers 401 and sends nothing.
+    -Signature Wrong sends a wrong signature, and -Signature None sends no signature header; n8n must answer 401
+    to both and send nothing.
 #>
 param(
-    [switch] $WrongSignature
+    [ValidateSet('Right', 'Wrong', 'None')] [string] $Signature = 'Right'
 )
 
 $ErrorActionPreference = 'Stop'
@@ -45,15 +46,20 @@ $envelope = [ordered]@{
 }
 $body = $utf8.GetBytes((ConvertTo-Json -InputObject $envelope -Compress))
 
-$hmac = [System.Security.Cryptography.HMACSHA256]::new($utf8.GetBytes($events.SigningSecret))
-try {
-    $signature = if ($WrongSignature) { $wrongSignatureValue } else { [Convert]::ToHexString($hmac.ComputeHash($body)).ToLowerInvariant() }
+$headers = @{}
+if ($Signature -eq 'Right') {
+    $hmac = [System.Security.Cryptography.HMACSHA256]::new($utf8.GetBytes($events.SigningSecret))
+    try {
+        $headers[$signatureHeader] = [Convert]::ToHexString($hmac.ComputeHash($body)).ToLowerInvariant()
+    }
+    finally {
+        $hmac.Dispose()
+    }
 }
-finally {
-    $hmac.Dispose()
+elseif ($Signature -eq 'Wrong') {
+    $headers[$signatureHeader] = $wrongSignatureValue
 }
 
 $response = Invoke-WebRequest -Method Post -Uri "$($events.BaseUrl.TrimEnd('/'))/webhook/$eventName" `
-    -ContentType 'application/json; charset=utf-8' -Headers @{ $signatureHeader = $signature } `
-    -Body $body -SkipHttpErrorCheck
+    -ContentType 'application/json; charset=utf-8' -Headers $headers -Body $body -SkipHttpErrorCheck
 Write-Host "n8n answered $($response.StatusCode)."

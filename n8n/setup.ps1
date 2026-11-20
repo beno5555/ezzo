@@ -69,7 +69,8 @@ function ConvertTo-JsonText([object] $value) {
 }
 
 function Get-Section([System.Collections.IDictionary] $parent, [string] $name) {
-    if (-not ($parent[$name] -is [System.Collections.IDictionary])) {
+    $sectionExists = $parent[$name] -is [System.Collections.IDictionary]
+    if (-not $sectionExists) {
         $parent[$name] = [ordered]@{}
     }
     $parent[$name]
@@ -87,10 +88,11 @@ function Get-Credential([object[]] $credentials, [string] $id) {
 function Resolve-SharedSecret([object] $backendValue, [object] $n8nValue, [string] $label) {
     $backendHasValue = Test-HasValue $backendValue
     $n8nHasValue = Test-HasValue $n8nValue
+    $sidesDiffer = $n8nValue -ne $backendValue
     if ($backendHasValue) {
         $value = $backendValue
         $origin = if (-not $n8nHasValue) { 'kept from the backend, copied to n8n' }
-                  elseif ($n8nValue -ne $backendValue) { 'kept from the backend, n8n''s differed and is replaced' }
+                  elseif ($sidesDiffer) { 'kept from the backend, n8n''s differed and is replaced' }
                   else { 'kept' }
     }
     elseif ($n8nHasValue) {
@@ -105,14 +107,24 @@ function Resolve-SharedSecret([object] $backendValue, [object] $n8nValue, [strin
     $value
 }
 
-if (-not (Test-Path $backendSettingsPath)) {
+$backendSettingsExist = Test-Path $backendSettingsPath
+if (-not $backendSettingsExist) {
     throw "backend/aspnetproject/appsettings.Development.json does not exist. Create it first (CLAUDE.md, Config prerequisites)."
 }
 
-foreach ($pair in @(@($envPath, $envExamplePath), @($credentialsPath, $credentialsExamplePath))) {
-    if (-not (Test-Path $pair[0])) {
-        Copy-Item -Path $pair[1] -Destination $pair[0]
-        Write-Host "Created $([System.IO.Path]::GetRelativePath($repoRoot, $pair[0])) from its example."
+function Get-RepoPath([string] $path) {
+    [System.IO.Path]::GetRelativePath($repoRoot, $path).Replace('\', '/')
+}
+
+$examples = @(
+    [pscustomobject]@{ Path = $envPath; ExamplePath = $envExamplePath },
+    [pscustomobject]@{ Path = $credentialsPath; ExamplePath = $credentialsExamplePath }
+)
+foreach ($example in $examples) {
+    $fileExists = Test-Path $example.Path
+    if (-not $fileExists) {
+        Copy-Item -Path $example.ExamplePath -Destination $example.Path
+        Write-Host "Created $(Get-RepoPath $example.Path) from its example."
     }
 }
 
@@ -120,10 +132,10 @@ Write-Host 'Secrets:'
 
 # n8n's encryption key: generated once. Changing it later locks n8n out of a kept volume, so an existing key stays.
 $envText = [System.IO.File]::ReadAllText($envPath)
-$placeholderLine = "(?m)^$encryptionKeyName=$([regex]::Escape($placeholder))\r?$"
+$placeholderLine = "(?m)^$encryptionKeyName=$([regex]::Escape($placeholder))(?=\r?$)"
 $keyIsPlaceholder = $envText -match $placeholderLine
 if ($keyIsPlaceholder) {
-    $envText = $envText -replace "(?m)^$encryptionKeyName=$([regex]::Escape($placeholder))(?=\r?$)", "$encryptionKeyName=$(New-Secret)"
+    $envText = $envText -replace $placeholderLine, "$encryptionKeyName=$(New-Secret)"
     Write-Host '  n8n encryption key: generated'
 }
 else {
@@ -150,13 +162,13 @@ $apiKeyData[$apiKeyCredentialField] = $apiKey
 
 Write-Host 'Files:'
 $files = @(
-    @('n8n/.env', $envPath, $envText),
-    @('n8n/credentials.json', $credentialsPath, (ConvertTo-JsonText $credentials)),
-    @('backend/aspnetproject/appsettings.Development.json', $backendSettingsPath, (ConvertTo-JsonText $settings))
+    [pscustomobject]@{ Path = $envPath; Content = $envText },
+    [pscustomobject]@{ Path = $credentialsPath; Content = (ConvertTo-JsonText $credentials) },
+    [pscustomobject]@{ Path = $backendSettingsPath; Content = (ConvertTo-JsonText $settings) }
 )
 foreach ($file in $files) {
-    $state = if (Write-IfChanged $file[1] $file[2]) { 'written' } else { 'unchanged' }
-    Write-Host "  $($file[0]): $state"
+    $state = if (Write-IfChanged $file.Path $file.Content) { 'written' } else { 'unchanged' }
+    Write-Host "  $(Get-RepoPath $file.Path): $state"
 }
 
 Write-Host "Events are on in the backend's development settings, sent to $n8nAddress."

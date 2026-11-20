@@ -26,20 +26,23 @@ $composeFile = Join-Path $PSScriptRoot 'compose.yaml'
 $workflowsFolder = Join-Path $PSScriptRoot 'workflows'
 $exportedPath = '/tmp/webcity-export.json'
 $cleanPath = '/tmp/webcity-clean.json'
+$toolsFolder = '/opt/webcity-tools' # where compose.yaml mounts n8n/tools
 
-if (-not $File) {
-    $match = Get-ChildItem -Path $workflowsFolder -Filter '*.json' |
+$fileGiven = [bool] $File
+if (-not $fileGiven) {
+    $workflowFile = Get-ChildItem -Path $workflowsFolder -Filter '*.json' |
         Where-Object { (Get-Content -Raw -Path $_.FullName | ConvertFrom-Json).id -eq $Id } |
         Select-Object -First 1
-    if ($null -eq $match) {
+    $workflowFileFound = $null -ne $workflowFile
+    if (-not $workflowFileFound) {
         throw "No file in n8n/workflows has the id $Id. Name the new file with -File."
     }
-    $File = $match.Name
+    $File = $workflowFile.Name
 }
 $target = Join-Path $workflowsFolder $File
 
 docker compose -f $composeFile exec -T n8n n8n export:workflow --id=$Id --output=$exportedPath
-docker compose -f $composeFile exec -T n8n node /opt/webcity-tools/clean-workflow.js $exportedPath $cleanPath
+docker compose -f $composeFile exec -T n8n node "$toolsFolder/clean-workflow.js" $exportedPath $cleanPath
 docker compose -f $composeFile cp "n8n:$cleanPath" $target
 
 Write-Host "Exported $Id to n8n/workflows/$File. Review the diff before you commit it."
