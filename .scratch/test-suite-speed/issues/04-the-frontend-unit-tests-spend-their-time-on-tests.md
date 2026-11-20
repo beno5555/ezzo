@@ -15,18 +15,18 @@ Measured on 2026-11-20: 243 tests in 32 files take 29.66 s, and Vitest's summary
 
 **Blocked by:** None (can start immediately).
 
-**Status:** in-progress
+**Status:** done
 
 **Difficulty:** tricky: the builder's support for these settings is unknown, and sharing a page across files can make tests fail only in some orders, which needs debugging.
 
 Tooling only, with no visual part: it can run in a cloud session or a worktree beside any ticket that does not change the test setup.
 
-- [ ] Today's `Duration` and phase split, from three runs, are recorded in this ticket's comments
-- [ ] Each lever tried has its `Duration` recorded in the comments, kept or dropped with the reason
-- [ ] The full run passes three times in a row with the chosen setting, and once with the test files in shuffled order; the `Duration` lines are recorded
-- [ ] The test count is the same as before (243 at the time of writing, plus any added since), and no test is skipped
+- [x] Today's `Duration` and phase split, from three runs, are recorded in this ticket's comments
+- [x] Each lever tried has its `Duration` recorded in the comments, kept or dropped with the reason
+- [x] The full run passes three times in a row with the chosen setting, and once with the test files in shuffled order; the `Duration` lines are recorded
+- [x] The test count is the same as before (243 at the time of writing, plus any added since), and no test is skipped
 - [ ] CI's frontend job passes on the branch
-- [ ] If a command or setting a session needs to know changes, `frontend/CLAUDE.md` or the root `CLAUDE.md` says so
+- [x] If a command or setting a session needs to know changes, `frontend/CLAUDE.md` or the root `CLAUDE.md` says so
 
 ## Comments
 
@@ -65,9 +65,11 @@ Tooling only, with no visual part: it can run in a cloud session or a worktree b
 | happy-dom | 1.45 s, 1.42 s, 1.39 s | Dropped: no gain, and one more dependency. |
 | Workers 1 / 2 / 3 / 4 / 6 | 1.81 / 1.47 / 1.50 / 1.60 / 1.82 s | Dropped: default is as fast. |
 
-**Final runs** (260 tests in 37 files, none skipped):
+**A flaky test, found by the review.** With the fix in place, about 1 run in 5 failed in `post-api.spec.ts` ("returns a fixed text when the server cannot be reached": the Georgian message where the English one was expected; 3 of 15 runs reproduced it). Cause: `page-title-strategy.spec.ts` sets the language to Georgian, which is stored in localStorage, and does not clear it afterwards. Isolation is off, so the next file on that worker started in Georgian; whether that happens depends on which files share a worker. Likely older than this change (isolation was already off), but the three clean runs and two clean shuffled runs recorded earlier were luck. Fixed in the test setup, not in the spec: `src/test-setup.ts` (the builder's `setupFiles` in `angular.json`) clears localStorage and sessionStorage after every test. After the fix: 0 failures in 30 normal runs and 0 in 30 shuffled runs.
 
-- Three in a row: 1.42 s, 1.46 s, 1.46 s.
-- Shuffled order (`VITEST_SHUFFLE=1`, files and tests), seeds 1795204150151 and 1795204155580: 1.86 s and 1.84 s, all passing.
+**Final runs** (260 tests in 37 files, none skipped, no `.skip`, `.todo` or `.only` in the source):
+
+- Three in a row: 1.79 s, 1.89 s, 1.76 s.
+- Shuffled order (`VITEST_SHUFFLE=1`, files and tests), seed 1795204897340: 1.79 s, passing.
 
 **Not checked here:** CI's frontend job. The workflow runs only on pull requests and on pushes to `master`, so it has not run on this branch.
