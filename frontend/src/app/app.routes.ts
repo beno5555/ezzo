@@ -17,7 +17,12 @@ function placeholderPage(path: string, title: PageTitleKey): Routes[number] {
 export const routes: Routes = [
   // The landing page. Ticket 26 sends a signed-in user on to the feed.
   { ...placeholderPage('', 'home'), pathMatch: 'full' },
-  { ...placeholderPage('feed', 'feed'), canActivate: [authGuard] },
+  {
+    path: 'feed',
+    title: 'feed',
+    canActivate: [authGuard],
+    loadComponent: () => import('./features/posts/feed-page/feed-page').then((m) => m.FeedPage),
+  },
   {
     path: 'sign-in',
     title: 'signIn',

@@ -4,8 +4,8 @@
 
 - **The post** is shown with the card from ticket 09, in full.
 - **Comments** load by pages as the reader scrolls, using the feed's way of loading.
-- **Writing.** A signed-in user writes a comment in a form under the post. It appears at once and the comment count follows.
-- **Editing and deleting.** A comment's author edits it in place and deletes it after a confirmation. The author of the post deletes any comment under it.
+- **Writing.** A signed-in user writes a comment in a form under the post. It appears at once, before the server has it, with "Sending…" under it from the dictionary, and the comment count rises; the server's copy then takes its place (owner, 2026-11-20; "What a user writes shows at once too" under "Across the whole frontend" in the spec). A refusal removes it, lowers the count again, shows a toast, and puts the text back into the form.
+- **Editing and deleting.** A comment's author edits it in place, and the edit shows at once with the same "Sending…" mark; a refusal puts the old text back, shows a toast and reopens the form with what the author wrote. A comment is deleted after a confirmation. The author of the post deletes any comment under it.
 - **A guest** reads the post, its photos and its comments. The like button and the comment form send a guest to sign-in, which returns them to this page.
 - **A post that does not exist,** or that the visitor may not read, shows the not-found page.
 
@@ -21,7 +21,8 @@ Decisions are under "Feed, posts and comments" in `.scratch/frontend/spec.md`. T
 
 - [ ] The comment count on a feed card leads to the post's page
 - [ ] Comments load by pages until the last
-- [ ] A new comment appears at once, and the count rises by one
+- [ ] A new comment appears at once with "Sending…", the count rises by one, and the mark leaves when the server's copy arrives
+- [ ] A refused comment leaves the list, the count falls back, a toast says why and the text is back in the form
 - [ ] An author edits and deletes their own comment; the post's author deletes someone else's comment under their post; nobody else is offered either
 - [ ] A comment over the limit cannot be sent, and the limit comes from `LIMITS`
 - [ ] A guest reads the page, and the like button and the comment form lead to sign-in and back

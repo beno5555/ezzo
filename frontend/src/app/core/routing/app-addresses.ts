@@ -18,6 +18,7 @@ export const appAddresses = {
   admin: '/admin',
   // As router link commands, so the username is encoded as one segment.
   profile: (username: string) => ['/users', username],
+  post: (postId: number) => ['/posts', postId],
 } as const;
 
 // The query parameter that carries the address a guard turned the user away from.

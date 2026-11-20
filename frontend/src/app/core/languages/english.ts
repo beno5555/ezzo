@@ -110,6 +110,23 @@ export const english = {
     toasts: {
       regionLabel: 'Notifications',
     },
+    // A post's or a message's photos: the grid of thumbnails and the full-screen viewer (shared/photos).
+    photos: {
+      openButton: (position: number, total: number) => `Open photo ${position} of ${total}`,
+      // The last thumbnail when the grid leaves photos out: it shows moreBadge, and its label says what the
+      // badge means.
+      openMoreButton: (position: number, total: number, count: number) =>
+        pluralize(Language.English, count, {
+          one: `Open photo ${position} of ${total}, ${count} more photo`,
+          other: `Open photo ${position} of ${total}, ${count} more photos`,
+        }),
+      moreBadge: (count: number) => `+${count}`,
+      viewerLabel: 'Photos',
+      photoDescription: (position: number, total: number) => `Photo ${position} of ${total}`,
+      position: (position: number, total: number) => `${position} / ${total}`,
+      previousButton: 'Previous photo',
+      nextButton: 'Next photo',
+    },
     // What a form field shows under itself once it was touched (fieldErrorMessage). The server's own
     // messages are shown as they arrive instead.
     formField: {
@@ -235,6 +252,30 @@ export const english = {
           one: `Showing ${count} user`,
           other: `Showing ${count} users`,
         }),
+    },
+  },
+  posts: {
+    // The post card (shared/post-card), wherever a post is listed.
+    card: {
+      // The button's name for screen readers; whether the caller liked it is read from aria-pressed.
+      likeButton: (count: number) =>
+        pluralize(Language.English, count, {
+          one: `Like, ${count} like`,
+          other: `Like, ${count} likes`,
+        }),
+      commentsLink: (count: number) =>
+        pluralize(Language.English, count, {
+          one: `${count} comment`,
+          other: `${count} comments`,
+        }),
+    },
+    feed: {
+      loading: 'Loading posts…',
+      loadingMore: 'Loading more posts…',
+      emptyTitle: 'Nothing here yet',
+      emptyMessage: 'When other people write posts, they show up here.',
+      retryButton: 'Try again',
+      end: 'You have reached the end of the feed.',
     },
   },
 };

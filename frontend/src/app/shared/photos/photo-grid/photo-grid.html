@@ -1,0 +1,22 @@
+@if (tiles().length > 0) {
+  <div class="grid grid-cols-2 gap-1 overflow-hidden rounded-md">
+    @for (tile of tiles(); track tile.image.id) {
+      <button
+        class="relative cursor-pointer overflow-hidden bg-surface-sunken focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus"
+        type="button"
+        [class]="tileClass(tile)"
+        [attr.aria-label]="tileLabel(tile)"
+        (click)="open(tile)"
+      >
+        <img class="size-full object-cover" alt="" loading="lazy" [src]="tile.image.address" />
+        @if (tile.moreCount > 0) {
+          <span
+            class="absolute inset-0 flex items-center justify-center bg-surface-sunken/70 font-display text-2xl text-ink-strong"
+          >
+            {{ text().shared.photos.moreBadge(tile.moreCount) }}
+          </span>
+        }
+      </button>
+    }
+  </div>
+}
