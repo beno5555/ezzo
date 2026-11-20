@@ -147,7 +147,7 @@ export function apiInfrastructure() {
   });
 
   const emailSender = component(A, 290, W, 150, 'Email sender', 'MailKit',
-    'Sends the account security emails: reset, reactivation, deactivation and the rest of ADR 0008.');
+    'Sends the account security emails: password reset, reactivation, deactivation, password-changed and sign-up notices.');
   const userServices = component(B, 290, W, 150, 'User services', 'C# services',
     'Registration, password reset, deactivation, reactivation, deletion.');
   const exceptionHandler = component(D, 290, W, 150, 'Global exception handler', 'IExceptionHandler',
