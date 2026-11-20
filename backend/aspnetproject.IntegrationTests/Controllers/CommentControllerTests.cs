@@ -256,7 +256,7 @@ public class CommentControllerTests : IClassFixture<DatabaseFixture>, IAsyncLife
     {
         var response = await _client.PutAsJsonAsync("api/comments/1", new
         {
-            CommentContent = "Anon edit"
+            Content = "Anon edit"
         });
 
         Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
@@ -270,7 +270,7 @@ public class CommentControllerTests : IClassFixture<DatabaseFixture>, IAsyncLife
 
         var response = await _client.PutAsJsonAsync("api/comments/1", new
         {
-            CommentContent = ""
+            Content = ""
         });
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);

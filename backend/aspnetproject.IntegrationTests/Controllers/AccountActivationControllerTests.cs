@@ -3,10 +3,14 @@ using System.Net.Http.Json;
 using System.Text.RegularExpressions;
 using aspnetproject.Common.Domain;
 using aspnetproject.Common.ProjectConstants;
+using aspnetproject.Data;
 using aspnetproject.Infrastructure.Dtos.Accounts;
+using aspnetproject.Infrastructure.Services.BusinessLogic.Users;
 using aspnetproject.IntegrationTests.Fixtures;
 using aspnetproject.IntegrationTests.Helpers;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace aspnetproject.IntegrationTests.Controllers;
 
@@ -15,6 +19,8 @@ public class AccountActivationControllerTests : IClassFixture<DatabaseFixture>, 
     // erin (Id 6) is deactivated in the seed.
     private const string DeactivatedUserEmail    = "erin@example.com";
     private const string DeactivatedUserUsername = "erin_deactivated";
+    // A fixed time far in the past, so an expired token stays expired whatever the token lifetime setting.
+    private static readonly DateTime LongPast = new(2020, 1, 1, 0, 0, 0, DateTimeKind.Utc);
     private static readonly string ReactivationPageAddress = $"{CustomWebApplicationFactory.TrustedFrontendOrigin}/reactivate-account";
 
     private readonly DatabaseFixture _dbFixture;
@@ -252,6 +258,18 @@ public class AccountActivationControllerTests : IClassFixture<DatabaseFixture>, 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
     }
 
+    // Here the person typed an email, so "User not found" is the true answer; only a dead link needs the token message.
+    [Fact]
+    public async Task RequestActivate_ForNonexistentEmail_ReturnsUserNotFoundMessage()
+    {
+        var response = await _client.PatchAsJsonAsync("api/accounts/request-activate", new
+        {
+            Email = "no-such-account@example.com"
+        });
+
+        Assert.Equal(ResponseMessages.UserNotFound, await ResponseReader.ReadMessageAsync(response));
+    }
+
     // Refused by validation before the service runs, like the reset request's email.
     [Theory]
     [InlineData("")]
@@ -271,28 +289,39 @@ public class AccountActivationControllerTests : IClassFixture<DatabaseFixture>, 
 
     // ---------- PATCH /accounts/activate (anonymous, consume token) ----------
 
+    // A dead token says the link is invalid or expired, never "User not found": the person may think the account is gone.
     [Fact]
-    public async Task Activate_WithInvalidToken_ReturnsBadRequest()
+    public async Task Activate_WithUnknownToken_ReturnsBadRequestWithInvalidOrExpiredMessage()
     {
-        var response = await _client.PatchAsJsonAsync("api/accounts/activate", new
-        {
-            Email = "erin@example.com",
-            Token = "not-a-real-token"
-        });
+        var response = await ActivateAsync("not-a-real-token");
 
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await AssertInvalidOrExpiredTokenAsync(response);
     }
 
     [Fact]
-    public async Task Activate_ForAlreadyActiveAccount_ReturnsBadRequest()
+    public async Task Activate_WithExpiredToken_ReturnsBadRequestWithInvalidOrExpiredMessage()
     {
-        var response = await _client.PatchAsJsonAsync("api/accounts/activate", new
-        {
-            Email = "alice@example.com",
-            Token = "irrelevant-since-account-is-active"
-        });
+        await RequestActivationAsync(ReactivationPageAddress);
+        var token = EmailLinks.ReadToken(EmailLinks.ReadLink(_factory.EmailRecorder.Emails.Single().Body));
+        await ExpireTokenAsync(DeactivatedUserEmail);
 
-        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        var response = await ActivateAsync(token!);
+
+        await AssertInvalidOrExpiredTokenAsync(response);
+    }
+
+    [Fact]
+    public async Task Activate_ForAccountAnAdministratorAlreadyReactivated_ReturnsBadRequestWithInvalidOrExpiredMessage()
+    {
+        await RequestActivationAsync(ReactivationPageAddress);
+        var token = EmailLinks.ReadToken(EmailLinks.ReadLink(_factory.EmailRecorder.Emails.Single().Body));
+        var adminToken = await AuthTestHelper.LoginAsync(_client, "sandro_beno", TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(_client, adminToken);
+        await _client.PatchAsync("api/accounts/6/activate", null); // erin, whose emailed link is still unexpired
+
+        var response = await ActivateAsync(token!);
+
+        await AssertInvalidOrExpiredTokenAsync(response);
     }
 
     [Fact]
@@ -315,7 +344,7 @@ public class AccountActivationControllerTests : IClassFixture<DatabaseFixture>, 
     }
 
     [Fact]
-    public async Task Activate_WithUsedToken_ReturnsBadRequest()
+    public async Task Activate_WithUsedToken_ReturnsBadRequestWithInvalidOrExpiredMessage()
     {
         await RequestActivationAsync(ReactivationPageAddress);
         var token = EmailLinks.ReadToken(EmailLinks.ReadLink(_factory.EmailRecorder.Emails.Single().Body));
@@ -323,7 +352,20 @@ public class AccountActivationControllerTests : IClassFixture<DatabaseFixture>, 
 
         var secondResponse = await ActivateAsync(token!);
 
-        Assert.Equal(HttpStatusCode.BadRequest, secondResponse.StatusCode);
+        await AssertInvalidOrExpiredTokenAsync(secondResponse);
+    }
+
+    [Fact]
+    public async Task Activate_WithUnknownToken_LogsTheInvalidOrExpiredMessage()
+    {
+        await ActivateAsync("not-a-real-token");
+
+        using var scope = _factory.Services.CreateScope();
+        var       db    = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+        var       log   = await db.Logs.SingleAsync(row => row.Action == $"{nameof(AccountActivationService)}.{nameof(AccountActivationService.ReactivateOwnAccountAsync)}");
+
+        Assert.False(log.Succeeded);
+        Assert.Equal(ResponseMessages.InvalidOrExpiredActivationToken, log.Details);
     }
 
     // ---------- Rate-limit policy check (flagged as possibly swapped) ----------
@@ -361,6 +403,24 @@ public class AccountActivationControllerTests : IClassFixture<DatabaseFixture>, 
         {
             ActivationToken = activationToken
         });
+    }
+
+    private static async Task AssertInvalidOrExpiredTokenAsync(HttpResponseMessage response)
+    {
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.Equal(ResponseMessages.InvalidOrExpiredActivationToken, await ResponseReader.ReadMessageAsync(response));
+    }
+
+    // Moves the user's token expiry into the past, as if the link had waited too long.
+    private async Task ExpireTokenAsync(string email)
+    {
+        using var scope = _factory.Services.CreateScope();
+        var       db    = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+        await db.Users
+            .IgnoreQueryFilters()
+            .Where(user => user.Email == email)
+            .ExecuteUpdateAsync(setters => setters.SetProperty(user => user.ResetTokenExpiresAt, LongPast));
     }
 
     // The token an email without a link spells out, up to the end of its paragraph.

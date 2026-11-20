@@ -136,7 +136,7 @@ public class AccountActivationService : BaseService
         }
         else
         {
-            response.Fail(ResponseMessages.UserNotFound);
+            response.Fail(ResponseMessages.InvalidOrExpiredActivationToken);
             await LogResultAsync(response.Succeeded, nameof(ReactivateOwnAccountAsync), nameof(User), response.Message, null);
         }
 

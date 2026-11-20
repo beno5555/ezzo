@@ -9,13 +9,13 @@
 
 **Blocked by:** 33 (A deactivated user reactivates from the email's link), until it is merged: it wrote the page, the tests and the docs this ticket corrects.
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Difficulty:** routine: one new response message on an existing failure branch, copied from the reset flow, with integration tests that catch a slip.
 
-- [ ] An expired, a used and an unknown token each get `400` with the new message; integration tests check each one
-- [ ] Asking for a link with an email that matches no deactivated account still gets "User not found"; the existing test passes unchanged
-- [ ] The new message is a constant beside the reset flow's token messages; no literal text in the service
-- [ ] `docs/backend/auth.md` names the new message for a dead token and no longer says "User not found" there
-- [ ] The roadmap's "If time is left" entry for this item is removed
-- [ ] The backend integration suite passes
+- [x] An expired, a used and an unknown token each get `400` with the new message; integration tests check each one
+- [x] Asking for a link with an email that matches no deactivated account still gets "User not found"; the existing test passes unchanged
+- [x] The new message is a constant beside the reset flow's token messages; no literal text in the service
+- [x] `docs/backend/auth.md` names the new message for a dead token and no longer says "User not found" there
+- [x] The roadmap's "If time is left" entry for this item is removed
+- [x] The backend integration suite passes
