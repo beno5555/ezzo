@@ -296,7 +296,7 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 - **Editing** happens on the post, in the feed card and on the post's page: title and text. Photos are removed one at a time. Photos cannot be added to an existing post.
 - **Removing a photo is built against an endpoint that does not exist yet.** `PostApi` gets its method for the documented `DELETE /api/posts/{postId}/images/{imageId}`, and the edit form shows a remove control on each photo, disabled and labelled "Coming soon" from the dictionary. When documented-backend-features ticket 04 lands, the control is enabled and nothing else changes.
 - **Feed card:** author, time, title, text, photo grid, like button with the count, comment count linking to the post's page, the "…" menu. Comments are not shown or written in the feed.
-- **Likes** change the card after the server answers, not before. There is no list of who liked.
+- **Likes** change the card at once, on the click (owner, 2026-11-20). If the server refuses, the card goes back and a toast says why. There is no list of who liked.
 - **Photo grid and viewer:** up to four thumbnails with a "+N" on the last when there are more; a click opens a full-screen viewer with previous and next.
 - **Post page:** the post, then its comments by pages, then a comment form for a signed-in user.
 

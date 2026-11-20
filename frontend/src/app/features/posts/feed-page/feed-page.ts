@@ -43,11 +43,8 @@ export class FeedPage implements OnInit {
     await this.feed.loadNext();
   }
 
-  // A card's like button: the post changes in place once the server agrees.
+  // A card's like button: the post changes in place at once, and back if the server refuses.
   async toggleLike(post: StandardPostDisplayDto): Promise<void> {
-    const changed = await this.postLikes.toggle(post);
-    if (changed !== null) {
-      this.feed.replace(changed);
-    }
+    await this.postLikes.toggle(post, (shown) => this.feed.replace(shown));
   }
 }

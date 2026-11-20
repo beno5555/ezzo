@@ -12,7 +12,7 @@ import { TextLink } from '../text-link/text-link';
 
 // One post in a list: the feed, a profile's posts, the post's own page and the admin panel, so it sits
 // in shared/. It only shows the post: a click on the like button asks the page through likeToggle, and the
-// page sends it through PostLikeStore and puts the changed post in its list (the store's comment shows how).
+// page sends it through PostLikeStore, which shows the like at once (the store's comment shows how).
 //   <app-post-card [post]="post" [isLiking]="postLikes.isLiking(post.id)" (likeToggle)="toggleLike(post)" />
 // An author whose account is unavailable has no id, and is shown as text with no link.
 @Component({
