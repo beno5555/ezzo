@@ -81,7 +81,7 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 36. As a user, I want a composer at the top of the feed with a title, text and up to 10 photos, so that posting takes no navigation.
 37. As a user, I want a preview of each photo I picked, and a way to drop one before I post, so that I publish what I meant.
 38. As a user, I want a file of the wrong type or over the size limit refused in the browser with a clear message, so that I do not wait for an upload that will fail.
-39. As a user, I want my new post to appear at the top of the feed at once, so that I see it was published.
+39. As a user, I want my new post to appear at the top of the feed at once, with a toast while it uploads and another when it is published, so that I never wait and still know when it is done.
 40. As a reader, I want a post's photos shown as a grid, and a full-screen viewer when I click one, so that I can look at them properly.
 41. As a reader, I want each feed card to show the author, the time, the like count and the comment count, so that I can judge a post at a glance.
 42. As a user, I want to like and unlike a post from its card, so that reacting takes one click.
@@ -97,7 +97,7 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 49. As a user, I want to write a comment under a post, so that I can answer it.
 50. As a comment's author, I want to edit and delete my comment, so that I can correct or withdraw it.
 51. As a post author, I want to delete any comment on my post, so that I can keep my post's discussion clean.
-52. As a user, I want my new comment to appear at once and the count to follow, so that I see it was sent.
+52. As a user, I want my new comment to appear at once, marked "Sending…" until the server has it, and the count to follow, so that I never wait for it.
 
 ### Actions on content, reports and hidden content
 
@@ -147,7 +147,7 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 84. As a user, I want a "New message" button that lists friends I have not written to yet, so that I can start a conversation.
 85. As a user on a desktop, I want the list and the open conversation side by side, so that I can switch quickly.
 86. As a user on a phone, I want the list on one screen and the conversation on the next, with the back button returning to the list, so that each has the whole screen.
-87. As a user, I want to send text, up to 5 photos, or both, so that chat is not limited to text.
+87. As a user, I want to send text, up to 5 photos, or both, and to see my message at once with a small clock until it is sent, so that chat is not limited to text and never makes me wait.
 88. As a user, I want a message from my friend to appear the moment it is sent, so that we can talk in real time.
 89. As a user, I want older messages to load as I scroll up, so that the whole history is reachable.
 90. As a user, I want to edit my message for 20 minutes after I sent it and not see the option afterwards, so that I am not offered an edit that will be refused.
@@ -234,7 +234,12 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 - **Every user has the default profile picture.** It is the user's initials on a coloured disc, drawn by the frontend through one component, so that a chosen picture can take its place later (`DESIGN.md`, Components). Choosing a picture is not built here.
 - **Light and dark themes both ship** (design session, 2026-11-16). The first visit follows the operating system's setting, the choice is remembered, and the switch sits in the menu beside the language.
 - **Lists use infinite scroll** everywhere a list is paged, with the paging the backend already has (`PageNumber`, `PageSize`). A page shorter than the page size is the last.
-- **Quick actions show their result at once** (owner, 2026-11-20). Like and unlike, every friendship action (add, cancel, accept, decline, remove), Hide and Make visible, the administrator's row actions, and a delete once it is confirmed: the screen changes on the click as if the server had agreed, then the request goes. If the server refuses, the screen goes back to how it was and a toast says why. A second click on the same item while its request is on its way is ignored. Writing or editing a post, a comment or a message is not a quick action: it waits for the server, which makes the id, the photo addresses and the times. `PostLikeStore` is the pattern.
+- **Quick actions show their result at once** (owner, 2026-11-20). Like and unlike, every friendship action (add, cancel, accept, decline, remove), Hide and Make visible, the administrator's row actions, and a delete once it is confirmed: the screen changes on the click as if the server had agreed, then the request goes. If the server refuses, the screen goes back to how it was and a toast says why. A second click on the same item while its request is on its way is ignored. `PostLikeStore` is the pattern.
+- **What a user writes shows at once too** (owner, 2026-11-20). A new or edited post, comment or message appears before the server has it, marked as pending, and the server's copy takes its place when it arrives (the server makes the id, the photo addresses and the times). Until then a new item shows the moment it was sent as its time, and its photos from the browser's previews.
+  - **A post:** sending it empties the composer, and saving an edit closes the form; an edit saved on the post's page sends the author to the feed. A toast says the post is uploading and stays until the upload ends; then a second toast says it was published or saved, and leads to the post. Meanwhile a new post is at the top of the feed and an edited one shows its new title and text.
+  - **A comment** is in the list at once with "Sending…" under it, and the count rises. An edit shows the same mark.
+  - **A message** is in the conversation at once with a clock icon where its time goes, and no text; the icon's accessible label says "Sending". An edit shows the same icon.
+  - **A refusal** removes the pending item, or puts an edited one back, and a toast says why. What the user wrote is never lost: a new post goes back into the composer, a comment or a message goes back into its box with its photos, and an edit's toast leads back to its form, filled with what the user wrote.
 - **Destructive actions ask first.** Deleting a post, a comment or a message, removing a friend, and every destructive admin action open a confirmation dialog. Deactivating and deleting one's own account require typing the username.
 - **Enums travel as text.** Every enum the API sends or accepts is the name of its member as text (`"Pending"`, `"Hidden"`, `"Post"`, `"Active"`); none is a number. Each frontend mirror is an `as const` object whose values are those names. Where the backend reads an enum from a request body it accepts the name only and refuses a number, so the frontend always sends the name.
 - **Two more feature folders.** `admin/` and `reports/` join the list, after the backend's controllers. `PostLikeApi` lives in `posts/`.
@@ -293,8 +298,8 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 
 ### Feed, posts and comments
 
-- **Composer:** a card at the top of the feed. A title is required, and so is either text or at least one photo, as the backend requires. Up to 10 photos, each JPEG, PNG or WebP and at most 5 MB, checked in the browser against `LIMITS` before upload. The post goes as `multipart/form-data`. On success the new post is put at the top of the list.
-- **Editing** happens on the post, in the feed card and on the post's page: title and text. Photos are removed one at a time. Photos cannot be added to an existing post.
+- **Composer:** a card at the top of the feed. A title is required, and so is either text or at least one photo, as the backend requires. Up to 10 photos, each JPEG, PNG or WebP and at most 5 MB, checked in the browser against `LIMITS` before upload. The post goes as `multipart/form-data`. It shows at the top of the list at once, with an uploading toast and then a published one ("What a user writes shows at once too", under "Across the whole frontend").
+- **Editing** happens on the post, in the feed card and on the post's page: title and text. Saving shows the edit at once, and from the post's page returns the author to the feed, with the same two toasts as a new post. Photos are removed one at a time. Photos cannot be added to an existing post.
 - **Removing a photo is built against an endpoint that does not exist yet.** `PostApi` gets its method for the documented `DELETE /api/posts/{postId}/images/{imageId}`, and the edit form shows a remove control on each photo, disabled and labelled "Coming soon" from the dictionary. When documented-backend-features ticket 04 lands, the control is enabled and nothing else changes.
 - **Feed card:** author, time, title, text, photo grid, like button with the count, comment count linking to the post's page, the "…" menu. Comments are not shown or written in the feed.
 - **Likes** change the card at once, as every quick action does ("Across the whole frontend"). There is no list of who liked.
@@ -325,18 +330,19 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 - **Two routes, one layout.** On a desktop the list and the conversation sit side by side; on a phone they are two screens.
 - **List row:** name, online dot or last active time, last message (or "Photo"), unread count.
 - **Starting a chat:** a "New message" button lists friends without a conversation; a friend's profile has a Message button.
-- **Sending:** text up to the backend's limit, up to 5 photos, or both, as `multipart/form-data`. The sender's copy comes from the HTTP response; the receiver's from `ReceiveMessage`.
+- **Sending:** text up to the backend's limit, up to 5 photos, or both, as `multipart/form-data`. The sender sees the message at once with the clock icon, until the HTTP response's copy takes its place; the receiver's copy comes from `ReceiveMessage`.
 - **Opening a conversation marks it read.** So does a message arriving while the conversation is open.
 - **Seen:** `MessageSeen` marks the user's sent messages as seen; "seen" is shown under the last of them.
-- **Edit** is offered for 20 minutes after sending (mirrored in `LIMITS`). `MessageEdited` updates the receiver's copy. An edited message is marked.
+- **Edit** is offered for 20 minutes after sending (mirrored in `LIMITS`). The editor sees the edit at once with the clock icon; `MessageEdited` updates the receiver's copy. An edited message is marked.
 - **Delete** removes the message for the sender at once. The backend sends no push for a deletion, so the friend's open conversation keeps it until it is loaded again.
 - **Typing:** the client calls `SendTyping` at most once every 2 seconds while the user types, and hides the friend's "typing…" 3 seconds after the last `UserTyping`.
 
 ### Toasts
 
-- **Four toasts:** a new message (not when that conversation is open), a comment on my post, a like on my post, a friend coming online.
+- **Four live toasts:** a new message (not when that conversation is open), a comment on my post, a like on my post, a friend coming online.
 - **Each is a link:** to the chat, to the post, to the post, to the chat.
 - **Rules:** 5 seconds on screen, at most three at once, and at most one online toast per friend in 5 minutes.
+- **Upload toasts** for a post (under "Across the whole frontend"): the uploading toast stays until the upload ends, outside the 5-second rule, and the published or saved toast that follows it keeps the rule.
 - **Failures of actions outside a form** use the same toast component (conventions, Errors).
 - **There is no notification history,** because the backend stores none.
 
