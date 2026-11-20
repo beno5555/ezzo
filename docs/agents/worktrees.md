@@ -24,7 +24,7 @@ Pick tickets that touch different files. The ticket's "What to build" names the 
 
 1. In the worktree, commit on `worktree-<name>`. Include the ticket's roadmap update in that branch, before the merge (see `issue-tracker.md`), so `master` never needs a separate roadmap commit afterwards.
 2. In the main checkout, on `master`: `git merge --no-ff worktree-<name>`. A worktree session can do this itself: see "Merging from a worktree session" below.
-3. Run the full suite on `master` once both lanes are merged, since each lane was tested only against its own base.
+3. Run the checks that "Checks on a merge into `master`" in the root `CLAUDE.md` asks for. The second lane to merge always runs them, since `master` moved when the first lane merged and each lane was tested only against its own base.
 4. Push `master`.
 5. Exit the worktree session. Claude Code asks whether to keep or remove the worktree. Deleting the branch is a separate step that the owner confirms. Before a worktree is removed, copy any gitignored file that exists only there (above all `frontend/.env`, the screenshot account) to the main checkout: removing a worktree deletes those files too.
 
@@ -34,7 +34,7 @@ A session inside a worktree can do the merge itself. Git will not check out `mas
 
 1. Make sure the main checkout is clean (`git -C <repo root> status`). If it is not, stop and ask the owner: those are someone else's changes.
 2. `git merge --no-ff --no-commit worktree-<name>`, so you can fix things before the merge commit.
-3. Resolve conflicts (below), then build and run the full suite **from the main checkout's `backend/`**. That uses the main checkout's pool, `TestSocialMediaWebApiDb_1` to `_4`. If an IDE holds a file under `obj/` and the build fails with an `IOException`, add `--artifacts-path <scratch folder>` to `dotnet build` and `dotnet test`. For a frontend change, also run Prettier's check, lint, the unit tests and the build from the main checkout's `frontend/`. If its `node_modules` needs `npm ci`, first stop any dev server or test watcher running from that folder: Windows locks `esbuild.exe` while it runs, `npm ci` then fails with `EPERM` halfway, and the half-deleted `node_modules` breaks `npm start` too.
+3. Resolve conflicts (below). Then, if "Checks on a merge into `master`" in the root `CLAUDE.md` asks for checks, run them **from the main checkout's `backend/` and `frontend/`**. The backend suite there uses the main checkout's pool, `TestSocialMediaWebApiDb_1` to `_4`. If an IDE holds a file under `obj/` and the build fails with an `IOException`, add `--artifacts-path <scratch folder>` to `dotnet build` and `dotnet test`. If the frontend's `node_modules` needs `npm ci`, first stop any dev server or test watcher running from that folder: Windows locks `esbuild.exe` while it runs, `npm ci` then fails with `EPERM` halfway, and the half-deleted `node_modules` breaks `npm start` too.
 4. Commit the merge, push `master`, and report what conflicted and how each conflict was resolved.
 
 **When Claude Code refuses the command.** A session started with `claude --worktree` cannot run git in the main checkout. Do not work around it: never move `master` with `git update-ref`, `git commit-tree` or a push to `origin/master`. Give the owner these commands instead, written for the repo root, with no absolute paths and no `git -C`, and check each output the owner sends back:
