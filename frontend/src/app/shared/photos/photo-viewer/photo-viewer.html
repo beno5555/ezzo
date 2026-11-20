@@ -1,0 +1,48 @@
+<div class="flex items-center gap-2 p-2">
+  <h2 class="flex-1 px-2 text-sm text-ink-muted" aria-live="polite" [id]="titleId">
+    {{ text().shared.photos.viewerLabel }}
+    <span class="ms-2 font-semibold text-ink-strong">{{
+      text().shared.photos.position(index() + 1, images.length)
+    }}</span>
+  </h2>
+  <button
+    appIconButton
+    type="button"
+    [attr.aria-label]="text().shared.dialog.closeButton"
+    (click)="close()"
+  >
+    <svg class="size-6" lucideX aria-hidden="true"></svg>
+  </button>
+</div>
+
+<div class="flex min-h-0 flex-1 items-center gap-1 px-1 pb-4 md:gap-4 md:px-4">
+  @if (hasSeveral) {
+    <button
+      appIconButton
+      type="button"
+      [attr.aria-label]="text().shared.photos.previousButton"
+      (click)="showPrevious()"
+    >
+      <svg class="size-6" lucideChevronLeft aria-hidden="true"></svg>
+    </button>
+  }
+
+  <div class="flex size-full min-w-0 items-center justify-center">
+    <img
+      class="max-h-full max-w-full rounded-md object-contain"
+      [src]="image().address"
+      [alt]="text().shared.photos.photoDescription(index() + 1, images.length)"
+    />
+  </div>
+
+  @if (hasSeveral) {
+    <button
+      appIconButton
+      type="button"
+      [attr.aria-label]="text().shared.photos.nextButton"
+      (click)="showNext()"
+    >
+      <svg class="size-6" lucideChevronRight aria-hidden="true"></svg>
+    </button>
+  }
+</div>

@@ -1,0 +1,50 @@
+<div class="flex flex-col gap-6">
+  <h1 class="font-display text-2xl text-ink-strong">{{ text().pages.feed }}</h1>
+
+  @if (hasPosts()) {
+    <ul class="flex flex-col gap-4">
+      @for (post of feed.items(); track post.id) {
+        <li>
+          <app-post-card [post]="post" (postChange)="replacePost($event)" />
+        </li>
+      }
+    </ul>
+  }
+
+  @switch (feed.status()) {
+    @case (PageLoadStatus.Idle) {
+      @if (hasPosts()) {
+        <div appScrollSentinel (reached)="loadMore()"></div>
+      }
+    }
+    @case (PageLoadStatus.Loading) {
+      <p class="py-4 text-center text-sm text-ink-muted" role="status">
+        {{ hasPosts() ? text().posts.feed.loadingMore : text().posts.feed.loading }}
+      </p>
+    }
+    @case (PageLoadStatus.Failed) {
+      <div class="flex flex-col items-center gap-3 py-4 text-center">
+        <p class="flex items-start gap-2 text-danger" role="alert">
+          <svg class="mt-0.5 size-5 shrink-0" lucideCircleExclamationPoint aria-hidden="true"></svg>
+          {{ feed.failureMessage() }}
+        </p>
+        <button appButton look="quiet" type="button" (click)="loadMore()">
+          {{ text().posts.feed.retryButton }}
+        </button>
+      </div>
+    }
+    @case (PageLoadStatus.Ended) {
+      @if (hasPosts()) {
+        <p class="py-4 text-center text-sm text-ink-muted">{{ text().posts.feed.end }}</p>
+      } @else {
+        <div
+          class="flex flex-col items-center gap-2 rounded-lg border border-border bg-surface-raised px-4 py-10 text-center"
+        >
+          <svg class="size-8 text-ink-muted" lucideNewspaper aria-hidden="true"></svg>
+          <h2 class="font-display text-lg text-ink-strong">{{ text().posts.feed.emptyTitle }}</h2>
+          <p class="text-ink-muted">{{ text().posts.feed.emptyMessage }}</p>
+        </div>
+      }
+    }
+  }
+</div>

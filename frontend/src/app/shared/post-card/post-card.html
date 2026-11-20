@@ -1,0 +1,53 @@
+<article
+  class="flex flex-col gap-3 rounded-lg border border-border bg-surface-raised p-4 text-ink-strong"
+>
+  <header class="flex items-center gap-3">
+    <app-avatar
+      [userId]="authorAvatarId()"
+      [username]="post().author.username"
+      [isUnavailable]="!isAuthorAvailable()"
+    />
+    <div class="flex min-w-0 flex-col">
+      @if (isAuthorAvailable()) {
+        <a appTextLink class="self-start wrap-anywhere" [routerLink]="profileAddress()">{{
+          post().author.username
+        }}</a>
+      } @else {
+        <span class="font-semibold text-ink-muted wrap-anywhere">{{ post().author.username }}</span>
+      }
+      <time class="text-sm text-ink-muted" [attr.datetime]="post().uploadedAt">{{
+        dateFormatter.time(post().uploadedAt)
+      }}</time>
+    </div>
+  </header>
+
+  <h2 class="font-display text-lg wrap-break-word">{{ post().title }}</h2>
+  @if (post().postContent) {
+    <p class="whitespace-pre-line wrap-break-word">{{ post().postContent }}</p>
+  }
+
+  <app-photo-grid [images]="post().images" />
+
+  <footer class="-mx-3 -mb-2 flex flex-wrap items-center gap-1">
+    <button
+      appActionButton
+      type="button"
+      [attr.aria-pressed]="post().likedByCaller"
+      [attr.aria-disabled]="isLiking()"
+      [attr.aria-label]="text().posts.card.likeButton(post().likeCount)"
+      (click)="toggleLike()"
+    >
+      <svg
+        class="size-5"
+        lucideHeart
+        aria-hidden="true"
+        [class.fill-current]="post().likedByCaller"
+      ></svg>
+      <span aria-hidden="true">{{ post().likeCount }}</span>
+    </button>
+    <a appActionButton [routerLink]="postAddress()">
+      <svg class="size-5" lucideMessageCircle aria-hidden="true"></svg>
+      {{ text().posts.card.commentsLink(post().commentCount) }}
+    </a>
+  </footer>
+</article>

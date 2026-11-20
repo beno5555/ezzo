@@ -67,7 +67,7 @@ F32 (the first download fits its budget) is plumbing with no visual part. It run
 
 | Round | Lane 1 | Lane 2 |
 |---|---|---|
-| 6 | F08, the auth pages (merged 2026-11-20 on your approval) | F09, the feed |
+| 6 | F08, the auth pages (merged 2026-11-20 on your approval) | F09, the feed (done 2026-11-20, waits for your review) |
 | 7 | F33, reactivate from the email's link, then F10, write a post | F18, chat: list and reading |
 | 8 | F11, the post page | F22, admin: layout and users |
 | 9 | F12, edit and delete a post | F19, chat: send and receive live |
@@ -91,7 +91,7 @@ Frontend 30 (Impeccable) runs in a session with the owner whenever the owner is 
 2. [x] **Write the tickets.** All four groups are ticketed: the backend gaps A to F (`documented-backend-features`, 2026-11-14), the frontend (`frontend`, 2026-11-15, with the setup tickets 27 to 30 added on 2026-11-16) and n8n (`n8n-automation`, 2026-11-17). Of the n8n tickets, 01, 03, 04, 08 and 11 are backend work proven by integration tests; 02, 05, 06, 07, 09, 12 and 14 are workflows, open until the owner has run their checklist; 10 and 13 are visual frontend work.
 3. [x] **The last open backend ticket,** documented-backend-features 04 (remove a photo from a post). Merged 2026-11-18, so frontend ticket 12 can build the real control.
 4. [x] **Mon 16, done Fri 20, crucial: shell and auth.** Lazy-loaded feature areas, route guards, and the pages: register, sign in, password reset, account reactivation. The session, automatic refresh, session restore and the guards are done (frontend ticket 04), as are the two dictionaries (03). The shell (07) is done (2026-11-19). The auth pages (08) are done and merged on the owner's approval (2026-11-20).
-5. [ ] **Tue 17, will be late, crucial: feed, posts and comments.** Feed with pagination, create a post with photos, edit and delete, like, comment, edit and delete a comment, report a post or comment.
+5. [ ] **Tue 17, will be late, crucial: feed, posts and comments.** Feed with pagination, create a post with photos, edit and delete, like, comment, edit and delete a comment, report a post or comment. The feed with likes and photos (frontend ticket 09) is done (2026-11-20) and waits for the owner's review on its branch; its `PagedList` (`core/paging/`) is the paging pattern the later lists copy.
 6. [ ] **Wed 18, will be late, crucial: profile, friends and search.** Profile page (bio, posts, friends), edit profile, user search, friend requests (send, accept, decline, remove; the three lists), account settings (deactivate, delete, digest opt-out), the guest view.
 7. [ ] **Fri 20, will be late, crucial: chat and live notifications.** The SignalR service and the central state for the session, conversations, online friends and unread count. Conversation list with last message, conversation with photos, edit and delete, seen, typing, presence and last active. Toasts for a new message, comment, like and a friend coming online.
 8. [ ] **Sat 21, will be late, crucial: admin panel.** Users (create, edit, deactivate, restore, delete, grant and remove the administrator role), delete any post or comment, logs, statistics, the reports list, the moderation queue.

@@ -93,6 +93,19 @@ export const georgian: Dictionary = {
     toasts: {
       regionLabel: 'შეტყობინებები',
     },
+    photos: {
+      openButton: (position: number, total: number) => `ფოტო ${position} / ${total}-ის გახსნა`,
+      openMoreButton: (position: number, total: number, count: number) =>
+        pluralize(Language.Georgian, count, {
+          other: `ფოტო ${position} / ${total}-ის გახსნა, კიდევ ${count} ფოტო`,
+        }),
+      moreBadge: (count: number) => `+${count}`,
+      viewerLabel: 'ფოტოები',
+      photoDescription: (position: number, total: number) => `ფოტო ${position} / ${total}`,
+      position: (position: number, total: number) => `${position} / ${total}`,
+      previousButton: 'წინა ფოტო',
+      nextButton: 'შემდეგი ფოტო',
+    },
     formField: {
       errors: {
         required: 'შეავსეთ ეს ველი.',
@@ -201,6 +214,26 @@ export const georgian: Dictionary = {
         pluralize(Language.Georgian, count, {
           other: `ნაჩვენებია ${count} მომხმარებელი`,
         }),
+    },
+  },
+  posts: {
+    card: {
+      likeButton: (count: number) =>
+        pluralize(Language.Georgian, count, {
+          other: `მოწონება, ${count} მოწონება`,
+        }),
+      commentsLink: (count: number) =>
+        pluralize(Language.Georgian, count, {
+          other: `${count} კომენტარი`,
+        }),
+    },
+    feed: {
+      loading: 'პოსტები იტვირთება…',
+      loadingMore: 'კიდევ პოსტები იტვირთება…',
+      emptyTitle: 'აქ ჯერ არაფერია',
+      emptyMessage: 'როცა სხვები პოსტებს დაწერენ, ისინი აქ გამოჩნდება.',
+      retryButton: 'თავიდან ცდა',
+      end: 'სიახლეების ბოლოს მიაღწიეთ.',
     },
   },
 };
