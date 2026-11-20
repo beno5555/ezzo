@@ -22,6 +22,10 @@ const hubAddress = '/hubs/messages';
 // How long to wait before each attempt to connect again; the last delay repeats for as long as it takes.
 const retryDelaysMilliseconds = [0, 2_000, 5_000, 10_000, 30_000];
 
+// How often a failed load of the SignalR library is tried again before it is reported, unlike a connection,
+// which retries forever: a load that fails several times running (a chunk replaced by a deploy) will not recover.
+const libraryLoadRetries = 3;
+
 const retryForever: IRetryPolicy = {
   nextRetryDelayInMilliseconds: (retryContext: RetryContext) =>
     retryDelayFor(retryContext.previousRetryCount),
@@ -59,7 +63,7 @@ export class HubClient {
   }
 
   // A turn that fails is reported as a bug, and the turns after it still run.
-  // A failed load of the SignalR library fails its turn this way; the next sign-in loads it again.
+  // A load of the SignalR library that still fails after its retries fails its turn this way.
   private async followInTurn(previousTurn: Promise<void>, userId: number | null): Promise<void> {
     await previousTurn;
 
@@ -75,14 +79,40 @@ export class HubClient {
 
     const isSignedIn = userId !== null;
     if (isSignedIn) {
-      const library = await this.signalRLoader.load();
+      const library = await this.loadLibraryFor(userId, 0);
       // The session may have changed while the library loaded; the turn queued for that change connects instead.
       const isStillSignedIn = this.sessionStore.userId() === userId;
 
-      if (isStillSignedIn) {
+      if (library !== null && isStillSignedIn) {
         this.connect(library);
       }
     }
+  }
+
+  // Resolves to the library, or to null once the user has signed out. A failed load is tried again a few
+  // times on the connection's delays (a brief outage while signing in); after the last retry it throws.
+  private async loadLibraryFor(
+    userId: number,
+    failedAttempts: number,
+  ): Promise<SignalRLibrary | null> {
+    let library: SignalRLibrary | null = null;
+    const isWanted = this.sessionStore.userId() === userId;
+
+    if (isWanted) {
+      try {
+        library = await this.signalRLoader.load();
+      } catch (error: unknown) {
+        const canRetry = failedAttempts < libraryLoadRetries;
+        if (canRetry) {
+          await waitFor(retryDelayFor(failedAttempts + 1));
+          library = await this.loadLibraryFor(userId, failedAttempts + 1);
+        } else {
+          throw error;
+        }
+      }
+    }
+
+    return library;
   }
 
   private connect({ HubConnectionBuilder, LogLevel }: SignalRLibrary): void {

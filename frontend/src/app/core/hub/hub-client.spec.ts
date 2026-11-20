@@ -179,31 +179,78 @@ describe('HubClient', () => {
     expect(await connections[0].options.accessTokenFactory?.()).toBe('token-of-8');
   });
 
-  it('reports a failed load and opens no connection', async () => {
+  describe('when the load fails', () => {
     const loadError = new Error('The chunk could not be fetched');
+    // The waits before the three retries: 2, 5 and 10 seconds.
+    const retryWaitsMilliseconds = [2_000, 5_000, 10_000];
 
-    signIn(7);
-    await waitForPendingWork();
-    failLoading(loadError);
-    await waitForPendingWork();
+    // Lets the turn run up to its next load or wait, then the wait run out.
+    async function waitMilliseconds(milliseconds: number): Promise<void> {
+      await vi.advanceTimersByTimeAsync(milliseconds);
+    }
 
-    expect(handleError).toHaveBeenCalledWith(loadError);
-    expect(connections).toHaveLength(0);
-  });
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
 
-  it('connects on the next sign-in after a failed load', async () => {
-    signIn(7);
-    await waitForPendingWork();
-    failLoading(new Error('The chunk could not be fetched'));
-    await waitForPendingWork();
+    afterEach(() => {
+      vi.useRealTimers();
+    });
 
-    signIn(null);
-    signIn(8);
-    await waitForPendingWork();
-    finishLoading(fakeLibrary());
-    await waitForPendingWork();
+    it('tries again after a wait and connects', async () => {
+      signIn(7);
+      await waitMilliseconds(0);
+      failLoading(loadError);
+      await waitMilliseconds(retryWaitsMilliseconds[0]);
+      finishLoading(fakeLibrary());
+      await waitMilliseconds(0);
 
-    expect(connections).toHaveLength(1);
-    expect(connections[0].isStarted).toBe(true);
+      expect(loads).toBe(2);
+      expect(connections).toHaveLength(1);
+      expect(handleError).not.toHaveBeenCalled();
+    });
+
+    it('reports the failure once three retries have failed, and opens no connection', async () => {
+      signIn(7);
+      await waitMilliseconds(0);
+      failLoading(loadError);
+      for (const wait of retryWaitsMilliseconds) {
+        await waitMilliseconds(wait);
+        failLoading(loadError);
+      }
+      await waitMilliseconds(0);
+
+      expect(loads).toBe(4);
+      expect(handleError).toHaveBeenCalledExactlyOnceWith(loadError);
+      expect(connections).toHaveLength(0);
+    });
+
+    it('stops trying for a user who signs out', async () => {
+      signIn(7);
+      await waitMilliseconds(0);
+      failLoading(loadError);
+      await waitMilliseconds(0);
+      signIn(null);
+      await waitMilliseconds(retryWaitsMilliseconds[0]);
+
+      expect(loads).toBe(1);
+      expect(handleError).not.toHaveBeenCalled();
+    });
+
+    it('connects as the user who signed in while it waited to try again', async () => {
+      signIn(7);
+      await waitMilliseconds(0);
+      failLoading(loadError);
+      await waitMilliseconds(0);
+      signIn(null);
+      signIn(8);
+      await waitMilliseconds(retryWaitsMilliseconds[0]);
+      finishLoading(fakeLibrary());
+      await waitMilliseconds(0);
+
+      expect(loads).toBe(2);
+      expect(connections).toHaveLength(1);
+      expect(await connections[0].options.accessTokenFactory?.()).toBe('token-of-8');
+    });
   });
 });
