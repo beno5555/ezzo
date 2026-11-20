@@ -6,7 +6,7 @@
 - **Incoming requests.** Each row offers Accept and Decline.
 - **Sent requests.** Each row offers Cancel. The backend has no separate cancel: removing the relationship, the same call that removes a friend, deletes a waiting request too.
 - **Each list** loads by pages, and shows an empty state when it has no rows.
-- **After an action** the row leaves its list. Accepting moves the person to My friends.
+- **After an action** the row leaves its list at once, on the click (Remove: once the warning is confirmed), before the server answers; if the server refuses, the row comes back and a toast says why (quick actions, under "Across the whole frontend" in the spec; `PostLikeStore` is the pattern). Accepting moves the person to My friends.
 - **The count on the Friends link** in the shell is loaded again on each visit to this page and after an accept or a decline.
 
 The count and the incoming list do not update live in this ticket. That is listed under "Last in line" in the spec.

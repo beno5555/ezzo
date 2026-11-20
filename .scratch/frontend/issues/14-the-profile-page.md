@@ -14,7 +14,7 @@
 | Their request is waiting | Accept, Decline |
 | Friends | Remove friend, after a warning that the messages between the two are deleted |
 
-  The mapping from relationship to buttons is one pure helper. Cancel request uses the same call as Remove friend: the backend removes a relationship in any state.
+  Each action shows the next state at once, before the server answers, and goes back with a toast if the server refuses (quick actions, under "Across the whole frontend" in the spec; `PostLikeStore` is the pattern). The mapping from relationship to buttons is one pure helper. Cancel request uses the same call as Remove friend: the backend removes a relationship in any state.
 - **Message button** for a friend, leading to `/messages/:username`.
 - **My own profile** shows a link to settings where another profile shows the friendship button.
 - **The "…" menu** offers Report to a signed-in visitor on someone else's profile, with the report dialog from ticket 13.
@@ -33,7 +33,7 @@ Decisions are under "Profile" in `.scratch/frontend/spec.md`. The friendship rul
 - [ ] Moving from one profile to another through a friend link loads the new profile without a reload
 - [ ] The birthday shows the day and month the user entered, whatever the visitor's time zone, and no year
 - [ ] The helper is unit-tested for every row of the table, including a declined request offering Add again
-- [ ] Each friendship action changes the button to the next state after the server answers
+- [ ] Each friendship action changes the button to the next state at once, on the click (Remove friend: once the warning is confirmed); a refusal puts the button back and shows a toast
 - [ ] Removing a friend warns about the messages first
 - [ ] A friend's profile has a Message button; a stranger's has none
 - [ ] A guest sees no Friends tab and no action buttons
