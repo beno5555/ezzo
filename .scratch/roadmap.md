@@ -61,7 +61,7 @@ Set on 2026-11-16. Two worktree lanes at a time (`docs/agents/worktrees.md`). Un
 | 4 | F05, the live connection (merged 2026-11-18) | frontend 25, friendship tests (merged 2026-11-17) | both merged 2026-11-18 |
 | 5 | F07, the shell (done 2026-11-19, merged on your approval) | n8n 01, a failure leaves as a signed event (merged 2026-11-17) | both done 2026-11-19 |
 
-After round 5 the backend lane takes n8n 04, then 03 once 02 is done with the owner, then 08 and 11; B04 (remove a photo) waits until the backend lane is free (owner, 2026-11-17). A third lane can open once the shell lands.
+After round 5 the backend lane takes n8n 04, then 03 (it runs beside 02: the owner lifted the block on 2026-11-21), then 08 and 11 once 03 is merged; B04 (remove a photo) waits until the backend lane is free (owner, 2026-11-17). A third lane can open once the shell lands.
 
 After the shell, both lanes take frontend tickets from **different feature areas**, so that the only shared files are the routes and the two dictionaries.
 
@@ -101,14 +101,14 @@ Frontend 30 (Impeccable) runs in a session with the owner whenever the owner is 
    - Sun 22: n8n tickets 01 to 05 (the backend's events, the n8n setup, the exception alert, the welcome email).
    - Mon 23: tickets 06 to 13 (AI moderation, reports, digest, birthdays). Alert grouping (14) is last.
    - Ticket 01 can start now. Docker Desktop is installed (2026-11-16, 29.9.3, WSL 2); a session that was open before the install does not have `docker` on its PATH.
-   - Ticket 03 waits for 02 by the owner's decision (2026-11-17), so 08 and 11 do too.
+   - The owner lifted the block of 03 on 02 on 2026-11-21, so 02 and 03 run as two local lanes at once; 08 and 11 wait for 03. The 02 lane builds and proves everything that does not need Telegram and stops; the owner adds the bot token and the chat ids and runs the checklist afterwards. Both lanes use `AutomationApi:Key` as the backend's setting for the automation's API key (03 defines it, 02's setup script writes it).
    - Needs from the owner: the Telegram bot token and the chat ids (before ticket 02), the OpenAI key (before ticket 06), and the administrator address. n8n uses the same SMTP account as the backend's `EmailConfiguration`.
 10. [ ] **Tue 24: buffer and finish.** Responsive pass on a phone width. Walk the document top to bottom against the running app and fix what fails. Update `README.md` (monorepo ticket 04) and `docs/backend/*.md` for everything added.
 11. [ ] **Wed 25: hand in.**
 
 ### Days the owner is away
 
-The owner expects to lose more than a day, which is more than the buffer. Work that is covered by tests can run without the owner, in a cloud session, and be reviewed afterwards: the backend tickets of step 3, the frontend's plumbing tickets (unit-tested, with no visual part), and the n8n backend tickets (01 now, 04 after it, and 03, 08 and 11 once the owner has checked 02). The pages cannot, because someone has to look at them, and neither can a workflow ticket, because someone has to run its checklist.
+The owner expects to lose more than a day, which is more than the buffer. Work that is covered by tests can run without the owner, in a cloud session, and be reviewed afterwards: the backend tickets of step 3, the frontend's plumbing tickets (unit-tested, with no visual part), and the n8n backend tickets (01 and 04 are merged; 03 now, and 08 and 11 once 03 is merged). The pages cannot, because someone has to look at them, and neither can a workflow ticket, because someone has to run its checklist.
 
 ### Last in line
 

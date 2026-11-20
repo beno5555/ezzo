@@ -12,7 +12,7 @@
 
 Decisions are under "The automation's identity" and "Moderation by the automation" in `.scratch/n8n-automation/spec.md`.
 
-**Blocked by:** 02 (n8n starts from the repository and sends that failure to Telegram). By the owner's decision on 2026-11-17: this ticket needs none of 02's code, but nothing more is built for the automation until the n8n setup is proven.
+**Blocked by:** None (can start immediately). It needs none of 02's code; the owner lifted the block on 2026-11-21, so it runs as a local lane beside 02.
 
 **Status:** ready-for-agent
 
@@ -29,3 +29,9 @@ Decisions are under "The automation's identity" and "Moderation by the automatio
 - [ ] The `Log` row for the automation's change has no user id, is marked authorized and names the automation; rows for users and for background jobs are written as before
 - [ ] `docs/backend/auth.md` describes the second scheme and what the key opens; `automation.md` and `controllers.md` describe the raise-only rule; the settings list in `CLAUDE.md` names the key setting
 - [ ] The full suite passes, and its `Duration` is recorded in this ticket's comments
+
+## Comments
+
+- **2026-11-21, running beside 02 (owner).** Ticket 02 runs at the same time in another local lane. Where the two meet:
+  - **The setting's name is `AutomationApi:Key`.** This ticket defines it (an options class with that section), and 02's setup script writes the generated key into `appsettings.Development.json` under that name. Do not pick another name: git will not flag the mismatch, and the key would never be read.
+  - **Shared files.** Both lanes may edit `docs/backend/automation.md`, `CLAUDE.md` (Config prerequisites) and `README.md`. Keep both sides on a conflict. 02 owns everything under `n8n/`; this ticket owns the backend's authentication, the moderation service and the database logger.
