@@ -1,6 +1,6 @@
 # Parallel local sessions in worktrees
 
-Two local Claude sessions can implement two tickets at once, each in its own git worktree on its own branch. The main checkout stays on `master` and is where branches are merged.
+Two local Claude sessions can implement two tickets at once, each in its own git worktree on its own branch. The main checkout stays on `master`.
 
 ## Start a lane
 
@@ -18,44 +18,38 @@ Pick tickets that touch different files. The ticket's "What to build" names the 
 
 - **Test databases.** With `ConnectionStrings__DefaultConnection` unset, the suite's pool of test databases is named after the worktree folder: `TestSocialMediaWebApiDb_<name>_1` to `_4`, with any character other than a letter or digit turned into `_` (`TestDatabaseNames`). Each test class borrows one, and its `CustomWebApplicationFactory` gives the app under test that database's connection string. The first run creates and migrates them. The main checkout's pool is `TestSocialMediaWebApiDb_1` to `_4`. Every name ends in its number, so two checkouts' suites never share a database.
 - **Sync.** Skip CLAUDE.md's "pull on `master`" step: `master` is checked out in the main checkout, and the worktree already starts from a fresh `origin/master`.
-- **Skills.** The worktree has its own copy of `.claude/skills/`, separate from the junctions in `~/.claude/skills/` (see `skills.md`). Editing a skill there is fine: the edit is committed on the lane's branch and reaches the shared copy when the branch is merged.
+- **Skills.** The worktree has its own copy of `.claude/skills/`, separate from the junctions in `~/.claude/skills/` (see `skills.md`). Editing a skill there is fine: the edit is committed on the lane's branch and reaches the shared copy with that branch.
 
 ## Finish a lane
 
-1. In the worktree, commit on `worktree-<name>`. Include the ticket's roadmap update in that branch, before the merge (see `issue-tracker.md`), so `master` never needs a separate roadmap commit afterwards.
-2. In the main checkout, on `master`: `git merge --no-ff worktree-<name>`. A worktree session can do this itself: see "Merging from a worktree session" below.
-3. Run the checks that "Checks on a merge into `master`" in the root `CLAUDE.md` asks for. The second lane to merge always runs them, since `master` moved when the first lane merged and each lane was tested only against its own base.
-4. Push `master`.
-5. Exit the worktree session. Claude Code asks whether to keep or remove the worktree. Deleting the branch is a separate step that the owner confirms. Before a worktree is removed, copy any gitignored file that exists only there (above all `frontend/.env`, the screenshot account) to the main checkout: removing a worktree deletes those files too.
+A lane never merges into `master`, and never commits on it, by any route. The owner does that later from the main checkout. A lane's job ends when its branch is known to merge into `master` without conflicts.
 
-### Merging from a worktree session
+1. Commit on `worktree-<name>`, with the ticket's roadmap update in the branch (see `issue-tracker.md`).
+2. Run a trial merge against the latest `master`. It writes nothing to any checkout and moves no branch:
 
-A session inside a worktree can do the merge itself. Git will not check out `master` in the worktree, because the main checkout already has it checked out, but no checkout is needed: run the commands in the main checkout's folder (the repo root, two levels above `.claude/worktrees/<name>/`), by `cd`-ing there or with `git -C <repo root>`. All worktrees share one repository, so the lane's commits are already visible there. Steps:
+   ```bash
+   git fetch
+   git merge-tree --write-tree --name-only --no-messages origin/master HEAD
+   ```
 
-1. Make sure the main checkout is clean (`git -C <repo root> status`). If it is not, stop and ask the owner: those are someone else's changes.
-2. `git merge --no-ff --no-commit worktree-<name>`, so you can fix things before the merge commit.
-3. Resolve conflicts (below). Then, if "Checks on a merge into `master`" in the root `CLAUDE.md` asks for checks, run them **from the main checkout's `backend/` and `frontend/`**. The backend suite there uses the main checkout's pool, `TestSocialMediaWebApiDb_1` to `_4`. If an IDE holds a file under `obj/` and the build fails with an `IOException`, add `--artifacts-path <scratch folder>` to `dotnet build` and `dotnet test`. If the frontend's `node_modules` needs `npm ci`, first stop any dev server or test watcher running from that folder: Windows locks `esbuild.exe` while it runs, `npm ci` then fails with `EPERM` halfway, and the half-deleted `node_modules` breaks `npm start` too.
-4. Commit the merge, push `master`, and report what conflicted and how each conflict was resolved.
+   Exit code 0 means no conflicts: the output is one line, the id of the merged tree. Exit code 1 means conflicts, and every line after the first names a conflicted file.
+3. If it conflicts, bring `master` into the lane's own branch with `git merge origin/master`, resolve the conflicts there (below), run the checks for each side the resolution touched (the build and the full integration suite from `backend/`, and Prettier's check, lint, the unit tests and the build from `frontend/`), and commit. Then repeat step 2 until it exits 0.
+4. Report the ticket done and say that the trial merge against `origin/master` (name its commit) was clean. Then stop.
+5. When you exit the session, keep the worktree: removing it can delete the branch along with it, and it deletes gitignored files that exist only there (above all `frontend/.env`, the screenshot account).
 
-**When Claude Code refuses the command.** A session started with `claude --worktree` cannot run git in the main checkout. Do not work around it: never move `master` with `git update-ref`, `git commit-tree` or a push to `origin/master`. Give the owner these commands instead, written for the repo root, with no absolute paths and no `git -C`, and check each output the owner sends back:
+### Resolving conflicts with another lane
 
-```bash
-git status
-git merge --no-ff --no-commit worktree-<name>
-cd backend && dotnet test aspnetproject.IntegrationTests; cd ..
-git commit --no-edit
-git push origin master
-```
-
-**Conflicts between parallel lanes.** The lane that merges first should add a dated note under `## Comments` in its ticket for whoever merges the other lane. The note says which files will conflict, which side to keep, and which change git will *not* flag (for example an `.Include()` that a shared mapper now needs). Read that note before you resolve anything. Typical cases:
+A trial merge finds only the conflicts git can see. Before you resolve anything, read the other lane's ticket: a lane whose change will collide with another open lane adds a dated note under `## Comments` in its own ticket, saying which files collide, which side to keep, and which change git will *not* flag (for example an `.Include()` that a shared mapper now needs). Typical cases:
 
 - Two lanes add the same new file (add/add): take one side whole with `git checkout --theirs <file>` or `--ours`, then re-add the other side's lines by hand.
 - Two lanes add a bullet in the same README or doc spot: keep both.
 - Something neither the ticket notes nor the docs settle: stop and ask the owner.
 
-Comments that say a shape is "meant for ticket X to reuse" go stale once X is merged; update them. This Windows machine has no Python, so script edits with `sed` or use the Edit tool.
+Comments that say a shape is "meant for ticket X to reuse" go stale once X is in `master`; update them. This Windows machine has no Python, so script edits with `sed` or use the Edit tool.
 
-A worktree's test databases stay behind. Drop them when the lane is done (a pool on a machine with fewer than four cores has fewer databases; `IF EXISTS` skips the missing ones):
+### Test databases
+
+A worktree's test databases stay behind. Drop them once the owner says the lane's branch is in `master` (a pool on a machine with fewer than four cores has fewer databases; `IF EXISTS` skips the missing ones):
 
 ```bash
 sqlcmd -S localhost -E -Q "DROP DATABASE IF EXISTS [TestSocialMediaWebApiDb_<name_with_underscores>_1], [TestSocialMediaWebApiDb_<name_with_underscores>_2], [TestSocialMediaWebApiDb_<name_with_underscores>_3], [TestSocialMediaWebApiDb_<name_with_underscores>_4]"

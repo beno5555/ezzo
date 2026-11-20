@@ -27,7 +27,7 @@ git worktree add .claude/worktrees/<name> -b worktree-<name> origin/master
 for f in $(grep -v '^#' .worktreeinclude); do cp "$f" ".claude/worktrees/<name>/$f"; done
 ```
 
-Then start `codex` inside `.claude/worktrees/<name>/`. Test databases are named after the folder, so the lane gets its own pool, as in `worktrees.md`. Codex cannot use Claude in Chrome. For a frontend page, a Claude session (or the owner) does the browser check before the merge. Finish and merge the lane as in `worktrees.md`.
+Then start `codex` inside `.claude/worktrees/<name>/`. Test databases are named after the folder, so the lane gets its own pool, as in `worktrees.md`. Codex cannot use Claude in Chrome. For a frontend page, a Claude session (or the owner) does the browser check before the merge. Finish the lane as in `worktrees.md`: a lane never merges into `master`.
 
 ## Keeping AGENTS.md true
 
