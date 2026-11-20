@@ -61,7 +61,7 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 22. As a user who forgot a password, I want to ask for a reset link by email, so that I can get back in.
 23. As a user, I want the link in the reset email to open a page where I choose a new password, so that I do not copy a code by hand.
 24. As a user, I want to be told when a reset link is no longer valid, so that I ask for a new one.
-25. As a user who deactivated an account, I want to ask for a reactivation code by email and enter it on the same page, so that I can come back.
+25. As a user who deactivated an account, I want to ask for a reactivation link by email and reactivate with one button on the page it opens, so that I can come back without copying a code.
 26. As a user who has just reactivated, I want to be sent to sign-in with a message that it worked, so that I know what to do next.
 27. As a user, I want links between sign-in, register, forgotten password and reactivation, so that I find the right form from any of them.
 
@@ -248,7 +248,7 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 | `/sign-in`, `/register` | Sign in, register | signed out only |
 | `/forgot-password` | Ask for a reset link | anyone |
 | `/reset-password?token=…` | Choose a new password | anyone |
-| `/reactivate-account` | Ask for a code, then enter it | anyone |
+| `/reactivate-account` (`?token=…` from the email) | Ask for a link; opened from it, reactivate with one button | anyone |
 | `/posts/:postId` | One post and its comments | anyone |
 | `/users/:username` | Profile | anyone |
 | `/search?q=…` | User search | anyone |
@@ -287,7 +287,7 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 
 - **Register, then sign in.** After a successful registration the frontend calls sign-in with the same credentials. The register endpoint is unchanged and hands out no session, which keeps email confirmation possible later. If the second call fails, the user lands on sign-in with the username filled in.
 - **Password reset.** The request sends the app's own `/reset-password` address as the return address, so the email carries a link. The page reads `token` from the address.
-- **Reactivation** is one page with two steps: the email, then the code from the email. Success leads to sign-in.
+- **Reactivation.** The request sends the app's own `/reactivate-account` address as the return address, so the email carries a link. Opened from it, the page reads `token` from the address and reactivates only when the button is pressed, because mail scanners open every link in an email. Success leads to sign-in (owner, 2026-11-20, ticket 33).
 - **Sign-in** accepts a username or an email in one field.
 
 ### Feed, posts and comments

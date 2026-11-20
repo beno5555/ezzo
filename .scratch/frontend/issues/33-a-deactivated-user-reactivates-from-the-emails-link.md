@@ -13,18 +13,30 @@ Decided with the owner on 2026-11-20, after ticket 08 shipped the paste-the-toke
 
 **Blocked by:** None (can start immediately). Ticket 08 (The auth pages) is merged.
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Difficulty:** tricky: an auth boundary (the return address must be checked, or the email can send a person and their token to a stranger's site), changed across the backend and the page together, on a flow where a slip locks a person out of their account.
 
-- [ ] A reactivation request with an allowed return address sends an email whose link points at that address and carries the token; an integration test checks it
-- [ ] A reactivation request with a foreign return address is refused with the reset request's message and sends no email; an integration test checks it
-- [ ] A reactivation request without a return address still emails the plain token, and the existing reactivation tests pass
-- [ ] The page sends its own address as the return address and, on success, says a link was sent; it has no code step
-- [ ] Opened with `?token=…`, the page reactivates only when the button is pressed, then shows sign-in with the reactivated message
-- [ ] An expired or used token shows the backend's message and a way to ask for a new link
-- [ ] Unit tests cover the changed API calls and the page's two states
-- [ ] The page is checked in the running app at 360, 768 and 1280 px, in both themes and both languages
-- [ ] `docs/backend/auth.md` and the frontend spec describe a link, not a code
+- [x] A reactivation request with an allowed return address sends an email whose link points at that address and carries the token; an integration test checks it
+- [x] A reactivation request with a foreign return address is refused with the reset request's message and sends no email; an integration test checks it
+- [x] A reactivation request without a return address still emails the plain token, and the existing reactivation tests pass
+- [x] The page sends its own address as the return address and, on success, says a link was sent; it has no code step
+- [x] Opened with `?token=…`, the page reactivates only when the button is pressed, then shows sign-in with the reactivated message
+- [x] An expired or used token shows the backend's message and a way to ask for a new link
+- [x] Unit tests cover the changed API calls and the page's two states
+- [x] The page is checked in the running app at 360, 768 and 1280 px, in both themes and both languages
+- [x] `docs/backend/auth.md` and the frontend spec describe a link, not a code
 - [ ] The owner checks one real email during review
-- [ ] The backend integration suite, the unit tests, lint and Prettier pass
+- [x] The backend integration suite, the unit tests, lint and Prettier pass
+
+## Comments
+
+**2026-11-20, implementation (Claude).** Points for the owner's review:
+
+- **Unticked box: the real email.** The development settings do not list `http://localhost:4200` in `Cors:AllowedOrigins`, so a request sent from the dev page is refused with "Url origin not allowed". Add the origin to `backend/aspnetproject/appsettings.Development.json`, then send yourself one reactivation email.
+- **A dead link shows "User not found".** The activate endpoint already answered an expired, used or unknown token with `UserNotFound`, and the page shows the backend's message as the ticket asks. A reader may take it to mean their account is gone; the reset flow says `InvalidPasswordResetToken` instead. A message of its own would be a small follow-up.
+- **The reset email changed too.** Both emails now build their link with one helper (`AccountSecurityService.BuildTokenLink`: `QueryHelpers.AddQueryString`, then HTML escaping). An address that already holds a query keeps it and gets `&token=`; `AuthControllerTests` pins this.
+- **A failed send is now an error.** The reactivation request answered `200` with `CouldNotDeactivateAccount` when the email failed; it now fails with `CouldNotSendEmail`, as the reset request does. No test covers the failure, because the email recorder never fails.
+- **Sign-in no longer fills in the email** after a reactivation: the page opened from the link does not know it. Story 26 asks only for the message.
+- **Page tests are class-level** (no DOM), as agreed on 2026-11-20.
+- **`ActivationRequestDto.Email` still lacks `[Required][EmailAddress]`**, which `ForgotPasswordDto` has. This is older than the ticket and is left alone.

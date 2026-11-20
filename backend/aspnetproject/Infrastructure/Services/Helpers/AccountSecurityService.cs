@@ -1,6 +1,8 @@
-﻿using aspnetproject.Data.Models;
+﻿using System.Net;
+using aspnetproject.Data.Models;
 using aspnetproject.Data.Repositories;
 using aspnetproject.Infrastructure.Dtos.Auth;
+using Microsoft.AspNetCore.WebUtilities;
 
 namespace aspnetproject.Infrastructure.Services.Helpers;
 
@@ -50,12 +52,12 @@ public class AccountSecurityService
             $"<p>Someone tried to create an account using this email address, which is already registered.</p><p>If this was you, you can reset your password using this token: {resetToken}</p><p>Token expires in {_resetTokenMinutes} minutes.</p><p>If this wasn't you, you can safely ignore this email.</p>"
         );
     }
-    public async Task<bool> HandleAccountActivationRequest(User user)
+    public async Task<bool> HandleAccountActivationRequest(User user, string? redirectUrl)
     {
         var activationToken = _tokenGenerator.GenerateRefreshToken();
-        
+
         await IssueResetTokenAsync(user, activationToken);
-        bool emailSent = await NotifyAccountReactivationRequest(user.Email, activationToken);
+        bool emailSent = await NotifyAccountReactivationRequest(user.Email, activationToken, redirectUrl);
 
         return emailSent;
     }
@@ -110,12 +112,19 @@ public class AccountSecurityService
             "<p>Your account has been deactivated. To reactivate it, request a reactivation link using this email address.</p><p>If you did not expect this, please contact support.</p>"
         );
     }
-    private async Task<bool> NotifyAccountReactivationRequest(string userEmail, string activationToken)
+    private async Task<bool> NotifyAccountReactivationRequest(string userEmail, string activationToken, string? redirectUrl)
     {
+        var message = string.IsNullOrEmpty(redirectUrl)
+            ? $"<p>You requested to reactivate your account.</p><p>You can reactivate using this token: {activationToken}</p>" +
+              $"<p>Token expires in {_resetTokenMinutes} minutes.</p>"
+            : $"<p>You requested to reactivate your account. Open the link below, then press the button on the page:</p>" +
+              $"<p>{BuildTokenLink(redirectUrl, activationToken, "Reactivate account")}</p>" +
+              $"<p>This link expires in {_resetTokenMinutes} minutes.</p>";
+
         return await _emailSender.SendAsync(
             userEmail,
             "Reactivate your account",
-            $"<p>You requested to reactivate your account.</p><p>You can reactivate using this token: {activationToken}</p><p>Token expires in {_resetTokenMinutes} minutes.</p><p>If you did not request this, you can safely ignore this email.</p>"
+            message + "<p>If you did not request this, you can safely ignore this email.</p>"
         );
     }
     private async Task<bool> NotifyPasswordResetRequest(string userEmail, string resetToken, string? redirectUrl)
@@ -123,10 +132,19 @@ public class AccountSecurityService
         var message = string.IsNullOrEmpty(redirectUrl)
             ? $"<p>Your password reset token: {resetToken}</p><p>Token expires in {_resetTokenMinutes} minutes.</p>"
             : $"<p>Click the link below to reset your password:</p>" +
-              $"<p><a href=\"{redirectUrl}?token={Uri.EscapeDataString(resetToken)}\">Reset password</a></p>" +
+              $"<p>{BuildTokenLink(redirectUrl, resetToken, "Reset password")}</p>" +
               $"<p>This link expires in {_resetTokenMinutes} minutes.</p>";
 
         return await _emailSender.SendAsync(userEmail, "Reset your password", message);
+    }
+
+    // An emailed link to a return address the caller already checked with UrlSecurityService, with the token in the
+    // query string. The address is HTML-escaped, so a quote in it cannot close the href and add markup to the email.
+    private static string BuildTokenLink(string redirectUrl, string token, string linkText)
+    {
+        var address = QueryHelpers.AddQueryString(redirectUrl, "token", token);
+
+        return $"<a href=\"{WebUtility.HtmlEncode(address)}\">{linkText}</a>";
     }
     public async Task NotifyAccountReactivation(string userEmail)
     {

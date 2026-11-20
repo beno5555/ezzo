@@ -1,44 +1,24 @@
-<app-auth-frame [heading]="text().auth.reactivate.title" [lead]="text().auth.reactivate.lead">
-  @if (sentTo(); as email) {
-    <app-form-message tone="success" [message]="text().auth.reactivate.codeSent(email)" />
-
-    <form class="flex flex-col gap-5" [formGroup]="codeForm" (ngSubmit)="reactivate()">
-      <app-form-field
-        fieldId="code"
-        [label]="text().auth.reactivate.codeLabel"
-        [control]="codeForm.controls.code"
-      >
-        <input
-          appTextInput
-          id="code"
-          type="text"
-          autocomplete="one-time-code"
-          autocapitalize="none"
-          spellcheck="false"
-          formControlName="code"
-        />
-      </app-form-field>
-
-      @if (failureMessage(); as message) {
+<app-auth-frame [heading]="text().auth.reactivate.title" [lead]="lead()">
+  @if (hasToken()) {
+    <div class="flex flex-col gap-5">
+      @if (activationFailureMessage(); as message) {
         <app-form-message tone="danger" [message]="message" />
       }
 
-      <div class="flex flex-col gap-2">
-        <button
-          appButton
-          look="primary"
-          type="submit"
-          [disabled]="codeForm.invalid || isSubmitting()"
-        >
-          {{ text().auth.reactivate.activateButton }}
-        </button>
-        <button appButton look="quiet" type="button" (click)="useAnotherEmail()">
-          {{ text().auth.reactivate.otherEmailButton }}
-        </button>
-      </div>
-    </form>
+      <button
+        appButton
+        look="primary"
+        type="button"
+        [disabled]="isSubmitting()"
+        (click)="reactivate()"
+      >
+        {{ text().auth.reactivate.activateButton }}
+      </button>
+    </div>
+  } @else if (sentTo(); as email) {
+    <app-form-message tone="success" [message]="text().auth.reactivate.sent(email)" />
   } @else {
-    <form class="flex flex-col gap-5" [formGroup]="emailForm" (ngSubmit)="sendCode()">
+    <form class="flex flex-col gap-5" [formGroup]="emailForm" (ngSubmit)="sendLink()">
       <app-form-field
         fieldId="email"
         [label]="text().auth.reactivate.emailLabel"
@@ -54,7 +34,7 @@
         />
       </app-form-field>
 
-      @if (failureMessage(); as message) {
+      @if (requestFailureMessage(); as message) {
         <app-form-message tone="danger" [message]="message" />
       }
 
@@ -69,6 +49,15 @@
     </form>
   }
 
+  <!-- Alone in its @if, so it reaches the frame's link slot (NG8011). -->
+  @if (hasToken()) {
+    <p appAuthLink>
+      {{ text().auth.reactivate.newLinkPrompt }}
+      <a appTextLink [routerLink]="addresses.reactivateAccount">{{
+        text().auth.reactivate.newLinkLink
+      }}</a>
+    </p>
+  }
   <p appAuthLink>
     {{ text().auth.reactivate.signInPrompt }}
     <a appTextLink [routerLink]="addresses.signIn">{{ text().auth.signInLink }}</a>

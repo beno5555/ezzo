@@ -77,7 +77,7 @@ Browsers can't set custom headers on a WebSocket/SSE handshake, so the client se
 Policy name: `OriginPolicy` (`CorsExtensions.AddCorsPolicies`), applied globally via `app.UseCors("OriginPolicy")` (not scoped only to the hub).
 
 - Explicit origin allowlist via `WithOrigins(...)` — `AllowAnyOrigin()` cannot be combined with `AllowCredentials()`.
-- Origins stored in `appsettings.{Environment}.json` under `Cors:AllowedOrigins`. The same list decides which password-reset return addresses are accepted (see `auth.md`).
+- Origins stored in `appsettings.{Environment}.json` under `Cors:AllowedOrigins`. The same list decides which return addresses the password-reset and reactivation requests accept (see `auth.md`).
 - `UseCors(...)` is registered before `UseAuthentication`/`UseRateLimiter`/`UseAuthorization`/`MapHub` in the middleware pipeline.
 
 ## DTOs

@@ -133,6 +133,32 @@ public class AuthControllerTests : IClassFixture<DatabaseFixture>, IAsyncLifetim
         Assert.Equal(ResponseMessages.PasswordResetRequested, body.Message);
     }
 
+    // The link keeps the address's own query and adds the token to it, so the token still reaches the page.
+    [Fact]
+    public async Task RequestPasswordReset_WithQueryInRedirectUrl_EmailsLinkWhoseTokenResetsPassword()
+    {
+        const string newPassword = "AnotherValidPassword1!";
+        await RequestPasswordResetAsync($"{CustomWebApplicationFactory.TrustedFrontendOrigin}/reset-password?lang=ka");
+        var link = EmailLinks.ReadLink(_factory.EmailRecorder.Emails.Single().Body);
+
+        var resetResponse = await _client.PutAsJsonAsync("api/auth/reset-password", new
+        {
+            Token = EmailLinks.ReadToken(link),
+            NewPassword = newPassword
+        });
+
+        Assert.Equal(HttpStatusCode.OK, resetResponse.StatusCode);
+        Assert.Equal("ka", EmailLinks.ReadQueryValue(link, "lang"));
+
+        var loginResponse = await _client.PostAsJsonAsync("api/auth/login", new
+        {
+            UniqueIdentifier = "alice",
+            Password = newPassword
+        });
+
+        Assert.Equal(HttpStatusCode.OK, loginResponse.StatusCode);
+    }
+
     [Fact]
     public async Task RequestPasswordReset_WithCaseVariantOfAllowedRedirectUrl_ReturnsOk()
     {
