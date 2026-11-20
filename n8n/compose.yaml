@@ -1,0 +1,56 @@
+# WebCity's automation: n8n with the workflows in ./workflows, imported and published on every start.
+# Start from the repo root:  docker compose -f n8n/compose.yaml up -d      (n8n/README.md)
+
+name: webcity-n8n
+
+x-n8n: &n8n
+  image: docker.n8n.io/n8nio/n8n:2.47.7 # pinned: 3.0 is a one-way upgrade (spec, n8n setup)
+  env_file:
+    - path: .env # per-machine values and the encryption key; workflows read them through $env
+      required: true
+  environment:
+    GENERIC_TIMEZONE: Asia/Tbilisi # schedules and dates in workflows
+    TZ: Asia/Tbilisi
+    N8N_BLOCK_ENV_ACCESS_IN_NODE: "false" # lets workflows read $env; safe on an instance with one owner
+    N8N_DIAGNOSTICS_ENABLED: "false"
+
+services:
+  # One shot: imports the credentials and the workflows and publishes them, then exits. No restart policy,
+  # so Docker never runs it again on its own (after a crash of n8n, or a restart of Docker).
+  n8n-import:
+    <<: *n8n
+    entrypoint: ["/bin/sh", "/import/import.sh"]
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - type: bind
+        source: ./import.sh
+        target: /import/import.sh
+        read_only: true
+      - type: bind
+        source: ./workflows
+        target: /import/workflows
+        read_only: true
+      - type: bind
+        source: ./credentials.json # gitignored; a missing file stops the start instead of becoming a folder
+        target: /import/credentials.json
+        read_only: true
+        bind:
+          create_host_path: false
+
+  n8n:
+    <<: *n8n
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5678:5678" # this machine only; the backend sends events to http://localhost:5678
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - type: bind
+        source: ./tools
+        target: /opt/webcity-tools
+        read_only: true
+    depends_on:
+      n8n-import:
+        condition: service_completed_successfully
+
+volumes:
+  n8n_data:

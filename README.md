@@ -1,6 +1,6 @@
 ﻿# WebCity
 
-WebCity is a small social platform: posts, comments, friendships, direct messages and presence. This repository holds its backend, an ASP.NET Core Web API (`net10.0`) in `backend/`, built on EF Core with SQL Server, JWT authentication with rotating refresh tokens, SignalR, MailKit email and background cleanup jobs.
+WebCity is a small social platform: posts, comments, friendships, direct messages and presence. This repository holds its backend, an ASP.NET Core Web API (`net10.0`) in `backend/`, built on EF Core with SQL Server, JWT authentication with rotating refresh tokens, SignalR, MailKit email and background cleanup jobs. The automation that receives its events, n8n in Docker, lives in `n8n/` (`n8n/README.md`).
 
 For the earlier, API-only state of this repository and the history behind it, see the git tag `api-only`.
 
@@ -67,6 +67,7 @@ System.Security.Cryptography.Pkcs
     aspnetproject.slnx
     /aspnetproject                    the API project
     /aspnetproject.IntegrationTests   integration tests
+/n8n                                  the automation: compose file, workflows, secret examples, setup script
 /docs
     /backend                          per-area docs: auth, controllers, data, signalr, background-jobs, automation
     /adr                              architecture decision records
@@ -187,6 +188,8 @@ dotnet test aspnetproject.IntegrationTests
 
 The integration tests need a real SQL Server database. On Linux, `scripts/test-linux.sh` (run from the repository root) starts one in Docker and runs the same tests; CI uses that script.
 
+The automation runs beside the backend, from the repository root, with Docker running: `pwsh -File n8n/setup.ps1` generates the secrets the two share and turns events on in `appsettings.Development.json`, and `docker compose -f n8n/compose.yaml up -d` starts n8n with every workflow imported and published. Without it, events stay off and the backend runs as before. Steps and checklists: `n8n/README.md`.
+
 ---
 
 ## Architecture
@@ -295,6 +298,8 @@ Per-area detail lives in `docs/backend/`:
 - `data.md`: repositories, entities, cascade behavior
 - `signalr.md`: the hub, presence, events, CORS
 - `background-jobs.md`: the cleanup jobs
-- `automation.md`: the events sent to the automation, their signature and settings
+- `automation.md`: the events sent to the automation, their signature and settings, and how n8n receives them
+
+The automation's own setup, workflows and checklists are in `n8n/README.md`.
 
 Architecture decision records are in `docs/adr/`, and domain terms in `GLOSSARY.md`.

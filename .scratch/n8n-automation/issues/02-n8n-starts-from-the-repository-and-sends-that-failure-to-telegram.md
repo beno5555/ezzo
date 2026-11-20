@@ -17,22 +17,22 @@ Decisions are under "n8n setup" and "The six workflows" in `.scratch/n8n-automat
 
 **Blocked by:** 01 (A failure in the backend leaves as a signed event)
 
-**Status:** ready-for-agent
+**Status:** in-progress
 
 **Difficulty:** tricky: nothing in the setup has been tried on a real n8n, the import and the signature check rest on unproven claims, and debugging is likely.
 
-- [ ] From a clean start (no volume), one command brings n8n up with the workflow imported and published, and no click in n8n's interface
-- [ ] A second start with the volume kept also succeeds
-- [ ] After `docker kill` on the n8n container, Docker starts it again by itself, and the import service does not run twice
+- [x] From a clean start (no volume), one command brings n8n up with the workflow imported and published, and no click in n8n's interface
+- [x] A second start with the volume kept also succeeds
+- [x] After n8n's process dies (replaced `docker kill`, which Docker treats as a stop by hand: see Comments), Docker starts it again by itself, and the import service does not run twice
 - [ ] A request to the backend's throwing route produces one Telegram message in the developers' chat, with the type, the message, the place, the time and the stack lines readable
 - [ ] An exception whose text contains characters Telegram treats as markup (`_`, `*`, `<`) still arrives intact
-- [ ] A post to the webhook with a wrong signature, and one with none, gets `401` and sends no message
-- [ ] From inside the container, the backend answers at the address in `.env` (proves `host.docker.internal` reaches a backend that listens on `localhost`)
-- [ ] With n8n stopped, a failing request to the backend still gets its usual answer, and a `Log` row records the lost event
-- [ ] The setup script writes both secrets to both sides, prints neither, and a second run changes nothing
-- [ ] The credentials file is gitignored; `git status` shows no secret after the setup; the committed workflow file has a fixed id and no pinned data
-- [ ] Each claim from the spec's "Nothing here was run against a real n8n" note is marked confirmed or replaced in this ticket's comments
-- [ ] `CLAUDE.md` names the `n8n/` folder, its commands and what a session needs to run them; `README.md` and `docs/backend/automation.md` describe the setup
+- [x] A post to the webhook with a wrong signature, and one with none, gets `401` and sends no message
+- [x] From inside the container, the backend answers at the address in `.env` (proves `host.docker.internal` reaches a backend that listens on `localhost`)
+- [x] With n8n stopped, a failing request to the backend still gets its usual answer, and a `Log` row records the lost event
+- [x] The setup script writes both secrets to both sides, prints neither, and a second run changes nothing
+- [x] The credentials file is gitignored; `git status` shows no secret after the setup; the committed workflow file has a fixed id and no pinned data
+- [x] Each claim from the spec's "Nothing here was run against a real n8n" note is marked confirmed or replaced in this ticket's comments
+- [x] `CLAUDE.md` names the `n8n/` folder, its commands and what a session needs to run them; `README.md` and `docs/backend/automation.md` describe the setup
 - [ ] The owner ran the checklist on their machine
 
 ## Known limits from ticket 01
@@ -52,3 +52,18 @@ Ticket 01 built the backend's sending side (`EventPublisher`, `docs/backend/auto
 - **2026-11-21, running without the owner, beside 03 (owner).** This lane builds the whole ticket and proves every box that does not need Telegram: the clean start, the second start, the restart after `docker kill`, the `401` for a wrong or missing signature, the backend reached from inside the container, the `Log` row with n8n stopped, the setup script, the gitignore and the claims from the spec. Leave the bot token and the two chat ids as placeholders in the gitignored files, and stop before the Telegram boxes and the owner's checklist; the owner adds them and runs the checklist afterwards, so the ticket stays open. Docker Desktop must be running (`docker info`). Ticket 03 runs at the same time in another lane:
   - **The backend's setting for the automation's API key is `AutomationApi:Key`.** 03 defines it; the setup script writes the generated key there in `appsettings.Development.json`. Do not pick another name: git will not flag the mismatch.
   - **Shared files.** Both lanes may edit `docs/backend/automation.md`, `CLAUDE.md` and `README.md`. Keep both sides on a conflict. This lane owns everything under `n8n/`.
+- **2026-11-21, the lane's result (Claude).** Everything is built and run against a real n8n 2.47.7 in Docker Desktop on the owner's machine, with the Telegram token and chat ids still placeholders. Ten boxes are met; the two Telegram boxes and the owner's checklist are open, so the status stays `in-progress`.
+  - **The spec's claims:**
+    - *Import, then publish, in a compose service:* **confirmed.** `n8n-import` runs `import:credentials`, `import:workflow --separate` and `publish:workflow --id=<id>` per file (`n8n/import.sh`), and n8n waits for it (`service_completed_successfully`). A clean start (no volume) logs 5 credentials and 1 workflow imported, and n8n reports "1 published workflows" with no click. `import:workflow` deactivates what it imports, which is why the publish step is needed; a second start with the volume kept deactivates and publishes again. A publish that fails exits 1 and stops the start.
+    - *The Crypto node's check of a raw body:* **confirmed.** With the webhook's raw body option on, the bytes arrive as binary `data`, and the Crypto node's HMAC-SHA256 (hex, binary input) of them equals the backend's `X-WebCity-Signature`: the backend's real event from `GET api/dev/throw/7` answered `200` and built the message. No signature and a wrong one answer `401`, and those runs end at "Answer 401".
+    - *`$env` in expressions:* **confirmed,** in expressions and in the Code node, with `N8N_BLOCK_ENV_ACCESS_IN_NODE=false`. The time was formatted in `GENERIC_TIMEZONE` (10:15Z showed as 14:15 GMT+04:00).
+    - *`host.docker.internal` reaches a backend on `localhost`:* **confirmed.** From inside the container, `https://host.docker.internal:7102` answered. With certificate checks on, the call fails with `DEPTH_ZERO_SELF_SIGNED_CERT`, so a workflow calling the backend must ignore certificate problems, as the spec says.
+    - *The backend reaches n8n at `http://localhost:5678`:* **replaced by `http://127.0.0.1:5678`.** With `localhost`, .NET tries `::1` first, where Docker Desktop publishes nothing (the port is bound to `127.0.0.1`), and the connection hangs: the first real event took the full 3-second timeout and was lost (`Log` row: "no answer before the timeout"). With `127.0.0.1` it took 0.24 s. `setup.ps1` writes `127.0.0.1`; the spec, `automation.md`, `CLAUDE.md` and `n8n/README.md` say why.
+    - *"After `docker kill`, Docker starts it again":* **replaced.** After `docker kill` the container stayed exited (137, 0 restarts): Docker treats a kill through the API as a stop by hand, and `unless-stopped` does not restart it. Killing n8n's process inside the container (`docker exec webcity-n8n-n8n-1 kill -9 <pid of n8n>`, not PID 1, which is `tini`) is a real crash: the container restarted by itself (1 restart), the webhook answered again, and the import container's start time did not change. Box 3 is reworded to this.
+  - **The other boxes:** with n8n stopped, `GET api/dev/throw` still answered `500` with the usual envelope, and a `Log` row recorded "Event exception-occurred was not delivered: No connection could be made ... (127.0.0.1:5678)". The setup script wrote both secrets to both sides (64 hex characters each, and different), printed only kept, generated or copied, and a second run wrote no file. `git status` lists no secret file (`n8n/.env` is caught by the existing `.env` rule, `n8n/credentials.json` by a new one). The workflow file has the id `wcExceptionAlert` and empty `pinData`, and an export through `export-workflow.ps1` gave back the committed file unchanged.
+  - **Markup, as far as it goes without Telegram:** an event full of `_`, `*`, `<`, `>`, `&` and backticks (`n8n/send-test-exception.ps1`) built the message with only `&`, `<` and `>` escaped, which is all HTML mode needs. Whether Telegram shows it intact is box 5, for the owner.
+  - **Found on the way:**
+    - `docker compose -f n8n/compose.yaml up -d` while n8n runs re-runs the import without restarting n8n; the webhook answers `404` for about two seconds while the workflow is republished. That is the way to load a changed workflow file.
+    - Every start imports the committed files over the editor's versions, so an editor change that is not exported is lost at the next start (`n8n/README.md`).
+    - n8n's `/tmp` is emptied when the container restarts; the export script uses it only within one run.
+  - **For the owner (ticket 02's checklist):** run `pwsh -File n8n/setup.ps1` in the main checkout (this lane wrote only its own worktree's gitignored files), put the bot token into `n8n/credentials.json` (`wcTelegramBot001`, `accessToken`) and the two chat ids into `n8n/.env`, run `docker compose -f n8n/compose.yaml up -d`, restart the backend, and run the three steps of the checklist in `n8n/README.md`.

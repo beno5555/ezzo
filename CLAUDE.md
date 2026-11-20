@@ -2,7 +2,7 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
-**WebCity** is an ASP.NET Core Web API (`net10.0`) for a small social platform: posts, comments, friendships, direct messages, presence. It uses EF Core with SQL Server, JWT auth with rotating refresh tokens, SignalR, MailKit email and background cleanup jobs. This repo is a monorepo: the backend lives in `backend/`, and the Angular 22 frontend in `frontend/`. The restructure happened **inside** the current root folder: never rename or relocate the root itself, because Claude Code's project memory is keyed to its path.
+**WebCity** is an ASP.NET Core Web API (`net10.0`) for a small social platform: posts, comments, friendships, direct messages, presence. It uses EF Core with SQL Server, JWT auth with rotating refresh tokens, SignalR, MailKit email and background cleanup jobs. This repo is a monorepo: the backend lives in `backend/`, the Angular 22 frontend in `frontend/`, and the n8n automation in `n8n/`. The restructure happened **inside** the current root folder: never rename or relocate the root itself, because Claude Code's project memory is keyed to its path.
 
 ## About this file
 
@@ -46,9 +46,24 @@ npx prettier --write .       # Prettier owns formatting
 - **CORS.** The dev origin `http://localhost:4200` must be listed in the backend's `Cors:AllowedOrigins`, or the backend refuses the reset-password page as a return address.
 - `.github/workflows/tests.yml` runs a `frontend` job (Prettier check, lint, unit tests, build) beside the backend job.
 
+### n8n
+
+`n8n/` holds the automation: n8n in Docker, with its workflows committed as files that a one-shot service imports and publishes on every start. Run these from the repo root. They need Docker Desktop running (`docker info`) and `pwsh` 7.3 or later; a session opened before Docker was installed has no `docker` on its PATH. CI does not run n8n, and the integration tests never reach it.
+
+```bash
+pwsh -File n8n/setup.ps1                      # shared secrets into n8n/credentials.json and appsettings.Development.json; prints none
+docker compose -f n8n/compose.yaml up -d      # import, publish, start (http://localhost:5678); again after a workflow file changes
+docker compose -f n8n/compose.yaml stop
+pwsh -File n8n/export-workflow.ps1 -Id <id>   # an editor change back into n8n/workflows/, without pinned data
+```
+
+- **The backend reaches n8n at `http://127.0.0.1:5678`, never `localhost`:** .NET tries IPv6 first, where Docker publishes nothing, and every event times out.
+- **Every start overwrites the editor's workflows with the committed files.** Export before a restart, or the change is lost.
+- `n8n/.env` and `n8n/credentials.json` are gitignored secrets: never print or commit them, and never change `N8N_ENCRYPTION_KEY` on a kept volume. Setup, checklists and what was confirmed on a real n8n: `n8n/README.md`.
+
 ### Config prerequisites
 
-`appsettings.json`, `appsettings.Development.json` and `appsettings.Testing.json` are all **gitignored**, live in `backend/aspnetproject/` (next to `aspnetproject.csproj`), and the repo has no example template. A fresh clone will not run until they exist. The settings they need: `ConnectionStrings:DefaultConnection`, `Jwt:{Key,AccessTokenMinutes,RefreshTokenDays}`, `EmailConfiguration:*` (including `Enabled`, which defaults to true), `PasswordConfiguration:ResetTokenMinutes`, `CleanupConfiguration:{RefreshTokens,SoftDeletedUsers,OldLogs}`, `Cors:AllowedOrigins`. Optional, with defaults in `ImageStorageConfiguration`: `ImageStorage:{UploadFolder,MaxFileSizeBytes,MaxImagesPerPost,MaxImagesPerMessage}` (default folder `Uploads/` under the project, gitignored), and, with defaults in `OrphanImagesCleanupConfiguration`, `CleanupConfiguration:OrphanImages:{Interval,MinimumAge,BatchSize}`, and, with its default in `PasswordHashingConfiguration`, `PasswordConfiguration:HashIterations` (default 100,000; startup fails below that outside Testing), and, with defaults in `AutomationEventsConfiguration`, `AutomationEvents:{Enabled,BaseUrl,SigningSecret,Timeout}` (off by default; timeout 3 seconds; with events on, startup fails without the base URL or the signing secret; details in `docs/backend/automation.md`). Never print or commit their values.
+`appsettings.json`, `appsettings.Development.json` and `appsettings.Testing.json` are all **gitignored**, live in `backend/aspnetproject/` (next to `aspnetproject.csproj`), and the repo has no example template. A fresh clone will not run until they exist. The settings they need: `ConnectionStrings:DefaultConnection`, `Jwt:{Key,AccessTokenMinutes,RefreshTokenDays}`, `EmailConfiguration:*` (including `Enabled`, which defaults to true), `PasswordConfiguration:ResetTokenMinutes`, `CleanupConfiguration:{RefreshTokens,SoftDeletedUsers,OldLogs}`, `Cors:AllowedOrigins`. Optional, with defaults in `ImageStorageConfiguration`: `ImageStorage:{UploadFolder,MaxFileSizeBytes,MaxImagesPerPost,MaxImagesPerMessage}` (default folder `Uploads/` under the project, gitignored), and, with defaults in `OrphanImagesCleanupConfiguration`, `CleanupConfiguration:OrphanImages:{Interval,MinimumAge,BatchSize}`, and, with its default in `PasswordHashingConfiguration`, `PasswordConfiguration:HashIterations` (default 100,000; startup fails below that outside Testing), and, with defaults in `AutomationEventsConfiguration`, `AutomationEvents:{Enabled,BaseUrl,SigningSecret,Timeout}` (off by default; timeout 3 seconds; with events on, startup fails without the base URL or the signing secret; details in `docs/backend/automation.md`; `pwsh -File n8n/setup.ps1` writes them, and `AutomationApi:Key`, into `appsettings.Development.json`). Never print or commit their values.
 
 ### Integration tests
 
