@@ -1,4 +1,4 @@
-/* The scripts under tools/, which Node 24 runs as TypeScript by stripping the types: no build step. */
+/* The scripts under tools/, which Node 24 runs as TypeScript by stripping the types: no build step. Also the Vitest base config and its plugin (.mts), which ESLint does not cover. */
 {
   "extends": "../tsconfig.json",
   "compilerOptions": {
@@ -11,5 +11,5 @@
     "importHelpers": false,
     "types": ["node"]
   },
-  "include": ["**/*.ts"]
+  "include": ["**/*.ts", "**/*.mts", "../vitest-base.config.mts"]
 }

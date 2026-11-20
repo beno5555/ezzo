@@ -19,10 +19,12 @@ Run from `frontend/`:
 ```bash
 npm start                    # dev server on http://localhost:4200, /api and /hubs proxied to the backend
 npm test -- --watch=false    # Vitest unit tests, once
-npm run lint                 # ESLint (design token rule included), type check of tools/, then the tests of eslint-rules/
+npm run lint                 # ESLint (design token rule included), type check of tools/ and the Vitest config, then the tests of eslint-rules/
 npm run build
 npx prettier --write .       # Prettier owns formatting
 npm run screenshots -- /sign-in [https://example.com] [--signed-in]   # 12 images per app address into screenshots/
 ```
+
+**Unit-test setup.** `npm test` runs through Angular's unit-test builder, which reads `vitest-base.config.mts` (`runnerConfig` in `angular.json`). That file swaps `@lucide/angular` for a stand-in (`tools/lucide-stand-in.mts`, which says why), so a full run takes about 1.5 s instead of 14 s. In tests an icon is an empty `<svg>`: a spec must not assert on an icon's drawing, and `npm run build` still catches an icon the package lacks. Isolation stays off (the builder's default; turning it on made a run six times slower). `VITEST_SHUFFLE=1 npm test -- --watch=false` runs the files and tests in random order, to find state one leaves behind for the next.
 
 The screenshot command needs both servers running; in Git Bash, prefix it with `MSYS_NO_PATHCONV=1`. Credentials, limits and when to use the Playwright MCP server instead: `docs/agents/screenshots.md`.
