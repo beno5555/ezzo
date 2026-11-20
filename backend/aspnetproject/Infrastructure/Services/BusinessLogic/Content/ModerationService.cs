@@ -11,7 +11,7 @@ using aspnetproject.Infrastructure.Services.Logging;
 
 namespace aspnetproject.Infrastructure.Services.BusinessLogic.Content;
 
-// An administrator's direct status change, and the queue of flagged content to decide on.
+// A direct status change by an administrator or by the automation, and the queue of flagged content to decide on.
 // Every read applies the resulting visibility rule; this class only stores it.
 public class ModerationService : BaseService
 {
@@ -28,20 +28,30 @@ public class ModerationService : BaseService
         _commentRepository = commentRepository;
     }
 
-    public async Task<ApplicationResponse> SetPostStatusAsync(int id, ModerationStatus status)
+    // isAutomation: the caller is the automation, which may only raise a status (AutomationMayRaise). An administrator may set any.
+    public async Task<ModerationResponse> SetPostStatusAsync(int id, ModerationStatus status, bool isAutomation)
     {
-        var response = new ApplicationResponse();
+        var response = new ModerationResponse();
         var post     = await _postRepository.GetByIdAsync(id);
 
         if (post is not null)
         {
             var previousStatus = post.ModerationStatus;
+            bool isAllowed     = !isAutomation || AutomationMayRaise(previousStatus, status);
 
-            post.ModerationStatus = status;
-            await _postRepository.SaveChangesAsync();
+            if (isAllowed)
+            {
+                post.ModerationStatus = status;
+                await _postRepository.SaveChangesAsync();
 
-            response.Ok(ResponseMessages.ModerationStatusUpdated);
-            await LogResultAsync(response.Succeeded, nameof(SetPostStatusAsync), nameof(Post), StatusChangeDetails(previousStatus, status), id);
+                response.Ok(ResponseMessages.ModerationStatusUpdated);
+                await LogResultAsync(response.Succeeded, nameof(SetPostStatusAsync), nameof(Post), StatusChangeDetails(previousStatus, status), id);
+            }
+            else
+            {
+                response.Refuse(ResponseMessages.AutomationMayOnlyRaiseModerationStatus);
+                await LogResultAsync(response.Succeeded, nameof(SetPostStatusAsync), nameof(Post), RefusedDetails(previousStatus, status), id);
+            }
         }
         else
         {
@@ -52,20 +62,29 @@ public class ModerationService : BaseService
         return response;
     }
 
-    public async Task<ApplicationResponse> SetCommentStatusAsync(int id, ModerationStatus status)
+    public async Task<ModerationResponse> SetCommentStatusAsync(int id, ModerationStatus status, bool isAutomation)
     {
-        var response = new ApplicationResponse();
+        var response = new ModerationResponse();
         var comment  = await _commentRepository.GetByIdAsync(id);
 
         if (comment is not null)
         {
             var previousStatus = comment.ModerationStatus;
+            bool isAllowed     = !isAutomation || AutomationMayRaise(previousStatus, status);
 
-            comment.ModerationStatus = status;
-            await _commentRepository.SaveChangesAsync();
+            if (isAllowed)
+            {
+                comment.ModerationStatus = status;
+                await _commentRepository.SaveChangesAsync();
 
-            response.Ok(ResponseMessages.ModerationStatusUpdated);
-            await LogResultAsync(response.Succeeded, nameof(SetCommentStatusAsync), nameof(Comment), StatusChangeDetails(previousStatus, status), id);
+                response.Ok(ResponseMessages.ModerationStatusUpdated);
+                await LogResultAsync(response.Succeeded, nameof(SetCommentStatusAsync), nameof(Comment), StatusChangeDetails(previousStatus, status), id);
+            }
+            else
+            {
+                response.Refuse(ResponseMessages.AutomationMayOnlyRaiseModerationStatus);
+                await LogResultAsync(response.Succeeded, nameof(SetCommentStatusAsync), nameof(Comment), RefusedDetails(previousStatus, status), id);
+            }
         }
         else
         {
@@ -101,8 +120,23 @@ public class ModerationService : BaseService
         return response;
     }
 
+    // The automation may set Flagged or Hidden, and the status the content already has, but never Visible, and never Flagged
+    // on Hidden content: a human decides what is shown again.
+    private bool AutomationMayRaise(ModerationStatus previousStatus, ModerationStatus status)
+    {
+        bool setsVisible        = status == ModerationStatus.Visible;
+        bool flagsHiddenContent = status == ModerationStatus.Flagged && previousStatus == ModerationStatus.Hidden;
+
+        return !setsVisible && !flagsHiddenContent;
+    }
+
     private string StatusChangeDetails(ModerationStatus previousStatus, ModerationStatus status)
     {
         return $"Moderation status changed from {previousStatus} to {status}";
+    }
+
+    private string RefusedDetails(ModerationStatus previousStatus, ModerationStatus status)
+    {
+        return $"{ResponseMessages.AutomationMayOnlyRaiseModerationStatus}: {previousStatus} to {status}";
     }
 }

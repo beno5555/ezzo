@@ -1,7 +1,9 @@
 ﻿using System.Security.Claims;
+using aspnetproject.Common.ProjectConstants;
 using aspnetproject.Data;
 using aspnetproject.Data.Models;
 using aspnetproject.Infrastructure.Dtos.DatabaseLogs;
+using aspnetproject.Infrastructure.Services.Automation.Authentication;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 
@@ -28,12 +30,21 @@ public class DatabaseLogger
     {
         try
         {
-            int userId = GetUserId();
+            int  userId       = GetUserId();
+            bool isAutomation = userId == 0 && AutomationAuth.IsAutomation(_httpContextAccessor.HttpContext?.User);
 
             if (userId != 0)
             {
                 createLogDto.AuthorizedRequest = true;
                 createLogDto.UserId = userId;
+            }
+            else if (isAutomation)
+            {
+                // The automation has no User row, so its rows carry no user id. Without this branch they would read as an
+                // unauthorized request, which is what a row with no user id means for a guest.
+                createLogDto.AuthorizedRequest = true;
+                createLogDto.UserId = null;
+                createLogDto.Details = LogDetails.FitToColumn(NameTheAutomation(createLogDto.Details));
             }
 
             var logToAdd = new Log
@@ -90,6 +101,13 @@ public class DatabaseLogger
         }
     }
     
+    private static string NameTheAutomation(string? details)
+    {
+        bool hasDetails = !string.IsNullOrEmpty(details);
+
+        return hasDetails ? $"{Constants.AutomationActorName}: {details}" : Constants.AutomationActorName;
+    }
+
     private int GetUserId()
     {
         var userIdRaw    = _httpContextAccessor.HttpContext?.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;

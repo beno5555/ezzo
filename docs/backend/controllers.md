@@ -98,7 +98,7 @@ score = (connection weight + likes + comments) / (age in hours + AgeOffsetHours)
 
 **Visibility model.** Every post that is not hidden by moderation is readable by everyone: `GetById` and `GetPostsByUser` are public, `feed` shows any other user's post to a signed-in caller, and `mine` returns the caller's own. Friendship changes only a post's rank in the feed, never whether it can be seen.
 
-**Moderation visibility.** Posts and comments carry a moderation status: `Visible`, `Flagged` or `Hidden`, set by an administrator through `AdminController`. Hidden content is readable only by its author and by administrators; for everyone else, a guest included, it does not exist:
+**Moderation visibility.** Posts and comments carry a moderation status: `Visible`, `Flagged` or `Hidden`, set by an administrator through `ModerationController` (the automation may also raise one with its API key). Hidden content is readable only by its author and by administrators; for everyone else, a guest included, it does not exist:
 
 - It is left out of `user/{userId}`, of a post's comments (`api/comments/post/{postId}` and the comments inside `GET api/posts/{id}`), and of `CommentCount`. The feed never holds the caller's own posts, so hidden posts appear in it only for an administrator.
 - Read by id (`api/posts/{id}`, `api/comments/{id}`) it gets `404` with `PostNotFound` or `CommentNotFound`. A comment on a hidden post reads as the post does, so it cannot reveal the post.
@@ -299,21 +299,19 @@ See `auth.md` for the full activation/deactivation flow and email notifications.
 
 ### `AdminController`
 
-Route: `api/admin`. Inherits `BaseController`. The whole controller is `[Authorize(Roles = nameof(RoleName.Administrator))]`: a guest gets `401`, any other signed-in caller `403`.
+Route: `api/admin`. Inherits `BaseController`. The whole controller is `[Authorize(Roles = nameof(RoleName.Administrator))]`: a guest gets `401`, any other signed-in caller `403`. The API key opens nothing here: a request with only the key gets `401`. (Setting a moderation status, which the automation may also do, is in `ModerationController`.)
 
 | Method | Route                                | Notes                                                                                                                       |
 |--------|--------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
 | GET    | `api/admin/logs`                     | `Log` rows, newest first, `LogQueryDto`, `ListResponse<LogDisplayDto>`. Policy `AdminReadLogs` (120/minute)                  |
 | GET    | `api/admin/statistics`               | System statistics, `ApplicationResponse<SystemStatisticsDto>`. Policy `AdminReadStatistics` (30/minute)                      |
 | GET    | `api/admin/users`                    | Accounts in any state, oldest account first, `AccountListQuery`, `ListResponse<AdminUserDto>`. Policy `AdminListAccounts` (120/minute) |
-| PUT    | `api/admin/posts/{id}/moderation`    | Set a post's moderation status, `SetModerationStatusDto`. `200`, or `404` (`PostNotFound`). Policy `AdminModeratePost` (60 per 10 minutes) |
-| PUT    | `api/admin/comments/{id}/moderation` | Set a comment's moderation status, `SetModerationStatusDto`. `200`, or `404` (`CommentNotFound`). Policy `AdminModerateComment` (60 per 10 minutes) |
 | GET    | `api/admin/moderation-queue/posts`   | Flagged posts, oldest first, `PageQuery`, `ListResponse<PostSnapshotDto>`. Policy `AdminReadFlaggedPosts` (120/minute)       |
 | GET    | `api/admin/moderation-queue/comments` | Flagged comments, oldest first, `PageQuery`, `ListResponse<CommentSnapshotDto>`. Policy `AdminReadFlaggedComments` (120/minute) |
 
-**Moderation status** (`ModerationService`): the body is `{ "status": "Visible" | "Flagged" | "Hidden" }`, read case-insensitively. A missing or unknown status (`"Deleted"`, or any number such as `3` or `"3"`; `ModerationStatusJsonConverter` accepts names only) gets `400` with the framework's validation `ProblemDetails`. Any status can be set from any other, so setting `Visible` restores hidden content to every read. Each change writes a `Log` row (`ModerationService.SetPostStatusAsync` / `SetCommentStatusAsync`, entity `Post` / `Comment`) whose details name the old and new status; an unknown id writes a failed row. What each status means to readers is under **Moderation visibility** in `PostController`.
+The two routes that set a moderation status are in `ModerationController`, below, because the automation may call them too.
 
-**Moderation queue** (`ModerationService.GetFlaggedPostsAsync` / `GetFlaggedCommentsAsync`): the content an administrator has marked `Flagged`, for them to approve (`Visible`) or hide (`Hidden`) with the two moderation routes above; content leaves the queue as soon as it has either status. Posts and comments are in separate tables, so each type has its own route and there is no page across both; each route takes only the paging parameters of `PageQuery` (an out-of-range value gets `400` with the framework's validation `ProblemDetails`). Rows are oldest first by creation time, with the id as tie-break, so paging is deterministic. Each row is a snapshot an administrator can judge without opening the content: `PostSnapshotDto` (`Id`, `Title`, `PostContent`, `Images` in upload order, `Author`, `UploadedAt`, `IsHidden`) or `CommentSnapshotDto` (`Id`, `Content`, `Author`, `PostId`, `PostTitle`, `UploadedAt`, `IsHidden`), built by `SnapshotMapper`. `IsHidden` is always false in the queue, because only flagged content is listed. The report list reuses these two shapes for a reported post or comment. An author without an active account shows the placeholder username, as everywhere else. Nothing sets `Flagged` automatically yet: until the n8n spec is built, content is flagged only when an administrator sets that status. A successful read writes no `Log` row.
+**Moderation queue** (`ModerationService.GetFlaggedPostsAsync` / `GetFlaggedCommentsAsync`): the content marked `Flagged`, for an administrator to approve (`Visible`) or hide (`Hidden`) with the two moderation routes of `ModerationController`; content leaves the queue as soon as it has either status. Posts and comments are in separate tables, so each type has its own route and there is no page across both; each route takes only the paging parameters of `PageQuery` (an out-of-range value gets `400` with the framework's validation `ProblemDetails`). Rows are oldest first by creation time, with the id as tie-break, so paging is deterministic. Each row is a snapshot an administrator can judge without opening the content: `PostSnapshotDto` (`Id`, `Title`, `PostContent`, `Images` in upload order, `Author`, `UploadedAt`, `IsHidden`) or `CommentSnapshotDto` (`Id`, `Content`, `Author`, `PostId`, `PostTitle`, `UploadedAt`, `IsHidden`), built by `SnapshotMapper`. `IsHidden` is always false in the queue, because only flagged content is listed. The report list reuses these two shapes for a reported post or comment. An author without an active account shows the placeholder username, as everywhere else. Content is flagged by an administrator, or by the automation through the same routes once its workflows exist. A successful read writes no `Log` row.
 
 **Log filters** (`LogQueryDto : PageQuery`, all optional, combined with AND): `userId`, `authorizedRequest`, `succeeded`, `entityName` (exact), `entityId`, `action` (matches any part, so `action=PostService` finds every `PostService` method), and `from` / `to` (both inclusive, UTC). A `from` later than `to` is refused by `LogQueryDto.Validate` with `400` and the framework's validation `ProblemDetails` (`ResponseMessages.InvalidDateRange`), like any other query-shape error. Rows written in the same millisecond are ordered by id, newest first, so paging is deterministic. `LogService` reads through `LogRepository.SearchLogsAsync`, not the `DbContext`.
 
@@ -326,3 +324,24 @@ Route: `api/admin`. Inherits `BaseController`. The whole controller is `[Authori
 - `onlineUsers`: users with a live hub connection, from `UserConnectionTracker.GetOnlineUserCount()`. A user with two tabs open counts once. It is the count for this server process only: the tracker lives in memory, so it would undercount behind several instances.
 
 **No log row on success.** None of these reads writes a `Log` row when it succeeds, so reading the logs does not fill them. (`UserService.SearchUsersAsync`, by contrast, logs every search.)
+
+### `ModerationController`
+
+Route: `api/admin`, the same as `AdminController`, but its own class: an `[Authorize]` on a class cannot be loosened on an action, and `AdminController` is administrator-only. The whole controller is `[Authorize(Policy = AutomationAuth.Policies.AdministratorOrAutomation)]`: an administrator's token or the automation's API key (`auth.md`, "The automation's API key"). A guest or a wrong key gets `401`, an ordinary signed-in user `403`.
+
+| Method | Route                                | Notes                                                                                                                       |
+|--------|--------------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
+| PUT    | `api/admin/posts/{id}/moderation`    | Set a post's moderation status, `SetModerationStatusDto`. `200`, `403` (the automation's rule, below), or `404` (`PostNotFound`). Policy `AdminModeratePost` (60 per 10 minutes) |
+| PUT    | `api/admin/comments/{id}/moderation` | Set a comment's moderation status, `SetModerationStatusDto`. `200`, `403`, or `404` (`CommentNotFound`). Policy `AdminModerateComment` (60 per 10 minutes) |
+
+**Moderation status** (`ModerationService`): the body is `{ "status": "Visible" | "Flagged" | "Hidden" }`, read case-insensitively. A missing or unknown status (`"Deleted"`, or any number such as `3` or `"3"`; `ModerationStatusJsonConverter` accepts names only) gets `400` with the framework's validation `ProblemDetails`. **An administrator** may set any status from any other, so setting `Visible` restores hidden content to every read. Each change writes a `Log` row (`ModerationService.SetPostStatusAsync` / `SetCommentStatusAsync`, entity `Post` / `Comment`) whose details name the old and new status; an unknown id writes a failed row. What each status means to readers is under **Moderation visibility** in `PostController`.
+
+**Raise only (the automation).** The controller tells the service who the caller is, as other controllers tell their services whether it is an administrator: `SetPostStatusAsync(id, status, isAutomation)`, with `isAutomation` from `BaseController.IsAutomation()`. For the automation, the service allows only a raise:
+
+| Content is | `Flagged` sent | `Hidden` sent | `Visible` sent |
+|---|---|---|---|
+| Visible | set | set | `403` |
+| Flagged | succeeds, no change | set | `403` |
+| Hidden | `403` | succeeds, no change | `403` |
+
+A refusal is `403` with the failure envelope (`ResponseMessages.AutomationMayOnlyRaiseModerationStatus`), written by the controller from `ModerationResponse.Refused`, so a client can tell it from a missing post (`404`). The status is unchanged afterwards. Setting the status the content already has succeeds and changes nothing. An id that does not exist answers `404` whatever the automation sends, which the workflows treat as nothing to do. The routes still do not touch reports. A refusal writes a failed `Log` row, and every row for the automation follows the rule in `auth.md` (no user id, authorized, names the automation).

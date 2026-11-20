@@ -14,24 +14,31 @@ Decisions are under "The automation's identity" and "Moderation by the automatio
 
 **Blocked by:** None (can start immediately). It needs none of 02's code; the owner lifted the block on 2026-11-21, so it runs as a local lane beside 02.
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Difficulty:** tricky: a second authentication scheme and an authorization boundary, where a mistake opens every route to a leaked key.
 
-- [ ] With the key, each moderation route sets Flagged and Hidden on Visible content, and Hidden on Flagged content
-- [ ] With the key, Visible is refused with `403` whatever the current status, and Flagged is refused for Hidden content; the status is unchanged afterwards (tested as a table of from-status, to-status and caller)
-- [ ] With the key, setting the status the content already has succeeds
-- [ ] An administrator still sets any of the three statuses on both routes; an ordinary user and a guest are still refused
-- [ ] A wrong key, an empty key and a missing key are refused on the moderation routes
-- [ ] The key alone gets `401` on a sample of ordinary routes and of administrator routes, including account deactivation, deletion and granting the administrator role
-- [ ] A host with no key configured refuses a request that sends an empty key
-- [ ] The automation's requests do not share a rate-limit bucket with requests from the same IP
-- [ ] The `Log` row for the automation's change has no user id, is marked authorized and names the automation; rows for users and for background jobs are written as before
-- [ ] `docs/backend/auth.md` describes the second scheme and what the key opens; `automation.md` and `controllers.md` describe the raise-only rule; the settings list in `CLAUDE.md` names the key setting
-- [ ] The full suite passes, and its `Duration` is recorded in this ticket's comments
+- [x] With the key, each moderation route sets Flagged and Hidden on Visible content, and Hidden on Flagged content
+- [x] With the key, Visible is refused with `403` whatever the current status, and Flagged is refused for Hidden content; the status is unchanged afterwards (tested as a table of from-status, to-status and caller)
+- [x] With the key, setting the status the content already has succeeds
+- [x] An administrator still sets any of the three statuses on both routes; an ordinary user and a guest are still refused
+- [x] A wrong key, an empty key and a missing key are refused on the moderation routes
+- [x] The key alone gets `401` on a sample of ordinary routes and of administrator routes, including account deactivation, deletion and granting the administrator role
+- [x] A host with no key configured refuses a request that sends an empty key
+- [x] The automation's requests do not share a rate-limit bucket with requests from the same IP
+- [x] The `Log` row for the automation's change has no user id, is marked authorized and names the automation; rows for users and for background jobs are written as before
+- [x] `docs/backend/auth.md` describes the second scheme and what the key opens; `automation.md` and `controllers.md` describe the raise-only rule; the settings list in `CLAUDE.md` names the key setting
+- [x] The full suite passes, and its `Duration` is recorded in this ticket's comments
 
 ## Comments
 
 - **2026-11-21, running beside 02 (owner).** Ticket 02 runs at the same time in another local lane. Where the two meet:
   - **The setting's name is `AutomationApi:Key`.** This ticket defines it (an options class with that section), and 02's setup script writes the generated key into `appsettings.Development.json` under that name. Do not pick another name: git will not flag the mismatch, and the key would never be read.
   - **Shared files.** Both lanes may edit `docs/backend/automation.md`, `CLAUDE.md` (Config prerequisites) and `README.md`. Keep both sides on a conflict. 02 owns everything under `n8n/`; this ticket owns the backend's authentication, the moderation service and the database logger.
+- **2026-11-21, done (worktree lane `n8n-03-api-key`).** Implemented on Sonnet 5.5, although the ticket's `Difficulty` is `tricky` (Opus 5.5 at high effort); the `/spec-review` ran on Opus. Review the authentication boundary with that in mind. Full suite: 871 tests, all passed, `Duration: 1 m 4 s`. Build: 0 errors, 0 warnings. `/spec-review` ran on both axes; its findings were fixed (a stale rate-limit sentence in `auth.md`, a null-safe key comparison, two named conditions, the controller mapping written at each call site, and a test for a background job's `Log` row). What a reader should know:
+  - **The two moderation routes moved to a new `ModerationController`** (same addresses, same rate-limit policies). A class-level `[Authorize]` cannot be loosened on an action, and `AdminController` stays administrator-only. `ModerationService` returns a `ModerationResponse` whose `Refused` flag lets the controller answer `403` apart from `404`.
+  - **Who counts as the automation** is decided by how the identity was authenticated (`AutomationAuth.IsAutomation`), never by a claim. A request with an administrator's token and the key is the administrator's, so the raise-only rule never narrows an administrator.
+  - **The rate limiter asks `AutomationKeyValidator` itself,** because it runs before the API-key scheme has authenticated anything. Only a valid key gets the `"automation"` bucket (in `PerUserSlidingWindow`, so every per-user policy and the global limiter); a wrong key falls back to its address. The per-IP policies still count by address, and the key opens no route under them.
+  - **The `/api/internal` rule** is the `AutomationOnly` policy. No real route applies it yet (tickets 08 and 11 will), so it is tested on `Helpers/AutomationOnlyProbeController`, a route that exists only in the test host: the key opens it, an administrator's token and a wrong key get `401`.
+  - **A test-transport limit:** the in-memory test host drops a header whose value is empty, so an empty key arrives as a missing header over HTTP. A mutation check showed the "empty key never matches" guard was not covered that way, so `Security/AutomationKeyValidatorTests` tests the validator with a real empty header.
+  - **Left alone, for the owner:** a token for an ordinary user plus a valid key counts as the automation on the moderation routes (the `Log` row then carries the user's id). The automation shares the moderation policies' limits (60 per 10 minutes, one bucket for all of it); ticket 08 or 11 may want a policy of its own. `appsettings.Development.json` is gitignored and not touched: 02's setup script writes `AutomationApi:Key` into it.
