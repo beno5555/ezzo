@@ -70,6 +70,7 @@ System.Security.Cryptography.Pkcs
 /docs
     /backend                          per-area docs: auth, controllers, data, signalr, background-jobs, automation
     /adr                              architecture decision records
+    /c4                               C4 architecture document (Georgian), its diagrams and their build scripts
     /agents                           notes for coding agents
 /scripts
     test-linux.sh                     runs the tests against a throwaway SQL Server in Docker
@@ -296,5 +297,7 @@ Per-area detail lives in `docs/backend/`:
 - `signalr.md`: the hub, presence, events, CORS
 - `background-jobs.md`: the cleanup jobs
 - `automation.md`: the events sent to the automation, their signature and settings
+
+The C4 architecture document for the academy (in Georgian, with its diagrams and a PDF) is in `docs/c4/`.
 
 Architecture decision records are in `docs/adr/`, and domain terms in `GLOSSARY.md`.

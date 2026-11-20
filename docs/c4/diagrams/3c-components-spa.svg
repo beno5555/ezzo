@@ -1,0 +1,171 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="1470" viewBox="0 0 1200 1470">
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#707070"/></marker></defs>
+<rect width="1200" height="1470" fill="#FFFFFF"/>
+<rect x="20" y="260" width="1160" height="790" rx="4" fill="none" stroke="#7A7A7A" stroke-width="1.5" stroke-dasharray="9 5"/>
+<text x="32" y="1026.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="15" font-weight="bold" fill="#2E2E2E" text-anchor="start">Single-Page Application</text>
+<text x="32" y="1041.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#5A5A5A" text-anchor="start">[Container: TypeScript, Angular 22]</text>
+<path d="M430,155 L200,300" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M650,155 L760,300" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M280,380 L330,380" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M570,380 L620,380" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M860,380 L910,380" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M160,460 L160,570" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M450,460 L450,570" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M700,460 L700,570" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M800,460 L970,570" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M910,650 L860,650" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M570,620 L620,620" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M740,730 L740,840" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M620,895 L450,895 L450,730" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M1030,840 L1030,730" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M740,990 L740,1090" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M1030,990 L1030,1090" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M520,1335 L630,1335" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<rect x="430" y="93.5" width="220" height="116.5" rx="37.800000000000004" fill="#08427B" stroke="#052E56" stroke-width="1.5"/>
+<circle cx="540" cy="62" r="42" fill="#08427B" stroke="#052E56" stroke-width="1.5"/>
+<text x="540" y="132.3" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">User</text>
+<text x="540" y="149.3" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle">[Person]</text>
+<text x="540" y="171.3" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">A guest, a member or an</text>
+<text x="540" y="186.3" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">administrator.</text>
+<rect x="40" y="300" width="240" height="160" rx="6" fill="#85BBF0" stroke="#5D82A8" stroke-width="1.5"/>
+<text x="160" y="358.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#000000" text-anchor="middle">Shell</text>
+<text x="160" y="375.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#000000" text-anchor="middle">[Component: Angular components]</text>
+<text x="160" y="397.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">Top bar, bottom bar, search box, user</text>
+<text x="160" y="412.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">menu, language and theme switches.</text>
+<rect x="330" y="300" width="240" height="160" rx="6" fill="#85BBF0" stroke="#5D82A8" stroke-width="1.5"/>
+<text x="450" y="351.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#000000" text-anchor="middle">Routing and guards</text>
+<text x="450" y="368.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#000000" text-anchor="middle">[Component: Angular Router]</text>
+<text x="450" y="390.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">Lazy-loads each page; authGuard,</text>
+<text x="450" y="405.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">guestGuard and adminGuard; page</text>
+<text x="450" y="420.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">titles.</text>
+<rect x="620" y="300" width="240" height="160" rx="6" fill="#85BBF0" stroke="#5D82A8" stroke-width="1.5"/>
+<text x="740" y="344.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#000000" text-anchor="middle">Feature pages</text>
+<text x="740" y="361.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#000000" text-anchor="middle">[Component: Angular standalone</text>
+<text x="740" y="375.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#000000" text-anchor="middle">components]</text>
+<text x="740" y="397.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">Auth pages, feed, user search; profile,</text>
+<text x="740" y="412.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">friends, chat, settings and admin pages</text>
+<text x="740" y="427.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">as they are built.</text>
+<rect x="910" y="300" width="240" height="160" rx="6" fill="#85BBF0" stroke="#5D82A8" stroke-width="1.5"/>
+<text x="1030" y="351.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#000000" text-anchor="middle">Shared UI</text>
+<text x="1030" y="368.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#000000" text-anchor="middle">[Component: Angular components, Tailwind</text>
+<text x="1030" y="382.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#000000" text-anchor="middle">CSS, Angular CDK]</text>
+<text x="1030" y="404.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">Buttons, form fields, dialog, confirmation,</text>
+<text x="1030" y="419.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">menu, toasts, post card, photos, avatar.</text>
+<rect x="40" y="570" width="240" height="160" rx="6" fill="#85BBF0" stroke="#5D82A8" stroke-width="1.5"/>
+<text x="160" y="628.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#000000" text-anchor="middle">Languages and themes</text>
+<text x="160" y="645.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#000000" text-anchor="middle">[Component: Signals, dictionaries]</text>
+<text x="160" y="667.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">English and Georgian dictionaries, plural</text>
+<text x="160" y="682.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">forms, dates; light and dark theme.</text>
+<rect x="330" y="570" width="240" height="160" rx="6" fill="#85BBF0" stroke="#5D82A8" stroke-width="1.5"/>
+<text x="450" y="621.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#000000" text-anchor="middle">Session store</text>
+<text x="450" y="638.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#000000" text-anchor="middle">[Component: Signals, Web Locks]</text>
+<text x="450" y="660.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">The signed-in user and the access token,</text>
+<text x="450" y="675.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">in memory only; restores the session by</text>
+<text x="450" y="690.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">refresh.</text>
+<rect x="620" y="570" width="240" height="160" rx="6" fill="#85BBF0" stroke="#5D82A8" stroke-width="1.5"/>
+<text x="740" y="613.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#000000" text-anchor="middle">API services</text>
+<text x="740" y="630.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#000000" text-anchor="middle">[Component: HttpClient]</text>
+<text x="740" y="652.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">AuthApi, UserApi, PostApi, PostLikeApi,</text>
+<text x="740" y="667.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">FriendshipApi, MessageApi,</text>
+<text x="740" y="682.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">AccountActivationApi. Return promises</text>
+<text x="740" y="697.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">of results.</text>
+<rect x="910" y="570" width="240" height="160" rx="6" fill="#85BBF0" stroke="#5D82A8" stroke-width="1.5"/>
+<text x="1030" y="621.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#000000" text-anchor="middle">Feature stores</text>
+<text x="1030" y="638.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#000000" text-anchor="middle">[Component: Signals]</text>
+<text x="1030" y="660.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">Presence, unread count, incoming</text>
+<text x="1030" y="675.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">requests, likes, toasts; PagedList for</text>
+<text x="1030" y="690.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">every paged list.</text>
+<rect x="620" y="840" width="240" height="150" rx="6" fill="#85BBF0" stroke="#5D82A8" stroke-width="1.5"/>
+<text x="740" y="893.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#000000" text-anchor="middle">Auth interceptor</text>
+<text x="740" y="910.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#000000" text-anchor="middle">[Component: HttpInterceptorFn]</text>
+<text x="740" y="932.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">Adds the access token; on a 401</text>
+<text x="740" y="947.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">refreshes once, shared, and retries.</text>
+<rect x="910" y="840" width="240" height="150" rx="6" fill="#85BBF0" stroke="#5D82A8" stroke-width="1.5"/>
+<text x="1030" y="886.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#000000" text-anchor="middle">Hub client</text>
+<text x="1030" y="903.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#000000" text-anchor="middle">[Component: @microsoft/signalr, loaded on</text>
+<text x="1030" y="917.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#000000" text-anchor="middle">demand]</text>
+<text x="1030" y="939.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">One connection while signed in; maps</text>
+<text x="1030" y="954.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">each hub event to a store method.</text>
+<rect x="620" y="1090" width="530" height="130" rx="6" fill="#438DD5" stroke="#2E6295" stroke-width="1.5"/>
+<text x="885" y="1141.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">API Application</text>
+<text x="885" y="1158.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle">[Container: C#, ASP.NET Core Web API]</text>
+<text x="885" y="1180.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">Reached through the web server at /api and /hubs.</text>
+<rect x="40" y="1332" width="120" height="48" rx="21.6" fill="#08427B" stroke="#052E56" stroke-width="1.5"/>
+<circle cx="100" cy="1314" r="24" fill="#08427B" stroke="#052E56" stroke-width="1.5"/>
+<text x="100" y="1362.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Person</text>
+
+<rect x="180" y="1290" width="150" height="90" rx="6" fill="#85BBF0" stroke="#5D82A8" stroke-width="1.5"/>
+<text x="255" y="1339.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#000000" text-anchor="middle">Component</text>
+
+<rect x="350" y="1290" width="150" height="90" rx="6" fill="#438DD5" stroke="#2E6295" stroke-width="1.5"/>
+<text x="425" y="1339.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Container</text>
+
+<rect x="187.0" y="236.0" width="86.0" height="18.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="230" y="249.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Navigates with</text>
+
+<rect x="699.3" y="229.0" width="91.4" height="32.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="745" y="242.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Reads and acts</text>
+<text x="745" y="256.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">on</text>
+
+<rect x="274.3" y="364.0" width="61.4" height="32.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="305" y="377.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Navigates</text>
+<text x="305" y="391.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">through</text>
+
+<rect x="562.0" y="371.0" width="66.0" height="18.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="595" y="384.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Lazy-loads</text>
+
+<rect x="859.0" y="364.0" width="52.0" height="32.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="885" y="377.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Are built</text>
+<text x="885" y="391.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">from</text>
+
+<rect x="94.0" y="499.0" width="132.1" height="32.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="160" y="512.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Switches language and</text>
+<text x="160" y="526.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">theme with</text>
+
+<rect x="402.6" y="499.0" width="94.7" height="32.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="450" y="512.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Guards read the</text>
+<text x="450" y="526.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">session from</text>
+
+<rect x="685.7" y="506.0" width="28.7" height="18.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="700" y="519.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Call</text>
+
+<rect x="835.0" y="499.0" width="60.0" height="32.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="865" y="512.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Read and</text>
+<text x="865" y="526.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">update</text>
+
+<rect x="860.7" y="634.0" width="48.7" height="32.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="885" y="647.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Read</text>
+<text x="885" y="661.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">through</text>
+
+<rect x="566.0" y="560.0" width="58.0" height="60.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="595" y="573.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Signs in</text>
+<text x="595" y="587.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">and</text>
+<text x="595" y="601.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">refreshes</text>
+<text x="595" y="615.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">through</text>
+
+<rect x="697.3" y="769.0" width="85.4" height="32.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="740" y="782.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Send requests</text>
+<text x="740" y="796.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">through</text>
+
+<rect x="402.3" y="767.0" width="95.4" height="46.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="450" y="780.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Reads the token</text>
+<text x="450" y="794.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">from, refreshes</text>
+<text x="450" y="808.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">through</text>
+
+<rect x="979.3" y="769.0" width="101.4" height="32.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="1030" y="782.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Feeds live events</text>
+<text x="1030" y="796.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">into</text>
+
+<rect x="687.6" y="1024.5" width="104.7" height="31.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="740" y="1037.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Sends requests to</text>
+<text x="740" y="1050.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="10.5" font-weight="normal" fill="#707070" text-anchor="middle">[JSON/HTTPS, /api]</text>
+<rect x="964.7" y="1018.0" width="130.5" height="44.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="1030" y="1031.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Connects to</text>
+<text x="1030" y="1044.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="10.5" font-weight="normal" fill="#707070" text-anchor="middle">[SignalR over WebSocket,</text>
+<text x="1030" y="1057.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="10.5" font-weight="normal" fill="#707070" text-anchor="middle">/hubs/messages]</text>
+<rect x="538.0" y="1351.0" width="74.0" height="18.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="575" y="1364.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Relationship</text>
+
+<text x="30" y="1430.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="20" font-weight="normal" fill="#2E2E2E" text-anchor="start">[Component] WebCity - Single-Page Application</text>
+<text x="30" y="1452.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#8A8A8A" text-anchor="start">The Angular application's parts. Pages not built yet load a placeholder. November 2026.</text>
+</svg>

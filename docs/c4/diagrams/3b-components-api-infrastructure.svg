@@ -1,0 +1,161 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1520" height="1520" viewBox="0 0 1520 1520">
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#707070"/></marker></defs>
+<rect width="1520" height="1520" fill="#FFFFFF"/>
+<rect x="20" y="250" width="1440" height="810" rx="4" fill="none" stroke="#7A7A7A" stroke-width="1.5" stroke-dasharray="9 5"/>
+<text x="32" y="1036.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="15" font-weight="bold" fill="#2E2E2E" text-anchor="start">API Application</text>
+<text x="32" y="1051.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#5A5A5A" text-anchor="start">[Container: C#, ASP.NET Core Web API]</text>
+<path d="M330,365 L280,365" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M160,290 L160,170" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M450,440 L450,500 L620,500" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M450,620 L450,560 L620,560" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M1030,440 L1030,500 L860,500" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M1030,620 L1030,560 L860,560" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M740,455 L740,170" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M1150,365 L1200,365" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M1150,665 L1260,665 L1260,440" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M450,770 L450,860" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M1030,770 L1030,935 L570,935" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M450,1010 L450,1110" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M1350,440 L1350,1110" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M1440,365 L1480,365 L1480,1290 L595,1290 L595,1250" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M720,1385 L830,1385" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<rect x="40" y="30" width="240" height="140" rx="6" fill="#999999" stroke="#6B6B6B" stroke-width="1.5"/>
+<text x="160" y="86.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Email System</text>
+<text x="160" y="103.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle">[Software System, external]</text>
+<text x="160" y="125.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">An SMTP mail service.</text>
+<rect x="620" y="30" width="240" height="140" rx="6" fill="#438DD5" stroke="#2E6295" stroke-width="1.5"/>
+<text x="740" y="78.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Automation</text>
+<text x="740" y="95.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle">[Container: n8n]</text>
+<text x="740" y="117.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">Receives the events at /webhook/{event</text>
+<text x="740" y="132.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">name}.</text>
+<rect x="40" y="290" width="240" height="150" rx="6" fill="#85BBF0" stroke="#5D82A8" stroke-width="1.5"/>
+<text x="160" y="336.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#000000" text-anchor="middle">Email sender</text>
+<text x="160" y="353.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#000000" text-anchor="middle">[Component: MailKit]</text>
+<text x="160" y="375.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">Sends the account security emails: reset,</text>
+<text x="160" y="390.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">reactivation, deactivation and the rest of</text>
+<text x="160" y="405.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">ADR 0008.</text>
+<rect x="330" y="290" width="240" height="150" rx="6" fill="#85BBF0" stroke="#5D82A8" stroke-width="1.5"/>
+<text x="450" y="343.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#000000" text-anchor="middle">User services</text>
+<text x="450" y="360.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#000000" text-anchor="middle">[Component: C# services]</text>
+<text x="450" y="382.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">Registration, password reset,</text>
+<text x="450" y="397.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">deactivation, reactivation, deletion.</text>
+<rect x="910" y="290" width="240" height="150" rx="6" fill="#85BBF0" stroke="#5D82A8" stroke-width="1.5"/>
+<text x="1030" y="343.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#000000" text-anchor="middle">Global exception handler</text>
+<text x="1030" y="360.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#000000" text-anchor="middle">[Component: IExceptionHandler]</text>
+<text x="1030" y="382.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">Turns an unhandled exception into the</text>
+<text x="1030" y="397.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">failure envelope and reports it.</text>
+<rect x="1200" y="290" width="240" height="150" rx="6" fill="#85BBF0" stroke="#5D82A8" stroke-width="1.5"/>
+<text x="1320" y="329.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#000000" text-anchor="middle">Loggers</text>
+<text x="1320" y="346.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#000000" text-anchor="middle">[Component: DatabaseLogger,</text>
+<text x="1320" y="360.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#000000" text-anchor="middle">SystemLogger]</text>
+<text x="1320" y="382.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">Outcome rows in the Log table;</text>
+<text x="1320" y="397.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">unhandled exceptions and failed log</text>
+<text x="1320" y="412.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">writes in a file.</text>
+<rect x="620" y="455" width="240" height="150" rx="6" fill="#85BBF0" stroke="#5D82A8" stroke-width="1.5"/>
+<text x="740" y="494.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#000000" text-anchor="middle">Event publisher</text>
+<text x="740" y="511.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#000000" text-anchor="middle">[Component: Typed HttpClient,</text>
+<text x="740" y="525.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#000000" text-anchor="middle">HMAC-SHA256]</text>
+<text x="740" y="547.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">Wraps, signs and posts one event in one</text>
+<text x="740" y="562.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">awaited attempt; logs a failure and never</text>
+<text x="740" y="577.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">throws.</text>
+<rect x="330" y="620" width="240" height="150" rx="6" fill="#85BBF0" stroke="#5D82A8" stroke-width="1.5"/>
+<text x="450" y="673.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#000000" text-anchor="middle">Content services</text>
+<text x="450" y="690.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#000000" text-anchor="middle">[Component: C# services]</text>
+<text x="450" y="712.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">Posts with photos, messages with</text>
+<text x="450" y="727.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">photos, comments, reports.</text>
+<rect x="910" y="620" width="240" height="150" rx="6" fill="#85BBF0" stroke="#5D82A8" stroke-width="1.5"/>
+<text x="1030" y="666.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#000000" text-anchor="middle">Background jobs</text>
+<text x="1030" y="683.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#000000" text-anchor="middle">[Component: Hosted services on</text>
+<text x="1030" y="697.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#000000" text-anchor="middle">PeriodicHostedService]</text>
+<text x="1030" y="719.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">Cleanup cycles on a timer. A failed cycle</text>
+<text x="1030" y="734.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">is logged and reported.</text>
+<rect x="330" y="860" width="240" height="150" rx="6" fill="#85BBF0" stroke="#5D82A8" stroke-width="1.5"/>
+<text x="450" y="899.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#000000" text-anchor="middle">Image storage</text>
+<text x="450" y="916.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#000000" text-anchor="middle">[Component: C# class, static files at</text>
+<text x="450" y="930.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#000000" text-anchor="middle">/api/images]</text>
+<text x="450" y="952.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">Checks uploads by their leading bytes,</text>
+<text x="450" y="967.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">names, saves and deletes files. The only</text>
+<text x="450" y="982.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#000000" text-anchor="middle">code that touches them.</text>
+<path d="M330,1124 V1114 Q330,1110 334,1110 H410 L420,1124 H656 Q660,1124 660,1128 V1246 Q660,1250 656,1250 H334 Q330,1250 330,1246 Z" fill="#438DD5" stroke="#2E6295" stroke-width="1.5"/>
+<text x="495" y="1173.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">File Storage</text>
+<text x="495" y="1190.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle">[Container: server file system]</text>
+<text x="495" y="1212.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">Uploads/ and Logs/.</text>
+<path d="M1200,1124 A120,14 0 0 1 1440,1124 V1246 A120,14 0 0 1 1200,1246 Z" fill="#438DD5" stroke="#2E6295" stroke-width="1.5"/>
+<path d="M1200,1124 A120,14 0 0 0 1440,1124" fill="none" stroke="#2E6295" stroke-width="1.5"/>
+<text x="1320" y="1178.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Database</text>
+<text x="1320" y="1195.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle">[Container: SQL Server]</text>
+<text x="1320" y="1217.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">The Log table among the rest.</text>
+<rect x="40" y="1340" width="150" height="90" rx="6" fill="#85BBF0" stroke="#5D82A8" stroke-width="1.5"/>
+<text x="115" y="1389.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#000000" text-anchor="middle">Component</text>
+
+<rect x="210" y="1340" width="150" height="90" rx="6" fill="#438DD5" stroke="#2E6295" stroke-width="1.5"/>
+<text x="285" y="1389.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Container</text>
+
+<path d="M380,1354 V1344 Q380,1340 384,1340 H430 L440,1354 H526 Q530,1354 530,1358 V1426 Q530,1430 526,1430 H384 Q380,1430 380,1426 Z" fill="#438DD5" stroke="#2E6295" stroke-width="1.5"/>
+<text x="455" y="1387.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Container, file</text>
+<text x="455" y="1406.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">system</text>
+
+<rect x="550" y="1340" width="150" height="90" rx="6" fill="#999999" stroke="#6B6B6B" stroke-width="1.5"/>
+<text x="625" y="1370.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Software</text>
+<text x="625" y="1389.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">System,</text>
+<text x="625" y="1408.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">external</text>
+
+<rect x="283.7" y="342.0" width="42.7" height="46.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="305" y="355.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Send</text>
+<text x="305" y="369.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">emails</text>
+<text x="305" y="383.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">with</text>
+
+<rect x="104.0" y="214.5" width="112.0" height="31.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="160" y="227.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Sends emails using</text>
+<text x="160" y="240.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="10.5" font-weight="normal" fill="#707070" text-anchor="middle">[SMTP]</text>
+<rect x="466.6" y="481.0" width="136.7" height="32.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="535" y="494.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Publish account-created</text>
+<text x="535" y="508.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">with</text>
+
+<rect x="458.6" y="552.0" width="152.7" height="32.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="535" y="565.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Publish post, comment and</text>
+<text x="535" y="579.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">report events with</text>
+
+<rect x="877.6" y="481.0" width="134.7" height="32.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="945" y="494.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Publishes</text>
+<text x="945" y="508.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">exception-occurred with</text>
+
+<rect x="872.6" y="559.0" width="144.7" height="18.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="945" y="572.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Publish a failed cycle with</text>
+
+<rect x="673.6" y="208.0" width="132.7" height="44.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="740" y="221.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Sends signed events to</text>
+<text x="740" y="234.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="10.5" font-weight="normal" fill="#707070" text-anchor="middle">[JSON/HTTP webhooks,</text>
+<text x="740" y="247.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="10.5" font-weight="normal" fill="#707070" text-anchor="middle">X-WebCity-Signature]</text>
+<rect x="1151.3" y="356.0" width="47.4" height="18.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="1175" y="369.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Logs to</text>
+
+<rect x="1230.0" y="529.0" width="60.0" height="32.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="1260" y="542.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Log each</text>
+<text x="1260" y="556.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">cycle with</text>
+
+<rect x="397.6" y="799.0" width="104.7" height="32.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="450" y="812.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Check, save and</text>
+<text x="450" y="826.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">delete photos with</text>
+
+<rect x="741.6" y="919.0" width="96.7" height="32.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="790" y="932.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Delete orphaned</text>
+<text x="790" y="946.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">photos with</text>
+
+<rect x="378.0" y="1037.5" width="144.1" height="45.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="450" y="1050.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Writes, reads and deletes</text>
+<text x="450" y="1064.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">photos in</text>
+<text x="450" y="1077.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="10.5" font-weight="normal" fill="#707070" text-anchor="middle">[File I/O]</text>
+<rect x="1303.0" y="777.5" width="94.0" height="45.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="1350" y="790.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Writes Log rows</text>
+<text x="1350" y="804.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">to</text>
+<text x="1350" y="817.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="10.5" font-weight="normal" fill="#707070" text-anchor="middle">[EF Core]</text>
+<rect x="905.6" y="1274.5" width="188.8" height="31.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="1000" y="1287.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Appends unhandled exceptions to</text>
+<text x="1000" y="1300.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="10.5" font-weight="normal" fill="#707070" text-anchor="middle">[File I/O, Logs/ErrorLogs.txt]</text>
+<rect x="738.0" y="1401.0" width="74.0" height="18.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="775" y="1414.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Relationship</text>
+
+<text x="30" y="1480.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="20" font-weight="normal" fill="#2E2E2E" text-anchor="start">[Component] WebCity - API Application: infrastructure</text>
+<text x="30" y="1502.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#8A8A8A" text-anchor="start">Email, events, photos and logs: the components that reach outside the process. November 2026.</text>
+</svg>

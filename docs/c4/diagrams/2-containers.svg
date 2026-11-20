@@ -1,0 +1,172 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1560" height="1330" viewBox="0 0 1560 1330">
+<defs><marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="9" markerHeight="9" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" fill="#707070"/></marker></defs>
+<rect width="1560" height="1330" fill="#FFFFFF"/>
+<rect x="30" y="285" width="1160" height="820" rx="4" fill="none" stroke="#7A7A7A" stroke-width="1.5" stroke-dasharray="9 5"/>
+<text x="42" y="1081.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="15" font-weight="bold" fill="#2E2E2E" text-anchor="start">WebCity</text>
+<text x="42" y="1096.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#5A5A5A" text-anchor="start">[Software System]</text>
+<path d="M490,230 L570,320" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M850,230 L700,320" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M340,405 L480,400" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M630,510 L630,610" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M185,500 L185,700 L480,695" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M480,760 L420,760 L420,955 L340,955" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M590,790 L590,880" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M780,660 L930,660" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M930,745 L780,745" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M1045,610 L1045,405 L1270,405" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M1160,685 L1270,685" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M1045,790 L1045,935 L1270,935" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M730,790 L730,855 L850,855 L850,1005 L1270,1005" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<path d="M1030,1195 L1140,1195" fill="none" stroke="#707070" stroke-width="1.5" stroke-dasharray="7 5" marker-end="url(#arrow)"/>
+<rect x="380" y="103.5" width="220" height="126.5" rx="37.800000000000004" fill="#08427B" stroke="#052E56" stroke-width="1.5"/>
+<circle cx="490" cy="72" r="42" fill="#08427B" stroke="#052E56" stroke-width="1.5"/>
+<text x="490" y="147.3" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">User</text>
+<text x="490" y="164.3" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle">[Person]</text>
+<text x="490" y="186.3" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">A guest or a signed-in member of</text>
+<text x="490" y="201.3" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">WebCity.</text>
+<rect x="740" y="103.5" width="220" height="126.5" rx="37.800000000000004" fill="#08427B" stroke="#052E56" stroke-width="1.5"/>
+<circle cx="850" cy="72" r="42" fill="#08427B" stroke="#052E56" stroke-width="1.5"/>
+<text x="850" y="154.8" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Administrator</text>
+<text x="850" y="171.8" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle">[Person]</text>
+<text x="850" y="193.8" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">A user with the Administrator role.</text>
+<rect x="70" y="330" width="270" height="170" rx="6" fill="#438DD5" stroke="#2E6295" stroke-width="1.5"/>
+<text x="205" y="379.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Web Server</text>
+<text x="205" y="396.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle">[Container: nginx; the Angular dev server in</text>
+<text x="205" y="410.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle">development]</text>
+<text x="205" y="432.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">Serves the SPA's files and forwards /api and</text>
+<text x="205" y="447.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">/hubs to the API, so the browser sees one</text>
+<text x="205" y="462.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">origin.</text>
+<rect x="480" y="320" width="300" height="190" rx="8" fill="#438DD5" stroke="#2E6295" stroke-width="1.5"/>
+<line x1="480" y1="338" x2="780" y2="338" stroke="#2E6295" stroke-width="1.5"/>
+<circle cx="492" cy="329" r="3.2" fill="#2E6295"/>
+<circle cx="503" cy="329" r="3.2" fill="#2E6295"/>
+<circle cx="514" cy="329" r="3.2" fill="#2E6295"/>
+<text x="630" y="402.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Single-Page Application</text>
+<text x="630" y="419.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle">[Container: TypeScript, Angular 22, Tailwind CSS]</text>
+<text x="630" y="441.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">Every page of WebCity in the browser: feed,</text>
+<text x="630" y="456.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">profiles, friends, chat, settings and the admin panel.</text>
+<rect x="480" y="610" width="300" height="180" rx="6" fill="#438DD5" stroke="#2E6295" stroke-width="1.5"/>
+<text x="630" y="678.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">API Application</text>
+<text x="630" y="695.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle">[Container: C#, ASP.NET Core Web API, .NET 10]</text>
+<text x="630" y="717.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">The REST API under /api, the SignalR hub at</text>
+<text x="630" y="732.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">/hubs/messages, and the background cleanup jobs.</text>
+<rect x="930" y="610" width="230" height="180" rx="6" fill="#438DD5" stroke="#2E6295" stroke-width="1.5"/>
+<text x="1045" y="671.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Automation</text>
+<text x="1045" y="688.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle">[Container: n8n 2.47 in Docker]</text>
+<text x="1045" y="710.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">Six workflows: AI moderation, report</text>
+<text x="1045" y="725.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">handling, welcome email, weekly</text>
+<text x="1045" y="740.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">digest, birthdays, exception alerts.</text>
+<path d="M70,874 A135,14 0 0 1 340,874 V1036 A135,14 0 0 1 70,1036 Z" fill="#438DD5" stroke="#2E6295" stroke-width="1.5"/>
+<path d="M70,874 A135,14 0 0 0 340,874" fill="none" stroke="#2E6295" stroke-width="1.5"/>
+<text x="205" y="933.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Database</text>
+<text x="205" y="950.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle">[Container: SQL Server, EF Core code-first]</text>
+<text x="205" y="972.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">Users, roles, posts, comments, likes,</text>
+<text x="205" y="987.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">friendships, messages, reports, refresh token</text>
+<text x="205" y="1002.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">hashes, log rows.</text>
+<path d="M480,894 V884 Q480,880 484,880 H560 L570,894 H776 Q780,894 780,898 V1036 Q780,1040 776,1040 H484 Q480,1040 480,1036 Z" fill="#438DD5" stroke="#2E6295" stroke-width="1.5"/>
+<text x="630" y="945.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">File Storage</text>
+<text x="630" y="962.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle">[Container: server file system]</text>
+<text x="630" y="984.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">Uploaded photos of posts and messages (Uploads/),</text>
+<text x="630" y="999.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">and the error log file (Logs/).</text>
+<rect x="1270" y="330" width="250" height="150" rx="6" fill="#999999" stroke="#6B6B6B" stroke-width="1.5"/>
+<text x="1395" y="383.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">OpenAI Moderation API</text>
+<text x="1395" y="400.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle">[Software System, external]</text>
+<text x="1395" y="422.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">Scores text and images for rule-breaking</text>
+<text x="1395" y="437.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">content.</text>
+<rect x="1270" y="610" width="250" height="150" rx="6" fill="#999999" stroke="#6B6B6B" stroke-width="1.5"/>
+<text x="1395" y="663.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Telegram</text>
+<text x="1395" y="680.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle">[Software System, external]</text>
+<text x="1395" y="702.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">Delivers alerts to the administrators' and</text>
+<text x="1395" y="717.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">the developers' chats.</text>
+<rect x="1270" y="880" width="250" height="150" rx="6" fill="#999999" stroke="#6B6B6B" stroke-width="1.5"/>
+<text x="1395" y="941.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Email System</text>
+<text x="1395" y="958.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle">[Software System, external]</text>
+<text x="1395" y="980.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">An SMTP mail service.</text>
+<rect x="40" y="1192" width="120" height="48" rx="21.6" fill="#08427B" stroke="#052E56" stroke-width="1.5"/>
+<circle cx="100" cy="1174" r="24" fill="#08427B" stroke="#052E56" stroke-width="1.5"/>
+<text x="100" y="1222.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Person</text>
+
+<rect x="180" y="1150" width="150" height="90" rx="6" fill="#438DD5" stroke="#2E6295" stroke-width="1.5"/>
+<text x="255" y="1199.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Container</text>
+
+<rect x="350" y="1150" width="150" height="90" rx="8" fill="#438DD5" stroke="#2E6295" stroke-width="1.5"/>
+<line x1="350" y1="1168" x2="500" y2="1168" stroke="#2E6295" stroke-width="1.5"/>
+<circle cx="362" cy="1159" r="3.2" fill="#2E6295"/>
+<circle cx="373" cy="1159" r="3.2" fill="#2E6295"/>
+<circle cx="384" cy="1159" r="3.2" fill="#2E6295"/>
+<text x="425" y="1199.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Container, web</text>
+<text x="425" y="1218.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">browser</text>
+
+<path d="M520,1164 A75,14 0 0 1 670,1164 V1226 A75,14 0 0 1 520,1226 Z" fill="#438DD5" stroke="#2E6295" stroke-width="1.5"/>
+<path d="M520,1164 A75,14 0 0 0 670,1164" fill="none" stroke="#2E6295" stroke-width="1.5"/>
+<text x="595" y="1197.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Container,</text>
+<text x="595" y="1216.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">database</text>
+
+<path d="M690,1164 V1154 Q690,1150 694,1150 H740 L750,1164 H836 Q840,1164 840,1168 V1236 Q840,1240 836,1240 H694 Q690,1240 690,1236 Z" fill="#438DD5" stroke="#2E6295" stroke-width="1.5"/>
+<text x="765" y="1197.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Container, file</text>
+<text x="765" y="1216.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">system</text>
+
+<rect x="860" y="1150" width="150" height="90" rx="6" fill="#999999" stroke="#6B6B6B" stroke-width="1.5"/>
+<text x="935" y="1180.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Software</text>
+<text x="935" y="1199.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">System,</text>
+<text x="935" y="1218.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">external</text>
+
+<rect x="510.9" y="256.5" width="48.3" height="31.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="535" y="269.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Uses</text>
+<text x="535" y="282.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="10.5" font-weight="normal" fill="#707070" text-anchor="middle">[HTTPS]</text>
+<rect x="724.3" y="249.5" width="91.4" height="45.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="770" y="262.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Uses the admin</text>
+<text x="770" y="276.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">panel in</text>
+<text x="770" y="289.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="10.5" font-weight="normal" fill="#707070" text-anchor="middle">[HTTPS]</text>
+<rect x="355.6" y="376.0" width="108.7" height="32.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="410" y="389.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Delivers the SPA's</text>
+<text x="410" y="403.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">files to the browser</text>
+
+<rect x="528.6" y="529.0" width="202.7" height="58.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="630" y="542.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Makes API calls to, and receives live</text>
+<text x="630" y="556.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">events from</text>
+<text x="630" y="569.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="10.5" font-weight="normal" fill="#707070" text-anchor="middle">[JSON/HTTPS, SignalR over WebSocket,</text>
+<text x="630" y="582.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="10.5" font-weight="normal" fill="#707070" text-anchor="middle">through the web server]</text>
+<rect x="276.6" y="677.5" width="136.7" height="45.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="345" y="690.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Forwards /api and /hubs</text>
+<text x="345" y="704.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">to</text>
+<text x="345" y="717.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="10.5" font-weight="normal" fill="#707070" text-anchor="middle">[HTTPS, WebSocket]</text>
+<rect x="346.5" y="807.5" width="127.0" height="45.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="410" y="820.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Reads from and</text>
+<text x="410" y="834.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">writes to</text>
+<text x="410" y="847.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="10.5" font-weight="normal" fill="#707070" text-anchor="middle">[EF Core, SQL over TCP]</text>
+<rect x="507.9" y="813.5" width="204.1" height="45.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="610" y="826.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Saves, serves and deletes photos in;</text>
+<text x="610" y="840.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">writes errors to</text>
+<text x="610" y="853.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="10.5" font-weight="normal" fill="#707070" text-anchor="middle">[File I/O]</text>
+<rect x="788.6" y="618.0" width="132.7" height="44.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="855" y="631.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Sends signed events to</text>
+<text x="855" y="644.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="10.5" font-weight="normal" fill="#707070" text-anchor="middle">[JSON/HTTP webhooks,</text>
+<text x="855" y="657.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="10.5" font-weight="normal" fill="#707070" text-anchor="middle">HMAC-SHA256]</text>
+<rect x="791.6" y="722.5" width="126.7" height="59.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="855" y="735.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Calls the internal and</text>
+<text x="855" y="749.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">moderation endpoints,</text>
+<text x="855" y="763.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">downloads photos</text>
+<text x="855" y="776.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="10.5" font-weight="normal" fill="#707070" text-anchor="middle">[JSON/HTTPS, API key]</text>
+<rect x="1103.0" y="382.5" width="94.0" height="45.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="1150" y="395.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Checks text and</text>
+<text x="1150" y="409.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">photos using</text>
+<text x="1150" y="422.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="10.5" font-weight="normal" fill="#707070" text-anchor="middle">[JSON/HTTPS]</text>
+<rect x="1170.1" y="627.5" width="89.7" height="45.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="1215" y="640.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Sends alerts</text>
+<text x="1215" y="654.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">using</text>
+<text x="1215" y="667.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="10.5" font-weight="normal" fill="#707070" text-anchor="middle">[Bot API, HTTPS]</text>
+<rect x="1081.3" y="882.5" width="137.4" height="59.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="1150" y="895.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Sends welcome, digest,</text>
+<text x="1150" y="909.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">birthday and moderation</text>
+<text x="1150" y="923.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">emails using</text>
+<text x="1150" y="936.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="10.5" font-weight="normal" fill="#707070" text-anchor="middle">[SMTP]</text>
+<rect x="949.0" y="989.5" width="202.1" height="31.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="1050" y="1002.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Sends account security emails using</text>
+<text x="1050" y="1015.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="10.5" font-weight="normal" fill="#707070" text-anchor="middle">[SMTP, MailKit]</text>
+<rect x="1048.0" y="1211.0" width="74.0" height="18.0" fill="#FFFFFF" fill-opacity="0.92"/>
+<text x="1085" y="1224.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Relationship</text>
+
+<text x="30" y="1290.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="20" font-weight="normal" fill="#2E2E2E" text-anchor="start">[Container] WebCity</text>
+<text x="30" y="1312.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#8A8A8A" text-anchor="start">The container diagram for WebCity. November 2026.</text>
+</svg>
