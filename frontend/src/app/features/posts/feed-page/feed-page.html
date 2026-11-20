@@ -5,7 +5,11 @@
     <ul class="flex flex-col gap-4">
       @for (post of feed.items(); track post.id) {
         <li>
-          <app-post-card [post]="post" (postChange)="replacePost($event)" />
+          <app-post-card
+            [post]="post"
+            [isLiking]="postLikes.isLiking(post.id)"
+            (likeToggle)="toggleLike(post)"
+          />
         </li>
       }
     </ul>

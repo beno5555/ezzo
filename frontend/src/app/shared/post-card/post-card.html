@@ -35,7 +35,7 @@
       [attr.aria-pressed]="post().likedByCaller"
       [attr.aria-disabled]="isLiking()"
       [attr.aria-label]="text().posts.card.likeButton(post().likeCount)"
-      (click)="toggleLike()"
+      (click)="requestLikeToggle()"
     >
       <svg
         class="size-5"

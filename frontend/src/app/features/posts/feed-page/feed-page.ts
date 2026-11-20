@@ -8,6 +8,7 @@ import { Button } from '../../../shared/button/button';
 import { PostCard } from '../../../shared/post-card/post-card';
 import { ScrollSentinel } from '../../../shared/scroll-sentinel/scroll-sentinel';
 import { PostApi } from '../post-api';
+import { PostLikeStore } from '../post-like-store';
 import { StandardPostDisplayDto } from '../standard-post-display-dto';
 
 // The ranked feed at /feed, for a signed-in user. It loads page after page as the reader scrolls, through
@@ -24,6 +25,7 @@ export class FeedPage implements OnInit {
   private readonly postApi = inject(PostApi);
 
   protected readonly text = inject(LanguageStore).text;
+  protected readonly postLikes = inject(PostLikeStore);
   protected readonly PageLoadStatus = PageLoadStatus;
   protected readonly feed = new PagedList<StandardPostDisplayDto>({
     loadPage: (query) => this.postApi.getFeed(query),
@@ -41,8 +43,11 @@ export class FeedPage implements OnInit {
     await this.feed.loadNext();
   }
 
-  // A card's like changed its post.
-  replacePost(post: StandardPostDisplayDto): void {
-    this.feed.replace(post);
+  // A card's like button: the post changes in place once the server agrees.
+  async toggleLike(post: StandardPostDisplayDto): Promise<void> {
+    const changed = await this.postLikes.toggle(post);
+    if (changed !== null) {
+      this.feed.replace(changed);
+    }
   }
 }

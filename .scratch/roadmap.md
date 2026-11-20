@@ -126,3 +126,4 @@ Gaps A to F (`.scratch/documented-backend-features/spec.md`) are built except on
 - Images on AWS S3 (considered on 2026-11-14). Until then they stay on local disk.
 - Russian and Spanish dictionary files (ADR 0006).
 - Translated server text, which needs a stable code on every backend failure (ADR 0006).
+- **Georgian dates in Chrome** (found in frontend ticket 09, 2026-11-20). Desktop Chrome has no Georgian locale data, so `DateFormatter` falls back to English month names on the Georgian interface; the time zone is right. The fix is a locale polyfill (`@formatjs/intl-datetimeformat` with `ka` data) or our own Georgian month names. No ticket yet; the owner accepts the English dates until then. Also worth doing in spare time before the deadline.
