@@ -105,6 +105,29 @@ public class UserService : BaseService
         return response;
     }
 
+    // The caller's own switch. Returns the own shape, so a client can refresh what it shows.
+    public async Task<ApplicationResponse<FullUserDto>> SetDigestEmailAsync(int userId, bool enabled)
+    {
+        var response = new ApplicationResponse<FullUserDto>();
+
+        var user = await _userRepository.GetUserByIdAsync(userId);
+        if (user is not null)
+        {
+            await _userRepository.SetDigestEmailAsync(user, enabled);
+            var userDto = UserMapper.ToFullDisplay(user);
+
+            response.Ok(userDto, ResponseMessages.DigestEmailUpdated);
+            await LogResultAsync(response.Succeeded, nameof(SetDigestEmailAsync), nameof(User), null, userId);
+        }
+        else
+        {
+            response.Fail(ResponseMessages.UserNotFound);
+            await LogResultAsync(response.Succeeded, nameof(SetDigestEmailAsync), nameof(User), response.Message, null);
+        }
+
+        return response;
+    }
+
     public async Task<ApplicationResponse<FullUserDto>> EditUserProfileAsync(int id, EditUserDto editUserDto)
     {
         var response = new ApplicationResponse<FullUserDto>();

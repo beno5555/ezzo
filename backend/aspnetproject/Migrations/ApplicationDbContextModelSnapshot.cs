@@ -719,6 +719,11 @@ namespace aspnetproject.Migrations
                     b.Property<DateTime>("DateOfBirth")
                         .HasColumnType("datetime2");
 
+                    b.Property<bool>("DigestEmailEnabled")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bit")
+                        .HasDefaultValue(true);
+
                     b.Property<string>("Email")
                         .IsRequired()
                         .HasMaxLength(100)
@@ -777,6 +782,7 @@ namespace aspnetproject.Migrations
                             Bio = "Admin",
                             CreatedAt = new DateTime(2026, 9, 6, 11, 4, 0, 0, DateTimeKind.Utc),
                             DateOfBirth = new DateTime(2000, 8, 16, 2, 3, 9, 0, DateTimeKind.Utc),
+                            DigestEmailEnabled = true,
                             Email = "benashvilisandro91@gmail.com",
                             PasswordHash = "x3UgoGJFZ2X3VJBAaQyF4J+M9+gfXP6vdO1W4jNwUzQ=",
                             PasswordSalt = "o0wzhm224CIRy46p73NmiqjhaEtU5pyOuZ60rUHOM+g=",
@@ -789,6 +795,7 @@ namespace aspnetproject.Migrations
                             Bio = "Primary test caller",
                             CreatedAt = new DateTime(2026, 9, 6, 10, 50, 0, 0, DateTimeKind.Utc),
                             DateOfBirth = new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DigestEmailEnabled = true,
                             Email = "alice@example.com",
                             PasswordHash = "x3UgoGJFZ2X3VJBAaQyF4J+M9+gfXP6vdO1W4jNwUzQ=",
                             PasswordSalt = "o0wzhm224CIRy46p73NmiqjhaEtU5pyOuZ60rUHOM+g=",
@@ -801,6 +808,7 @@ namespace aspnetproject.Migrations
                             Bio = "Alice's accepted friend",
                             CreatedAt = new DateTime(2026, 9, 6, 10, 55, 0, 0, DateTimeKind.Utc),
                             DateOfBirth = new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DigestEmailEnabled = true,
                             Email = "bob@example.com",
                             PasswordHash = "x3UgoGJFZ2X3VJBAaQyF4J+M9+gfXP6vdO1W4jNwUzQ=",
                             PasswordSalt = "o0wzhm224CIRy46p73NmiqjhaEtU5pyOuZ60rUHOM+g=",
@@ -813,6 +821,7 @@ namespace aspnetproject.Migrations
                             Bio = "Unrelated active user",
                             CreatedAt = new DateTime(2026, 9, 6, 11, 0, 0, 0, DateTimeKind.Utc),
                             DateOfBirth = new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DigestEmailEnabled = true,
                             Email = "charlie@example.com",
                             PasswordHash = "x3UgoGJFZ2X3VJBAaQyF4J+M9+gfXP6vdO1W4jNwUzQ=",
                             PasswordSalt = "o0wzhm224CIRy46p73NmiqjhaEtU5pyOuZ60rUHOM+g=",
@@ -825,6 +834,7 @@ namespace aspnetproject.Migrations
                             Bio = "Pending friendship user",
                             CreatedAt = new DateTime(2026, 9, 6, 11, 5, 0, 0, DateTimeKind.Utc),
                             DateOfBirth = new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DigestEmailEnabled = true,
                             Email = "diana@example.com",
                             PasswordHash = "x3UgoGJFZ2X3VJBAaQyF4J+M9+gfXP6vdO1W4jNwUzQ=",
                             PasswordSalt = "o0wzhm224CIRy46p73NmiqjhaEtU5pyOuZ60rUHOM+g=",
@@ -838,6 +848,7 @@ namespace aspnetproject.Migrations
                             Bio = "Deactivated fixture user",
                             CreatedAt = new DateTime(2026, 9, 6, 11, 10, 0, 0, DateTimeKind.Utc),
                             DateOfBirth = new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DigestEmailEnabled = true,
                             Email = "erin@example.com",
                             PasswordHash = "x3UgoGJFZ2X3VJBAaQyF4J+M9+gfXP6vdO1W4jNwUzQ=",
                             PasswordSalt = "o0wzhm224CIRy46p73NmiqjhaEtU5pyOuZ60rUHOM+g=",
@@ -852,6 +863,7 @@ namespace aspnetproject.Migrations
                             Bio = "Soft-deleted fixture user",
                             CreatedAt = new DateTime(2026, 9, 6, 11, 15, 0, 0, DateTimeKind.Utc),
                             DateOfBirth = new DateTime(2000, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            DigestEmailEnabled = true,
                             Email = "frank@example.com",
                             PasswordHash = "x3UgoGJFZ2X3VJBAaQyF4J+M9+gfXP6vdO1W4jNwUzQ=",
                             PasswordSalt = "o0wzhm224CIRy46p73NmiqjhaEtU5pyOuZ60rUHOM+g=",

@@ -40,6 +40,7 @@ public static class ApplicationServicesExtensions
         services.AddScoped<ReportRepository>();
 
         services.AddScoped<UserService>();
+        services.AddScoped<DigestService>();
         services.AddScoped<AuthService>();
         services.AddScoped<AccountManagementService>();
         services.AddScoped<AccountActivationService>();

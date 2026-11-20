@@ -259,6 +259,83 @@ public class UserRepository : BaseEntityRepository<User>
         await _dbContext.SaveChangesAsync();
     }
 
+    // Who gets the weekly digest, by user id, one page at a time. The global filter leaves out deactivated and deleted recipients.
+    // A row needs the switch on and something to report: an unread conversation, a pending request received, or a post by an
+    // accepted friend (either direction) since `since`. The counts match the ones the app shows: an unread conversation is a
+    // distinct sender of unseen messages, like MessageRepository.GetUnreadConversationsCount, and a request counts whoever sent it.
+    // Posts leave out hidden ones and those by deactivated or deleted friends, and go most-liked first, newer first on a tie.
+    public async Task<List<DigestRecipientProjection>> GetDigestRecipientsAsync(DateTime since, int postLimit, PageQuery pageQuery)
+    {
+        var messages    = _dbContext.Set<Message>();
+        var friendships = _dbContext.Set<Friendship>();
+
+        // Each post that counts, paired with the friend whose digest it is in: the other side of the accepted friendship.
+        // Defined once and inlined by EF wherever it is used below; nothing runs until the final query.
+        var friendsPosts =
+            from friendship in friendships
+            where friendship.FriendshipStatus == FriendshipStatus.Accepted
+            from post in _dbContext.Set<Post>()
+            where (post.UserId == friendship.RequesterUserId || post.UserId == friendship.AddresseeUserId)
+                  && post.ModerationStatus != ModerationStatus.Hidden
+                  && post.CreatedAt >= since
+                  // Through the filtered user set, not post.User: the filter turns that join into a LEFT JOIN, so a hidden
+                  // author reads as null and a check on its dates passes.
+                  && _dbSet.Any(author => author.Id == post.UserId)
+            select new
+            {
+                RecipientId = post.UserId == friendship.RequesterUserId ? friendship.AddresseeUserId : friendship.RequesterUserId,
+                Post        = post
+            };
+
+        var unreadMessages  = messages.Where(message => !message.Seen);
+        var pendingRequests = friendships.Where(friendship => friendship.FriendshipStatus == FriendshipStatus.Pending);
+
+        return await _dbSet
+            .AsNoTracking()
+            .Where(user => user.DigestEmailEnabled
+                           && (unreadMessages.Any(message => message.ReceiverUserId == user.Id)
+                               || pendingRequests.Any(friendship => friendship.AddresseeUserId == user.Id)
+                               || friendsPosts.Any(row => row.RecipientId == user.Id)))
+            .OrderBy(user => user.Id)
+            .Skip((pageQuery.PageNumber - 1) * pageQuery.PageSize)
+            .Take(pageQuery.PageSize)
+            .Select(user => new DigestRecipientProjection
+            {
+                Id       = user.Id,
+                Username = user.Username,
+                Email    = user.Email,
+                UnreadConversationCount = unreadMessages
+                    .Where(message => message.ReceiverUserId == user.Id)
+                    .Select(message => message.SenderUserId)
+                    .Distinct()
+                    .Count(),
+                PendingFriendRequestCount = pendingRequests.Count(friendship => friendship.AddresseeUserId == user.Id),
+                Posts = friendsPosts
+                    .Where(row => row.RecipientId == user.Id)
+                    .Select(row => row.Post)
+                    .OrderByDescending(post => post.Likes.Count())
+                    .ThenByDescending(post => post.CreatedAt)
+                    .Take(postLimit)
+                    .Select(post => new DigestPostProjection
+                    {
+                        Id             = post.Id,
+                        Title          = post.PostTitle,
+                        AuthorUsername = post.User!.Username,
+                        LikeCount      = post.Likes.Count()
+                    })
+                    .ToList()
+            })
+            .ToListAsync();
+    }
+
+    public async Task SetDigestEmailAsync(User userToUpdate, bool enabled)
+    {
+        userToUpdate.DigestEmailEnabled = enabled;
+        userToUpdate.LastUpdatedAt      = DateTime.UtcNow;
+
+        await _dbContext.SaveChangesAsync();
+    }
+
     public async Task MarkActiveAsync(int userId)
     {
         await _dbSet.Where(user => user.Id == userId)

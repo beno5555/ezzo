@@ -40,7 +40,7 @@ public class FriendshipControllerTests : IClassFixture<DatabaseFixture>, IAsyncL
     // So alice has friend bob, one waiting request sent to diana, one waiting request from charlie; bob has friends alice and diana.
 
     private const int NonexistentUserId    = 999;
-    private const int SeededFriendshipCount = 5;
+    private const int SeededFriendshipCount = 7;
 
     // ---------- every endpoint ----------
 
