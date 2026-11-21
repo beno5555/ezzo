@@ -24,7 +24,7 @@ Claude Code keeps these in a memory you cannot read. They apply to you too.
 - **Commit finished work directly** when there is nothing for the owner to check. Ask first when the change needs the owner's judgement or testing.
 - **Push once, when a task is done**, not after every commit. Ordinary pushes only: force-pushes and history rewrites always need the owner.
 - **Never delete a branch, tag or remote ref** without asking the owner right before you do it, naming the exact refs. This holds even when the owner told you to earlier. Deleting ordinary files needs no prompt, but look at a file before you delete it.
-- **No pull requests from a local session:** in the main checkout, merge the finished branch into `master` with `git merge --no-ff`, run the checks `CLAUDE.md` asks for, then push. A lane in a worktree under `.claude/worktrees/` never merges: it ends with a clean trial merge and pushes its branch (`docs/agents/worktrees.md`). A finished branch that waits for the owner is always pushed.
+- **No pull requests from a local session:** in the main checkout, merge the finished branch into `master` with `git merge --no-ff`, run the checks `CLAUDE.md` asks for, then push. A lane in a worktree under `.claude/worktrees/` never merges: it ends with a clean trial merge (`docs/agents/worktrees.md`).
 - **Tickets are made only by the owner's `/to-tickets` run.** Never write a ticket file by hand. Put findings in your reply as input for `/to-tickets`.
 - **When the owner asks "should I ...?", answer and stop.** Don't start the workflow yourself.
 - **When advice conflicts with a project document,** give both arguments and let the owner decide. A document does not win by default.
