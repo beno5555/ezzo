@@ -24,7 +24,7 @@ Pick tickets that touch different files. The ticket's "What to build" names the 
 
 A lane never merges into `master`, and never commits on it, by any route. The owner does that later from the main checkout. A lane's job ends when its branch is known to merge into `master` without conflicts.
 
-1. Commit on `worktree-<name>`, with the ticket's roadmap update in the branch (see `issue-tracker.md`).
+1. Commit on `worktree-<name>`, with the ticket's roadmap and review-queue updates in the branch (see `issue-tracker.md`).
 2. Run a trial merge against the latest `master`. It writes nothing to any checkout and moves no branch:
 
    ```bash
