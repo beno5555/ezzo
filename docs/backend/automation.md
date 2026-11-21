@@ -1,6 +1,6 @@
 # WebCity — Automation Events
 
-> Part of the WebCity doc set. See also: `README.md`, `data.md`, `auth.md`, `controllers.md`, `signalr.md`, `background-jobs.md`, `automation.md`.
+> Part of the WebCity doc set. See also: `README.md`, `data.md`, `auth.md`, `controllers.md`, `signalr.md`, `background-jobs.md`, `automation.md`, `testing.md`.
 
 The backend tells the **automation** (n8n, see `GLOSSARY.md`) what happened by sending it signed events. This page covers the sending side: the publisher, its settings, the envelope, the signature and the events. The decisions behind it are under "Events" in `.scratch/n8n-automation/spec.md`.
 
