@@ -7,7 +7,10 @@ import { PagedList } from '../../../core/paging/paged-list';
 import { Button } from '../../../shared/button/button';
 import { PostCard } from '../../../shared/post-card/post-card';
 import { ScrollSentinel } from '../../../shared/scroll-sentinel/scroll-sentinel';
+import { NewPost } from '../new-post';
+import { NewPostStore } from '../new-post-store';
 import { PostApi } from '../post-api';
+import { PostComposer } from '../post-composer/post-composer';
 import { PostLikeStore } from '../post-like-store';
 import { StandardPostDisplayDto } from '../standard-post-display-dto';
 
@@ -17,7 +20,14 @@ import { StandardPostDisplayDto } from '../standard-post-display-dto';
 // way to try again, or ended. An empty list shows the same states in place of the posts.
 @Component({
   selector: 'app-feed-page',
-  imports: [Button, PostCard, ScrollSentinel, LucideCircleExclamationPoint, LucideNewspaper],
+  imports: [
+    Button,
+    PostCard,
+    PostComposer,
+    ScrollSentinel,
+    LucideCircleExclamationPoint,
+    LucideNewspaper,
+  ],
   templateUrl: './feed-page.html',
   styleUrl: './feed-page.css',
 })
@@ -32,7 +42,13 @@ export class FeedPage implements OnInit {
     pageSize: LIMITS.paging.defaultPageSize,
     keyOf: (post) => post.id,
   });
+  protected readonly newPosts = inject(NewPostStore);
+  // The posts in the feed's list: those it loaded, and the caller's own once the server has them (prepend).
+  // Posts still on their way are not in it, but they are shown, so they open the list too.
   protected readonly hasPosts = computed(() => this.feed.items().length > 0);
+  protected readonly isListShown = computed(
+    () => this.hasPosts() || this.newPosts.pending().length > 0,
+  );
 
   async ngOnInit(): Promise<void> {
     await this.feed.loadNext();
@@ -41,6 +57,11 @@ export class FeedPage implements OnInit {
   // From the scroll sentinel, and from the Try again button after a failed page.
   async loadMore(): Promise<void> {
     await this.feed.loadNext();
+  }
+
+  // The composer's send: the post shows on top at once, and the server's copy takes its place.
+  async publish(newPost: NewPost): Promise<void> {
+    await this.newPosts.publish(newPost, (created) => this.feed.prepend(created));
   }
 
   // A card's like button: the post changes in place at once, and back if the server refuses.

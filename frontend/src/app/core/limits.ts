@@ -1,3 +1,6 @@
+// Constants.cs's BytesPerMegabyte.
+const bytesPerMegabyte = 1024 * 1024;
+
 // The backend's limits, mirrored by hand. Each group names the backend file it copies.
 export const LIMITS = {
   // backend/aspnetproject/Common/ProjectConstants/Constants.cs. The age is counted on the UTC calendar, as
@@ -15,6 +18,21 @@ export const LIMITS = {
     maxAge: 100,
     usernamePattern: /^(?=.*[a-zA-Z])[a-zA-Z0-9_-]+$/,
     emailPattern: /^[^@\s]+@[^@\s]+\.[^@\s]+$/,
+  },
+  // backend/aspnetproject/Common/ProjectConstants/Constants.cs (CreatePostDto)
+  posts: {
+    titleMaxLength: 100,
+    contentMaxLength: 3000,
+  },
+  // The defaults of backend/aspnetproject/Infrastructure/Services/Storage/Configuration/
+  // ImageStorageConfiguration.cs, and the formats ImageStorage accepts (it judges a file by its leading
+  // bytes; the browser can only go by the type it reads from the name).
+  images: {
+    bytesPerMegabyte,
+    maxFileSizeBytes: 5 * bytesPerMegabyte,
+    maxPerPost: 10,
+    maxPerMessage: 5,
+    acceptedTypes: ['image/jpeg', 'image/png', 'image/webp'],
   },
   // backend/aspnetproject/Common/ProjectConstants/Constants.cs, the bounds of Infrastructure/Queries/PageQuery.cs
   paging: {

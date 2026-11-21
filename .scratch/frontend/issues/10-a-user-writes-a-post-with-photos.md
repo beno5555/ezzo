@@ -18,17 +18,31 @@ Decisions are under "Feed, posts and comments" in `.scratch/frontend/spec.md`. T
 
 **Blocked by:** 09 (The feed shows posts with photos and likes), and the frontend setup (27, 28, 29)
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Difficulty:** tricky: a file upload with previews is a new kind of interaction here, and the post that shows before the server has it, with a toast that lasts until the upload ends, sets the pattern that comments, messages and edits copy.
 
-- [ ] A post with a title and text, a post with a title and photos only, and a post with both appear on top of the feed at once, marked as uploading and with the current time, and the server's copy replaces each
-- [ ] An uploading toast stays until the upload ends, then a published toast leads to the post
-- [ ] A title alone cannot be sent
-- [ ] An eleventh photo, a file of another type and a file over 5 MB are each refused in the browser with a message that names the reason
-- [ ] The photo checks are a pure helper, unit-tested for the count, each accepted type, a refused type and the size limit
-- [ ] A photo removed from the selection is not uploaded, and the others keep their order
-- [ ] The server's refusal of a post removes the pending post, shows its message, and puts what the user wrote, photos included, back into the composer
-- [ ] Preview addresses made in the browser are released when a photo is removed, and when the server's copy replaces the pending post
-- [ ] The create method is unit-tested against the HTTP testing backend: a multipart body with the fields and the files in order
-- [ ] Checked in the running app on a desktop width and on a phone width
+- [x] A post with a title and text, a post with a title and photos only, and a post with both appear on top of the feed at once, marked as uploading and with the current time, and the server's copy replaces each
+- [x] An uploading toast stays until the upload ends, then a published toast leads to the post
+- [x] A title alone cannot be sent
+- [x] An eleventh photo, a file of another type and a file over 5 MB are each refused in the browser with a message that names the reason
+- [x] The photo checks are a pure helper, unit-tested for the count, each accepted type, a refused type and the size limit
+- [x] A photo removed from the selection is not uploaded, and the others keep their order
+- [x] The server's refusal of a post removes the pending post, shows its message, and puts what the user wrote, photos included, back into the composer
+- [x] Preview addresses made in the browser are released when a photo is removed, and when the server's copy replaces the pending post
+- [x] The create method is unit-tested against the HTTP testing backend: a multipart body with the fields and the files in order
+- [x] Checked in the running app on a desktop width and on a phone width
+
+## Comments
+
+- **2026-11-21, done.** Checked in the running app at 1280 and 360 px in both themes:
+  - posts with text only and with photos;
+  - a server refusal of a fake PNG, which put the draft back with its photos;
+  - picker refusals for an 11th photo, a file over 5 MB and a GIF.
+
+  Extra test seam: `canSendPost` (what the Post button allows).
+- **Points left for the owner** (from the spec review):
+  - **A refused post comes back only into an empty composer.** If the user has already started another post, the refused one waits until the fields are cleared, so the user's new text is never overwritten.
+  - **An 11th photo picked on its own gets no refusal message.** The add button is disabled at 10, and the count reads "10 of 10 photos". The refusal message shows only when one pick goes past the limit.
+  - **On a phone the 44 px remove button covers about half a thumbnail.** That is the price of the touch-target rule.
+  - **No picker or composer component specs.** Releasing a preview on removal and keeping the order are covered by the code and the running-app check, not by a unit test.

@@ -73,7 +73,7 @@ F32 (the first download fits its budget) is plumbing with no visual part. It ran
 | Round | Lane 1 | Lane 2 |
 |---|---|---|
 | 6 | F08, the auth pages (merged 2026-11-20 on your approval) | F09, the feed (merged 2026-11-20 on your approval) |
-| 7 | F33, reactivate from the email's link (done 2026-11-20, merged on your approval), then F10, write a post | F18, chat: list and reading |
+| 7 | F33, reactivate from the email's link (done 2026-11-20, merged on your approval), then F10, write a post (done 2026-11-21, branch waiting for your merge) | F18, chat: list and reading |
 | 8 | F11, the post page | F22, admin: layout and users |
 | 9 | F12, edit and delete a post | F19, chat: send and receive live |
 | 10 | F13, reports from the normal pages | F20, chat: edit, delete, typing |
@@ -82,7 +82,7 @@ F32 (the first download fits its budget) is plumbing with no visual part. It ran
 | 13 | F15, the friends page | F21, live toasts |
 | 14 | F17, the settings page | F26, the landing page |
 
-Frontend 30 (Impeccable) is installed (2026-11-21); its hook judges itself on the next styled ticket. Readiness 07 is left out: it matters only if the demo moves to a host.
+Frontend 30 (Impeccable) is installed (2026-11-21); its hook ran through F10, and its trial verdict in `docs/agents/skills.md` waits for your decision. Readiness 07 is left out: it matters only if the demo moves to a host.
 
 1. [ ] **Design.** The name was still open, so the design session fixed the structure and left the brand for later.
    - [x] **Mon 16: the design session** (planned for Sat 14). Output: ADR 0007, `DESIGN.md` with a neutral provisional skin, and the Styling rules in the conventions skill's TypeScript reference.

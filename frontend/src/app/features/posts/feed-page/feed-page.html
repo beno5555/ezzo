@@ -1,8 +1,15 @@
 <div class="flex flex-col gap-6">
   <h1 class="font-display text-2xl text-ink-strong">{{ text().pages.feed }}</h1>
 
-  @if (hasPosts()) {
+  <app-post-composer (send)="publish($event)" />
+
+  @if (isListShown()) {
     <ul class="flex flex-col gap-4">
+      @for (post of newPosts.pending(); track post.id) {
+        <li>
+          <app-post-card [post]="post" [isUploading]="true" />
+        </li>
+      }
       @for (post of feed.items(); track post.id) {
         <li>
           <app-post-card

@@ -126,6 +126,19 @@ export const english = {
       position: (position: number, total: number) => `${position} / ${total}`,
       previousButton: 'Previous photo',
       nextButton: 'Next photo',
+      // The photo picker (shared/photos/photo-picker), in the composer and in the chat (ticket 19).
+      addButton: 'Add photos',
+      removeButton: (position: number, total: number) => `Remove photo ${position} of ${total}`,
+      count: (count: number, max: number) => `${count} of ${max} photos`,
+      // A picked file the browser did not add, named so that the user knows which one.
+      refusals: {
+        tooMany: (fileName: string, max: number) =>
+          `${fileName} was not added: you can add at most ${max} photos.`,
+        wrongType: (fileName: string) =>
+          `${fileName} was not added: only JPEG, PNG and WebP photos can be added.`,
+        tooLarge: (fileName: string, maxMegabytes: number) =>
+          `${fileName} was not added: a photo can be at most ${maxMegabytes} MB.`,
+      },
     },
     // What a form field shows under itself once it was touched (fieldErrorMessage). The server's own
     // messages are shown as they arrive instead.
@@ -270,6 +283,18 @@ export const english = {
           one: `${count} comment`,
           other: `${count} comments`,
         }),
+      // In place of the like and comment controls while a new post is on its way to the server.
+      uploading: 'Uploading…',
+    },
+    // The card at the top of the feed where a user writes a post (features/posts/post-composer).
+    composer: {
+      label: 'Write a post',
+      titleLabel: 'Title',
+      contentLabel: 'Text',
+      contentHint: 'A post needs text, photos or both.',
+      submitButton: 'Post',
+      uploadingToast: 'Uploading your post…',
+      publishedToast: 'Your post is published.',
     },
     feed: {
       loading: 'Loading posts…',
