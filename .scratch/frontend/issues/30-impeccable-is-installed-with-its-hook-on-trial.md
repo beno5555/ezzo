@@ -35,3 +35,23 @@ Decisions are in `docs/agents/skills.md` and in `.scratch/roadmap.md` under "Set
 - **What the hook changed.** In this worktree it added three hook entries (SessionStart, PostToolUse on Edit and Write, Stop) to the gitignored `.claude/settings.local.json`. It wrote `.impeccable/config.json`, which is committed, quiet, with telemetry, the update check and the staleness check off, and the local consent file `.impeccable/config.local.json`. It added three lines for its runtime files to the clone's shared `.git/info/exclude`. The same three files are now in `.gitignore`. It also downloaded the engine to `~/.impeccable/bin/0.1.27/`. `~/.claude/settings.json` is unchanged. The main checkout is not wired yet: the owner runs `.claude/skills/impeccable/scripts/impeccable hooks on` from the repo root after the merge. A probe file with gradient text and low contrast got both findings from the hook right after the Write. The probe was then deleted.
 - **Owner's decisions.** The hook is wired in the local settings file only, and cloud is untouched. The config is committed. An agent asks the owner before adding any exception to the hook (`docs/agents/skills.md`, `frontend/CLAUDE.md`), against the hook's own message.
 - **Still open.** Box 5 waits for the first styled ticket built with the hook on. Box 6: the launcher has not been tried in a cloud session. `docs/agents/skills.md` records what an agent does if it cannot run there, but the box stays open until a cloud session tries it.
+- **2026-11-21, owner's follow-up.**
+  - The skill must be available in local and cloud sessions alike. The committed folder already gives that.
+  - No junction: the skill serves this repo only.
+  - A visual dispute over a hook finding is shown to the owner as a screenshot in the chat, with code when it helps.
+  - Scrollbars follow the skill: the browser's own, coloured from the palette; the colouring is left for the brand session.
+  - Cards were not a real disagreement (`docs/agents/skills.md`).
+- **Merge instructions, for the session in the main checkout on `master`** (owner, 2026-11-21: that session does the merge and settles every conflict).
+  1. `git fetch`, then `git pull --ff-only` on `master`. Then run `git merge --no-ff worktree-frontend-30-impeccable`.
+  2. **Conflicts.** The new files cannot conflict: `.claude/skills/impeccable/` (63 files, byte for byte upstream `b49177d`) and `.impeccable/config.json`. A conflict can come only in the shared text files: `.scratch/roadmap.md`, `CLAUDE.md`, `frontend/CLAUDE.md`, `docs/agents/skills.md`, `.gitignore` and `.gitattributes`. Keep both sides in each of them.
+  3. **Line endings.** Run `git ls-files --eol .claude/skills/impeccable/scripts/impeccable .claude/skills/impeccable/scripts/impeccable.cmd`. The first must show `w/lf` and the second `w/crlf`. If not, delete the file and run `git checkout -- <file>`. The rules arrive in the same merge as the files.
+  4. **Checks.** The branch changes no code. Its only file under `frontend/` is `frontend/CLAUDE.md`. If `master` has moved since `d4b0892`, run Prettier's check, lint, the unit tests and the build from `frontend/` before the push (root `CLAUDE.md`, "Checks on a merge into `master`"). Run the backend checks only if a conflict fix touched `backend/`. Then push `master`.
+  5. **Wire the hook in the main checkout.** Copy the main checkout's `.claude/settings.local.json` to a scratch folder. Then run `.claude/skills/impeccable/scripts/impeccable hooks on` from the repo root. Then check:
+     - `.claude/settings.local.json` gained only a `hooks` block (SessionStart, PostToolUse on Edit and Write, Stop) and a `description`. Everything else stays as it was.
+     - `.impeccable/config.local.json` exists, and `git check-ignore` lists it.
+     - `.git/info/exclude` holds the `impeccable-hook-ignore` block once, not twice.
+     - `git status` is clean. If `.impeccable/config.json` changed, show the owner the diff and do not commit it unasked.
+     - `~/.claude/settings.json` is unchanged.
+     - `.claude/skills/impeccable/scripts/impeccable hooks status` says `wiring .claude: wired`.
+  6. The hook works in sessions started after step 5. A new worktree copies the main checkout's `settings.local.json`, so it gets the hook. The worktrees that exist already do not; any of them runs the same command to get it.
+  7. Leave this ticket `in-progress`, and leave boxes 5 and 6 open. Do not delete the branch or this worktree without asking the owner. Report to the owner every change from step 5.

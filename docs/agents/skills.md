@@ -43,17 +43,17 @@ Two design skills from other authors serve the frontend. Each is a real folder c
 
 `hooks status` shows where it is wired. `hooks off` turns it off. `claude --settings '{"disableAllHooks": true}'` starts one session without any hooks.
 
-**Hook findings: ask before you ignore one (owner, 2026-11-21).** The hook's message tells an agent to add an exception itself (`hooks ignore-value`) when it judges a finding wrong. Do not. Fix a finding that is right. Show the owner a finding you think is wrong, with the line and your reason, and add the narrowest exception only after the owner agrees. Write `owner confirmed` in its `--reason`.
+**Hook findings: ask before you ignore one (owner, 2026-11-21).** The hook's message tells an agent to add an exception itself (`hooks ignore-value`) when it judges a finding wrong. Do not. Fix a finding that is right. Show the owner a finding you think is wrong, with the line and your reason. Add the narrowest exception only after the owner agrees, and write `owner confirmed` in its `--reason`. The owner judges by looking, not by reading code, and may follow the session from another device. So when the dispute is about how something looks, send a screenshot of the element into the chat, with the code beside it when the code helps. Where it makes the difference clearer, add a second screenshot of the hook's proposed fix.
 
 **What the detector misses.** In the trial run outside the repo, a test page with known faults got 5 findings and one advisory: a side stripe, gradient text, 1.6:1 contrast, a glow, cramped padding, and a hard offset shadow. It did not flag a spaced all-caps label over a heading, an emoji used as an icon, or the Inter font. `DESIGN.md` bans all three, so a review still checks them by eye.
 
-**Where it disagrees with `DESIGN.md`** (reported to the owner, still to be decided on the merits):
+**Where it disagrees with `DESIGN.md`** (reported to the owner; the open ones are still to be decided on the merits):
 
-- It calls a neutral shell with one accent colour the category default and asks for a coloured shell with a signature move. `DESIGN.md` keeps a neutral provisional skin until the name session.
-- It asks for one designed moment of motion. `DESIGN.md` allows motion only in answer to a user's action, and none on page load.
-- It calls cards a lazy container. `DESIGN.md` has a card.
-- It wants lines of 65 to 75 characters. `DESIGN.md` says under about 80.
-- On scrollbars, the skill contradicts itself (theme them, don't reinvent them).
+- It calls a neutral shell with one accent colour the category default and asks for a coloured shell with a signature move. `DESIGN.md` keeps a neutral provisional skin until the name session. Open; it belongs to the brand session.
+- It asks for one designed moment of motion. `DESIGN.md` allows motion only in answer to a user's action, and none on page load. Open.
+- It wants lines of 65 to 75 characters. `DESIGN.md` says under about 80. Open.
+- Cards: not a real disagreement. The skill bans one pattern: a page built from same-size cards of icon, heading and text. It also bans a card inside a card. A post in a card, as `DESIGN.md` has it, is allowed.
+- Scrollbars: decided for the skill (owner, 2026-11-21). The browser's own scrollbars stay, coloured from the palette, never replaced by custom ones. `design-tokens.css` already makes them follow the light or dark theme (`color-scheme`). Colouring them from the palette is left for the brand session, which replaces the palette. That session adds the rule to `DESIGN.md`.
 
 **Trial verdict:** due after the first styled ticket built with the hook on.
 
