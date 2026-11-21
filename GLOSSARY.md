@@ -5,8 +5,8 @@ A small social platform where people post, comment, befriend each other and exch
 ## Language
 
 **WebCity**:
-The product as a whole: the platform its users see, regardless of which part of the system serves them.
-_Avoid_: AspNetProject, aspnetproject (that is only the name of the backend code project)
+The product as a whole: the platform its users see, regardless of which part of the system serves them. Users see it under the name **Ezzo**; WebCity is its name in the code and the docs.
+_Avoid_: AspNetProject, aspnetproject (that is only the name of the backend code project); Ezzo anywhere but in text a user reads
 
 **Guest**:
 A visitor who is not signed in. A guest can find people and read what they have published, but cannot act: no posting, liking, commenting, reporting, befriending or messaging.

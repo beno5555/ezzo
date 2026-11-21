@@ -33,7 +33,7 @@ Two design skills from other authors serve the frontend. Each is a real folder c
 - `.impeccable/config.local.json` (the local consent to the hook), `hook.cache.json` and `hook.pending.json` are per developer and listed in `.gitignore`. Turning the hook on also adds them to the clone's `.git/info/exclude`, which every worktree shares.
 - Change the config only through `impeccable hooks ...`, never by hand. The one exception is `detector.extensions`, which has no command.
 
-**Never run** `init`, `document` or `doctor --fix`. `init` writes `PRODUCT.md` from an interview about audience and positioning, and those are the questions for the name session. `document` rewrites `DESIGN.md`. `doctor --fix` changes files without asking.
+**Never run** `init`, `document` or `doctor --fix`. `init` writes `PRODUCT.md` from an interview about audience and positioning; the name session wrote that file instead, so edit it directly when a product fact changes. `document` rewrites `DESIGN.md`. `doctor --fix` changes files without asking.
 
 **The hook.** It checks a file after each Edit or Write, and it runs a full pass when the session stops. The check after an edit reports only mechanical faults: contrast, overflow, gradient text, glow, design-system drift. It reads `.ts` files too, because `DESIGN.md` exists. Quiet mode hides the "all clean" notes. The hook is wired only in a checkout's gitignored `.claude/settings.local.json`, so neither the repo nor the owner's `~/.claude/settings.json` turns it on. A new worktree copies that file from the main checkout, so it gets the hook too. To wire the main checkout, run this once from the repo root:
 
