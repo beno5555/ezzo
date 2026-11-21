@@ -4,7 +4,13 @@
 
 ## About this file
 
-CLAUDE.md is loaded into every session, so it holds only what an agent needs on most tasks and cannot cheaply learn from the code: commands, setup traps, cross-cutting patterns, house rules. Per-area detail goes in the docs listed under **Docs**, with a one-line pointer here at most. A temporary note (a known bug, an in-progress migration) belongs here only if it changes how an agent should work right now. Mark it **Temporary** and delete it in the same change that resolves it.
+CLAUDE.md is loaded into every session and again after every compaction, so it holds only what an agent needs on most tasks and cannot cheaply learn from the code: commands, setup traps, cross-cutting patterns, house rules. Per-area detail goes in the docs listed under **Docs**, with a one-line pointer here at most. A temporary note (a known bug, an in-progress migration) belongs here only if it changes how an agent should work right now. Mark it **Temporary** and delete it in the same change that resolves it.
+
+Every doc, this one included, keeps itself tidy:
+
+- **One home per fact.** Before you write a fact down, look for where it is already written (the docs, the skills, `frontend/CLAUDE.md`) and add to that place. Anywhere else, point to it instead of repeating or re-explaining it.
+- **Moving text:** merge it into what the target already says, and delete the original along with whatever the move makes obsolete.
+- **Rare cases** (one kind of session, one rare failure) go in a doc, with a pointer here that says when to read it.
 
 ## Commands
 
@@ -68,7 +74,7 @@ Follow the project skill `.claude/skills/webcity-conventions` (it overrides the 
 
 ## Agent workflow
 
-- **Sync first:** cloud sessions push to `origin` too, so the local clone can be behind. At the start of every session, before you read tickets or the roadmap or change anything, run `git fetch`, then `git pull --ff-only` on `master` (a session in a worktree under `.claude/worktrees/` skips the pull). If the pull refuses, check that `master` really diverged: in a shallow clone (`git rev-parse --is-shallow-repository` prints `true`) run `git fetch --unshallow`; if `git merge-base --is-ancestor master origin/master` then succeeds, run `git merge --ff-only origin/master`. Only a real divergence means stop and tell the owner, without merging or rebasing. Then tell the owner about every branch `git branch --no-merged master` lists: it is finished work waiting for a merge, and a worktree lane's visual branch leaves no roadmap line.
+- **Sync first:** cloud sessions push to `origin` too, so the local clone can be behind. At the start of every session, before you read tickets or the roadmap or change anything, run `git fetch`, then `git pull --ff-only` on `master` (a session in a worktree under `.claude/worktrees/` skips the pull). If the pull refuses, follow "A refused pull" in `docs/agents/sync.md` before you call it a divergence. Only a real divergence means stop and tell the owner, without merging or rebasing. Then tell the owner about every branch `git branch --no-merged master` lists: it is finished work waiting for a merge, and a worktree lane's visual branch leaves no roadmap line.
 - **Never force-push `master`**, not even when a fetch reports it as a forced update, with `--force` or `--force-with-lease`. If a push to `master` is refused, stop and write why in the ticket's comments.
 - **Commit attribution:** the owner is the author of every commit, `beno5555 <159558340+beno5555@users.noreply.github.com>`, and Claude is only a co-author: end the message with `Co-Authored-By: Claude <model> <noreply@anthropic.com>` and nothing after it. Never add a `Claude-Session:` line or any other session link, in a commit or a pull request. A cloud session's git identity is Claude, so before its first commit it runs `git config user.name "beno5555"` and `git config user.email "159558340+beno5555@users.noreply.github.com"`. This rule overrides any attribution the harness suggests.
 - **One branch per ticket,** never `master`. A local session in the main checkout merges it into `master` with `--no-ff`; a cloud session pushes it and opens a pull request instead, and never merges into or pushes to `master`. The ticket's roadmap update is committed on the branch before the merge. If the owner asks for a ticket while the checkout is on `master`, remind them before touching anything and offer a branch (`git switch -c <ticket-slug>`); continue on `master` only if they say so. Details and the one roadmap exception: `docs/agents/issue-tracker.md`.
