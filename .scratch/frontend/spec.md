@@ -22,7 +22,7 @@ Build the Angular application in `frontend/`, served from the same origin as the
 
 - **Scaffold and plumbing.** The CLI project, the dev proxy, lint, tests and build in CI, the session, the HTTP interceptor with automatic refresh, the hub client, the dictionaries and the shared error handling.
 - **Shell and auth.** Navigation for a desktop and a phone, a guest's reduced shell, and the pages to register, sign in, reset a password and reactivate an account.
-- **Feed, posts and comments.** A ranked feed with a composer, a page per post with its comments, likes, edit and delete, and a report dialog.
+- **Feed, posts and comments.** A ranked feed, a composer on its own page, a page per post with its comments, likes, edit and delete, and a report dialog.
 - **Profile, friends, search and settings.** A profile with posts and friends, the three friendship lists, user search, and one settings page.
 - **Chat and live notifications.** A conversation list and a conversation with photos, edit, delete, seen, typing and presence, and toasts for what happens elsewhere.
 - **Admin panel.** A page each for users, reports, the moderation queue, logs and statistics.
@@ -78,7 +78,7 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 
 34. As a user, I want the feed page to show the ranked feed, so that I see friends' news and discover other people.
 35. As a user, I want more posts to load as I scroll, so that I never press a "next page" button.
-36. As a user, I want a composer at the top of the feed with a title, text and up to 10 photos, so that posting takes no navigation.
+36. As a user, I want a Write a post button on the feed that opens a composer page with a title, text and up to 10 photos, so that the feed stays a list and other kinds of post can join the composer later (owner, 2026-11-21).
 37. As a user, I want a preview of each photo I picked, and a way to drop one before I post, so that I publish what I meant.
 38. As a user, I want a file of the wrong type or over the size limit refused in the browser with a clear message, so that I do not wait for an upload that will fail.
 39. As a user, I want my new post to appear at the top of the feed at once, with a toast while it uploads and another when it is published, so that I never wait and still know when it is done.
@@ -236,10 +236,10 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 - **Lists use infinite scroll** everywhere a list is paged, with the paging the backend already has (`PageNumber`, `PageSize`). A page shorter than the page size is the last.
 - **Quick actions show their result at once** (owner, 2026-11-20). Like and unlike, every friendship action (add, cancel, accept, decline, remove), Hide and Make visible, the administrator's row actions, and a delete once it is confirmed: the screen changes on the click as if the server had agreed, then the request goes. If the server refuses, the screen goes back to how it was and a toast says why. A second click on the same item while its request is on its way is ignored. `PostLikeStore` is the pattern.
 - **What a user writes shows at once too** (owner, 2026-11-20). A new or edited post, comment or message appears before the server has it, marked as pending, and the server's copy takes its place when it arrives (the server makes the id, the photo addresses and the times). Until then a new item shows the moment it was sent as its time, and its photos from the browser's previews.
-  - **A post:** sending it empties the composer, and saving an edit closes the form; an edit saved on the post's page sends the author to the feed. A toast says the post is uploading and stays until the upload ends; then a second toast says it was published or saved, and leads to the post. Meanwhile a new post is at the top of the feed and an edited one shows its new title and text.
+  - **A post:** sending it empties the composer and goes to the feed, and saving an edit closes the form; an edit saved on the post's page sends the author to the feed. A toast says the post is uploading and stays until the upload ends; then a second toast says it was published or saved, and leads to the post. Meanwhile a new post is at the top of the feed and an edited one shows its new title and text.
   - **A comment** is in the list at once with "Sending…" under it, and the count rises. An edit shows the same mark.
   - **A message** is in the conversation at once with a clock icon where its time goes, and no text; the icon's accessible label says "Sending". An edit shows the same icon.
-  - **A refusal** removes the pending item, or puts an edited one back, and a toast says why. What the user wrote is never lost: a new post goes back into the composer, a comment or a message goes back into its box with its photos, and an edit's toast leads back to its form, filled with what the user wrote.
+  - **A refusal** removes the pending item, or puts an edited one back, and a toast says why. What the user wrote is never lost: a new post's toast leads back to the composer, filled with what the user wrote, a comment or a message goes back into its box with its photos, and an edit's toast leads back to its form, filled with what the user wrote.
 - **Destructive actions ask first.** Deleting a post, a comment or a message, removing a friend, and every destructive admin action open a confirmation dialog. Deactivating and deleting one's own account require typing the username.
 - **Enums travel as text.** Every enum the API sends or accepts is the name of its member as text (`"Pending"`, `"Hidden"`, `"Post"`, `"Active"`); none is a number. Each frontend mirror is an `as const` object whose values are those names. Where the backend reads an enum from a request body it accepts the name only and refuses a number, so the frontend always sends the name.
 - **Two more feature folders.** `admin/` and `reports/` join the list, after the backend's controllers. `PostLikeApi` lives in `posts/`.
@@ -250,7 +250,8 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 | Address | Page | Access |
 |---|---|---|
 | `/` | Landing page for guests; a signed-in user is sent to `/feed` | anyone |
-| `/feed` | Feed with the composer | signed in |
+| `/feed` | Feed, with a Write a post button | signed in |
+| `/posts/new` | The composer | signed in |
 | `/sign-in`, `/register` | Sign in, register | signed out only |
 | `/forgot-password` | Ask for a reset link | anyone |
 | `/reset-password?token=…` | Choose a new password | anyone |
@@ -298,7 +299,7 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 
 ### Feed, posts and comments
 
-- **Composer:** a card at the top of the feed. A title is required, and so is either text or at least one photo, as the backend requires. Up to 10 photos, each JPEG, PNG or WebP and at most 5 MB, checked in the browser against `LIMITS` before upload. The post goes as `multipart/form-data`. It shows at the top of the list at once, with an uploading toast and then a published one ("What a user writes shows at once too", under "Across the whole frontend").
+- **Composer:** a card on its own page, `/posts/new`, opened from a Write a post button beside the feed's heading (owner, 2026-11-21: the feed stays a list, and other kinds of post can get their own fields there later). Sending goes to the feed, where the post shows as pending, and the feed takes the composer's place in the history. A title is required, and so is either text or at least one photo, as the backend requires. Up to 10 photos, each JPEG, PNG or WebP and at most 5 MB, checked in the browser against `LIMITS` before upload. The post goes as `multipart/form-data`. It shows at the top of the list at once, with an uploading toast and then a published one ("What a user writes shows at once too", under "Across the whole frontend").
 - **Editing** happens on the post, in the feed card and on the post's page: title and text. Saving shows the edit at once, and from the post's page returns the author to the feed, with the same two toasts as a new post. Photos are removed one at a time. Photos cannot be added to an existing post.
 - **Removing a photo is built against an endpoint that does not exist yet.** `PostApi` gets its method for the documented `DELETE /api/posts/{postId}/images/{imageId}`, and the edit form shows a remove control on each photo, disabled and labelled "Coming soon" from the dictionary. When documented-backend-features ticket 04 lands, the control is enabled and nothing else changes.
 - **Feed card:** author, time, title, text, photo grid, like button with the count, comment count linking to the post's page, the "…" menu. Comments are not shown or written in the feed.

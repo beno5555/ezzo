@@ -58,6 +58,17 @@ export class PagedList<T> {
     );
   }
 
+  // Puts an item the user just made (the server's copy of a new post) on top. It shows once: a page that
+  // already brought it keeps it where it is, and a later page that holds it does not show it again.
+  prepend(added: T): void {
+    const addedKey = this.options.keyOf(added);
+    this.loaded.update((items) => {
+      const isShown = items.some((item) => this.options.keyOf(item) === addedKey);
+
+      return isShown ? items : [added, ...items];
+    });
+  }
+
   // A ranked list can move an item onto the next page between two loads, so a page may repeat one.
   private withNew(items: readonly T[], page: readonly T[]): readonly T[] {
     const loadedKeys = new Set(items.map((item) => this.options.keyOf(item)));

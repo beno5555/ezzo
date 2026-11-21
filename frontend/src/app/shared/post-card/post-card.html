@@ -1,5 +1,6 @@
 <article
   class="flex flex-col gap-3 rounded-lg border border-border bg-surface-raised p-4 text-ink-strong"
+  [attr.aria-busy]="isUploading() || null"
 >
   <header class="flex items-center gap-3">
     <app-avatar
@@ -28,26 +29,33 @@
 
   <app-photo-grid [images]="post().images" />
 
-  <footer class="-mx-3 -mb-2 flex flex-wrap items-center gap-1">
-    <button
-      appActionButton
-      type="button"
-      [attr.aria-pressed]="post().likedByCaller"
-      [attr.aria-disabled]="isLiking()"
-      [attr.aria-label]="text().posts.card.likeButton(post().likeCount)"
-      (click)="requestLikeToggle()"
-    >
-      <svg
-        class="size-5"
-        lucideHeart
-        aria-hidden="true"
-        [class.fill-current]="post().likedByCaller"
-      ></svg>
-      <span aria-hidden="true">{{ post().likeCount }}</span>
-    </button>
-    <a appActionButton [routerLink]="postAddress()">
-      <svg class="size-5" lucideMessageCircle aria-hidden="true"></svg>
-      {{ text().posts.card.commentsLink(post().commentCount) }}
-    </a>
-  </footer>
+  @if (isUploading()) {
+    <p class="flex min-h-11 items-center gap-2 text-sm text-ink-muted" role="status">
+      <svg class="size-5 shrink-0" lucideCloudUpload aria-hidden="true"></svg>
+      {{ text().posts.card.uploading }}
+    </p>
+  } @else {
+    <footer class="-mx-3 -mb-2 flex flex-wrap items-center gap-1">
+      <button
+        appActionButton
+        type="button"
+        [attr.aria-pressed]="post().likedByCaller"
+        [attr.aria-disabled]="isLiking()"
+        [attr.aria-label]="text().posts.card.likeButton(post().likeCount)"
+        (click)="requestLikeToggle()"
+      >
+        <svg
+          class="size-5"
+          lucideHeart
+          aria-hidden="true"
+          [class.fill-current]="post().likedByCaller"
+        ></svg>
+        <span aria-hidden="true">{{ post().likeCount }}</span>
+      </button>
+      <a appActionButton [routerLink]="postAddress()">
+        <svg class="size-5" lucideMessageCircle aria-hidden="true"></svg>
+        {{ text().posts.card.commentsLink(post().commentCount) }}
+      </a>
+    </footer>
+  }
 </article>

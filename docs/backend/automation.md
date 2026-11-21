@@ -2,7 +2,7 @@
 
 > Part of the WebCity doc set. See also: `README.md`, `data.md`, `auth.md`, `controllers.md`, `signalr.md`, `background-jobs.md`, `automation.md`, `testing.md`.
 
-The backend tells the **automation** (n8n, see `GLOSSARY.md`) what happened by sending it signed events. This page covers the sending side: the publisher, its settings, the envelope, the signature and the events. The decisions behind it are under "Events" in `.scratch/n8n-automation/spec.md`.
+The backend tells the **automation** (n8n, see `GLOSSARY.md`) what happened by sending it signed events. This page covers the sending side: the publisher, its settings, the envelope, the signature and the events, and, briefly, how n8n receives them. The decisions behind it are under "Events" in `.scratch/n8n-automation/spec.md`.
 
 ---
 
@@ -31,9 +31,11 @@ It wraps `data` in the envelope, writes the JSON, signs the bytes, and posts the
 | Key | Default | Meaning |
 |---|---|---|
 | `Enabled` | `false` | Off by default, so a fresh clone, the test suite and a cloud session run without n8n |
-| `BaseUrl` | empty | The automation's address, e.g. `http://localhost:5678` |
+| `BaseUrl` | empty | The automation's address: `http://127.0.0.1:5678` for the local n8n. Not `localhost`: .NET tries its IPv6 address first, where Docker publishes nothing, and every event times out |
 | `SigningSecret` | empty | The shared secret the signature is keyed with. A secret: never print or commit it |
 | `Timeout` | `00:00:03` | How long the one attempt may take |
+
+`pwsh -File n8n/setup.ps1` (run from the repo root) writes `Enabled`, `BaseUrl` and a generated `SigningSecret` into `appsettings.Development.json`, and the same secret into n8n's credentials (see **The receiving side** below).
 
 The options are validated at startup (`ValidateOnStart`). With `Enabled` true, a missing or blank `BaseUrl` or `SigningSecret` stops the host with an `OptionsValidationException` that names the setting. A `Timeout` of zero or less always does. With events off, the address and the secret are not needed.
 
@@ -107,6 +109,17 @@ Six more events, each sent by the service in the method that changed the data, r
 `GET api/dev/throw`, optionally with an id (`api/dev/throw/7`, template `api/dev/throw/{id:int?}`), throws an `InvalidOperationException`. The id is never read; it lets the tests and the demo show two addresses of one route sharing one fingerprint. It is mapped only in Development, as Swagger is (`DevelopmentEndpointsExtensions.MapThrowingEndpoint`), anonymous, rate-limited per IP (`ThrowOnPurpose`, 30 a minute) and left out of the OpenAPI documents. No real route can be made to fail on request, and the tests, the exception workflow's checklist and the demo all need one. In any other environment the route does not exist (`404`).
 
 ---
+
+## The receiving side
+
+n8n runs in Docker from `n8n/` at the repo root; `n8n/README.md` has the setup, the commands and each workflow's checklist.
+
+- **One workflow per event,** a committed file with a fixed id, imported and published on every start of the compose file. Its webhook's path is the event name, so the publisher's `{BaseUrl}/webhook/{event name}` reaches it with no setting per event.
+- **Every webhook checks the signature first,** on the raw body: the webhook's raw body option, a Crypto node's HMAC-SHA256 with the shared secret, a comparison with `X-WebCity-Signature`. A mismatch or a missing header answers `401`; a match answers `200` at once, and the work comes after, so the publisher's wait stays short.
+- **A `401` or a `404` from n8n is a failed delivery** to the publisher, like any answer that is not a success: one `Log` row, nothing else. A `404` means n8n has no published workflow for that event, or is in the two seconds of an import.
+- **n8n reaches the backend at `https://host.docker.internal:7102`,** the backend's `localhost` seen from the container, ignoring certificate problems, because the development certificate is self-signed and issued for `localhost`.
+
+Workflows so far: `exception-occurred` (Exception alerts, one Telegram message to the developers' chat).
 
 ## The automation calling the backend
 

@@ -501,6 +501,8 @@ appsettings.json
 appsettings.Development.json
 # Default upload folder for post photos (ImageStorage:UploadFolder)
 backend/aspnetproject/Uploads/
+# n8n: the credentials the import reads (n8n/credentials.example.json lists them). n8n/.env is caught by .env above.
+n8n/credentials.json
 # Claude Code personal settings
 .claude/settings.local.json
 # Worktrees made by claude --worktree (docs/agents/worktrees.md)

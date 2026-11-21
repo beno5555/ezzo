@@ -1,6 +1,6 @@
 # CLAUDE.md
 
-**WebCity** is an ASP.NET Core Web API (`net10.0`) for a small social platform: posts, comments, friendships, direct messages, presence. It uses EF Core with SQL Server, JWT auth with rotating refresh tokens, SignalR, MailKit email and background cleanup jobs. This repo is a monorepo: the backend lives in `backend/`, and the Angular 22 frontend in `frontend/`. The restructure happened **inside** the current root folder: never rename or relocate the root itself, because Claude Code's project memory is keyed to its path.
+**WebCity** is an ASP.NET Core Web API (`net10.0`) for a small social platform: posts, comments, friendships, direct messages, presence. It uses EF Core with SQL Server, JWT auth with rotating refresh tokens, SignalR, MailKit email and background cleanup jobs. This repo is a monorepo: the backend lives in `backend/`, the Angular 22 frontend in `frontend/`, and the n8n automation in `n8n/`. The restructure happened **inside** the current root folder: never rename or relocate the root itself, because Claude Code's project memory is keyed to its path.
 
 ## About this file
 
@@ -30,11 +30,11 @@ dotnet ef migrations add <Name> --project aspnetproject
 dotnet ef database update --project aspnetproject
 ```
 
-The backend has no linter or formatter. **Frontend:** run from `frontend/` (Node 24; `npm ci` once after a clone); its commands and hard rules are in `frontend/CLAUDE.md`.
+The backend has no linter or formatter. **Frontend:** run from `frontend/` (Node 24; `npm ci` once after a clone); its commands and hard rules are in `frontend/CLAUDE.md`. **n8n:** read `n8n/README.md` before you run or change anything in `n8n/`; the backend reaches n8n at `http://127.0.0.1:5678`, never `localhost`.
 
 ### Config prerequisites
 
-`appsettings.json`, `appsettings.Development.json` and `appsettings.Testing.json` are **gitignored**, live in `backend/aspnetproject/`, and have no example template, so a fresh clone will not run until they exist. Required: `ConnectionStrings:DefaultConnection`, `Jwt:{Key,AccessTokenMinutes,RefreshTokenDays}`, `EmailConfiguration:*` (`Enabled` defaults to true), `PasswordConfiguration:ResetTokenMinutes`, `CleanupConfiguration:{RefreshTokens,SoftDeletedUsers,OldLogs}`, `Cors:AllowedOrigins`. The rest (`ImageStorage`, `CleanupConfiguration:OrphanImages`, `PasswordConfiguration:HashIterations`, `AutomationEvents`, `AutomationApi:Key`) is optional: defaults are in each `*Configuration` class, and startup checks in the area doc. Never print or commit their values.
+`appsettings.json`, `appsettings.Development.json` and `appsettings.Testing.json` are **gitignored**, live in `backend/aspnetproject/`, and have no example template, so a fresh clone will not run until they exist. Required: `ConnectionStrings:DefaultConnection`, `Jwt:{Key,AccessTokenMinutes,RefreshTokenDays}`, `EmailConfiguration:*` (`Enabled` defaults to true), `PasswordConfiguration:ResetTokenMinutes`, `CleanupConfiguration:{RefreshTokens,SoftDeletedUsers,OldLogs}`, `Cors:AllowedOrigins`. The rest (`ImageStorage`, `CleanupConfiguration:OrphanImages`, `PasswordConfiguration:HashIterations`, `AutomationEvents`, `AutomationApi:Key`) is optional: defaults are in each `*Configuration` class, and startup checks in the area doc; `pwsh -File n8n/setup.ps1` writes the automation settings and the key into `appsettings.Development.json`. Never print or commit their values.
 
 ### Integration tests
 

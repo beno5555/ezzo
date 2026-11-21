@@ -61,6 +61,14 @@ export const routes: Routes = [
         (m) => m.ReactivateAccountPage,
       ),
   },
+  // Before posts/:postId, so that "new" is not read as a post's id.
+  {
+    path: 'posts/new',
+    title: 'newPost',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/posts/new-post-page/new-post-page').then((m) => m.NewPostPage),
+  },
   placeholderPage('posts/:postId', 'post'),
   placeholderPage('users/:username', 'profile'),
   {

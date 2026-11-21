@@ -26,7 +26,7 @@ Decisions are in `docs/agents/skills.md` and in `.scratch/roadmap.md` under "Set
 - [x] The skill is committed under `.claude/skills/` and a new session lists it
 - [x] The hook is on in quiet mode, and nothing else was changed in the owner's Claude Code settings without being named first
 - [x] No `PRODUCT.md` was written
-- [ ] After the first styled ticket, `docs/agents/skills.md` records the trial's verdict: what the hook found, whether the findings were right, and whether it stays on
+- [x] After the first styled ticket, `docs/agents/skills.md` records the trial's verdict: what the hook found, whether the findings were right, and whether it stays on
 - [ ] If the launcher cannot run in a cloud session, that is recorded in `docs/agents/skills.md` with what an agent does instead
 
 ## Comments
@@ -55,3 +55,5 @@ Decisions are in `docs/agents/skills.md` and in `.scratch/roadmap.md` under "Set
      - `.claude/skills/impeccable/scripts/impeccable hooks status` says `wiring .claude: wired`.
   6. The hook works in sessions started after step 5. A new worktree copies the main checkout's `settings.local.json`, so it gets the hook. The worktrees that exist already do not; any of them runs the same command to get it.
   7. Leave this ticket `in-progress`, and leave boxes 5 and 6 open. Do not delete the branch or this worktree without asking the owner. Report to the owner every change from step 5.
+- **2026-11-21, the trial ran on ticket 10 (the post composer).** Evidence and a recommendation are in `docs/agents/skills.md` ("Trial evidence", "Trial verdict"). In short: the hook checked 4 templates and the new `.ts` files and found nothing; no finding was disputed and no exception was added. The URL scan of `/feed` also found nothing, but only because its browser is not signed in: it scanned the sign-in page (`impeccable shot` photographed it). Recommendation: keep the hook on, and run the URL scan only on pages a guest can open. Box 5 stays open until the owner decides whether the hook stays on. Box 6 stays open: a local session cannot try the launcher in a cloud session.
+- **2026-11-21, owner's decision.** The hook stays on, for the reasons in the verdict. Box 5 is ticked. Box 6 stays open until a cloud session runs the launcher.

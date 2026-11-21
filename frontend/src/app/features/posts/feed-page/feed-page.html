@@ -1,8 +1,19 @@
 <div class="flex flex-col gap-6">
-  <h1 class="font-display text-2xl text-ink-strong">{{ text().pages.feed }}</h1>
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <h1 class="font-display text-2xl text-ink-strong">{{ text().pages.feed }}</h1>
+    <a appButton look="primary" [routerLink]="newPostAddress">
+      <svg class="size-5" lucidePlus aria-hidden="true"></svg>
+      {{ text().posts.feed.writeButton }}
+    </a>
+  </div>
 
-  @if (hasPosts()) {
+  @if (isListShown()) {
     <ul class="flex flex-col gap-4">
+      @for (post of newPosts.pending(); track post.id) {
+        <li>
+          <app-post-card [post]="post" [isUploading]="true" />
+        </li>
+      }
       @for (post of feed.items(); track post.id) {
         <li>
           <app-post-card

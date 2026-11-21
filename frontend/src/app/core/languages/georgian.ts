@@ -36,6 +36,7 @@ export const georgian: Dictionary = {
     forgotPassword: 'პაროლის აღდგენა',
     resetPassword: 'ახალი პაროლის არჩევა',
     reactivateAccount: 'ანგარიშის ხელახლა გააქტიურება',
+    newPost: 'პოსტის დაწერა',
     post: 'პოსტი',
     profile: 'პროფილი',
     search: 'ძებნა',
@@ -105,6 +106,17 @@ export const georgian: Dictionary = {
       position: (position: number, total: number) => `${position} / ${total}`,
       previousButton: 'წინა ფოტო',
       nextButton: 'შემდეგი ფოტო',
+      addButton: 'ფოტოების დამატება',
+      removeButton: (position: number, total: number) => `ფოტო ${position} / ${total}-ის ამოღება`,
+      count: (count: number, max: number) => `${count} / ${max} ფოტო`,
+      refusals: {
+        tooMany: (fileName: string, max: number) =>
+          `${fileName} არ დაემატა: შეგიძლიათ დაამატოთ მაქსიმუმ ${max} ფოტო.`,
+        wrongType: (fileName: string) =>
+          `${fileName} არ დაემატა: დაიშვება მხოლოდ JPEG, PNG და WebP ფოტოები.`,
+        tooLarge: (fileName: string, maxMegabytes: number) =>
+          `${fileName} არ დაემატა: ფოტოს ზომა მაქსიმუმ ${maxMegabytes} მბ უნდა იყოს.`,
+      },
     },
     formField: {
       errors: {
@@ -228,8 +240,19 @@ export const georgian: Dictionary = {
         pluralize(Language.Georgian, count, {
           other: `${count} კომენტარი`,
         }),
+      uploading: 'იტვირთება…',
+    },
+    composer: {
+      label: 'პოსტის დაწერა',
+      titleLabel: 'სათაური',
+      contentLabel: 'ტექსტი',
+      contentHint: 'პოსტს სჭირდება ტექსტი, ფოტოები ან ორივე.',
+      submitButton: 'გამოქვეყნება',
+      uploadingToast: 'თქვენი პოსტი იტვირთება…',
+      publishedToast: 'თქვენი პოსტი გამოქვეყნდა.',
     },
     feed: {
+      writeButton: 'პოსტის დაწერა',
       loading: 'პოსტები იტვირთება…',
       loadingMore: 'კიდევ პოსტები იტვირთება…',
       emptyTitle: 'აქ ჯერ არაფერია',
