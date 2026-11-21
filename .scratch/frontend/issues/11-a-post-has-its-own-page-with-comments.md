@@ -15,17 +15,31 @@ Decisions are under "Feed, posts and comments" in `.scratch/frontend/spec.md`. T
 
 **Blocked by:** 09 (The feed shows posts with photos and likes), and the frontend setup (27, 28, 29)
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Difficulty:** routine: it reuses the post card, the page loading and the form pattern that earlier tickets set.
 
-- [ ] The comment count on a feed card leads to the post's page
-- [ ] Comments load by pages until the last
-- [ ] A new comment appears at once with "Sending…", the count rises by one, and the mark leaves when the server's copy arrives
-- [ ] A refused comment leaves the list, the count falls back, a toast says why and the text is back in the form
-- [ ] An author edits and deletes their own comment; the post's author deletes someone else's comment under their post; nobody else is offered either
-- [ ] A comment over the limit cannot be sent, and the limit comes from `LIMITS`
-- [ ] A guest reads the page, and the like button and the comment form lead to sign-in and back
-- [ ] An unknown post id shows the not-found page
-- [ ] The comment `…Api` methods are unit-tested against the HTTP testing backend
-- [ ] Checked in the running app on a desktop width and on a phone width, as a guest, as the post's author and as another user
+- [x] The comment count on a feed card leads to the post's page
+- [x] Comments load by pages until the last
+- [x] A new comment appears at once with "Sending…", the count rises by one, and the mark leaves when the server's copy arrives
+- [x] A refused comment leaves the list, the count falls back, a toast says why and the text is back in the form
+- [x] An author edits and deletes their own comment; the post's author deletes someone else's comment under their post; nobody else is offered either
+- [x] A comment over the limit cannot be sent, and the limit comes from `LIMITS`
+- [x] A guest reads the page, and the like button and the comment form lead to sign-in and back
+- [x] An unknown post id shows the not-found page
+- [x] The comment `…Api` methods are unit-tested against the HTTP testing backend
+- [x] Checked in the running app on a desktop width and on a phone width, as a guest, as the post's author and as another user
+
+## Comments
+
+2026-11-22, implementation (Sonnet 5.5), spec review on Opus 5.5. The branch is `worktree-post-page`; visual work, so it waits for the owner's review and is not merged.
+
+- **Checked in the running app** against the real backend: send, edit, delete with its confirmation, a refused comment (forced by sending to a post that does not exist: "Sending…", count up, then removed, count back, toast, text back in the form), the menus (author: Edit and Delete; post author on another's comment: Delete only; a non-author of the post: Edit and Delete on own comments only), the not-found page for `/posts/999999` and `/posts/abc`. The guest page and the signed-in page were photographed at 360, 768 and 1280 px in both themes and both languages. Not clicked through by hand: a guest's like button and the sign-in link returning to the post (both use the existing return address).
+- **Left in the dev database:** the post "Ticket 11 check post" and some test comments by `shell_dev_1119`, and the account `comment_check_11` with one comment.
+- **Backend quirk worked around:** `EditCommentDto` allows `PostContentMaxLength` (3000) while `CreateCommentDto` allows 500. The frontend holds both to 500 (`LIMITS.comments`, with a comment saying why). The backend's edit limit looks like a slip.
+- **Added beyond the ticket:** `PagedList.append` and `remove` (a new comment goes after everything; a page that holds it moves it into place), a "Try again" state on the post page for failures other than 404, and an edit that changes nothing sends nothing.
+- **Spec review, fixed:** the scroll trigger no longer waits for a loaded item, so deleting every loaded comment cannot strand the later pages. The class `CommentThread` became `CommentThreadStore` (a role word, as the naming table asks).
+- **For the owner to decide (the review's two judgement calls):**
+  1. `PostPage` (in `features/posts/`) imports `CommentSection` from `features/comments/`. The conventions say a feature never imports another feature's components, and UI that two features need goes to `shared/`. Only this page uses it, so it was left; the alternative is moving the comment section to `shared/`.
+  2. The failure block (danger message with an icon and a "Try again" button) is now copied in the feed, the comment section and the post page. The conventions say a look used twice becomes a shared component, while `feed-page.ts` says later lists copy its shape. A shared component is a small change if the owner wants it.
+- **Known limit:** paging is by page number, so after a delete the next page the server sends starts one comment later and that comment is not shown until a reload. It follows from the spec's paging.

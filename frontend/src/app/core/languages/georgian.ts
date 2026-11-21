@@ -260,5 +260,42 @@ export const georgian: Dictionary = {
       retryButton: 'თავიდან ცდა',
       end: 'სიახლეების ბოლოს მიაღწიეთ.',
     },
+    page: {
+      loading: 'პოსტი იტვირთება…',
+      retryButton: 'თავიდან ცდა',
+    },
+  },
+  comments: {
+    heading: 'კომენტარები',
+    loading: 'კომენტარები იტვირთება…',
+    loadingMore: 'კიდევ კომენტარები იტვირთება…',
+    retryButton: 'თავიდან ცდა',
+    emptyMessage: 'კომენტარები ჯერ არ არის. დაწერეთ პირველი.',
+    sending: 'იგზავნება…',
+    form: {
+      label: 'კომენტარის დაწერა',
+      contentLabel: 'თქვენი კომენტარი',
+      submitButton: 'კომენტარი',
+    },
+    guest: {
+      message: 'კომენტარის დასაწერად შედით სისტემაში.',
+      signInLink: 'შესვლა',
+    },
+    edit: {
+      label: 'კომენტარის შეცვლა',
+      contentLabel: 'თქვენი კომენტარი',
+      saveButton: 'შენახვა',
+      cancelButton: 'გაუქმება',
+    },
+    menu: {
+      label: 'მოქმედებები ამ კომენტარზე',
+      editEntry: 'შეცვლა',
+      deleteEntry: 'წაშლა',
+    },
+    deleteConfirmation: {
+      question: 'წაიშალოს ეს კომენტარი?',
+      detail: 'ამის გაუქმება შეუძლებელია.',
+      confirmButton: 'წაშლა',
+    },
   },
 };

@@ -1,4 +1,4 @@
-import { signal } from '@angular/core';
+import { computed, signal } from '@angular/core';
 import { LIMITS } from '../limits';
 import { PageLoadStatus } from './page-load-status';
 import { PagedListOptions } from './paged-list-options';
@@ -11,11 +11,21 @@ import { PagedListOptions } from './paged-list-options';
 export class PagedList<T> {
   private readonly options: PagedListOptions<T>;
   private readonly loaded = signal<readonly T[]>([]);
+  // Items the user made at the end of the list (a comment) that no page has brought yet.
+  private readonly added = signal<readonly T[]>([]);
   private readonly currentStatus = signal<PageLoadStatus>(PageLoadStatus.Idle);
   private readonly lastFailure = signal<string | null>(null);
   private nextPageNumber: number = LIMITS.paging.firstPageNumber;
 
-  readonly items = this.loaded.asReadonly();
+  // What is loaded, then what was appended: pages that load later go above an appended item, and a page
+  // that holds it takes it to its place among them.
+  readonly items = computed<readonly T[]>(() => {
+    const loaded = this.loaded();
+    const loadedKeys = new Set(loaded.map((item) => this.options.keyOf(item)));
+    const notLoaded = this.added().filter((item) => !loadedKeys.has(this.options.keyOf(item)));
+
+    return [...loaded, ...notLoaded];
+  });
   readonly status = this.currentStatus.asReadonly();
   // The text of the last failed page, null once a page arrives.
   readonly failureMessage = this.lastFailure.asReadonly();
@@ -53,9 +63,31 @@ export class PagedList<T> {
   // Puts an item the page changed (a like, an edit) in place of the loaded one with the same key.
   replace(changed: T): void {
     const changedKey = this.options.keyOf(changed);
-    this.loaded.update((items) =>
-      items.map((item) => (this.options.keyOf(item) === changedKey ? changed : item)),
-    );
+    const swap = (items: readonly T[]) =>
+      items.map((item) => (this.options.keyOf(item) === changedKey ? changed : item));
+
+    this.loaded.update(swap);
+    this.added.update(swap);
+  }
+
+  // Takes an item out, such as a deleted comment.
+  remove(removedKey: number | string): void {
+    const keep = (items: readonly T[]) =>
+      items.filter((item) => this.options.keyOf(item) !== removedKey);
+
+    this.loaded.update(keep);
+    this.added.update(keep);
+  }
+
+  // Puts an item the user just made (the server's copy of a new comment) after everything else, where
+  // the list's own order would put it. It shows once: a page that brings it takes it to its place.
+  append(added: T): void {
+    const addedKey = this.options.keyOf(added);
+    this.added.update((items) => {
+      const isKnown = items.some((item) => this.options.keyOf(item) === addedKey);
+
+      return isKnown ? items : [...items, added];
+    });
   }
 
   // Puts an item the user just made (the server's copy of a new post) on top. It shows once: a page that

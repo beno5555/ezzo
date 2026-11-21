@@ -1,0 +1,27 @@
+<form
+  class="flex flex-col gap-3"
+  [attr.aria-label]="label()"
+  [formGroup]="form"
+  (ngSubmit)="submit()"
+>
+  <app-form-field [fieldId]="fieldId()" [label]="contentLabel()" [control]="form.controls.content">
+    <textarea
+      appTextInput
+      rows="3"
+      autocomplete="off"
+      formControlName="content"
+      [id]="fieldId()"
+    ></textarea>
+  </app-form-field>
+
+  <div class="flex flex-wrap justify-end gap-2">
+    @if (cancelLabel(); as cancelText) {
+      <button appButton look="quiet" type="button" (click)="requestCancel()">
+        {{ cancelText }}
+      </button>
+    }
+    <button appButton look="primary" type="submit" [disabled]="!canSend()">
+      {{ submitLabel() }}
+    </button>
+  </div>
+</form>

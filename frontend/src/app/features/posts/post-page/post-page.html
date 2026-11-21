@@ -1,0 +1,40 @@
+@switch (status()) {
+  @case (PostPageStatus.Loading) {
+    <p class="py-4 text-center text-sm text-ink-muted" role="status">
+      {{ text().posts.page.loading }}
+    </p>
+  }
+  @case (PostPageStatus.NotFound) {
+    <app-not-found-page />
+  }
+  @case (PostPageStatus.Failed) {
+    <div class="flex flex-col items-center gap-3 py-4 text-center">
+      <p class="flex items-start gap-2 text-danger" role="alert">
+        <svg class="mt-0.5 size-5 shrink-0" lucideCircleExclamationPoint aria-hidden="true"></svg>
+        {{ failureMessage() }}
+      </p>
+      <button appButton look="quiet" type="button" (click)="retry()">
+        {{ text().posts.page.retryButton }}
+      </button>
+    </div>
+  }
+  @case (PostPageStatus.Ready) {
+    @if (post(); as shownPost) {
+      <div class="flex flex-col gap-6">
+        <h1 class="sr-only">{{ text().pages.post }}</h1>
+
+        <app-post-card
+          [post]="shownPost"
+          [isLiking]="postLikes.isLiking(shownPost.id)"
+          (likeToggle)="toggleLike(shownPost)"
+        />
+
+        <app-comment-section
+          [postId]="shownPost.id"
+          [postAuthorId]="shownPost.author.id"
+          (countChange)="changeCommentCount($event)"
+        />
+      </div>
+    }
+  }
+}

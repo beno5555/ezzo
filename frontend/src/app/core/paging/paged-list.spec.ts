@@ -159,4 +159,59 @@ describe('PagedList', () => {
 
     expect(list.items()).toEqual([item(9), item(1), item(2)]);
   });
+
+  it('keeps a new item at the very end, after pages that load later too', async () => {
+    const loader = createLoader();
+    const list = createList(loader);
+
+    const first = list.loadNext();
+    loader.answer(ok([item(1), item(2), item(3)]));
+    await first;
+    list.append(item(9));
+    expect(list.items()).toEqual([item(1), item(2), item(3), item(9)]);
+    const second = list.loadNext();
+    loader.answer(ok([item(4)]));
+    await second;
+
+    expect(list.items()).toEqual([item(1), item(2), item(3), item(4), item(9)]);
+  });
+
+  it('shows an appended item once when a page holds it, or when it is appended twice', async () => {
+    const loader = createLoader();
+    const list = createList(loader);
+
+    const first = list.loadNext();
+    loader.answer(ok([item(1), item(2), item(3)]));
+    await first;
+    list.append(item(9));
+    list.append(item(9));
+    const second = list.loadNext();
+    loader.answer(ok([item(4), item(9)]));
+    await second;
+
+    expect(list.items()).toEqual([item(1), item(2), item(3), item(4), item(9)]);
+  });
+
+  it('puts a changed item in place of an appended one too', () => {
+    const list = createList(createLoader());
+
+    list.append(item(9));
+    list.replace({ id: 9, name: 'renamed' });
+
+    expect(list.items()).toEqual([{ id: 9, name: 'renamed' }]);
+  });
+
+  it('removes an item, loaded or appended, by its key', async () => {
+    const loader = createLoader();
+    const list = createList(loader);
+
+    const first = list.loadNext();
+    loader.answer(ok([item(1), item(2)]));
+    await first;
+    list.append(item(9));
+    list.remove(2);
+    list.remove(9);
+
+    expect(list.items()).toEqual([item(1)]);
+  });
 });

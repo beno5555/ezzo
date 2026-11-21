@@ -24,6 +24,12 @@ export const LIMITS = {
     titleMaxLength: 100,
     contentMaxLength: 3000,
   },
+  // backend/aspnetproject/Common/ProjectConstants/Constants.cs (CreateCommentDto). EditCommentDto reads
+  // PostContentMaxLength, so the backend takes a longer edit than a new comment; the frontend holds an
+  // edit to this limit too, so that a comment never grows past what could be written.
+  comments: {
+    contentMaxLength: 500,
+  },
   // The defaults of backend/aspnetproject/Infrastructure/Services/Storage/Configuration/
   // ImageStorageConfiguration.cs, and the formats ImageStorage accepts (it judges a file by its leading
   // bytes; the browser can only go by the type it reads from the name).

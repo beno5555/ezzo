@@ -307,5 +307,48 @@ export const english = {
       retryButton: 'Try again',
       end: 'You have reached the end of the feed.',
     },
+    // A post's own page (/posts/:postId, features/posts/post-page).
+    page: {
+      loading: 'Loading the post…',
+      retryButton: 'Try again',
+    },
+  },
+  // A post's comments and the form under them (features/comments).
+  comments: {
+    heading: 'Comments',
+    loading: 'Loading comments…',
+    loadingMore: 'Loading more comments…',
+    retryButton: 'Try again',
+    emptyMessage: 'No comments yet. Be the first to write one.',
+    // Under a comment that is on its way to the server, a new one or an edit.
+    sending: 'Sending…',
+    // The form under the comments, for a signed-in user.
+    form: {
+      label: 'Write a comment',
+      contentLabel: 'Your comment',
+      submitButton: 'Comment',
+    },
+    // In place of the form for a guest.
+    guest: {
+      message: 'Sign in to write a comment.',
+      signInLink: 'Sign in',
+    },
+    // The form that opens in place of a comment's text when its author edits it.
+    edit: {
+      label: 'Edit your comment',
+      contentLabel: 'Your comment',
+      saveButton: 'Save',
+      cancelButton: 'Cancel',
+    },
+    menu: {
+      label: 'Actions for this comment',
+      editEntry: 'Edit',
+      deleteEntry: 'Delete',
+    },
+    deleteConfirmation: {
+      question: 'Delete this comment?',
+      detail: 'This cannot be undone.',
+      confirmButton: 'Delete',
+    },
   },
 };

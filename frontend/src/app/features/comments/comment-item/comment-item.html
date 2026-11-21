@@ -1,0 +1,53 @@
+<article class="flex gap-3" [attr.aria-busy]="shown().isSending || null">
+  <div class="mt-1">
+    <app-avatar
+      [userId]="authorAvatarId()"
+      [username]="shown().comment.author.username"
+      [isUnavailable]="!isAuthorAvailable()"
+      [size]="AvatarSize.Small"
+    />
+  </div>
+
+  <div class="flex min-w-0 flex-1 flex-col gap-1 rounded-lg bg-surface-sunken px-3 py-2">
+    <header class="flex items-start justify-between gap-2">
+      <div class="flex min-w-0 flex-col">
+        @if (isAuthorAvailable()) {
+          <a appTextLink class="self-start wrap-anywhere" [routerLink]="profileAddress()">{{
+            shown().comment.author.username
+          }}</a>
+        } @else {
+          <span class="font-semibold text-ink-muted wrap-anywhere">{{
+            shown().comment.author.username
+          }}</span>
+        }
+        <time class="text-sm text-ink-muted" [attr.datetime]="shown().comment.uploadedAt">{{
+          dateFormatter.time(shown().comment.uploadedAt)
+        }}</time>
+      </div>
+      @if (menuEntries().length > 0) {
+        <app-menu [entries]="menuEntries()" [label]="text().comments.menu.label" />
+      }
+    </header>
+
+    @if (isEditing()) {
+      <app-comment-form
+        [fieldId]="'edit-comment-' + shown().comment.id"
+        [label]="text().comments.edit.label"
+        [contentLabel]="text().comments.edit.contentLabel"
+        [submitLabel]="text().comments.edit.saveButton"
+        [cancelLabel]="text().comments.edit.cancelButton"
+        [initialContent]="editInitialContent()"
+        (send)="saveEdit($event)"
+        (dismiss)="stopEditing()"
+      />
+    } @else {
+      <p class="whitespace-pre-line text-ink-strong wrap-break-word">
+        {{ shown().comment.content }}
+      </p>
+    }
+
+    @if (shown().isSending) {
+      <p class="text-sm text-ink-muted" role="status">{{ text().comments.sending }}</p>
+    }
+  </div>
+</article>
