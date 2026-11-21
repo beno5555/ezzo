@@ -41,8 +41,8 @@ Decisions are under "Feed, posts and comments" in `.scratch/frontend/spec.md`. T
   - picker refusals for an 11th photo, a file over 5 MB and a GIF.
 
   Extra test seam: `canSendPost` (what the Post button allows).
-- **Points left for the owner** (from the spec review):
-  - **A refused post comes back only into an empty composer.** If the user has already started another post, the refused one waits until the fields are cleared, so the user's new text is never overwritten.
-  - **An 11th photo picked on its own gets no refusal message.** The add button is disabled at 10, and the count reads "10 of 10 photos". The refusal message shows only when one pick goes past the limit.
-  - **On a phone the 44 px remove button covers about half a thumbnail.** That is the price of the touch-target rule.
+- **Points raised by the spec review, settled with the owner (2026-11-21):**
+  - **A refused post comes back only into an empty composer.** If the user has already started another post, the refused one waits until the fields are cleared, so the user's new text is never overwritten. Kept: the ticket asks that what the user wrote is never lost.
+  - **An 11th photo picked on its own gets no refusal message.** The add button is disabled at 10, and the count reads "10 of 10 photos". Kept: if the button failed, the photo check would still refuse the 11th photo with a message, and the server refuses it too.
+  - **On a phone the 44 px remove button covered about half a thumbnail.** Fixed: the button shows a 28 px disc, and its 44 px square stays the tap area (`IconButton`'s `on-photo` look). Checked at 360 px in both themes and at 1280 px.
   - **No picker or composer component specs.** Releasing a preview on removal and keeping the order are covered by the code and the running-app check, not by a unit test.

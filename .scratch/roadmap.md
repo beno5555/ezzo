@@ -82,7 +82,7 @@ F32 (the first download fits its budget) is plumbing with no visual part. It ran
 | 13 | F15, the friends page | F21, live toasts |
 | 14 | F17, the settings page | F26, the landing page |
 
-Frontend 30 (Impeccable) is installed (2026-11-21); its hook ran through F10, and its trial verdict in `docs/agents/skills.md` waits for your decision. Readiness 07 is left out: it matters only if the demo moves to a host.
+Frontend 30 (Impeccable) is installed (2026-11-21); after its trial on F10 the owner kept the hook on (2026-11-21). Only box 6 (a cloud session) is open. Readiness 07 is left out: it matters only if the demo moves to a host.
 
 1. [ ] **Design.** The name was still open, so the design session fixed the structure and left the brand for later.
    - [x] **Mon 16: the design session** (planned for Sat 14). Output: ADR 0007, `DESIGN.md` with a neutral provisional skin, and the Styling rules in the conventions skill's TypeScript reference.
@@ -90,7 +90,7 @@ Frontend 30 (Impeccable) is installed (2026-11-21); its hook ran through F10, an
      - [x] 27, the design tokens. Merged 2026-11-16.
      - [x] 28, the themes. Merged 2026-11-18.
      - [x] 29, the screenshots and the Playwright MCP server on trial. Merged 2026-11-18; the server approved 2026-11-19.
-   - [ ] **Frontend ticket 30: Impeccable, with its hook on trial.** Installed 2026-11-21 with the hook on in quiet mode; open until the next styled ticket gives the trial's verdict (`docs/agents/skills.md`). No ticket waits for it.
+   - [ ] **Frontend ticket 30: Impeccable, with its hook on trial.** Installed 2026-11-21 with the hook on in quiet mode; the trial on F10 kept the hook on (owner, 2026-11-21; `docs/agents/skills.md`). Open only for box 6, a cloud session's run of the launcher. No ticket waits for it.
    - [ ] **By Sat 21: the name session** (open decision 1). It uses Playwright to look at reference sites, and writes `PRODUCT.md`. On Opus 5.5.
    - [ ] **After the name: the brand session.** One approval page in two skins; the owner chooses. It replaces the provisional values in `DESIGN.md` and the token file, and adds the logo.
 2. [x] **Write the tickets.** All four groups are ticketed: the backend gaps A to F (`documented-backend-features`, 2026-11-14), the frontend (`frontend`, 2026-11-15, with the setup tickets 27 to 30 added on 2026-11-16) and n8n (`n8n-automation`, 2026-11-17). Of the n8n tickets, 01, 03, 04, 08 and 11 are backend work proven by integration tests; 02, 05, 06, 07, 09, 12 and 14 are workflows, open until the owner has run their checklist; 10 and 13 are visual frontend work.
