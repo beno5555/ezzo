@@ -55,7 +55,9 @@ Two design skills from other authors serve the frontend. Each is a real folder c
 - Cards: not a real disagreement. The skill bans one pattern: a page built from same-size cards of icon, heading and text. It also bans a card inside a card. A post in a card, as `DESIGN.md` has it, is allowed.
 - Scrollbars: decided for the skill (owner, 2026-11-21). The browser's own scrollbars stay, coloured from the palette, never replaced by custom ones. `design-tokens.css` already makes them follow the light or dark theme (`color-scheme`). Colouring them from the palette is left for the brand session, which replaces the palette. That session adds the rule to `DESIGN.md`.
 
-**Trial verdict:** due after the first styled ticket built with the hook on.
+**A file scan is not a page scan.** The skill's README says a source file gets the pattern rules only. Rules that need the rendered page, such as low contrast and tiny text, run only when the detector is pointed at a URL. Our templates take their colours from token classes, so the hook will rarely see a contrast fault in them. On a page's responsive check, with the dev server running, run `.claude/skills/impeccable/scripts/impeccable detect http://localhost:4200/<page>` as well. It opens the installed Chrome or Edge without a window. It has not been tried on a page that needs a sign-in, which it may see as the sign-in page.
+
+**Trial verdict:** due after the first styled ticket built with the hook on. The verdict covers both scans: what the hook found on the files, and what the URL scan found on the page.
 
 **Cloud sessions.** A cloud session has no `.claude/settings.local.json`, so the hook does not run there. Its skill list still has Impeccable, from the committed folder. The launcher has not been tried in a cloud session: it would download the Linux engine from GitHub's release servers. If it fails there, an agent uses the playbooks without the engine: it reads `reference/` and checks the page by eye against `DESIGN.md`. It says in its report that the detector did not run.
 
