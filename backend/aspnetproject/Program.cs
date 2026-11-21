@@ -25,6 +25,7 @@ public partial class Program
             builder.Services.AddEndpointsApiExplorer();
 
             builder.Services.AddJwtAuthentication(builder.Configuration);
+            builder.Services.AddAutomationAuthentication(builder.Configuration);
             builder.Services.AddAuthorization();
 
             builder.Services.AddApplicationRateLimiting();

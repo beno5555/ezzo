@@ -1,5 +1,6 @@
 ﻿using System.Security.Claims;
 using aspnetproject.Common.ProjectConstants.Enums;
+using aspnetproject.Infrastructure.Services.Automation.Authentication;
 using Microsoft.AspNetCore.Mvc;
 
 namespace aspnetproject.Controllers.Base;
@@ -29,5 +30,12 @@ public abstract class BaseController : ControllerBase
     protected bool IsAdministrator()
     {
         return User.IsInRole(nameof(RoleName.Administrator));
+    }
+
+    // For actions the API key also opens. A caller who sends an administrator's token and the key is an administrator,
+    // so the stricter rule for the automation never narrows what the administrator may do.
+    protected bool IsAutomation()
+    {
+        return AutomationAuth.IsAutomation(User) && !IsAdministrator();
     }
 }

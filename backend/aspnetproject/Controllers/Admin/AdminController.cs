@@ -79,36 +79,6 @@ public class AdminController : BaseController
         return BadRequest(response);
     }
 
-    [HttpPut]
-    [Route("posts/{id:int}/moderation")]
-    [EnableRateLimiting(RateLimitConfig.Policies.AdminModeratePost)]
-    public async Task<ActionResult<ApplicationResponse>> SetPostStatus(int id, [FromBody] SetModerationStatusDto setModerationStatusDto)
-    {
-        var response = await _moderationService.SetPostStatusAsync(id, setModerationStatusDto.Status!.Value);
-
-        if (response.Succeeded)
-        {
-            return Ok(response);
-        }
-
-        return NotFound(response);
-    }
-
-    [HttpPut]
-    [Route("comments/{id:int}/moderation")]
-    [EnableRateLimiting(RateLimitConfig.Policies.AdminModerateComment)]
-    public async Task<ActionResult<ApplicationResponse>> SetCommentStatus(int id, [FromBody] SetModerationStatusDto setModerationStatusDto)
-    {
-        var response = await _moderationService.SetCommentStatusAsync(id, setModerationStatusDto.Status!.Value);
-
-        if (response.Succeeded)
-        {
-            return Ok(response);
-        }
-
-        return NotFound(response);
-    }
-
     // The moderation queue is two routes, not one: posts and comments live in separate tables, so there is no single page across both.
     [HttpGet]
     [Route("moderation-queue/posts")]

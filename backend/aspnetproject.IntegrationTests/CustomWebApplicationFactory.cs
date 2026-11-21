@@ -43,6 +43,11 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
     public const string TestEventsBaseUrl          = "http://automation.webcity.test";
     public const string TestEventsSigningSecret    = "test-signing-secret";
 
+    // The key the automation sends. Every host knows it, so a test needs no settings file; a host made with
+    // AutomationApiKeySetting set to "" has no key configured (ApiKeyTestHelper sends it).
+    public const string AutomationApiKeySetting = "AutomationApi:Key";
+    public const string TestApiKey              = "test-automation-api-key";
+
     public const string TestingEnvironment     = "Testing";
     public const string DevelopmentEnvironment = "Development";
     public const string ProductionEnvironment  = "Production";
@@ -96,6 +101,7 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
                 [ConnectionStringSetting] = _connectionString,
                 ["EmailConfiguration:Enabled"] = "false",
                 [EventsEnabledSetting] = "false",
+                [AutomationApiKeySetting] = TestApiKey,
                 ["Cors:AllowedOrigins:0"] = TrustedFrontendOrigin,
                 [UploadFolderSetting] = UploadFolder
             });
@@ -139,6 +145,8 @@ public class CustomWebApplicationFactory : WebApplicationFactory<Program>
 
             services.RemoveAll<EmailSender>();
             services.AddSingleton<EmailSender>(EmailRecorder);
+
+            services.AddControllers().AddApplicationPart(typeof(AutomationOnlyProbeController).Assembly);
         });
     }
 

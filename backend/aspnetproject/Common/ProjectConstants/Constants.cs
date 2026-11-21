@@ -55,6 +55,10 @@ public static class Constants
     public const int    ExceptionEventStackTraceLines = 15;
     public const string FingerprintSeparator          = "|";
 
+    // The automation calling the backend (docs/backend/auth.md): the header that carries its key, and the name a Log row gives it.
+    public const string AutomationApiKeyHeader = "X-Api-Key";
+    public const string AutomationActorName    = "Automation";
+
     public static readonly TimeSpan EditMessageWindow = TimeSpan.FromMinutes(20);
 
     // The two windows of the administrator's activity counts; both end now.

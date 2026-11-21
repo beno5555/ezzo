@@ -108,6 +108,16 @@ Six more events, each sent by the service in the method that changed the data, r
 
 ---
 
+## The automation calling the backend
+
+The other direction: n8n calls the backend with its own API key. The key, the second authentication scheme, what it opens, its rate-limit bucket and its `Log` rows are in `auth.md` ("The automation's API key"). The decisions are under "The automation's identity" and "Moderation by the automation" in the spec.
+
+- **The setting** is `AutomationApi:Key` (`AutomationApiConfiguration`, section `AutomationApi`). It has no default, and startup does not require it: with no key configured the backend refuses every caller that sends one, so a clone that never runs n8n needs nothing. The n8n setup script writes the generated value into `appsettings.Development.json` under this name, and the same value is n8n's API-key credential.
+- **What the key reaches:** the two moderation routes (`ModerationController`) and every route under `/api/internal`. Nothing else: any other route ignores the key and answers `401`.
+- **The automation only raises a moderation status.** On the two moderation routes it may set `Flagged` or `Hidden`. It is refused with `403` and the failure envelope when it sends `Visible`, and when it sends `Flagged` for content that is `Hidden`: a person decides what is shown again. Setting the status the content already has succeeds and changes nothing; content that does not exist answers `404`, which a workflow treats as nothing to do. An administrator's use of the same routes is unchanged. The table of cases is under `ModerationController` in `controllers.md`.
+
+---
+
 ## Testing
 
 `CustomWebApplicationFactory` forces `AutomationEvents:Enabled` to false, and always swaps the HTTP handler behind `EventPublisher` for an `EventRecorder` (`Helpers/EventRecorder.cs`), so no event ever leaves the process. A host made with `recordEvents: true` turns events on, with the address `http://automation.webcity.test` (which does not exist) and the secret `CustomWebApplicationFactory.TestEventsSigningSecret`.
@@ -121,3 +131,5 @@ var recorded = Assert.Single(factory.EventRecorder.Events);   // Path, Body (the
 Set `EventRecorder.Answer` to `RecorderAnswer.Fail` (the recorder answers `500`) or `RecorderAnswer.TimeOut` (it never answers; pair it with a short `AutomationEvents:Timeout` override) to test a failed delivery. A test checks the signature by computing it again from `recorded.Body` and the test secret.
 
 Tests: `Automation/AccountCreatedEventTests`, `PostEventTests`, `CommentEventTests` and `ReportCreatedEventTests` (each event's every field, the nothing-sent cases, and a failed and a timed-out delivery for a post and a report), `EventSecretsTests` (the registration, reset and reactivation flows run, and every recorded body searched for tokens, hashes and passwords; `Helpers/EventAssert` checks the address, envelope, time and signature of each event), `Automation/ExceptionOccurredEventTests` (the route on a Development host, the envelope and data, the signature, the query string left out, the unchanged answer, a failed and a timed-out delivery, events off, the route missing outside Development, and a job built in the test, `ThrowingJob`, run once through `RunOnceAsync`) and `Automation/EventPublisherStartupTests` (the startup checks).
+
+The key side: every host has the key `CustomWebApplicationFactory.TestApiKey` (setting `AutomationApi:Key`; pass `""` in the setting overrides for a host with no key configured), and `Helpers/ApiKeyTestHelper.SendWithApiKeyAsync` sends a request with it (another key, or `null` for none, by argument). The client's own headers still apply, so a client that signed in sends its token as well. Tests: `Automation/AutomationModerationTests` (the raise-only table of from-status, to-status and caller on both routes, an administrator unchanged, `404`), `Automation/AutomationApiKeyAuthenticationTests` (the key alone on a sample of ordinary and administrator routes, wrong, empty and missing keys, a host with no key, and the `/api/internal` rule on `Helpers/AutomationOnlyProbeController`, a route that exists only in the test host), `Automation/AutomationLogTests`, `RateLimiting/AutomationRateLimitTests` and `Security/AutomationKeyValidatorTests` (the comparison, including the empty header the test transport cannot send).

@@ -98,6 +98,8 @@ public static class ResponseMessages
     public const string ModerationStatusUpdated  = $"Moderation status {Updated} {Successfully}";
     public const string ModerationQueueRetrieved = $"Moderation queue {Retrieved} {Successfully}";
 
+    public const string AutomationMayOnlyRaiseModerationStatus = "The automation may only raise a moderation status";
+
     #endregion
     
     #region Auth

@@ -2,12 +2,15 @@
 using System.Threading.RateLimiting;
 using aspnetproject.Common.Domain;
 using aspnetproject.Common.ProjectConstants;
+using aspnetproject.Infrastructure.Services.Automation.Authentication;
 using Microsoft.AspNetCore.RateLimiting;
 
 namespace aspnetproject.Extensions;
 
 public static class RateLimitConfig
 {
+    private const string AutomationBucketName = "automation";
+
     public static class Policies
     {
         #region Admin
@@ -303,6 +306,17 @@ public static class RateLimitConfig
         await context.HttpContext.Response.WriteAsJsonAsync(response, cancellationToken);
     }
 
+    // The automation has no user id, and UseAuthentication has not run its scheme by now (only the default, JWT, runs there), so the
+    // limiter asks the key validator itself. Only a valid key gets the bucket: a wrong key falls back to the address, so a stranger
+    // cannot use up the automation's budget. The key never equals a user id or an address, so the buckets cannot collide.
+    private static string? AutomationPartitionKey(HttpContext httpContext)
+    {
+        var  keyValidator = httpContext.RequestServices.GetRequiredService<AutomationKeyValidator>();
+        bool isAutomation = keyValidator.HasKeyHeader(httpContext.Request) && keyValidator.IsValid(httpContext.Request);
+
+        return isAutomation ? AutomationBucketName : null;
+    }
+
     private static RateLimitPartition<string> PerIpSlidingWindow(HttpContext httpContext, int permitLimit, TimeSpan window)
     {
         var ip = httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown";
@@ -321,6 +335,7 @@ public static class RateLimitConfig
     private static RateLimitPartition<string> PerUserSlidingWindow(HttpContext httpContext, int permitLimit, TimeSpan window, int segments = 4)
     {
         var partitionKey = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+            ?? AutomationPartitionKey(httpContext)
             ?? httpContext.Connection.RemoteIpAddress?.ToString()
             ?? "unknown";
 
