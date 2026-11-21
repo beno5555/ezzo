@@ -56,7 +56,7 @@ Route: `api/posts`. Inherits `BaseController`. `[Authorize]` at controller level
 | POST   | `api/posts`               | Required  | Create, `multipart/form-data`, with up to 10 photos |
 | GET    | `api/posts/feed`          | Required  | Ranked posts by everyone but the caller            |
 | GET    | `api/posts/mine`          | Required  | Caller's own posts                                 |
-| GET    | `api/posts/{id}`          | Anonymous | Single post (with comments, split query)           |
+| GET    | `api/posts/{id}`          | Anonymous | Single post, with its counts but not its comments |
 | GET    | `api/posts/user/{userId}` | Anonymous | Any user's posts — public-profile-style visibility |
 | PUT    | `api/posts/{id}`          | Required  | Update, ownership-scoped                           |
 | DELETE | `api/posts/{id}`          | Required  | Delete, ownership-scoped **or admin**              |
@@ -100,7 +100,7 @@ score = (connection weight + likes + comments) / (age in hours + AgeOffsetHours)
 
 **Moderation visibility.** Posts and comments carry a moderation status: `Visible`, `Flagged` or `Hidden`, set by an administrator through `ModerationController` (the automation may also raise one with its API key). Hidden content is readable only by its author and by administrators; for everyone else, a guest included, it does not exist:
 
-- It is left out of `user/{userId}`, of a post's comments (`api/comments/post/{postId}` and the comments inside `GET api/posts/{id}`), and of `CommentCount`. The feed never holds the caller's own posts, so hidden posts appear in it only for an administrator.
+- It is left out of `user/{userId}`, of a post's comments (`api/comments/post/{postId}`), and of `CommentCount`. The feed never holds the caller's own posts, so hidden posts appear in it only for an administrator.
 - Read by id (`api/posts/{id}`, `api/comments/{id}`) it gets `404` with `PostNotFound` or `CommentNotFound`. A comment on a hidden post reads as the post does, so it cannot reveal the post.
 - Liking, unliking, listing likers, commenting on, listing comments of, editing and deleting hidden content all answer as they do for an id that does not exist. So a user who liked a post before it was hidden cannot unlike it, and a post author cannot delete someone else's hidden comment on their post.
 - The author still reads, edits and deletes their own hidden content, and editing does not change the status.

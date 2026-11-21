@@ -94,7 +94,7 @@ describe('PostApi', () => {
 
   describe('GET /api/posts/{id}', () => {
     it('returns the post with its counts', async () => {
-      const full: FullPostDisplayDto = { ...post, comments: [] };
+      const full: FullPostDisplayDto = { ...post };
 
       const pending = postApi.getById(3);
 

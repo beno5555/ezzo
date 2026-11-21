@@ -27,17 +27,13 @@ public class PostRepository : BaseEntityRepository<Post>
             .FirstOrDefaultAsync(postFromDb => postFromDb.Id == post.Id))!;
     }
 
-    // The post is tracked, so a caller may change it and save. Only the comments the caller may read are loaded.
+    // The post is tracked, so a caller may change it and save. Its comments are not loaded, only counted
+    // (WithStats): a post can have thousands, so they are read by pages through the comment repository.
     // callerId is null for a guest.
     public async Task<PostWithStatsProjection?> GetPostByIdAsync(int id, int? callerId, bool isAdmin)
     {
-        var commentReadableFilter = ModerationVisibility.CommentReadableBy(callerId, isAdmin);
-
         return await _dbSet.Include(post => post.User)
             .Include(post => post.Images)
-            .Include(post => post.Comments.AsQueryable().Where(commentReadableFilter))
-                .ThenInclude(comment => comment.CommenterUser)
-            .AsSplitQuery()
             .Where(post => post.Id == id)
             .Where(ModerationVisibility.PostReadableBy(callerId, isAdmin))
             .Select(WithStats(callerId, isAdmin))
