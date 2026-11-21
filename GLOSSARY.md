@@ -47,3 +47,23 @@ _Avoid_: removed, deleted, blocked, banned
 **Digest**:
 The weekly email that tells a user what they missed.
 _Avoid_: newsletter, summary email, weekly report
+
+### Backend terms
+
+**Partition**:
+One caller's own allowance inside a rate limit: the limiter counts each partition separately, so one caller using up its allowance never blocks another. A partition is named by a label, such as a user's id, an address, or, for the automation, one fixed name. The spec and the tickets call it a bucket; it is the same thing.
+
+**Default scheme**:
+The way of proving who a caller is (an authentication scheme) that the backend tries on every request unless a route asks for another: here, the signed token. The automation's key is a second scheme, tried only on the routes that name it, which is why the key opens nothing else.
+
+**Hash digest**:
+The fixed-size fingerprint a hashing function makes of a text. The backend compares the fingerprints of two keys instead of the keys, so the length of the real key never shows in how long the check takes. The code calls it just "digest"; on its own, **Digest** means the weekly email.
+_Avoid_: checksum
+
+**Envelope**:
+The standard JSON shape of every answer the backend gives except a validation error: whether it succeeded, a message, and the data when there is any. A failure always carries it (`succeeded` false), and clients read the reason from the message. The wrapper around an event is a different thing: see **Event envelope**.
+_Avoid_: response wrapper, error body
+
+**Event envelope**:
+The wrapper around everything the backend sends the automation: a unique id, the event's name, when it happened, and the event's data.
+_Avoid_: payload, message, **Envelope** (that is the shape of an answer)
