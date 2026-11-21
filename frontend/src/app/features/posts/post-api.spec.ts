@@ -34,6 +34,63 @@ describe('PostApi', () => {
     httpTesting.verify();
   });
 
+  describe('POST /api/posts', () => {
+    it('sends the title, the text and the photos in their order as one multipart body', async () => {
+      const lake = new File(['lake'], 'lake.jpg', { type: 'image/jpeg' });
+      const map = new File(['map'], 'map.png', { type: 'image/png' });
+      const created: StandardPostDisplayDto = {
+        ...post,
+        likeCount: 0,
+        commentCount: 0,
+        likedByCaller: false,
+      };
+
+      const pending = postApi.create({
+        title: 'Sunday at the lake',
+        content: 'Cold water, warm sun.',
+        photos: [lake, map],
+      });
+
+      const request = httpTesting.expectOne(
+        (candidate) => candidate.method === 'POST' && candidate.url === '/api/posts',
+      );
+      const body = request.request.body as FormData;
+      expect(body).toBeInstanceOf(FormData);
+      expect(body.get('PostTitle')).toBe('Sunday at the lake');
+      expect(body.get('PostContent')).toBe('Cold water, warm sun.');
+      expect(body.getAll('Images').map((image) => (image as File).name)).toEqual([
+        'lake.jpg',
+        'map.png',
+      ]);
+      request.flush(
+        { succeeded: true, message: null, data: created },
+        { status: 201, statusText: 'Created' },
+      );
+
+      expect(await pending).toEqual({ succeeded: true, data: created });
+    });
+
+    it('sends no text and no photos when the post has neither', async () => {
+      const pending = postApi.create({ title: 'Only a title', content: '', photos: [] });
+
+      const request = httpTesting.expectOne((candidate) => candidate.url === '/api/posts');
+      const body = request.request.body as FormData;
+      expect(body.get('PostTitle')).toBe('Only a title');
+      expect(body.has('PostContent')).toBe(false);
+      expect(body.has('Images')).toBe(false);
+      request.flush(
+        { succeeded: false, message: 'Post Text or at least one Image is required', data: null },
+        { status: 400, statusText: 'Bad Request' },
+      );
+
+      expect(await pending).toEqual({
+        succeeded: false,
+        message: 'Post Text or at least one Image is required',
+        status: 400,
+      });
+    });
+  });
+
   describe('GET /api/posts/feed', () => {
     it('sends the page as the query, and returns the posts of that page', async () => {
       const pending = postApi.getFeed({ pageNumber: 2, pageSize: 10 });

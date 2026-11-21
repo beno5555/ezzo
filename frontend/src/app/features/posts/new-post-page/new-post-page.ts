@@ -1,0 +1,30 @@
+import { Component, inject } from '@angular/core';
+import { Router } from '@angular/router';
+import { LanguageStore } from '../../../core/languages/language-store';
+import { appAddresses } from '../../../core/routing/app-addresses';
+import { NewPost } from '../new-post';
+import { NewPostStore } from '../new-post-store';
+import { PostComposer } from '../post-composer/post-composer';
+
+// The composer's page at /posts/new, opened from the feed's Write a post button and from a refused
+// post's toast. It is a page of its own so that the feed stays a list, and other kinds of post can get
+// their own fields here later. Sending goes to the feed first, where the post shows as pending; the feed
+// then already listens when the server answers. The feed takes this page's place in the history, so Back
+// does not return to an empty composer.
+@Component({
+  selector: 'app-new-post-page',
+  imports: [PostComposer],
+  templateUrl: './new-post-page.html',
+  styleUrl: './new-post-page.css',
+})
+export class NewPostPage {
+  private readonly router = inject(Router);
+  private readonly newPosts = inject(NewPostStore);
+
+  protected readonly text = inject(LanguageStore).text;
+
+  async publish(newPost: NewPost): Promise<void> {
+    await this.router.navigateByUrl(appAddresses.feed, { replaceUrl: true });
+    await this.newPosts.publish(newPost);
+  }
+}

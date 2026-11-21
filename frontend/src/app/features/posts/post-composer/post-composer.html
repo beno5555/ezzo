@@ -1,0 +1,31 @@
+<form
+  class="flex flex-col gap-4 rounded-lg border border-border bg-surface-raised p-4"
+  [attr.aria-label]="text().posts.composer.label"
+  [formGroup]="form"
+  (ngSubmit)="submit()"
+>
+  <app-form-field
+    fieldId="post-title"
+    [label]="text().posts.composer.titleLabel"
+    [control]="form.controls.title"
+  >
+    <input appTextInput id="post-title" type="text" autocomplete="off" formControlName="title" />
+  </app-form-field>
+
+  <app-form-field
+    fieldId="post-content"
+    [label]="text().posts.composer.contentLabel"
+    [hint]="text().posts.composer.contentHint"
+    [control]="form.controls.content"
+  >
+    <textarea appTextInput id="post-content" rows="4" formControlName="content"></textarea>
+  </app-form-field>
+
+  <app-photo-picker [rules]="photoRules" [(photos)]="photos" />
+
+  <div class="flex justify-end border-t border-border pt-4">
+    <button appButton look="primary" type="submit" [disabled]="!canSend()">
+      {{ text().posts.composer.submitButton }}
+    </button>
+  </div>
+</form>

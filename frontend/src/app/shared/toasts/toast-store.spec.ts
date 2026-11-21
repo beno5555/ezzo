@@ -132,4 +132,95 @@ describe('ToastStore', () => {
     vi.advanceTimersByTime(1);
     expect(shownMessages()).toEqual([]);
   });
+
+  describe('a lasting toast', () => {
+    it('stays past 5 seconds until it is dismissed in code', () => {
+      const id = toastStore.showLasting('Uploading your post…');
+
+      vi.advanceTimersByTime(60_000);
+      expect(shownMessages()).toEqual(['Uploading your post…']);
+
+      toastStore.dismiss(id);
+      expect(shownMessages()).toEqual([]);
+    });
+
+    it('is replaced in its place by an ordinary toast, which leaves 5 seconds later', () => {
+      toastStore.show('first');
+      const id = toastStore.showLasting('Uploading your post…');
+      toastStore.show('third');
+      vi.advanceTimersByTime(30_000);
+
+      toastStore.replace(id, 'Your post is published.', '/posts/12');
+
+      expect(toastStore.visible()).toEqual([
+        { id, message: 'Your post is published.', link: '/posts/12' },
+      ]);
+      vi.advanceTimersByTime(4999);
+      expect(shownMessages()).toEqual(['Your post is published.']);
+      vi.advanceTimersByTime(1);
+      expect(shownMessages()).toEqual([]);
+    });
+
+    it('shows once for each upload, even when two have the same text', () => {
+      const firstId = toastStore.showLasting('Uploading your post…');
+      const secondId = toastStore.showLasting('Uploading your post…');
+
+      expect(firstId).not.toBe(secondId);
+      expect(shownMessages()).toEqual(['Uploading your post…', 'Uploading your post…']);
+    });
+
+    it('stays while it waits and once shown, until it is replaced', () => {
+      toastStore.show('first');
+      toastStore.show('second');
+      toastStore.show('third');
+      const id = toastStore.showLasting('Uploading your post…');
+
+      vi.advanceTimersByTime(60_000);
+      expect(shownMessages()).toEqual(['Uploading your post…']);
+
+      toastStore.replace(id, 'Your post is published.', '/posts/12');
+      vi.advanceTimersByTime(5000);
+      expect(shownMessages()).toEqual([]);
+    });
+
+    it('can be replaced while it waits for a place, and then gets its full 5 seconds once shown', () => {
+      toastStore.show('first');
+      toastStore.show('second');
+      toastStore.show('third');
+      const id = toastStore.showLasting('Uploading your post…');
+      vi.advanceTimersByTime(1000);
+
+      toastStore.replace(id, 'Your post is published.', '/posts/12');
+      vi.advanceTimersByTime(4000); // the first three leave; the replaced toast shows now
+
+      expect(shownMessages()).toEqual(['Your post is published.']);
+      vi.advanceTimersByTime(4999);
+      expect(shownMessages()).toEqual(['Your post is published.']);
+      vi.advanceTimersByTime(1);
+      expect(shownMessages()).toEqual([]);
+    });
+
+    it('never shows when it is dismissed while it waits for a place', () => {
+      toastStore.show('first');
+      toastStore.show('second');
+      toastStore.show('third');
+      const id = toastStore.showLasting('Uploading your post…');
+
+      toastStore.dismiss(id);
+      vi.advanceTimersByTime(5000);
+
+      expect(shownMessages()).toEqual([]);
+    });
+
+    it('becomes a new toast when the one it replaces has already gone', () => {
+      const id = toastStore.showLasting('Uploading your post…');
+      toastStore.dismiss(id);
+
+      toastStore.replace(id, 'Could not publish your post.');
+
+      expect(toastStore.visible()).toEqual([
+        { id: expect.any(Number), message: 'Could not publish your post.', link: null },
+      ]);
+    });
+  });
 });
