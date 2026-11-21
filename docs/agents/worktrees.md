@@ -34,7 +34,7 @@ A lane never merges into `master`, and never commits on it, by any route. The ow
 
    Exit code 0 means no conflicts: the output is one line, the id of the merged tree. Exit code 1 means conflicts, and every line after the first names a conflicted file.
 3. If it conflicts, bring `master` into the lane's own branch with `git merge origin/master`, resolve the conflicts there (below), run the checks for each side the resolution touched (the build and the full integration suite from `backend/`, and Prettier's check, lint, the unit tests and the build from `frontend/`), and commit. Then repeat step 2 until it exits 0.
-4. Report the ticket done and say that the trial merge against `origin/master` (name its commit) was clean. Then stop.
+4. Push the branch (`git push -u origin HEAD`). Then report the ticket done, say that the trial merge against `origin/master` (name its commit) was clean, and stop.
 5. When you exit the session, keep the worktree: removing it can delete the branch along with it, and it deletes gitignored files that exist only there (above all `frontend/.env`, the screenshot account).
 
 ### Resolving conflicts with another lane
