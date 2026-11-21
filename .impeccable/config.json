@@ -1,0 +1,13 @@
+{
+  "hook": {
+    "quiet": true,
+    "enabled": true,
+    "limits": {
+      "maxFindings": 5,
+      "maxChars": 8000
+    }
+  },
+  "telemetry": false,
+  "updateCheck": false,
+  "stalenessCheck": false
+}
