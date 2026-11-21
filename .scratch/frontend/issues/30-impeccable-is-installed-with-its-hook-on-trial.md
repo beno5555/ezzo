@@ -18,13 +18,20 @@ Decisions are in `docs/agents/skills.md` and in `.scratch/roadmap.md` under "Set
 
 **Blocked by:** 27 (The app takes its look from design tokens), for the hook only, and the owner being in the session
 
-**Status:** ready-for-agent
+**Status:** in-progress
 
 **Difficulty:** tricky: it needs a full read of another author's skill and a judgment on what its program does on the owner's machine; done with the owner, not through `/implement`.
 
-- [ ] The owner has been told what the launcher downloads and runs, and has seen one run of it outside the repo
-- [ ] The skill is committed under `.claude/skills/` and a new session lists it
-- [ ] The hook is on in quiet mode, and nothing else was changed in the owner's Claude Code settings without being named first
-- [ ] No `PRODUCT.md` was written
+- [x] The owner has been told what the launcher downloads and runs, and has seen one run of it outside the repo
+- [x] The skill is committed under `.claude/skills/` and a new session lists it
+- [x] The hook is on in quiet mode, and nothing else was changed in the owner's Claude Code settings without being named first
+- [x] No `PRODUCT.md` was written
 - [ ] After the first styled ticket, `docs/agents/skills.md` records the trial's verdict: what the hook found, whether the findings were right, and whether it stays on
 - [ ] If the launcher cannot run in a cloud session, that is recorded in `docs/agents/skills.md` with what an agent does instead
+
+## Comments
+
+- **2026-11-21, install session (Opus 5.5).** The owner read the agent's account of all 50 playbooks and watched one launcher run in a scratch folder. The engine download matched its checksum and carries a valid signature from Renaissance Geek, Inc. A clean page got no findings; a page with known faults got 5. The skill is copied byte for byte from `pbakaus/impeccable` at `b49177d`. `.gitattributes` keeps the sh launcher in LF and the `.cmd` in CRLF. This session's skill list, reloaded after the install, includes `impeccable`; no separate new session was started to check it.
+- **What the hook changed.** In this worktree it added three hook entries (SessionStart, PostToolUse on Edit and Write, Stop) to the gitignored `.claude/settings.local.json`. It wrote `.impeccable/config.json`, which is committed, quiet, with telemetry, the update check and the staleness check off, and the local consent file `.impeccable/config.local.json`. It added three lines for its runtime files to the clone's shared `.git/info/exclude`. The same three files are now in `.gitignore`. It also downloaded the engine to `~/.impeccable/bin/0.1.27/`. `~/.claude/settings.json` is unchanged. The main checkout is not wired yet: the owner runs `.claude/skills/impeccable/scripts/impeccable hooks on` from the repo root after the merge. A probe file with gradient text and low contrast got both findings from the hook right after the Write. The probe was then deleted.
+- **Owner's decisions.** The hook is wired in the local settings file only, and cloud is untouched. The config is committed. An agent asks the owner before adding any exception to the hook (`docs/agents/skills.md`, `frontend/CLAUDE.md`), against the hook's own message.
+- **Still open.** Box 5 waits for the first styled ticket built with the hook on. Box 6: the launcher has not been tried in a cloud session. `docs/agents/skills.md` records what an agent does if it cannot run there, but the box stays open until a cloud session tries it.

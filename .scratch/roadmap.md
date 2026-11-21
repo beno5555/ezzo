@@ -22,6 +22,7 @@ Non-visual work (backend, tests, tooling) is merged as soon as it passes the ful
 - **n8n ticket 01: a failure in the backend leaves as a signed event**, merged 2026-11-17 (`Duration` 36 s on the branch, 43 s on the merge with 662 tests). Look at `EventPublisher` and `AutomationEventsConfiguration` (`backend/aspnetproject/Infrastructure/Services/Automation/`), the two call sites (`GlobalExceptionHandler`, `PeriodicHostedService.RunOnceAsync`), the Development-only `GET api/dev/throw`, the test seam (`EventRecorder`, `recordEvents` on `CustomWebApplicationFactory`) and `docs/backend/automation.md`. The spec review ran on Opus 5.5 (Fable was at its usage limit); the additions beyond the ticket are under its Comments.
 - **n8n ticket 04: the backend tells the automation about accounts, content and reports**, merged 2026-11-17 (`Duration` 42 s, 714 tests; the merge changed no code beyond the branch). Look at the six events in `docs/backend/automation.md`, the call sites (`AuthService.RegisterAsync`, `PostService`, `CommentService`, `ReportService`), `GetPendingTimesForTargetAsync` in `ReportRepository`, and `EventSecretsTests`. Also look at the change you asked for on the way: `LastUpdatedAt` of a post or comment is stamped only when the title or text really changes. `EditMessage` and the profile edit still stamp on every save. The spec review ran on Opus 5.5 (Fable was at its usage limit).
 - **Frontend ticket 32: the first download fits its budget**, merged 2026-11-20 (first download 559.7 kB → 503.9 kB raw, 130.6 → 118.6 kB compressed). Look at `SignalRLoader` and the load inside `HubClient.follow` (`frontend/src/app/core/hub/`), its new spec, the 600 kB warning in `frontend/angular.json` and ADR 0009. A failed load of the library is retried three times (2, 5, 10 s), then reported, as you asked. The two throwaway accounts from the live check are still in the dev database (ticket's Comments).
+- **Frontend ticket 30: Impeccable is installed, with its hook on trial**, branch `worktree-frontend-30-impeccable` (2026-11-21). After you merge it, run `.claude/skills/impeccable/scripts/impeccable hooks on` once from the repo root to wire the hook in the main checkout. Look at the Impeccable section of `docs/agents/skills.md` (what it runs, the ask-before-ignore rule, the five points where it disagrees with `DESIGN.md`, still yours to decide), `.impeccable/config.json` and `.gitattributes`. The ticket stays in progress until the next styled ticket gives the hook's verdict.
 
 **Not merged yet.** Finished visual branches that wait for the owner's review. No agent merges them until the owner says so. The merge commit deletes the line.
 
@@ -79,7 +80,7 @@ F32 (the first download fits its budget) is plumbing with no visual part. It ran
 | 13 | F15, the friends page | F21, live toasts |
 | 14 | F17, the settings page | F26, the landing page |
 
-Frontend 30 (Impeccable) runs in a session with the owner whenever the owner is present. Readiness 07 is left out: it matters only if the demo moves to a host.
+Frontend 30 (Impeccable) is installed (2026-11-21); its hook judges itself on the next styled ticket. Readiness 07 is left out: it matters only if the demo moves to a host.
 
 1. [ ] **Design.** The name was still open, so the design session fixed the structure and left the brand for later.
    - [x] **Mon 16: the design session** (planned for Sat 14). Output: ADR 0007, `DESIGN.md` with a neutral provisional skin, and the Styling rules in the conventions skill's TypeScript reference.
@@ -87,7 +88,7 @@ Frontend 30 (Impeccable) runs in a session with the owner whenever the owner is 
      - [x] 27, the design tokens. Merged 2026-11-16.
      - [x] 28, the themes. Merged 2026-11-18.
      - [x] 29, the screenshots and the Playwright MCP server on trial. Merged 2026-11-18; the server approved 2026-11-19.
-   - [ ] **Frontend ticket 30: Impeccable, with its hook on trial.** In a session with the owner, not through `/implement`. No ticket waits for it.
+   - [ ] **Frontend ticket 30: Impeccable, with its hook on trial.** Installed 2026-11-21 with the hook on in quiet mode; open until the next styled ticket gives the trial's verdict (`docs/agents/skills.md`). No ticket waits for it.
    - [ ] **By Sat 21: the name session** (open decision 1). It uses Playwright to look at reference sites, and writes `PRODUCT.md`. On Opus 5.5.
    - [ ] **After the name: the brand session.** One approval page in two skins; the owner chooses. It replaces the provisional values in `DESIGN.md` and the token file, and adds the logo.
 2. [x] **Write the tickets.** All four groups are ticketed: the backend gaps A to F (`documented-backend-features`, 2026-11-14), the frontend (`frontend`, 2026-11-15, with the setup tickets 27 to 30 added on 2026-11-16) and n8n (`n8n-automation`, 2026-11-17). Of the n8n tickets, 01, 03, 04, 08 and 11 are backend work proven by integration tests; 02, 05, 06, 07, 09, 12 and 14 are workflows, open until the owner has run their checklist; 10 and 13 are visual frontend work.

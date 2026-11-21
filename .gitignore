@@ -509,3 +509,7 @@ backend/aspnetproject/Uploads/
 !frontend/**/[Ll]ogs/
 !frontend/**/[Dd]ebug/
 !frontend/**/[Rr]elease/
+# Impeccable's per-developer hook files; only .impeccable/config.json is shared (docs/agents/skills.md)
+.impeccable/config.local.json
+.impeccable/hook.cache.json
+.impeccable/hook.pending.json
