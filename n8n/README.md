@@ -2,7 +2,7 @@
 
 The **automation** (`GLOSSARY.md`): n8n in Docker, receiving the backend's signed events (`docs/backend/automation.md`) and acting on them. Everything here starts from the repository: the workflows are committed files, imported and published on every start, so a clean start needs no click in n8n's interface. The decisions behind it are under "n8n setup" and "The six workflows" in `.scratch/n8n-automation/spec.md`.
 
-Every command below runs from the repo root. It needs Docker Desktop running (`docker info`) and PowerShell 7.3 or later (`pwsh`). A terminal, or a Claude Code session, that was open before Docker was installed has no `docker` on its PATH: open a new one.
+Every command below runs from the repo root. It needs Docker Desktop running (`docker info`) and PowerShell 7.3 or later (`pwsh`). A terminal, or a Claude Code session, that was open before Docker was installed has no `docker` on its PATH: open a new one. CI does not run n8n, and the integration tests never reach it. `n8n/.env` and `n8n/credentials.json` are gitignored secrets: never print or commit them.
 
 ## What is here
 

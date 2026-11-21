@@ -1,6 +1,6 @@
 # WebCity — Automation Events
 
-> Part of the WebCity doc set. See also: `README.md`, `data.md`, `auth.md`, `controllers.md`, `signalr.md`, `background-jobs.md`, `automation.md`.
+> Part of the WebCity doc set. See also: `README.md`, `data.md`, `auth.md`, `controllers.md`, `signalr.md`, `background-jobs.md`, `automation.md`, `testing.md`.
 
 The backend tells the **automation** (n8n, see `GLOSSARY.md`) what happened by sending it signed events. This page covers the sending side: the publisher, its settings, the envelope, the signature and the events, and, briefly, how n8n receives them. The decisions behind it are under "Events" in `.scratch/n8n-automation/spec.md`.
 
@@ -31,11 +31,11 @@ It wraps `data` in the envelope, writes the JSON, signs the bytes, and posts the
 | Key | Default | Meaning |
 |---|---|---|
 | `Enabled` | `false` | Off by default, so a fresh clone, the test suite and a cloud session run without n8n |
-| `BaseUrl` | empty | The automation's address: `http://127.0.0.1:5678` for the local n8n. Not `localhost`: .NET tries its IPv6 address first, where Docker publishes nothing, and every event times out |
+| `BaseUrl` | empty | The automation's address: `http://127.0.0.1:5678` for the local n8n, never `localhost` (why: Addresses in `n8n/README.md`) |
 | `SigningSecret` | empty | The shared secret the signature is keyed with. A secret: never print or commit it |
 | `Timeout` | `00:00:03` | How long the one attempt may take |
 
-`pwsh -File n8n/setup.ps1` (run from the repo root) writes `Enabled`, `BaseUrl` and a generated `SigningSecret` into `appsettings.Development.json`, and the same secret into n8n's credentials (see **The receiving side** below).
+For development, `n8n/setup.ps1` fills in all three and gives n8n the same secret (Setup in `n8n/README.md`).
 
 The options are validated at startup (`ValidateOnStart`). With `Enabled` true, a missing or blank `BaseUrl` or `SigningSecret` stops the host with an `OptionsValidationException` that names the setting. A `Timeout` of zero or less always does. With events off, the address and the secret are not needed.
 

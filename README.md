@@ -69,7 +69,7 @@ System.Security.Cryptography.Pkcs
     /aspnetproject.IntegrationTests   integration tests
 /n8n                                  the automation: compose file, workflows, secret examples, setup script
 /docs
-    /backend                          per-area docs: auth, controllers, data, signalr, background-jobs, automation
+    /backend                          per-area docs: auth, controllers, data, signalr, background-jobs, automation, testing
     /adr                              architecture decision records
     /agents                           notes for coding agents
 /scripts
@@ -184,9 +184,9 @@ dotnet run --project aspnetproject
 dotnet test aspnetproject.IntegrationTests
 ```
 
-`appsettings.json`, `appsettings.Development.json` and `appsettings.Testing.json` are gitignored and there is no example template, so a fresh clone does not run until they exist in `backend/aspnetproject/`. The application reads `ConnectionStrings:DefaultConnection`, `Jwt`, `EmailConfiguration`, `PasswordConfiguration:ResetTokenMinutes`, `CleanupConfiguration:{OldLogs,RefreshTokens,SoftDeletedUsers}` and `Cors:AllowedOrigins`, and optionally `ImageStorage:{UploadFolder,MaxFileSizeBytes,MaxImagesPerPost,MaxImagesPerMessage}` (defaults: `Uploads/` under the project, 5 MB, 10, 5) and `CleanupConfiguration:OrphanImages:{Interval,MinimumAge,BatchSize}` (defaults: 24 hours, 1 hour, 500; startup fails if `MinimumAge` is under one minute) and `PasswordConfiguration:HashIterations` (default 100,000; startup fails below that in any environment but Testing). Uploaded photos, of posts and of messages, are written to the upload folder, which is gitignored.
+`appsettings.json`, `appsettings.Development.json` and `appsettings.Testing.json` are gitignored and there is no example template, so a fresh clone does not run until they exist in `backend/aspnetproject/`. The application reads `ConnectionStrings:DefaultConnection`, `Jwt`, `EmailConfiguration`, `PasswordConfiguration:ResetTokenMinutes`, `CleanupConfiguration:{OldLogs,RefreshTokens,SoftDeletedUsers}` and `Cors:AllowedOrigins`, and optionally `ImageStorage:{UploadFolder,MaxFileSizeBytes,MaxImagesPerPost,MaxImagesPerMessage}` (defaults: `Uploads/` under the project, 5 MB, 10, 5) and `CleanupConfiguration:OrphanImages:{Interval,MinimumAge,BatchSize}` (defaults: 24 hours, 1 hour, 500; startup fails if `MinimumAge` is under one minute) and `PasswordConfiguration:HashIterations` (default 100,000; startup fails below that in any environment but Testing) and `AutomationEvents:{Enabled,BaseUrl,SigningSecret,Timeout}` (defaults: off, no address, no secret, 3 seconds; with events on, startup fails without the address or the secret) and `AutomationApi:Key` (no default; with no key configured, every caller that sends one is refused). Uploaded photos, of posts and of messages, are written to the upload folder, which is gitignored.
 
-The integration tests need a real SQL Server database. On Linux, `scripts/test-linux.sh` (run from the repository root) starts one in Docker and runs the same tests; CI uses that script.
+The integration tests need a real SQL Server database. On Linux, `scripts/test-linux.sh` (run from the repository root) starts one in Docker and runs the same tests; CI uses that script. How the suite gets its databases and hosts: `docs/backend/testing.md`.
 
 The automation runs beside the backend, from the repository root, with Docker running: `pwsh -File n8n/setup.ps1` generates the secrets the two share and turns events on in `appsettings.Development.json`, and `docker compose -f n8n/compose.yaml up -d` starts n8n with every workflow imported and published. Without it, events stay off and the backend runs as before. Steps and checklists: `n8n/README.md`.
 
@@ -274,7 +274,7 @@ app.Run();
 
 - **No interfaces.** Repositories, services and mappers are concrete classes, registered directly. Mappers are static.
 - **Result wrapper.** A service method that can fail returns `ApplicationResponse` or `ApplicationResponse<T>`; the controller maps `Succeeded` to a status code. Where no failure state is possible the wrapper is left out (`AuthService.LogoutAsync`, `MessageService.MarkAsReadAsync`, `MessageService.GetUnreadConversationsCount`). Unhandled exceptions go to `GlobalExceptionHandler`, which writes the same envelope.
-- **Control flow.** The house rule outside controllers and hubs is no early returns: a method has a single `return` at the end and branches with `if`/`else`. Controllers return early freely.
+- **Control flow.** The house rule outside controllers and hubs is no early returns: a method has a single `return` at the end and branches with `if`/`else`. Controllers may return early, checking success first.
 - **Two repository bases.** `BaseEntityRepository<T>` is for `BaseEntity` types and adds id-based operations. `UserRoleRepository` (composite key, no `Id`) and `FriendshipRepository` extend `BaseRepository<T>` directly. Subclasses override `protected virtual IQueryable<T> Query(bool track = true)` to set default `Include`s.
 - **Transactions.** `ExecuteInTransactionAsync` can be called from any repository a service holds, because all repositories share the scoped `DbContext`.
 - **Two loggers.** `BaseService` holds the `DatabaseLogger` and provides `LogResultAsync`, which writes an outcome row tagged `{ServiceName}.{MethodName}` to the `Logs` table. `SystemLogger` appends to `Logs/ErrorLogs.txt` for unhandled exceptions and for failures to write a log row. Background jobs log through `DatabaseLogger` too. Controllers do not log.
@@ -299,6 +299,7 @@ Per-area detail lives in `docs/backend/`:
 - `signalr.md`: the hub, presence, events, CORS
 - `background-jobs.md`: the cleanup jobs
 - `automation.md`: the events sent to the automation, their signature and settings, and how n8n receives them
+- `testing.md`: the integration test infrastructure: database pool, recorded seed, test host
 
 The automation's own setup, workflows and checklists are in `n8n/README.md`.
 

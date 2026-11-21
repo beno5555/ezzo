@@ -15,16 +15,18 @@ Claude Code loads this file when you open a file in `frontend/`. The repo's root
 
 ## Commands
 
-Run from `frontend/`:
+Run from `frontend/` (Node 24; run `npm ci` once after a clone):
 
 ```bash
 npm start                    # dev server on http://localhost:4200, /api and /hubs proxied to the backend
 npm test -- --watch=false    # Vitest unit tests, once
-npm run lint                 # ESLint (design token rule included), type check of tools/ and the Vitest config, then the tests of eslint-rules/
+npm run lint                 # ESLint (fails on an un-awaited promise, on `any` and on a style that is not a design token), type check of tools/ and the Vitest config, then the tests of eslint-rules/
 npm run build
 npx prettier --write .       # Prettier owns formatting
 npm run screenshots -- /sign-in [https://example.com] [--signed-in]   # 12 images per app address into screenshots/
 ```
+
+**Dev proxy.** `proxy.conf.json` forwards `/api` and `/hubs` (web sockets included) to `https://localhost:7102`, the backend's https port, with certificate checks off for the dev certificate. Start the backend first. Never aim the proxy at the http port: `UseHttpsRedirection` answers it with a redirect to another origin, which breaks the single origin (ADR 0001).
 
 **Unit-test setup.** `npm test` runs through Angular's unit-test builder, which reads `vitest-base.config.mts` (`runnerConfig` in `angular.json`). That file swaps `@lucide/angular` for a stand-in (`tools/lucide-stand-in.mts`, which says why), so a full run takes about 1.5 s instead of 14 s. In tests an icon is an empty `<svg>`: a spec must not assert on an icon's drawing, and `npm run build` still catches an icon the package lacks. Isolation stays off (the builder's default; turning it on made a run six times slower), so `src/test-setup.ts` clears local and session storage after every test: a spec never has to clean up for the next file on its worker. `VITEST_SHUFFLE=1 npm test -- --watch=false` runs the files and tests in random order, to find state one leaves behind for the next.
 
