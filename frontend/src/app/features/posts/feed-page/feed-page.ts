@@ -1,12 +1,13 @@
 import { Component, DestroyRef, OnInit, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { LucideCircleExclamationPoint, LucideNewspaper, LucidePlus } from '@lucide/angular';
+import { LucideNewspaper, LucidePlus } from '@lucide/angular';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { LIMITS } from '../../../core/limits';
 import { PageLoadStatus } from '../../../core/paging/page-load-status';
 import { PagedList } from '../../../core/paging/paged-list';
 import { appAddresses } from '../../../core/routing/app-addresses';
 import { Button } from '../../../shared/button/button';
+import { LoadFailure } from '../../../shared/load-failure/load-failure';
 import { PostCard } from '../../../shared/post-card/post-card';
 import { ScrollSentinel } from '../../../shared/scroll-sentinel/scroll-sentinel';
 import { NewPostStore } from '../new-post-store';
@@ -20,15 +21,7 @@ import { StandardPostDisplayDto } from '../standard-post-display-dto';
 // way to try again, or ended. An empty list shows the same states in place of the posts.
 @Component({
   selector: 'app-feed-page',
-  imports: [
-    Button,
-    PostCard,
-    RouterLink,
-    ScrollSentinel,
-    LucideCircleExclamationPoint,
-    LucideNewspaper,
-    LucidePlus,
-  ],
+  imports: [Button, LoadFailure, PostCard, RouterLink, ScrollSentinel, LucideNewspaper, LucidePlus],
   templateUrl: './feed-page.html',
   styleUrl: './feed-page.css',
 })

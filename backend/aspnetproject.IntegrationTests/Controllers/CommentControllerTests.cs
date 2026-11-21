@@ -1,5 +1,6 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
+using aspnetproject.Common.ProjectConstants;
 using aspnetproject.Infrastructure.Dtos.Comments;
 using aspnetproject.IntegrationTests.Fixtures;
 using aspnetproject.IntegrationTests.Helpers;
@@ -274,6 +275,33 @@ public class CommentControllerTests : IClassFixture<DatabaseFixture>, IAsyncLife
         });
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Update_WithContentOverTheCommentLimit_ReturnsBadRequest()
+    {
+        // The edit takes the same limit as a new comment (500), which is also the column's size.
+        var token = await AuthTestHelper.LoginAsync(_client, "alice", TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(_client, token);
+
+        var response = await _client.PutAsJsonAsync("api/comments/1", new
+        {
+            Content = new string('a', Constants.CommentMaxLength + 1)
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Update_WithContentOfExactlyTheCommentLimit_Succeeds()
+    {
+        var token = await AuthTestHelper.LoginAsync(_client, "alice", TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(_client, token);
+        var content = new string('a', Constants.CommentMaxLength);
+
+        var response = await _client.PutAsJsonAsync("api/comments/1", new { Content = content });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
     // ---------- DELETE /comments/{id}  (three-way: commenter, post author, or admin) ----------

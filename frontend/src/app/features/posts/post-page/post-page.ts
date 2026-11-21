@@ -1,15 +1,14 @@
 import { HttpStatusCode } from '@angular/common/http';
 import { Component, effect, inject, input, signal, untracked } from '@angular/core';
 import { Router } from '@angular/router';
-import { LucideCircleExclamationPoint } from '@lucide/angular';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { NotFoundPage } from '../../../core/not-found/not-found-page';
 import { appAddresses } from '../../../core/routing/app-addresses';
 import { signInAddress } from '../../../core/routing/sign-in-address';
 import { SessionStore } from '../../../core/session/session-store';
-import { Button } from '../../../shared/button/button';
+import { CommentSection } from '../../../shared/comment-section/comment-section';
+import { LoadFailure } from '../../../shared/load-failure/load-failure';
 import { PostCard } from '../../../shared/post-card/post-card';
-import { CommentSection } from '../../comments/comment-section/comment-section';
 import { PostApi } from '../post-api';
 import { PostLikeStore } from '../post-like-store';
 import { StandardPostDisplayDto } from '../standard-post-display-dto';
@@ -22,7 +21,7 @@ import { PostPageStatus } from './post-page-status';
 // refused or deleted, so the card is right before the server has answered.
 @Component({
   selector: 'app-post-page',
-  imports: [Button, CommentSection, NotFoundPage, PostCard, LucideCircleExclamationPoint],
+  imports: [CommentSection, LoadFailure, NotFoundPage, PostCard],
   templateUrl: './post-page.html',
   styleUrl: './post-page.css',
 })

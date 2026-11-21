@@ -24,9 +24,7 @@ export const LIMITS = {
     titleMaxLength: 100,
     contentMaxLength: 3000,
   },
-  // backend/aspnetproject/Common/ProjectConstants/Constants.cs (CreateCommentDto). EditCommentDto reads
-  // PostContentMaxLength, so the backend takes a longer edit than a new comment; the frontend holds an
-  // edit to this limit too, so that a comment never grows past what could be written.
+  // backend/aspnetproject/Common/ProjectConstants/Constants.cs (CreateCommentDto and EditCommentDto)
   comments: {
     contentMaxLength: 500,
   },

@@ -11,16 +11,17 @@ import {
   viewChild,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { LucideCircleExclamationPoint, LucideMessageCircle } from '@lucide/angular';
-import { LanguageStore } from '../../../core/languages/language-store';
-import { PageLoadStatus } from '../../../core/paging/page-load-status';
-import { appAddresses, returnAddressParameter } from '../../../core/routing/app-addresses';
-import { SessionStore } from '../../../core/session/session-store';
-import { Button } from '../../../shared/button/button';
-import { ScrollSentinel } from '../../../shared/scroll-sentinel/scroll-sentinel';
+import { LucideMessageCircle } from '@lucide/angular';
+import { CommentThreadStore } from '../../features/comments/comment-thread-store';
+import { LanguageStore } from '../../core/languages/language-store';
+import { PageLoadStatus } from '../../core/paging/page-load-status';
+import { appAddresses, returnAddressParameter } from '../../core/routing/app-addresses';
+import { SessionStore } from '../../core/session/session-store';
+import { Button } from '../button/button';
 import { CommentForm } from '../comment-form/comment-form';
 import { CommentItem } from '../comment-item/comment-item';
-import { CommentThreadStore } from '../comment-thread-store';
+import { LoadFailure } from '../load-failure/load-failure';
+import { ScrollSentinel } from '../scroll-sentinel/scroll-sentinel';
 
 // What sits under a post on its own page: its comments, loaded page after page as the reader scrolls (the
 // feed's way, through a PagedList), and under them the form for a signed-in user or a link to sign-in for
@@ -34,9 +35,9 @@ import { CommentThreadStore } from '../comment-thread-store';
     Button,
     CommentForm,
     CommentItem,
+    LoadFailure,
     RouterLink,
     ScrollSentinel,
-    LucideCircleExclamationPoint,
     LucideMessageCircle,
   ],
   providers: [CommentThreadStore],

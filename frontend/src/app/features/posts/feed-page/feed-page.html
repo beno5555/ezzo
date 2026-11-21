@@ -38,15 +38,11 @@
       </p>
     }
     @case (PageLoadStatus.Failed) {
-      <div class="flex flex-col items-center gap-3 py-4 text-center">
-        <p class="flex items-start gap-2 text-danger" role="alert">
-          <svg class="mt-0.5 size-5 shrink-0" lucideCircleExclamationPoint aria-hidden="true"></svg>
-          {{ feed.failureMessage() }}
-        </p>
-        <button appButton look="quiet" type="button" (click)="loadMore()">
-          {{ text().posts.feed.retryButton }}
-        </button>
-      </div>
+      <app-load-failure
+        [message]="feed.failureMessage() ?? ''"
+        [retryLabel]="text().posts.feed.retryButton"
+        (retry)="loadMore()"
+      />
     }
     @case (PageLoadStatus.Ended) {
       @if (hasPosts()) {

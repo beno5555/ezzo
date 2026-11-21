@@ -8,15 +8,11 @@
     <app-not-found-page />
   }
   @case (PostPageStatus.Failed) {
-    <div class="flex flex-col items-center gap-3 py-4 text-center">
-      <p class="flex items-start gap-2 text-danger" role="alert">
-        <svg class="mt-0.5 size-5 shrink-0" lucideCircleExclamationPoint aria-hidden="true"></svg>
-        {{ failureMessage() }}
-      </p>
-      <button appButton look="quiet" type="button" (click)="retry()">
-        {{ text().posts.page.retryButton }}
-      </button>
-    </div>
+    <app-load-failure
+      [message]="failureMessage() ?? ''"
+      [retryLabel]="text().posts.page.retryButton"
+      (retry)="retry()"
+    />
   }
   @case (PostPageStatus.Ready) {
     @if (post(); as shownPost) {

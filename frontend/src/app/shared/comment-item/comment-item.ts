@@ -1,17 +1,17 @@
 import { Component, computed, effect, inject, input, signal, untracked } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { DateFormatter } from '../../../core/languages/date-formatter';
-import { LanguageStore } from '../../../core/languages/language-store';
-import { appAddresses } from '../../../core/routing/app-addresses';
-import { SessionStore } from '../../../core/session/session-store';
-import { Avatar } from '../../../shared/avatar/avatar';
-import { AvatarSize } from '../../../shared/avatar/avatar-size';
-import { Menu } from '../../../shared/menu/menu';
-import { MenuEntry } from '../../../shared/menu/menu-entry';
-import { TextLink } from '../../../shared/text-link/text-link';
+import { DateFormatter } from '../../core/languages/date-formatter';
+import { LanguageStore } from '../../core/languages/language-store';
+import { appAddresses } from '../../core/routing/app-addresses';
+import { SessionStore } from '../../core/session/session-store';
+import { Avatar } from '../avatar/avatar';
+import { AvatarSize } from '../avatar/avatar-size';
+import { Menu } from '../menu/menu';
+import { MenuEntry } from '../menu/menu-entry';
+import { TextLink } from '../text-link/text-link';
 import { CommentForm } from '../comment-form/comment-form';
-import { CommentThreadStore } from '../comment-thread-store';
-import { ShownComment } from '../shown-comment';
+import { CommentThreadStore } from '../../features/comments/comment-thread-store';
+import { ShownComment } from '../../features/comments/shown-comment';
 
 // One comment under a post. It lives inside a comment section, which provides the CommentThreadStore that
 // sends the edit and the deletion; the item only shows the comment and its "…" menu.

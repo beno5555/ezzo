@@ -2,11 +2,11 @@ import { Component, OnInit, computed, inject, input, output } from '@angular/cor
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { map } from 'rxjs';
-import { LIMITS } from '../../../core/limits';
-import { Button } from '../../../shared/button/button';
-import { FormField } from '../../../shared/form-field/form-field';
-import { TextInput } from '../../../shared/text-input/text-input';
-import { canSendComment } from '../can-send-comment';
+import { LIMITS } from '../../core/limits';
+import { Button } from '../button/button';
+import { FormField } from '../form-field/form-field';
+import { TextInput } from '../text-input/text-input';
+import { canSendComment } from '../../features/comments/can-send-comment';
 
 // A comment's text box with its buttons, for a new comment under a post and for an edit in place of a
 // comment's text. The page gives the texts (they come from its dictionary) and decides what a send and a
