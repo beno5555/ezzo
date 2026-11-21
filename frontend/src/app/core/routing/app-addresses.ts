@@ -4,6 +4,8 @@ export const appAddresses = {
   // The home address. Ticket 26 sends a signed-in user on from here to the feed.
   home: '/',
   feed: '/feed',
+  // The composer's page, opened from the feed's Write a post button and from a refused post's toast.
+  newPost: '/posts/new',
   signIn: '/sign-in',
   register: '/register',
   forgotPassword: '/forgot-password',

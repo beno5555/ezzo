@@ -80,6 +80,7 @@ describe('NewPostStore', () => {
       ],
     });
     store = TestBed.inject(NewPostStore);
+    store.onPublished(show);
     toastStore = TestBed.inject(ToastStore);
   });
 
@@ -88,10 +89,11 @@ describe('NewPostStore', () => {
   });
 
   it('shows the post at once as uploading, with the moment it was sent and its photos from the previews', () => {
-    void store.publish(
-      { title: 'Sunday at the lake', content: 'Cold water.', photos: [lake, map] },
-      show,
-    );
+    void store.publish({
+      title: 'Sunday at the lake',
+      content: 'Cold water.',
+      photos: [lake, map],
+    });
 
     expect(store.pending()).toEqual([
       {
@@ -119,10 +121,11 @@ describe('NewPostStore', () => {
   });
 
   it("puts the server's copy in the pending post's place, releases the previews, and says it was published", async () => {
-    const publishing = store.publish(
-      { title: 'Sunday at the lake', content: '', photos: [lake, map] },
-      show,
-    );
+    const publishing = store.publish({
+      title: 'Sunday at the lake',
+      content: '',
+      photos: [lake, map],
+    });
 
     postApi.answer(ok(serverCopy(12, 'Sunday at the lake')));
     await publishing;
@@ -135,13 +138,13 @@ describe('NewPostStore', () => {
     ]);
   });
 
-  it('on a refusal removes the pending post, says why, and gives back what the user wrote', async () => {
+  it('on a refusal removes the pending post, says why with a way back to the composer, and gives back what the user wrote', async () => {
     const written: NewPost = {
       title: 'Sunday at the lake',
       content: 'Cold water.',
       photos: [lake],
     };
-    const publishing = store.publish(written, show);
+    const publishing = store.publish(written);
 
     postApi.answer(fail('Image lake.jpg is not a supported image', 400));
     await publishing;
@@ -149,14 +152,33 @@ describe('NewPostStore', () => {
     expect(store.pending()).toEqual([]);
     expect(shown).toEqual([]);
     expect(previews.released).toEqual(['blob:lake.jpg']);
-    expect(toastMessages()).toEqual(['Image lake.jpg is not a supported image']);
+    expect(toastStore.visible()).toEqual([
+      {
+        id: expect.any(Number),
+        message: 'Image lake.jpg is not a supported image',
+        link: '/posts/new',
+      },
+    ]);
     expect(store.takeReturned()).toEqual(written);
     expect(store.takeReturned()).toBeNull();
   });
 
+  it('shows the server copy only in the pages still listening when it arrives', async () => {
+    const shownInLeftPage: StandardPostDisplayDto[] = [];
+    const stopListening = store.onPublished((post) => shownInLeftPage.push(post));
+    const publishing = store.publish({ title: 'Sunday at the lake', content: 'Cold.', photos: [] });
+
+    stopListening();
+    postApi.answer(ok(serverCopy(12, 'Sunday at the lake')));
+    await publishing;
+
+    expect(shownInLeftPage).toEqual([]);
+    expect(shown).toEqual([serverCopy(12, 'Sunday at the lake')]);
+  });
+
   it('keeps each of two uploads under way apart, newest on top, each with its own toasts', async () => {
-    const first = store.publish({ title: 'First', content: 'one', photos: [] }, show);
-    const second = store.publish({ title: 'Second', content: 'two', photos: [] }, show);
+    const first = store.publish({ title: 'First', content: 'one', photos: [] });
+    const second = store.publish({ title: 'Second', content: 'two', photos: [] });
 
     expect(store.pending().map((post) => post.title)).toEqual(['Second', 'First']);
     expect(new Set(store.pending().map((post) => post.id)).size).toBe(2);

@@ -46,6 +46,7 @@ export const english = {
     forgotPassword: 'Forgot password',
     resetPassword: 'Choose a new password',
     reactivateAccount: 'Reactivate your account',
+    newPost: 'Write a post',
     post: 'Post',
     profile: 'Profile',
     search: 'Search',
@@ -286,7 +287,7 @@ export const english = {
       // In place of the like and comment controls while a new post is on its way to the server.
       uploading: 'Uploading…',
     },
-    // The card at the top of the feed where a user writes a post (features/posts/post-composer).
+    // The card on its own page (/posts/new) where a user writes a post (features/posts/post-composer).
     composer: {
       label: 'Write a post',
       titleLabel: 'Title',
@@ -297,6 +298,8 @@ export const english = {
       publishedToast: 'Your post is published.',
     },
     feed: {
+      // The link beside the feed's heading to the composer's page.
+      writeButton: 'Write a post',
       loading: 'Loading posts…',
       loadingMore: 'Loading more posts…',
       emptyTitle: 'Nothing here yet',

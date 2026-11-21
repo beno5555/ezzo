@@ -13,10 +13,11 @@ import { canSendPost } from '../can-send-post';
 import { NewPost } from '../new-post';
 import { NewPostStore } from '../new-post-store';
 
-// The card at the top of the feed where a user writes a post: a title, text and photos. The Post button
-// stays disabled until canSendPost holds. Sending hands the post to the page through send and empties
-// the card at once; the page publishes it through NewPostStore. A post the server refused comes back
-// from the store into the card once the card is empty, so what the user is writing now is never lost.
+// The card on the composer's page (/posts/new) where a user writes a post: a title, text and photos.
+// The Post button stays disabled until canSendPost holds. Sending hands the post to the page through
+// send and empties the card at once; the page publishes it through NewPostStore. A post the server
+// refused comes back from the store into the card once the card is empty (the refusal's toast leads
+// here), so what the user is writing now is never lost.
 //   <app-post-composer (send)="publish($event)" />
 @Component({
   selector: 'app-post-composer',

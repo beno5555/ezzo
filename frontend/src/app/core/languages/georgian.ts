@@ -36,6 +36,7 @@ export const georgian: Dictionary = {
     forgotPassword: 'პაროლის აღდგენა',
     resetPassword: 'ახალი პაროლის არჩევა',
     reactivateAccount: 'ანგარიშის ხელახლა გააქტიურება',
+    newPost: 'პოსტის დაწერა',
     post: 'პოსტი',
     profile: 'პროფილი',
     search: 'ძებნა',
@@ -251,6 +252,7 @@ export const georgian: Dictionary = {
       publishedToast: 'თქვენი პოსტი გამოქვეყნდა.',
     },
     feed: {
+      writeButton: 'პოსტის დაწერა',
       loading: 'პოსტები იტვირთება…',
       loadingMore: 'კიდევ პოსტები იტვირთება…',
       emptyTitle: 'აქ ჯერ არაფერია',

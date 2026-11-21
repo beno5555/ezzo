@@ -147,4 +147,16 @@ describe('PagedList', () => {
 
     expect(list.items()).toEqual([item(9), item(1), item(2), item(3), item(4)]);
   });
+
+  it('does not put a new item on top when a page already showed it', async () => {
+    const loader = createLoader();
+    const list = createList(loader);
+
+    const first = list.loadNext();
+    loader.answer(ok([item(9), item(1), item(2)]));
+    await first;
+    list.prepend(item(9));
+
+    expect(list.items()).toEqual([item(9), item(1), item(2)]);
+  });
 });

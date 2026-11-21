@@ -1,16 +1,16 @@
-import { Component, OnInit, computed, inject } from '@angular/core';
-import { LucideCircleExclamationPoint, LucideNewspaper } from '@lucide/angular';
+import { Component, DestroyRef, OnInit, computed, inject } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { LucideCircleExclamationPoint, LucideNewspaper, LucidePlus } from '@lucide/angular';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { LIMITS } from '../../../core/limits';
 import { PageLoadStatus } from '../../../core/paging/page-load-status';
 import { PagedList } from '../../../core/paging/paged-list';
+import { appAddresses } from '../../../core/routing/app-addresses';
 import { Button } from '../../../shared/button/button';
 import { PostCard } from '../../../shared/post-card/post-card';
 import { ScrollSentinel } from '../../../shared/scroll-sentinel/scroll-sentinel';
-import { NewPost } from '../new-post';
 import { NewPostStore } from '../new-post-store';
 import { PostApi } from '../post-api';
-import { PostComposer } from '../post-composer/post-composer';
 import { PostLikeStore } from '../post-like-store';
 import { StandardPostDisplayDto } from '../standard-post-display-dto';
 
@@ -23,10 +23,11 @@ import { StandardPostDisplayDto } from '../standard-post-display-dto';
   imports: [
     Button,
     PostCard,
-    PostComposer,
+    RouterLink,
     ScrollSentinel,
     LucideCircleExclamationPoint,
     LucideNewspaper,
+    LucidePlus,
   ],
   templateUrl: './feed-page.html',
   styleUrl: './feed-page.css',
@@ -37,6 +38,7 @@ export class FeedPage implements OnInit {
   protected readonly text = inject(LanguageStore).text;
   protected readonly postLikes = inject(PostLikeStore);
   protected readonly PageLoadStatus = PageLoadStatus;
+  protected readonly newPostAddress = appAddresses.newPost;
   protected readonly feed = new PagedList<StandardPostDisplayDto>({
     loadPage: (query) => this.postApi.getFeed(query),
     pageSize: LIMITS.paging.defaultPageSize,
@@ -50,6 +52,13 @@ export class FeedPage implements OnInit {
     () => this.hasPosts() || this.newPosts.pending().length > 0,
   );
 
+  constructor() {
+    // The server's copy of a post sent from the composer's page goes on top of the list.
+    const stopShowing = this.newPosts.onPublished((created) => this.feed.prepend(created));
+
+    inject(DestroyRef).onDestroy(stopShowing);
+  }
+
   async ngOnInit(): Promise<void> {
     await this.feed.loadNext();
   }
@@ -57,11 +66,6 @@ export class FeedPage implements OnInit {
   // From the scroll sentinel, and from the Try again button after a failed page.
   async loadMore(): Promise<void> {
     await this.feed.loadNext();
-  }
-
-  // The composer's send: the post shows on top at once, and the server's copy takes its place.
-  async publish(newPost: NewPost): Promise<void> {
-    await this.newPosts.publish(newPost, (created) => this.feed.prepend(created));
   }
 
   // A card's like button: the post changes in place at once, and back if the server refuses.

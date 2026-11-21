@@ -13,13 +13,13 @@ import { StandardPostDisplayDto } from './standard-post-display-dto';
 // at once too" in the spec). The post shows at once on top of the feed as a pending post, with the moment
 // it was sent as its time and its photos from the browser's previews, and a toast says it is uploading
 // until the server answers. Then the server's copy takes its place and a second toast leads to it; or,
-// on a refusal, the toast says why and what the user wrote waits in takeReturned() for the composer.
-// The store lives as long as the app, so an upload finishes, and its toast tells, even after the user
-// leaves the feed. Comments, messages and edits copy this pattern.
-//   protected readonly newPosts = inject(NewPostStore);
-//   async publish(newPost: NewPost): Promise<void> {
-//     await this.newPosts.publish(newPost, (created) => this.feed.prepend(created));
-//   }
+// on a refusal, the toast says why and leads back to the composer, where what the user wrote waits in
+// takeReturned(). The store lives as long as the app, so an upload finishes, and its toast tells, even
+// after the user leaves the feed. Comments, messages and edits copy this pattern.
+// The composer has its own page (/posts/new), so the page that sends a post is not the one that shows
+// it: the feed listens for the server's copies while it is open.
+//   const stopShowing = this.newPosts.onPublished((created) => this.feed.prepend(created));
+//   inject(DestroyRef).onDestroy(stopShowing);
 @Injectable({ providedIn: 'root' })
 export class NewPostStore {
   private readonly postApi = inject(PostApi);
@@ -30,6 +30,8 @@ export class NewPostStore {
 
   private readonly uploading = signal<readonly StandardPostDisplayDto[]>([]);
   private readonly refused = signal<readonly NewPost[]>([]);
+  // The pages showing posts, each told of every server copy that arrives while it listens.
+  private readonly listeners = new Set<(created: StandardPostDisplayDto) => void>();
   // Pending posts count down from -1, so their ids never meet a server's id.
   private lastPendingId = 0;
 
@@ -38,8 +40,17 @@ export class NewPostStore {
   // True while a refused post waits for the composer to take it back.
   readonly hasReturned = computed(() => this.refused().length > 0);
 
-  // show puts the server's copy in the page's list once it arrives.
-  async publish(newPost: NewPost, show: (created: StandardPostDisplayDto) => void): Promise<void> {
+  // show puts a server's copy in the page's list as it arrives. Returns the call that stops it, for the
+  // page to make when it is destroyed.
+  onPublished(show: (created: StandardPostDisplayDto) => void): () => void {
+    this.listeners.add(show);
+
+    return () => {
+      this.listeners.delete(show);
+    };
+  }
+
+  async publish(newPost: NewPost): Promise<void> {
     const previewAddresses = newPost.photos.map((photo) => this.previewAddressMaker.create(photo));
     const pendingPost = this.toPendingPost(newPost, previewAddresses);
     const toastId = this.toastStore.showLasting(this.text().posts.composer.uploadingToast);
@@ -49,7 +60,9 @@ export class NewPostStore {
     this.uploading.update((posts) => posts.filter((post) => post.id !== pendingPost.id));
 
     if (result.succeeded) {
-      show(result.data);
+      for (const show of this.listeners) {
+        show(result.data);
+      }
       this.toastStore.replace(
         toastId,
         this.text().posts.composer.publishedToast,
@@ -57,7 +70,7 @@ export class NewPostStore {
       );
     } else {
       this.refused.update((posts) => [...posts, newPost]);
-      this.toastStore.replace(toastId, result.message);
+      this.toastStore.replace(toastId, result.message, appAddresses.newPost);
     }
     // The pending card has left the list, so no <img> shows these addresses any more.
     for (const address of previewAddresses) {
