@@ -1,0 +1,25 @@
+<div class="flex flex-col gap-1" [class.items-end]="isOwn()" [class.items-start]="!isOwn()">
+  <div
+    class="flex max-w-4/5 flex-col gap-2 rounded-lg px-3 py-2 text-ink-strong md:max-w-2/3"
+    [class.w-full]="hasPhotos()"
+    [class.bg-surface-sunken]="isOwn()"
+    [class.border]="!isOwn()"
+    [class.border-border]="!isOwn()"
+    [class.bg-surface-page]="!isOwn()"
+  >
+    <span class="sr-only">{{ senderLabel() }}</span>
+    @if (hasText()) {
+      <p class="whitespace-pre-line wrap-break-word">{{ message().content }}</p>
+    }
+    @if (hasPhotos()) {
+      <app-photo-grid [images]="message().images" />
+    }
+  </div>
+  <p class="flex flex-wrap gap-x-1 px-1 text-xs text-ink-muted">
+    <time [attr.datetime]="message().sentAt">{{ dateFormatter.time(message().sentAt) }}</time>
+    @if (message().isEdited) {
+      <span aria-hidden="true">·</span>
+      <span>{{ text().messages.conversation.edited }}</span>
+    }
+  </p>
+</div>

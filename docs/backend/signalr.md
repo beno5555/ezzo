@@ -99,7 +99,7 @@ Policy name: `OriginPolicy` (`CorsExtensions.AddCorsPolicies`), applied globally
 | Event | Trigger | Payload | Target group |
 |---|---|---|---|
 | `ReceiveMessage` | `SendMessage` persists successfully | `PushMessageDto` | Receiver's group |
-| `MessageSeen` | Conversation marked read (last unread message from the other user, seen) | `{ SeenBy, SeenAt }` | Sender's group |
+| `MessageSeen` | Conversation marked read (at least one unread message from the other user, seen) | `{ SeenBy, SeenAt }` | Sender's group |
 | `MessageEdited` | Message edit persists successfully | `MessageEditedDto` | Receiver's group only (the editor gets the edited message in the HTTP response) |
 | `ReceiveComment` | A comment is added to a post, by someone other than the post's author | `NotifyCommentDto` | Post author's group |
 | `PostLiked` | A post is liked by someone other than its author. A repeated like (already liked) pushes nothing; an unlike pushes nothing | `PostLikedDto` | Post author's group only |
@@ -118,9 +118,8 @@ Policy name: `OriginPolicy` (`CorsExtensions.AddCorsPolicies`), applied globally
 `Message.SeenAt` (nullable `DateTime`) plus `Seen` (redundant-but-harmless boolean, updated atomically alongside `SeenAt` in the same `ExecuteUpdateAsync`).
 
 `MessageRepository.MarkConversationAsReadAsync(readerId, otherUserId)`:
-- Only marks messages and returns `(marked: true, seenAt)` if the **last message** in the conversation was sent by `otherUserId` and was unread.
-- Guards against false-positive `MessageSeen` pushes when a reader reopens an already-read conversation.
-- Bulk-updates all unread incoming messages from that sender, not just the last one.
+- Bulk-updates every unread incoming message from `otherUserId`, wherever it sits in the conversation (a reader who replied before reading still gets the earlier messages marked), and sets only `Seen` and `SeenAt`, never `LastUpdatedAt` (which means edited).
+- Returns `(marked: true, seenAt)` only when the update changed a row, so reopening an already-read conversation sends no false `MessageSeen` push.
 - Called automatically from `MessageService.GetConversationAsync` whenever a conversation is fetched — the client doesn't need to call the mark-as-read endpoint separately just from viewing, though `PUT .../mark-as-read` still exists as an explicit action.
 
 ## Testing

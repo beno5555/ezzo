@@ -1,0 +1,23 @@
+<div class="flex min-h-0 flex-1 gap-4 lg:gap-6">
+  <!-- The list: the whole screen at /messages on a phone, and the left-hand column on a desktop. -->
+  <section
+    class="min-h-0 w-full flex-col gap-3 md:flex md:w-2/5 md:shrink-0 lg:w-1/3"
+    [class.flex]="isOnList()"
+    [class.hidden]="!isOnList()"
+    aria-labelledby="messages-heading"
+  >
+    <h1 id="messages-heading" class="font-display text-2xl text-ink-strong">
+      {{ text().pages.messages }}
+    </h1>
+    <app-conversation-list class="flex min-h-0 flex-1 flex-col" />
+  </section>
+
+  <!-- The open conversation, or the hint that stands in for it on a desktop. -->
+  <div
+    class="min-h-0 min-w-0 flex-1 flex-col md:flex"
+    [class.flex]="!isOnList()"
+    [class.hidden]="isOnList()"
+  >
+    <router-outlet />
+  </div>
+</div>

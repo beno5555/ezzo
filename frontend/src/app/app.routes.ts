@@ -79,10 +79,31 @@ export const routes: Routes = [
   },
   { ...placeholderPage('settings', 'settings'), canActivate: [authGuard] },
   { ...placeholderPage('friends', 'friends'), canActivate: [authGuard] },
+  // One layout for both: the list beside the open conversation on a desktop, one of them on a phone.
+  // At /messages a desktop shows a hint where the conversation goes, and a phone only the list.
   {
     path: 'messages',
     canActivate: [authGuard],
-    children: [placeholderPage('', 'messages'), placeholderPage(':username', 'conversation')],
+    loadComponent: () =>
+      import('./features/messages/messages-page/messages-page').then((m) => m.MessagesPage),
+    children: [
+      {
+        path: '',
+        title: 'messages',
+        loadComponent: () =>
+          import('./features/messages/no-conversation-page/no-conversation-page').then(
+            (m) => m.NoConversationPage,
+          ),
+      },
+      {
+        path: ':username',
+        title: 'conversation',
+        loadComponent: () =>
+          import('./features/messages/conversation-page/conversation-page').then(
+            (m) => m.ConversationPage,
+          ),
+      },
+    ],
   },
   {
     path: 'admin',

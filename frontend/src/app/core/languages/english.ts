@@ -111,6 +111,11 @@ export const english = {
     toasts: {
       regionLabel: 'Notifications',
     },
+    // Whether a friend is online, or when they last were (shared/presence-label).
+    presence: {
+      online: 'Online',
+      lastActive: (time: string) => `Active ${time}`,
+    },
     // A post's or a message's photos: the grid of thumbnails and the full-screen viewer (shared/photos).
     photos: {
       openButton: (position: number, total: number) => `Open photo ${position} of ${total}`,
@@ -306,6 +311,47 @@ export const english = {
       emptyMessage: 'When other people write posts, they show up here.',
       retryButton: 'Try again',
       end: 'You have reached the end of the feed.',
+    },
+  },
+  // The chat at /messages and /messages/:username (features/messages).
+  messages: {
+    // The list of conversations, beside the open one on a desktop and on its own screen on a phone.
+    list: {
+      loading: 'Loading conversations…',
+      loadingMore: 'Loading more conversations…',
+      retryButton: 'Try again',
+      emptyTitle: 'No conversations yet',
+      emptyMessage: 'When you and a friend write to each other, the conversation shows up here.',
+      // The last message when it has photos and no text.
+      photo: 'Photo',
+      // Before the last message when the signed-in user sent it.
+      ownMessage: (preview: string) => `You: ${preview}`,
+      unreadBadge: (badge: string) => `${badge} unread messages`,
+    },
+    // The right-hand side on a desktop while no conversation is open.
+    noConversation: {
+      title: 'Choose a conversation',
+      message: 'Pick a friend from the list to read your messages.',
+    },
+    conversation: {
+      backLink: 'Back to conversations',
+      loading: 'Opening the conversation…',
+      loadingOlder: 'Loading older messages…',
+      retryButton: 'Try again',
+      notFoundTitle: 'No such user',
+      notFoundMessage: (username: string) => `Nobody on WebCity is called ${username}.`,
+      notFriendTitle: 'You are not friends',
+      notFriendMessage: (username: string) =>
+        `You can write only to your friends, and ${username} is not one of them.`,
+      listLink: 'See your conversations',
+      emptyTitle: 'No messages yet',
+      emptyMessage: 'Neither of you has written yet.',
+      start: 'This is the beginning of your conversation.',
+      historyLabel: (username: string) => `Messages with ${username}`,
+      // Read by screen readers before each message, which shows its sender only by its side.
+      ownSender: 'You',
+      senderLabel: (sender: string) => `${sender}:`,
+      edited: 'Edited',
     },
   },
 };

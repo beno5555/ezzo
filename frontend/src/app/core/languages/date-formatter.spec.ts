@@ -44,6 +44,51 @@ describe('DateFormatter', () => {
     });
   });
 
+  describe('shortTime', () => {
+    // 18:30 on 15 November in Tbilisi.
+    const now = new Date('2026-11-15T14:30:00Z');
+
+    beforeEach(() => {
+      vi.useFakeTimers();
+      vi.setSystemTime(now);
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('writes only the clock time for a moment earlier today', () => {
+      const dates = startFormatter('Asia/Tbilisi', Language.English);
+
+      expect(withPlainSpaces(dates.shortTime('2026-11-15T05:10:00Z'))).toBe('9:10 AM');
+    });
+
+    it('counts today in the local time zone, not in UTC', () => {
+      // 23:10 on 14 November in UTC, already the 15th in Tbilisi.
+      const dates = startFormatter('Asia/Tbilisi', Language.English);
+
+      expect(withPlainSpaces(dates.shortTime('2026-11-14T23:10:00Z'))).toBe('3:10 AM');
+    });
+
+    it('writes the day and the month for an earlier day this year', () => {
+      const dates = startFormatter('Asia/Tbilisi', Language.English);
+
+      expect(dates.shortTime('2026-03-02T10:00:00Z')).toBe('Mar 2');
+    });
+
+    it('adds the year for a moment in an earlier year', () => {
+      const dates = startFormatter('Asia/Tbilisi', Language.English);
+
+      expect(dates.shortTime('2025-12-31T10:00:00Z')).toBe('Dec 31, 2025');
+    });
+
+    it('writes a short time in Georgian', () => {
+      const dates = startFormatter('Asia/Tbilisi', Language.Georgian);
+
+      expect(dates.shortTime('2026-11-15T05:10:00Z')).toBe('09:10');
+    });
+  });
+
   describe('dateOfBirth', () => {
     // Midnight UTC, which is still the evening before in Los Angeles.
     const dateOfBirth = '2000-03-01T00:00:00Z';

@@ -2,6 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { MessageApi } from './message-api';
+import { StandardMessageDto } from './standard-message-dto';
 
 describe('MessageApi', () => {
   let messageApi: MessageApi;
@@ -72,6 +73,46 @@ describe('MessageApi', () => {
         .flush({ unreadCount: 3 });
 
       expect(await pending).toEqual({ succeeded: true, data: { unreadCount: 3 } });
+    });
+  });
+
+  describe('GET /api/messages/conversation/{otherUserId}', () => {
+    it('sends the page as the query, and returns the messages oldest first as they arrive', async () => {
+      const message: StandardMessageDto = {
+        id: 12,
+        content: 'See you there',
+        images: [{ id: 5, address: '/api/images/a.png', orderIndex: 0 }],
+        sender: { id: 3, username: 'alice' },
+        receiverId: 1,
+        sentAt: '2026-11-17T08:00:00Z',
+        seen: true,
+        seenAt: '2026-11-17T08:05:00Z',
+        isEdited: false,
+      };
+      const pending = messageApi.getConversation(3, { pageNumber: 2, pageSize: 20 });
+
+      const request = httpTesting.expectOne(
+        (candidate) =>
+          candidate.method === 'GET' && candidate.url === '/api/messages/conversation/3',
+      );
+      expect(request.request.params.get('pageNumber')).toBe('2');
+      expect(request.request.params.get('pageSize')).toBe('20');
+      request.flush({ succeeded: true, message: null, data: [message], totalCount: 1 });
+
+      expect(await pending).toEqual({ succeeded: true, data: [message] });
+    });
+
+    it('returns the message when the backend refuses the read', async () => {
+      const pending = messageApi.getConversation(3, { pageNumber: 1, pageSize: 20 });
+
+      httpTesting
+        .expectOne('/api/messages/conversation/3?pageNumber=1&pageSize=20')
+        .flush(
+          { succeeded: false, message: 'Invalid request' },
+          { status: 400, statusText: 'Bad Request' },
+        );
+
+      expect(await pending).toEqual({ succeeded: false, message: 'Invalid request', status: 400 });
     });
   });
 });

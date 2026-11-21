@@ -26,11 +26,11 @@ Dates are the day a step should finish. **Steps 5 to 8 are crucial and late.** T
 
 ### Lanes: which tickets run in parallel
 
-Two worktree lanes at a time (`docs/agents/worktrees.md`), each taking frontend tickets from **different feature areas**, so that the only shared files are the routes and the two dictionaries. A lane that finishes early takes the next ticket in its own column. "F" is a frontend ticket. Rounds 0 to 6 are merged, and so is F10.
+Two worktree lanes at a time (`docs/agents/worktrees.md`), each taking frontend tickets from **different feature areas**, so that the only shared files are the routes and the two dictionaries. A lane that finishes early takes the next ticket in its own column. "F" is a frontend ticket. Rounds 0 to 7 are merged.
 
 | Round | Lane 1 | Lane 2 |
 |---|---|---|
-| 7 | F10, write a post (merged) | F18, chat: list and reading |
+| 7 | F10, write a post (merged) | F18, chat: list and reading (merged) |
 | 8 | F11, the post page | F22, admin: layout and users |
 | 9 | F12, edit and delete a post | F19, chat: send and receive live |
 | 10 | F13, reports from the normal pages | F20, chat: edit, delete, typing |

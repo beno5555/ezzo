@@ -94,6 +94,10 @@ export const georgian: Dictionary = {
     toasts: {
       regionLabel: 'შეტყობინებები',
     },
+    presence: {
+      online: 'ხაზზეა',
+      lastActive: (time: string) => `აქტიური იყო ${time}`,
+    },
     photos: {
       openButton: (position: number, total: number) => `ფოტო ${position} / ${total}-ის გახსნა`,
       openMoreButton: (position: number, total: number, count: number) =>
@@ -259,6 +263,41 @@ export const georgian: Dictionary = {
       emptyMessage: 'როცა სხვები პოსტებს დაწერენ, ისინი აქ გამოჩნდება.',
       retryButton: 'თავიდან ცდა',
       end: 'სიახლეების ბოლოს მიაღწიეთ.',
+    },
+  },
+  messages: {
+    list: {
+      loading: 'საუბრები იტვირთება…',
+      loadingMore: 'კიდევ საუბრები იტვირთება…',
+      retryButton: 'თავიდან ცდა',
+      emptyTitle: 'საუბრები ჯერ არ არის',
+      emptyMessage: 'როცა თქვენ და მეგობარი ერთმანეთს მისწერთ, საუბარი აქ გამოჩნდება.',
+      photo: 'ფოტო',
+      ownMessage: (preview: string) => `თქვენ: ${preview}`,
+      unreadBadge: (badge: string) => `${badge} წაუკითხავი შეტყობინება`,
+    },
+    noConversation: {
+      title: 'აირჩიეთ საუბარი',
+      message: 'შეტყობინებების წასაკითხად აირჩიეთ მეგობარი სიიდან.',
+    },
+    conversation: {
+      backLink: 'საუბრებზე დაბრუნება',
+      loading: 'საუბარი იხსნება…',
+      loadingOlder: 'ძველი შეტყობინებები იტვირთება…',
+      retryButton: 'თავიდან ცდა',
+      notFoundTitle: 'ასეთი მომხმარებელი არ არსებობს',
+      notFoundMessage: (username: string) => `WebCity-ზე ${username} არავის ჰქვია.`,
+      notFriendTitle: 'თქვენ მეგობრები არ ხართ',
+      notFriendMessage: (username: string) =>
+        `მიწერა მხოლოდ მეგობრებს შეგიძლიათ, ${username} კი თქვენი მეგობარი არ არის.`,
+      listLink: 'თქვენი საუბრები',
+      emptyTitle: 'შეტყობინებები ჯერ არ არის',
+      emptyMessage: 'ჯერ არცერთ თქვენგანს არ დაუწერია.',
+      start: 'აქ თქვენი საუბარი იწყება.',
+      historyLabel: (username: string) => `შეტყობინებები ${username}-თან`,
+      ownSender: 'თქვენ',
+      senderLabel: (sender: string) => `${sender}:`,
+      edited: 'შესწორებულია',
     },
   },
 };

@@ -69,4 +69,42 @@ describe('UserApi', () => {
       });
     });
   });
+
+  describe('GET /api/users/{username}', () => {
+    it('returns the user with that username', async () => {
+      const user = { id: 7, username: 'john_doe', bio: null, dateOfBirth: '2000-04-01T00:00:00Z' };
+      const pending = userApi.getByUsername('john_doe');
+
+      httpTesting
+        .expectOne(
+          (candidate) => candidate.method === 'GET' && candidate.url === '/api/users/john_doe',
+        )
+        .flush({ succeeded: true, message: null, data: user });
+
+      expect(await pending).toEqual({ succeeded: true, data: user });
+    });
+
+    it('sends the username as one segment of the address', async () => {
+      const pending = userApi.getByUsername('a/b?c');
+
+      httpTesting
+        .expectOne('/api/users/a%2Fb%3Fc')
+        .flush({ succeeded: true, message: null, data: null });
+
+      await pending;
+    });
+
+    it('returns the message when there is no such user', async () => {
+      const pending = userApi.getByUsername('nobody');
+
+      httpTesting
+        .expectOne('/api/users/nobody')
+        .flush(
+          { succeeded: false, message: 'User not found' },
+          { status: 404, statusText: 'Not Found' },
+        );
+
+      expect(await pending).toEqual({ succeeded: false, message: 'User not found', status: 404 });
+    });
+  });
 });

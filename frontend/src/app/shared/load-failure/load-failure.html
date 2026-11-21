@@ -1,0 +1,5 @@
+<p class="flex items-start gap-2 text-danger wrap-break-word" role="alert">
+  <svg class="mt-0.5 size-5 shrink-0" lucideCircleExclamationPoint aria-hidden="true"></svg>
+  <span>{{ message() }}</span>
+</p>
+<button appButton look="quiet" type="button" (click)="retry.emit()">{{ retryLabel() }}</button>

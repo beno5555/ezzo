@@ -14,17 +14,22 @@ Decisions are under "Chat" and "Scaffold and plumbing" in `.scratch/frontend/spe
 
 **Blocked by:** 05 (The live connection feeds presence and the unread count), 07 (The shell gives navigation on a desktop, on a phone and to a guest), and the frontend setup (27, 28, 29)
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Difficulty:** tricky: shared state that the hub changes, one pair of routes serving two layouts, and a scroll position that must hold while history loads upward.
 
-- [ ] The list shows each conversation with the name, presence, last message, time and unread count
-- [ ] A row whose last message has only photos reads "Photo"
-- [ ] A friend going online or offline changes their row without a reload
-- [ ] A conversation opens from the list and from its address pasted into a new tab
-- [ ] Older messages load on scrolling up, and the view does not jump
-- [ ] Opening a conversation clears its count and lowers the number on the Messages link
-- [ ] On a phone the list and the conversation are separate screens, and back returns to the list
-- [ ] The conversations store is unit-tested through its public methods: loading the list, opening a conversation, marking it read
-- [ ] The message `…Api` methods used here are unit-tested against the HTTP testing backend
-- [ ] Checked in the running app on a desktop width and on a phone width, with two accounts
+- [x] The list shows each conversation with the name, presence, last message, time and unread count
+- [x] A row whose last message has only photos reads "Photo"
+- [x] A friend going online or offline changes their row without a reload
+- [x] A conversation opens from the list and from its address pasted into a new tab
+- [x] Older messages load on scrolling up, and the view does not jump
+- [x] Opening a conversation clears its count and lowers the number on the Messages link
+- [x] On a phone the list and the conversation are separate screens, and back returns to the list
+- [x] The conversations store is unit-tested through its public methods: loading the list, opening a conversation, marking it read
+- [x] The message `…Api` methods used here are unit-tested against the HTTP testing backend
+- [x] Checked in the running app on a desktop width and on a phone width, with two accounts
+
+## Comments
+
+- **2026-11-22, backend fixes found in the running app.** `MessageRepository.MarkConversationAsReadAsync` stamped `LastUpdatedAt` on every message it marked seen, so each read message showed as edited; and it marked nothing when the conversation's last message was the reader's own, so a reader who replied before reading kept the unread count. Both are fixed on this branch, with an integration test each (`docs/backend/signalr.md`, `data.md`). Messages read before the fix keep their stamp and still show "Edited" in an existing database.
+- **2026-11-22, left as is.** Like `PagedList`, the store's list and history paging repeat its shape (page number, status, failure). The other lane was changing `paged-list.ts`, so this lane did not reshape it. The feed and the user search still carry their own copies of the failure-and-retry block that `shared/load-failure` now holds.

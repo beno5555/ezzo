@@ -1,0 +1,10 @@
+@if (lastActiveAt(); as lastActive) {
+  <span class="block truncate text-xs text-ink-muted">
+    {{ text().shared.presence.lastActive(dateFormatter.shortTime(lastActive)) }}
+  </span>
+} @else {
+  <span class="inline-flex items-center gap-1 text-xs font-semibold text-success">
+    <span class="size-2 shrink-0 rounded-full bg-success" aria-hidden="true"></span>
+    {{ text().shared.presence.online }}
+  </span>
+}
