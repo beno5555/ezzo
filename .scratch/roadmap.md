@@ -39,7 +39,7 @@ Two worktree lanes at a time (`docs/agents/worktrees.md`), each taking frontend 
 | 13 | F15, the friends page | F21, live toasts |
 | 14 | F17, the settings page | F26, the landing page |
 
-Backend lane: n8n 08 and 11 are finished on their worktree branches and wait for a merge. Readiness 07 is left out: it matters only if the demo moves to a host.
+Backend lane: n8n 08 and 11 are finished on their worktree branches and parked: the frontend pages come first, so their merge waits until the pages are done (owner, 2026-11-22). A session lists the two branches as parked, not as work to merge. Readiness 07 is left out: it matters only if the demo moves to a host.
 
 1. [ ] **Design.** The name was still open, so the design session fixed the structure and left the brand for later. The frontend setup (tickets 27 to 29) is merged.
    - [ ] **Frontend ticket 30: Impeccable.** Merged, and the owner kept the hook on after its trial on F10. Open only for box 6, a cloud session's run of the launcher. No ticket waits for it.
