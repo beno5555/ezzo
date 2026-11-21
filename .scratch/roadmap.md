@@ -10,15 +10,14 @@ The order of work toward the full-stack deadline, 2026-11-25. A ticket's own `St
 
 Settle these before the session that needs them. Each has a going-in recommendation.
 
-1. **The product's name.** The owner may replace "WebCity". The name session (Sun 22) settles it before the n8n emails that carry it are written; if that session ends without a new name, the product ships as WebCity. Its decisions are in `PRODUCT.md`. `webcity-documentation.md`, already sent to the academy, says WebCity; whether to tell the academy is the owner's call.
+1. **Telling the academy about the name.** `webcity-documentation.md`, already sent to the academy, says WebCity; users now see Ezzo (`PRODUCT.md`). Whether to tell the academy is the owner's call.
 
 ## Settled
 
-Each decision is recorded where the work reads it: the n8n session in `.scratch/n8n-automation/spec.md`, ADR 0008 and `GLOSSARY.md`; the design session in ADR 0007, `DESIGN.md`, frontend tickets 27 to 30 and `docs/agents/skills.md`; the frontend spec session in `.scratch/frontend/spec.md`; the backend gaps in `.scratch/documented-backend-features/spec.md`. Kept here only what is recorded nowhere else, or departs from the document:
+Each decision is recorded where the work reads it: the name session in `PRODUCT.md` and `GLOSSARY.md`; the n8n session in `.scratch/n8n-automation/spec.md`, ADR 0008 and `GLOSSARY.md`; the design session in ADR 0007, `DESIGN.md`, frontend tickets 27 to 30 and `docs/agents/skills.md`; the frontend spec session in `.scratch/frontend/spec.md`; the backend gaps in `.scratch/documented-backend-features/spec.md`. Kept here only what is recorded nowhere else, or departs from the document:
 
 - **An unexpected server error keeps the failure envelope.** The document says `ProblemDetails`; the owner accepts the difference (readiness ticket 02 and ADR 0003 stand).
 - **The moderation queue is two routes,** `GET /api/admin/moderation-queue/posts` and `/comments`, where the document lists one.
-- **A rename changes only what users see:** one dictionary key, the logo component, the page title and the email texts. The code names (`webcity` in `package.json`, the `webcity-conventions` skill, `~/.webcity-test/`) stay.
 
 ## Now
 
@@ -43,8 +42,8 @@ Backend lane: n8n 08 and 11 are finished on their worktree branches and parked: 
 
 1. [ ] **Design.** The name was still open, so the design session fixed the structure and left the brand for later. The frontend setup (tickets 27 to 29) is merged.
    - [ ] **Frontend ticket 30: Impeccable.** Merged, and the owner kept the hook on after its trial on F10. Open only for box 6, a cloud session's run of the launcher. No ticket waits for it.
-   - [ ] **Sun 22: the name session** (open decision 1). It uses Playwright to look at reference sites, and writes `PRODUCT.md`. On Opus 5.5.
-   - [ ] **After the name: the brand session.** One approval page in two skins; the owner chooses. It replaces the provisional values in `DESIGN.md` and the token file, and adds the logo.
+   - [x] **The name session.** The product is Ezzo (`PRODUCT.md`).
+   - [ ] **Next: the brand session.** One approval page in two skins; the owner chooses. It replaces the provisional values in `DESIGN.md` and the token file, and adds the logo ("ezzo"). It also changes every on-screen "WebCity" to Ezzo: the two dictionaries, the browser-tab title and its spec.
 2. [x] **Write the tickets.** Of the n8n tickets, 01, 03, 04, 08 and 11 are backend work proven by integration tests; 02, 05, 06, 07, 09, 12 and 14 are workflows, open until the owner has run their checklist; 10 and 13 are visual frontend work.
 3. [x] **The backend gaps** (documented-backend-features), the last of them ticket 04.
 4. [x] **Shell and auth.**
@@ -78,4 +77,5 @@ On the frontend, in this order from the end: the default picture's new look (a r
 - Images on AWS S3. Until then they stay on local disk.
 - Russian and Spanish dictionary files (ADR 0006).
 - Translated server text, which needs a stable code on every backend failure (ADR 0006).
+- **A topic check for posts:** the automation flags, never hides, a post that is not something its author made, with a paid chat-model call beside ticket 06's moderation. It needs a spec first.
 - **Georgian dates in Chrome** (found in frontend ticket 09). Desktop Chrome has no Georgian locale data, so `DateFormatter` falls back to English month names on the Georgian interface; the time zone is right. The fix is a locale polyfill (`@formatjs/intl-datetimeformat` with `ka` data) or our own Georgian month names. No ticket yet; the owner accepts the English dates until then. Also worth doing in spare time before the deadline.

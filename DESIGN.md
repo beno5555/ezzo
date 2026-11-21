@@ -126,8 +126,8 @@ WebCity is a small social platform: a feed, posts with photos, comments, friends
 **The structure is final. The skin is provisional.**
 
 - **Final:** the design token names, the two themes, the type sizes, the spacing scale, the radii, the layout rules and the floor for motion and accessibility.
-- **Provisional:** every colour value, both font families and the logo. They are deliberately neutral, so that nobody mistakes them for the finished look. The product's name is still open, and the brand is chosen after it.
-- **Until the name is settled, no component carries a brand metaphor.** The brand lives only in design token values and in the logo component. That is what keeps a change of name cheap.
+- **Provisional:** every colour value, both font families and the logo. They are deliberately neutral, so that nobody mistakes them for the finished look. The name is settled (Ezzo, `PRODUCT.md`); the brand session chooses the brand.
+- **Until the brand session, no component carries a brand metaphor.** The brand lives only in design token values and in the logo component. That is what keeps a change of name cheap.
 
 ## Colors
 
@@ -207,4 +207,4 @@ Three radii and "full": `sm` for small controls such as badges and checkboxes, `
 - Do keep text contrast at 4.5 to 1 or more in both themes.
 - Don't use ALL-CAPS labels, italics for meaning, or a monospace face for small labels.
 - Don't add a second accent colour, a gradient or a glow.
-- Don't give a component a brand metaphor before the name is settled.
+- Don't give a component a brand metaphor before the brand session.

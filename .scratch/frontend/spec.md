@@ -4,7 +4,7 @@ Status: ready-for-agent
 
 ## Problem Statement
 
-The documentation sent to the principal (`webcity-documentation.md`) is the commitment for 2026-11-25. It promises an Angular application, and none of it exists: there is no `frontend/` folder. WebCity can be used today only through Swagger or Postman.
+The documentation sent to the academy (`webcity-documentation.md`) is the commitment for 2026-11-25. It promises an Angular application, and none of it exists: there is no `frontend/` folder. WebCity can be used today only through Swagger or Postman.
 
 - A person cannot register, sign in, reset a password or reactivate an account in a browser.
 - Nobody can read the feed, write a post with photos, like, comment or report.
