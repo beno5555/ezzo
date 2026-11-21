@@ -14,7 +14,7 @@ Decisions are under "Admin panel" in `.scratch/frontend/spec.md`. The backend's 
 
 **Blocked by:** 07 (The shell gives navigation on a desktop, on a phone and to a guest), 08 (The auth pages), and the frontend setup (27, 28, 29)
 
-**Status:** ready-for-agent
+**Status:** in-progress
 
 **Difficulty:** routine: a paged table, two dialog forms and five confirmed actions, all on existing endpoints and on patterns earlier tickets set.
 

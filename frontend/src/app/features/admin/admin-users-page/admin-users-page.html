@@ -1,1 +1,213 @@
-<h1>{{ text().admin.users.title }}</h1>
+<div class="flex flex-col gap-6">
+  <div class="flex flex-wrap items-center justify-between gap-4">
+    <h1 class="font-display text-2xl text-ink-strong">{{ text().admin.users.title }}</h1>
+    <button appButton look="primary" type="button" (click)="createAccount()">
+      <svg class="size-5" lucidePlus aria-hidden="true"></svg>
+      {{ text().admin.users.createButton }}
+    </button>
+  </div>
+
+  <div class="flex flex-col gap-4 md:flex-row md:flex-wrap md:items-end md:gap-6">
+    <div class="flex flex-col gap-1" role="group" aria-labelledby="state-filter-label">
+      <span id="state-filter-label" class="text-sm font-semibold text-ink-strong">{{
+        text().admin.users.stateFilterLabel
+      }}</span>
+      <div class="flex flex-wrap gap-2">
+        @for (choice of stateChoices(); track choice.label) {
+          <button
+            appToggleButton
+            type="button"
+            [pressed]="choice.state === selectedState()"
+            (click)="chooseState(choice.state)"
+          >
+            {{ choice.label }}
+          </button>
+        }
+      </div>
+    </div>
+
+    <form class="flex flex-col gap-1 md:flex-1" [formGroup]="filterForm" (ngSubmit)="search()">
+      <label class="py-1 text-sm font-semibold text-ink-strong" for="username-filter">{{
+        text().admin.users.usernameFilterLabel
+      }}</label>
+      <div class="flex flex-wrap gap-2">
+        <input
+          appTextInput
+          class="flex-1 basis-48"
+          id="username-filter"
+          type="search"
+          autocomplete="off"
+          autocapitalize="none"
+          spellcheck="false"
+          [maxlength]="usernameMaxLength"
+          formControlName="username"
+        />
+        <button appButton look="quiet" type="submit" [disabled]="filterForm.invalid">
+          <svg class="size-5" lucideSearch aria-hidden="true"></svg>
+          {{ text().admin.users.searchButton }}
+        </button>
+      </div>
+    </form>
+  </div>
+
+  @if (hasRows()) {
+    <div class="lg:overflow-x-auto">
+      <table class="block w-full text-start lg:table lg:text-sm">
+        <thead class="sr-only lg:not-sr-only lg:table-header-group">
+          <tr class="lg:table-row">
+            <th scope="col" class="px-2 py-2 text-start text-sm font-semibold text-ink-muted">
+              {{ text().admin.users.columns.username }}
+            </th>
+            <th scope="col" class="px-2 py-2 text-start text-sm font-semibold text-ink-muted">
+              {{ text().admin.users.columns.email }}
+            </th>
+            <th scope="col" class="px-2 py-2 text-start text-sm font-semibold text-ink-muted">
+              {{ text().admin.users.columns.role }}
+            </th>
+            <th scope="col" class="px-2 py-2 text-start text-sm font-semibold text-ink-muted">
+              {{ text().admin.users.columns.state }}
+            </th>
+            <th scope="col" class="px-2 py-2 text-start text-sm font-semibold text-ink-muted">
+              {{ text().admin.users.columns.joined }}
+            </th>
+            <th scope="col" class="px-2 py-2 text-start text-sm font-semibold text-ink-muted">
+              {{ text().admin.users.columns.deactivated }}
+            </th>
+            <th scope="col" class="px-2 py-2 text-start text-sm font-semibold text-ink-muted">
+              {{ text().admin.users.columns.deleted }}
+            </th>
+            <th scope="col" class="px-2 py-2 text-start text-sm font-semibold text-ink-muted">
+              {{ text().admin.users.columns.actions }}
+            </th>
+          </tr>
+        </thead>
+        <tbody class="flex flex-col gap-3 lg:table-row-group">
+          @for (row of table().rows(); track row.id) {
+            <tr
+              class="relative flex flex-col gap-2 rounded-lg border border-border bg-surface-raised p-4 shadow-raised lg:static lg:table-row lg:rounded-none lg:border-0 lg:border-b lg:bg-transparent lg:p-0 lg:shadow-none"
+            >
+              <td
+                class="flex items-center gap-3 pe-12 lg:table-cell lg:px-2 lg:py-3 lg:align-middle"
+              >
+                <span class="flex min-w-0 items-center gap-3">
+                  <app-avatar
+                    [userId]="row.id"
+                    [username]="row.username"
+                    [isUnavailable]="row.state !== AccountState.Active"
+                    [size]="avatarSize"
+                  />
+                  <span class="font-semibold text-ink-strong wrap-break-word">{{
+                    row.username
+                  }}</span>
+                </span>
+              </td>
+              <td class="flex flex-wrap gap-x-2 lg:table-cell lg:px-2 lg:py-3 lg:align-middle">
+                <span class="min-w-24 text-sm text-ink-muted lg:hidden">{{
+                  text().admin.users.columns.email
+                }}</span>
+                <span class="wrap-anywhere">{{ row.email }}</span>
+              </td>
+              <td class="flex flex-wrap gap-x-2 lg:table-cell lg:px-2 lg:py-3 lg:align-middle">
+                <span class="min-w-24 text-sm text-ink-muted lg:hidden">{{
+                  text().admin.users.columns.role
+                }}</span>
+                <span>{{
+                  row.isAdministrator
+                    ? text().admin.users.administratorRole
+                    : text().admin.users.userRole
+                }}</span>
+              </td>
+              <td class="flex flex-wrap gap-x-2 lg:table-cell lg:px-2 lg:py-3 lg:align-middle">
+                <span class="min-w-24 text-sm text-ink-muted lg:hidden">{{
+                  text().admin.users.columns.state
+                }}</span>
+                <span
+                  class="inline-flex items-center rounded-sm border px-2 text-sm font-semibold"
+                  [class]="stateBadgeClass(row.state)"
+                  >{{ text().admin.users.states[row.state] }}</span
+                >
+              </td>
+              <td class="flex flex-wrap gap-x-2 lg:table-cell lg:px-2 lg:py-3 lg:align-middle">
+                <span class="min-w-24 text-sm text-ink-muted lg:hidden">{{
+                  text().admin.users.columns.joined
+                }}</span>
+                <span class="lg:min-w-28">{{ dates.time(row.registeredAt) }}</span>
+              </td>
+              <td
+                class="flex-wrap gap-x-2 lg:table-cell lg:px-2 lg:py-3 lg:align-middle"
+                [class]="row.deactivatedAt === null ? 'hidden' : 'flex'"
+              >
+                <span class="min-w-24 text-sm text-ink-muted lg:hidden">{{
+                  text().admin.users.columns.deactivated
+                }}</span>
+                <span class="lg:min-w-28">{{
+                  row.deactivatedAt === null
+                    ? text().admin.users.noDate
+                    : dates.time(row.deactivatedAt)
+                }}</span>
+              </td>
+              <td
+                class="flex-wrap gap-x-2 lg:table-cell lg:px-2 lg:py-3 lg:align-middle"
+                [class]="row.deletedAt === null ? 'hidden' : 'flex'"
+              >
+                <span class="min-w-24 text-sm text-ink-muted lg:hidden">{{
+                  text().admin.users.columns.deleted
+                }}</span>
+                <span class="lg:min-w-28">{{
+                  row.deletedAt === null ? text().admin.users.noDate : dates.time(row.deletedAt)
+                }}</span>
+              </td>
+              <td
+                class="absolute end-2 top-2 lg:static lg:table-cell lg:px-2 lg:py-1 lg:align-middle"
+              >
+                @if (menuEntries(row); as entries) {
+                  @if (entries.length > 0) {
+                    <app-menu
+                      [entries]="entries"
+                      [label]="text().admin.users.actionsLabel(row.username)"
+                    />
+                  }
+                }
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  }
+
+  @switch (table().status()) {
+    @case (PageLoadStatus.Idle) {
+      @if (hasRows()) {
+        <div appScrollSentinel (reached)="loadMore()"></div>
+      }
+    }
+    @case (PageLoadStatus.Loading) {
+      <p class="py-4 text-center text-sm text-ink-muted" role="status">
+        {{ hasRows() ? text().admin.users.loadingMore : text().admin.users.loading }}
+      </p>
+    }
+    @case (PageLoadStatus.Failed) {
+      @if (table().failureMessage(); as message) {
+        <app-load-failure
+          [message]="message"
+          [retryLabel]="text().admin.users.retryButton"
+          (retry)="loadMore()"
+        />
+      }
+    }
+    @case (PageLoadStatus.Ended) {
+      @if (hasRows()) {
+        <p class="py-4 text-center text-sm text-ink-muted">{{ text().admin.users.end }}</p>
+      } @else {
+        <div
+          class="flex flex-col items-center gap-2 rounded-lg border border-border bg-surface-raised px-4 py-10 text-center"
+        >
+          <svg class="size-8 text-ink-muted" lucideUsers aria-hidden="true"></svg>
+          <h2 class="font-display text-lg text-ink-strong">{{ text().admin.users.emptyTitle }}</h2>
+          <p class="text-ink-muted">{{ text().admin.users.emptyMessage }}</p>
+        </div>
+      }
+    }
+  }
+</div>

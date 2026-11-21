@@ -1,0 +1,70 @@
+<app-dialog-frame [title]="text().admin.users.editDialog.title(username)">
+  @if (isLoaded()) {
+    <form class="flex flex-col gap-5" [formGroup]="form" (ngSubmit)="save()">
+      <app-form-field
+        fieldId="edit-username"
+        [label]="text().auth.register.usernameLabel"
+        [hint]="
+          text().auth.register.usernameHint(limits.usernameMinLength, limits.usernameMaxLength)
+        "
+        [control]="form.controls.username"
+      >
+        <input
+          appTextInput
+          id="edit-username"
+          type="text"
+          autocomplete="off"
+          autocapitalize="none"
+          spellcheck="false"
+          formControlName="username"
+        />
+      </app-form-field>
+
+      <app-form-field
+        fieldId="edit-date-of-birth"
+        [label]="text().auth.register.dateOfBirthLabel"
+        [control]="form.controls.dateOfBirth"
+      >
+        <input
+          appTextInput
+          id="edit-date-of-birth"
+          type="date"
+          autocomplete="off"
+          formControlName="dateOfBirth"
+        />
+      </app-form-field>
+
+      <app-form-field
+        fieldId="edit-bio"
+        [label]="text().auth.register.bioLabel"
+        [hint]="text().auth.register.bioHint(limits.bioMaxLength)"
+        [control]="form.controls.bio"
+      >
+        <textarea appTextInput id="edit-bio" rows="3" formControlName="bio"></textarea>
+      </app-form-field>
+
+      @if (failureMessage(); as message) {
+        <app-form-message tone="danger" [message]="message" />
+      }
+
+      <div class="flex flex-wrap justify-end gap-3">
+        <button appButton look="quiet" type="button" (click)="cancel()">
+          {{ text().shared.confirmation.cancelButton }}
+        </button>
+        <button appButton look="primary" type="submit" [disabled]="form.invalid || isSubmitting()">
+          {{ text().admin.users.editDialog.submitButton }}
+        </button>
+      </div>
+    </form>
+  } @else if (loadFailureMessage(); as message) {
+    <app-load-failure
+      [message]="message"
+      [retryLabel]="text().admin.users.editDialog.retryButton"
+      (retry)="load()"
+    />
+  } @else {
+    <p class="py-4 text-center text-sm text-ink-muted" role="status">
+      {{ text().admin.users.editDialog.loading }}
+    </p>
+  }
+</app-dialog-frame>

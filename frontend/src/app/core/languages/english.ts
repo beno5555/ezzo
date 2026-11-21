@@ -254,9 +254,94 @@ export const english = {
       signInPrompt: 'Account still active?',
     },
   },
+  // The admin panel (features/admin). Each area's name is its page title, in pages.
   admin: {
+    navigationLabel: 'Admin areas',
+    // The button that opens the navigation on a phone, where it is folded away.
+    navigationButton: 'Admin menu',
     users: {
       title: 'Users',
+      stateFilterLabel: 'Show accounts that are',
+      allStates: 'All',
+      // The names of the account states, by AccountState.
+      states: {
+        Active: 'Active',
+        Deactivated: 'Deactivated',
+        SoftDeleted: 'Deleted',
+      },
+      usernameFilterLabel: 'Username',
+      searchButton: 'Search',
+      createButton: 'Create account',
+      columns: {
+        username: 'Username',
+        email: 'Email',
+        role: 'Role',
+        state: 'State',
+        joined: 'Joined',
+        deactivated: 'Deactivated',
+        deleted: 'Deleted',
+        actions: 'Actions',
+      },
+      administratorRole: 'Administrator',
+      userRole: 'User',
+      // Where a date is empty: the account was never deactivated, or never deleted.
+      noDate: '—',
+      loading: 'Loading accounts…',
+      loadingMore: 'Loading more accounts…',
+      retryButton: 'Try again',
+      end: 'That is every account.',
+      emptyTitle: 'No accounts found',
+      emptyMessage: 'No account matches these filters.',
+      // The name of a row's "…" button.
+      actionsLabel: (username: string) => `Actions for ${username}`,
+      actions: {
+        edit: 'Edit profile',
+        deactivate: 'Deactivate',
+        restore: 'Restore',
+        delete: 'Delete',
+        grantAdministrator: 'Make administrator',
+        removeAdministrator: 'Remove administrator',
+      },
+      // What each row action asks before it runs.
+      confirmations: {
+        deactivate: {
+          question: (username: string) => `Deactivate ${username}?`,
+          detail: 'The account can not be used until you restore it or its owner reactivates it.',
+          confirmButton: 'Deactivate',
+        },
+        restore: {
+          question: (username: string) => `Restore ${username}?`,
+          detail: 'The account can be used again.',
+          confirmButton: 'Restore',
+        },
+        delete: {
+          question: (username: string) => `Delete ${username}?`,
+          detail: 'The account is removed from WebCity, and its data is deleted soon after.',
+          confirmButton: 'Delete',
+        },
+        grantAdministrator: {
+          question: (username: string) => `Make ${username} an administrator?`,
+          detail: 'They can manage accounts and moderate content.',
+          confirmButton: 'Make administrator',
+        },
+        removeAdministrator: {
+          question: (username: string) => `Remove ${username} as an administrator?`,
+          detail: 'They lose access to the admin panel.',
+          confirmButton: 'Remove',
+        },
+      },
+      createDialog: {
+        title: 'Create an account',
+        submitButton: 'Create account',
+        createdToast: (username: string) => `Created the account ${username}.`,
+      },
+      editDialog: {
+        title: (username: string) => `Edit ${username}`,
+        loading: 'Loading the profile…',
+        retryButton: 'Try again',
+        submitButton: 'Save',
+        savedToast: (username: string) => `Saved the profile of ${username}.`,
+      },
     },
   },
   users: {

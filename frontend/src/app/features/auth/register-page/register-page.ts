@@ -13,13 +13,13 @@ import { FormField } from '../../../shared/form-field/form-field';
 import { FormMessage } from '../../../shared/form-message/form-message';
 import { TextInput } from '../../../shared/text-input/text-input';
 import { TextLink } from '../../../shared/text-link/text-link';
+import { userRefusalField } from '../../users/user-refusal-field';
 import { AuthApi } from '../auth-api';
 import { AuthFrame } from '../auth-frame/auth-frame';
 import { AuthLink } from '../auth-frame/auth-link';
 import { RegisterDto } from '../register-dto';
 import { SignInNotice } from '../sign-in-page/sign-in-notice';
 import { SignInPageState } from '../sign-in-page/sign-in-page-state';
-import { registerRefusalFields } from './register-refusal-fields';
 
 // The register page. The register endpoint hands out no session, so a successful registration signs in
 // with the same credentials and goes on to the feed (spec, Auth pages). If that sign-in fails, the user
@@ -79,8 +79,8 @@ export class RegisterPage {
     }
 
     this.isSubmitting.set(false);
-    const refusedField = registerRefusalFields[result.message];
-    if (refusedField !== undefined) {
+    const refusedField = userRefusalField(result.message);
+    if (refusedField !== null) {
       setServerErrors(this.form.controls[refusedField], [result.message]);
       return;
     }
