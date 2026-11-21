@@ -4,17 +4,17 @@ The order of work toward the full-stack deadline, 2026-11-25. A ticket's own `St
 
 **Keep this file about what is ahead.** When a step or round is done, tick it or say "merged" and delete its detail: no merge dates, test durations or review notes. Git history, the ticket and the review queue hold those. Every repeated fact is one more line to go stale.
 
-**Scope is fixed.** The documentation sent to the principal (`webcity-documentation.md` at the repo root) is the commitment: everything in it is due on the 25th. The schedule has one buffer day (Tue 24) and no other slack. If a day slips, the items under **Last in line** move, not the pages.
+**Scope is fixed.** The documentation sent to the academy (`webcity-documentation.md` at the repo root) is the commitment: everything in it is due on the 25th. The schedule has one buffer day (Tue 24) and no other slack. If a day slips, the items under **Last in line** move, not the pages.
 
 ## Open decisions
 
 Settle these before the session that needs them. Each has a going-in recommendation.
 
-1. **The product's name.** The owner may replace "WebCity"; one candidate is Ezo (ეზო). It is settled in a separate name session by **Sat 21**, before the n8n emails that carry it are written. If it is not settled by then, the product ships as WebCity. `webcity-documentation.md`, already sent to the principal, says WebCity; whether to tell the principal is the owner's call.
+1. **The product's name.** The owner may replace "WebCity". The name session (Sun 22) settles it before the n8n emails that carry it are written; if that session ends without a new name, the product ships as WebCity. Its decisions are in `PRODUCT.md`. `webcity-documentation.md`, already sent to the academy, says WebCity; whether to tell the academy is the owner's call.
 
 ## Settled
 
-Each decision is recorded where the work reads it: the n8n session in `.scratch/n8n-automation/spec.md`, ADR 0008 and `GLOSSARY.md`; the design session in ADR 0007, `DESIGN.md`, frontend tickets 27 to 30 and `docs/agents/skills.md`; the frontend spec session in `.scratch/frontend/spec.md`; the backend gaps in `.scratch/documented-backend-features/spec.md`. Kept here only what is recorded nowhere else, or departs from the principal's document:
+Each decision is recorded where the work reads it: the n8n session in `.scratch/n8n-automation/spec.md`, ADR 0008 and `GLOSSARY.md`; the design session in ADR 0007, `DESIGN.md`, frontend tickets 27 to 30 and `docs/agents/skills.md`; the frontend spec session in `.scratch/frontend/spec.md`; the backend gaps in `.scratch/documented-backend-features/spec.md`. Kept here only what is recorded nowhere else, or departs from the document:
 
 - **An unexpected server error keeps the failure envelope.** The document says `ProblemDetails`; the owner accepts the difference (readiness ticket 02 and ADR 0003 stand).
 - **The moderation queue is two routes,** `GET /api/admin/moderation-queue/posts` and `/comments`, where the document lists one.
@@ -43,7 +43,7 @@ Backend lane: n8n 08 and 11 are finished on their worktree branches and wait for
 
 1. [ ] **Design.** The name was still open, so the design session fixed the structure and left the brand for later. The frontend setup (tickets 27 to 29) is merged.
    - [ ] **Frontend ticket 30: Impeccable.** Merged, and the owner kept the hook on after its trial on F10. Open only for box 6, a cloud session's run of the launcher. No ticket waits for it.
-   - [ ] **By Sat 21: the name session** (open decision 1). It uses Playwright to look at reference sites, and writes `PRODUCT.md`. On Opus 5.5.
+   - [ ] **Sun 22: the name session** (open decision 1). It uses Playwright to look at reference sites, and writes `PRODUCT.md`. On Opus 5.5.
    - [ ] **After the name: the brand session.** One approval page in two skins; the owner chooses. It replaces the provisional values in `DESIGN.md` and the token file, and adds the logo.
 2. [x] **Write the tickets.** Of the n8n tickets, 01, 03, 04, 08 and 11 are backend work proven by integration tests; 02, 05, 06, 07, 09, 12 and 14 are workflows, open until the owner has run their checklist; 10 and 13 are visual frontend work.
 3. [x] **The backend gaps** (documented-backend-features), the last of them ticket 04.
