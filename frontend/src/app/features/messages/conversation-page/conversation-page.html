@@ -158,6 +158,8 @@
                         [message]="message"
                         [isOwn]="message.sender.id === signedInUserId()"
                         [showsTime]="mark?.showsTime ?? true"
+                        [isSending]="shown.sendingIds.has(message.id)"
+                        [isLastSeen]="message.id === lastSeenOwnId()"
                       />
                     </li>
                   }
@@ -165,6 +167,9 @@
               }
             </div>
           </div>
+        }
+        @if (shown.friend; as shownFriend) {
+          <app-message-form [friendId]="shownFriend.id" (send)="send($event)" />
         }
       }
     }

@@ -72,7 +72,7 @@ export class PostCard {
   protected readonly isSaving = computed(() => this.postEdits.isSaving(this.post().id));
   protected readonly isDeleting = computed(() => this.postEdits.isDeleting(this.post().id));
   protected readonly isMarkedUploading = computed(() => this.isUploading() || this.isSaving());
-  private readonly isOwn = computed(() => {
+  protected readonly isOwn = computed(() => {
     const userId = this.sessionStore.userId();
 
     return userId !== null && this.post().author.id === userId;

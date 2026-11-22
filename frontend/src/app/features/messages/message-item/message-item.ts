@@ -1,4 +1,5 @@
 import { Component, computed, inject, input } from '@angular/core';
+import { LucideClock } from '@lucide/angular';
 import { DateFormatter } from '../../../core/languages/date-formatter';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { PhotoGrid } from '../../../shared/photos/photo-grid/photo-grid';
@@ -7,11 +8,13 @@ import { StandardMessageDto } from '../standard-message-dto';
 // One message of the open conversation: its text, its photos (a click opens the viewer), its time and
 // whether it was edited. The user's own messages sit on the right and the friend's on the left; a screen
 // reader hears the sender's name before the text instead. showsTime is false inside a run (historyMarks): only
-// the run's last message writes its time below; the others show theirs on hover.
-//   <app-message-item [message]="message" [isOwn]="isOwn" [showsTime]="mark.showsTime" />
+// the run's last message writes its time below; the others show theirs on hover. A message on its way
+// (isSending) shows a clock where its time goes, with no text; its accessible label says "Sending". The
+// user's last message that the friend has read (isLastSeen) says "Seen" below.
+//   <app-message-item [message]="message" [isOwn]="isOwn" [showsTime]="mark.showsTime" [isSending]="…" [isLastSeen]="…" />
 @Component({
   selector: 'app-message-item',
-  imports: [PhotoGrid],
+  imports: [PhotoGrid, LucideClock],
   templateUrl: './message-item.html',
   styleUrl: './message-item.css',
 })
@@ -19,11 +22,18 @@ export class MessageItem {
   readonly message = input.required<StandardMessageDto>();
   readonly isOwn = input.required<boolean>();
   readonly showsTime = input(true);
+  readonly isSending = input(false);
+  readonly isLastSeen = input(false);
 
   protected readonly text = inject(LanguageStore).text;
   protected readonly dateFormatter = inject(DateFormatter);
   protected readonly hasText = computed(() => this.message().content.trim() !== '');
   protected readonly hasPhotos = computed(() => this.message().images.length > 0);
+  // The clock or the time, at the start of the line below the message.
+  protected readonly showsClockOrTime = computed(() => this.isSending() || this.showsTime());
+  protected readonly hasLineBelow = computed(
+    () => this.showsClockOrTime() || this.message().isEdited || this.isLastSeen(),
+  );
   protected readonly senderLabel = computed(() => {
     const texts = this.text().messages.conversation;
     const sender = this.isOwn() ? texts.ownSender : this.message().sender.username;

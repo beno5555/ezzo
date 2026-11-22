@@ -54,7 +54,6 @@ export const english = {
     settings: 'Settings',
     friends: 'Friends',
     messages: 'Messages',
-    conversation: 'Conversation',
     adminUsers: 'Users',
     adminReports: 'Reports',
     adminModeration: 'Moderation queue',
@@ -98,6 +97,8 @@ export const english = {
   },
   // The building blocks in shared/ that every page uses.
   shared: {
+    // After the author's name on the reader's own post or comment, among everyone else's.
+    ownMark: '(you)',
     dialog: {
       closeButton: 'Close',
     },
@@ -193,9 +194,11 @@ export const english = {
       position: (position: number, total: number) => `${position} / ${total}`,
       previousButton: 'Previous photo',
       nextButton: 'Next photo',
-      // The photo picker (shared/photos/photo-picker), in the composer and in the chat (ticket 19).
+      // The photo picker (shared/photos/photo-picker), in the composer and in the chat's message box.
       addButton: 'Add photos',
       removeButton: (position: number, total: number) => `Remove photo ${position} of ${total}`,
+      // The viewer's button for a picked photo; screen readers hear removeButton, which starts the same.
+      removeInViewer: 'Remove',
       count: (count: number, max: number) => `${count} of ${max} photos`,
       // A picked file the browser did not add, named so that the user knows which one.
       refusals: {
@@ -574,6 +577,29 @@ export const english = {
       ownSender: 'You',
       senderLabel: (sender: string) => `${sender}:`,
       edited: 'Edited',
+      // The accessible label of the clock that stands where the time of a message on its way goes.
+      sending: 'Sending',
+      // Under the user's last message that the friend has read.
+      seen: 'Seen',
+    },
+    // The box under the open conversation where the user writes.
+    messageBox: {
+      label: 'Write a message',
+      contentLabel: 'Message',
+      placeholder: 'Write a message…',
+      sendButton: 'Send',
+    },
+    // The button above the list, and its dialog of friends without a conversation.
+    newMessage: {
+      openButton: 'New message',
+      title: 'New message',
+      loading: 'Loading your friends…',
+      loadingMore: 'Loading more friends…',
+      retryButton: 'Try again',
+      emptyTitle: 'Nobody left to start with',
+      emptyMessage:
+        'You already have a conversation with every friend. Add friends to write to someone new.',
+      listLabel: 'Friends you have not written to yet',
     },
   },
 };

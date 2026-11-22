@@ -25,18 +25,20 @@ Dates are the day a step should finish. **Steps 5 to 8 are crucial and late.** T
 
 ### Lanes: which tickets run in parallel
 
-Two worktree lanes at a time (`docs/agents/worktrees.md`), each taking frontend tickets from **different feature areas**, so that the only shared files are the routes and the two dictionaries. A lane that finishes early takes the next ticket in its own column. "F" is a frontend ticket. Rounds 0 to 8 are merged.
+Two worktree lanes at a time (`docs/agents/worktrees.md`), each taking frontend tickets from **different feature areas**, so that the only shared files are the routes and the two dictionaries. A lane that finishes early takes the next ticket in its own column. "F" is a frontend ticket. Rounds 0 to 9 are merged.
 
 | Round | Lane 1 | Lane 2 |
 |---|---|---|
 | 7 | F10, write a post (merged) | F18, chat: list and reading (merged) |
 | 8 | F11, the post page (merged) | F22, admin: layout and users (merged) |
-| 9 | F12, edit and delete a post (merged) | F19, chat: send and receive live |
+| 9 | F12, edit and delete a post (merged) | F19, chat: send and receive live (merged) |
 | 10 | F13, reports from the normal pages | F20, chat: edit, delete, typing |
 | 11 | F14, the profile page | F23, admin: reports and the queue |
 | 12 | F16, user search | F24, admin: logs and statistics |
 | 13 | F15, the friends page | F21, live toasts |
 | 14 | F17, the settings page | F26, the landing page |
+| 15 | F39, save a photo from the viewer | |
+| 16 | F40, save a message's or a post's photos together | |
 
 Backend lane: n8n 08 and 11 are finished on their worktree branches and parked: the frontend pages come first, so their merge waits until the pages are done (owner, 2026-11-22). A session lists the two branches as parked, not as work to merge. Readiness 07 is left out: it matters only if the demo moves to a host.
 

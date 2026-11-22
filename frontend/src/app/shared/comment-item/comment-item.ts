@@ -50,7 +50,7 @@ export class CommentItem {
   protected readonly profileAddress = computed(() =>
     appAddresses.profile(this.comment().author.username),
   );
-  private readonly isOwn = computed(() => {
+  protected readonly isOwn = computed(() => {
     const userId = this.sessionStore.userId();
 
     return userId !== null && this.comment().author.id === userId;

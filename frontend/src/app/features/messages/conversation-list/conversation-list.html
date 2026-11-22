@@ -1,7 +1,4 @@
-<div
-  #scrollArea
-  class="min-h-0 flex-1 overflow-y-auto rounded-lg border border-border bg-surface-raised"
->
+<div #scrollArea class="min-h-0 flex-1 overflow-y-auto">
   @if (hasRows()) {
     <ul class="flex flex-col gap-1 p-1">
       @for (row of rows(); track row.friend.id) {
