@@ -12,9 +12,15 @@
     <header class="flex items-start justify-between gap-2">
       <div class="flex min-w-0 flex-col">
         @if (isAuthorAvailable()) {
-          <a appTextLink class="self-start wrap-anywhere" [routerLink]="profileAddress()">{{
-            shown().comment.author.username
-          }}</a>
+          <!-- The reader's own comment says so after the name, as the post card does. -->
+          <span class="flex flex-wrap items-baseline gap-x-1.5">
+            <a appTextLink class="wrap-anywhere" [routerLink]="profileAddress()">{{
+              shown().comment.author.username
+            }}</a>
+            @if (isOwn()) {
+              <span class="text-sm text-ink-muted">{{ text().shared.ownMark }}</span>
+            }
+          </span>
         } @else {
           <span class="font-semibold text-ink-muted wrap-anywhere">{{
             shown().comment.author.username

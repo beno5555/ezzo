@@ -16,18 +16,32 @@
       <app-photo-grid [images]="message().images" />
     }
   </div>
-  @if (showsTime() || message().isEdited) {
-    <p class="flex flex-wrap gap-x-1 px-1 text-xs text-ink-muted">
-      @if (showsTime()) {
+  @if (hasLineBelow()) {
+    <p class="flex flex-wrap items-center gap-x-1 px-1 text-xs text-ink-muted">
+      @if (isSending()) {
+        <span
+          class="inline-flex"
+          role="img"
+          [attr.aria-label]="text().messages.conversation.sending"
+        >
+          <svg class="size-3.5" lucideClock aria-hidden="true"></svg>
+        </span>
+      } @else if (showsTime()) {
         <time [attr.datetime]="message().sentAt">{{
           dateFormatter.clockTime(message().sentAt)
         }}</time>
       }
-      @if (showsTime() && message().isEdited) {
+      @if (showsClockOrTime() && message().isEdited) {
         <span aria-hidden="true">·</span>
       }
       @if (message().isEdited) {
         <span>{{ text().messages.conversation.edited }}</span>
+      }
+      @if ((showsClockOrTime() || message().isEdited) && isLastSeen()) {
+        <span aria-hidden="true">·</span>
+      }
+      @if (isLastSeen()) {
+        <span>{{ text().messages.conversation.seen }}</span>
       }
     </p>
   }

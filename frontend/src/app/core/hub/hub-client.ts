@@ -10,6 +10,8 @@ import {
 import type { HubConnection, IRetryPolicy, RetryContext } from '@microsoft/signalr';
 import { PresenceStore } from '../../features/friendships/presence-store';
 import { ConversationsStore } from '../../features/messages/conversations-store';
+import { MessageSeenDto } from '../../features/messages/message-seen-dto';
+import { PushMessageDto } from '../../features/messages/push-message-dto';
 import { UnreadStore } from '../../features/messages/unread-store';
 import { SessionStore } from '../session/session-store';
 import { HubEvent } from './hub-event';
@@ -35,7 +37,7 @@ const retryForever: IRetryPolicy = {
 // The one owner of the connection to the hub (ADR 0001: same origin, through the dev proxy in development).
 // It connects while a user is signed in and maps each server event to one store method. It holds no logic
 // of its own: what an event means is the store's business. Events whose store arrives in a later ticket
-// (a message for the open conversation, seen, edited, comments, likes, typing) are mapped then.
+// (edited, comments, likes, typing) are mapped then.
 @Injectable({ providedIn: 'root' })
 export class HubClient {
   private readonly injector = inject(EnvironmentInjector);
@@ -133,9 +135,11 @@ export class HubClient {
     connection.on(HubEvent.UserOffline, (payload: UserOfflineDto) => {
       this.presenceStore.markOffline(payload.userId, payload.lastActiveAt);
     });
-    // Until the conversation store arrives (ticket 19), every message counts as one for a closed conversation.
-    connection.on(HubEvent.ReceiveMessage, () => {
-      void this.unreadStore.refresh(); // fire-and-forget: the store keeps the last count on failure
+    connection.on(HubEvent.ReceiveMessage, (payload: PushMessageDto) => {
+      void this.conversationsStore.receive(payload); // fire-and-forget: the store shows the message at once
+    });
+    connection.on(HubEvent.MessageSeen, (payload: MessageSeenDto) => {
+      this.conversationsStore.markSeen(payload);
     });
     connection.onreconnected(() => {
       this.connected();

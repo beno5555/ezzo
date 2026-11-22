@@ -85,6 +85,11 @@ export class PostCard {
   protected readonly isSaving = computed(() => this.postEdits.isSaving(this.post().id));
   protected readonly isDeleting = computed(() => this.postEdits.isDeleting(this.post().id));
   protected readonly isMarkedUploading = computed(() => this.isUploading() || this.isSaving());
+  protected readonly isOwn = computed(() => {
+    const userId = this.sessionStore.userId();
+
+    return userId !== null && this.post().author.id === userId;
+  });
   private readonly isChangeable = computed(() => !this.isMarkedUploading() && this.post().id > 0);
   // The post's moderation state as shown: what an administrator has set here, else the post's own flag.
   protected readonly isHidden = computed(() =>

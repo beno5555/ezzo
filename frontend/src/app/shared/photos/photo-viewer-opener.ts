@@ -12,15 +12,20 @@ const titleId = 'app-photo-viewer-title';
 const panelClasses = ['size-full', 'max-w-none!', 'max-h-none!'];
 const backdropClasses = ['bg-surface-sunken', 'duration-150', 'motion-reduce:transition-none'];
 
-// Opens a post's or a message's photos full screen, at the one clicked. From the CDK dialog it gets the
+// Opens a post's or a message's photos full screen, at the one clicked; with onRemove, the photos picked
+// for a message, each with a Remove button (PhotoViewerData). From the CDK dialog it gets the
 // rest: Escape closes it, the focus stays inside and returns to the thumbnail, the page does not scroll.
 @Injectable({ providedIn: 'root' })
 export class PhotoViewerOpener {
   private readonly dialog = inject(Dialog);
 
-  open(images: readonly ImageDto[], startIndex: number): void {
+  open(
+    images: readonly ImageDto[],
+    startIndex: number,
+    onRemove?: (image: ImageDto) => void,
+  ): void {
     this.dialog.open<void, PhotoViewerData, PhotoViewer>(PhotoViewer, {
-      data: { images, startIndex },
+      data: { images, startIndex, onRemove },
       ariaModal: true,
       ariaLabelledBy: titleId,
       panelClass: panelClasses,

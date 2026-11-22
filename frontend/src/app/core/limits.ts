@@ -32,6 +32,10 @@ export const LIMITS = {
   reports: {
     reasonMaxLength: 500,
   },
+  // backend/aspnetproject/Common/ProjectConstants/Constants.cs (CreateMessageDto)
+  messages: {
+    contentMaxLength: 1000,
+  },
   // The defaults of backend/aspnetproject/Infrastructure/Services/Storage/Configuration/
   // ImageStorageConfiguration.cs, and the formats ImageStorage accepts (it judges a file by its leading
   // bytes; the browser can only go by the type it reads from the name).

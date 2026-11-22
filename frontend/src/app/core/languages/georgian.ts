@@ -44,7 +44,6 @@ export const georgian: Dictionary = {
     settings: 'პარამეტრები',
     friends: 'მეგობრები',
     messages: 'შეტყობინებები',
-    conversation: 'საუბარი',
     adminUsers: 'მომხმარებლები',
     adminReports: 'საჩივრები',
     adminModeration: 'მოდერაციის რიგი',
@@ -82,6 +81,7 @@ export const georgian: Dictionary = {
     waitingBadge: (badge: string) => `${badge} მოლოდინში`,
   },
   shared: {
+    ownMark: '(თქვენ)',
     dialog: {
       closeButton: 'დახურვა',
     },
@@ -167,6 +167,7 @@ export const georgian: Dictionary = {
       nextButton: 'შემდეგი ფოტო',
       addButton: 'ფოტოების დამატება',
       removeButton: (position: number, total: number) => `ფოტო ${position} / ${total}-ის ამოღება`,
+      removeInViewer: 'ამოღება',
       count: (count: number, max: number) => `${count} / ${max} ფოტო`,
       refusals: {
         tooMany: (fileName: string, max: number) =>
@@ -503,6 +504,25 @@ export const georgian: Dictionary = {
       ownSender: 'თქვენ',
       senderLabel: (sender: string) => `${sender}:`,
       edited: 'შესწორებულია',
+      sending: 'იგზავნება',
+      seen: 'ნანახია',
+    },
+    messageBox: {
+      label: 'შეტყობინების დაწერა',
+      contentLabel: 'შეტყობინება',
+      placeholder: 'დაწერეთ შეტყობინება…',
+      sendButton: 'გაგზავნა',
+    },
+    newMessage: {
+      openButton: 'ახალი შეტყობინება',
+      title: 'ახალი შეტყობინება',
+      loading: 'მეგობრები იტვირთება…',
+      loadingMore: 'კიდევ მეგობრები იტვირთება…',
+      retryButton: 'თავიდან ცდა',
+      emptyTitle: 'ახალი საუბრის დასაწყები არავინ დარჩა',
+      emptyMessage:
+        'ყველა მეგობართან უკვე გაქვთ საუბარი. ახალ ვინმესთვის მისაწერად მეგობრები დაამატეთ.',
+      listLabel: 'მეგობრები, რომლებსაც ჯერ არ მიგიწერიათ',
     },
   },
 };

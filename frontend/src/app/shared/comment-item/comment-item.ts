@@ -62,6 +62,11 @@ export class CommentItem {
   protected readonly profileAddress = computed(() =>
     appAddresses.profile(this.comment().author.username),
   );
+  protected readonly isOwn = computed(() => {
+    const userId = this.sessionStore.userId();
+
+    return userId !== null && this.comment().author.id === userId;
+  });
   private readonly isChangeable = computed(
     () => this.shown().isOnServer && !this.shown().isSending,
   );
