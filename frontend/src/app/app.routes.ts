@@ -69,7 +69,11 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/posts/new-post-page/new-post-page').then((m) => m.NewPostPage),
   },
-  placeholderPage('posts/:postId', 'post'),
+  {
+    path: 'posts/:postId',
+    title: 'post',
+    loadComponent: () => import('./features/posts/post-page/post-page').then((m) => m.PostPage),
+  },
   placeholderPage('users/:username', 'profile'),
   {
     path: 'search',

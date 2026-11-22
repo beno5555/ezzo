@@ -1,0 +1,78 @@
+@if (isCompact()) {
+  <form
+    class="flex flex-col gap-1"
+    [attr.aria-label]="label()"
+    [formGroup]="form"
+    (ngSubmit)="submit()"
+  >
+    <div class="flex items-end gap-2">
+      <!-- One row, like the shell's search bar: screen readers read the label and the placeholder shows the
+           same words, a deviation from the visible-label rule in DESIGN.md (owner, 2026-11-22), so the
+           pinned form stays low. The box grows with what is typed, up to a few lines. -->
+      <label class="sr-only" [for]="fieldId()">{{ contentLabel() }}</label>
+      <div class="relative min-w-0 flex-1">
+        <textarea
+          appTextInput
+          class="block max-h-32 min-h-11 w-full field-sizing-content resize-none md:max-h-48 md:min-h-16 md:resize-y"
+          rows="1"
+          autocomplete="off"
+          formControlName="content"
+          [class.pe-16]="length() > 0"
+          [attr.maxlength]="maxLength"
+          [id]="fieldId()"
+          [placeholder]="contentLabel()"
+        ></textarea>
+        <!-- Used characters out of the limit, in the corner of the box, from the first character typed. The
+             box then keeps room for it on its right (pe-16), so the text never runs under it; while it is
+             empty the whole width is the placeholder's, which is long in Georgian. -->
+        @if (length() > 0) {
+          <span
+            class="pointer-events-none absolute end-3 bottom-2 text-xs"
+            [class]="isAtLimit() ? 'text-danger' : 'text-ink-muted'"
+            aria-hidden="true"
+          >
+            {{ length() }}/{{ maxLength }}
+          </span>
+        }
+      </div>
+      <!-- An icon alone on a phone, the word from a tablet up. -->
+      <button appButton look="primary" type="submit" [disabled]="!canSend()">
+        <svg class="size-5 md:hidden" lucideSendHorizontal aria-hidden="true"></svg>
+        <span class="sr-only md:not-sr-only">{{ submitLabel() }}</span>
+      </button>
+    </div>
+  </form>
+} @else {
+  <form
+    class="flex flex-col gap-3"
+    [attr.aria-label]="label()"
+    [formGroup]="form"
+    (ngSubmit)="submit()"
+  >
+    <app-form-field
+      [fieldId]="fieldId()"
+      [label]="contentLabel()"
+      [control]="form.controls.content"
+    >
+      <textarea
+        appTextInput
+        rows="3"
+        autocomplete="off"
+        formControlName="content"
+        [attr.maxlength]="maxLength"
+        [id]="fieldId()"
+      ></textarea>
+    </app-form-field>
+
+    <div class="flex flex-wrap justify-end gap-2">
+      @if (cancelLabel(); as cancelText) {
+        <button appButton look="quiet" type="button" (click)="requestCancel()">
+          {{ cancelText }}
+        </button>
+      }
+      <button appButton look="primary" type="submit" [disabled]="!canSend()">
+        {{ submitLabel() }}
+      </button>
+    </div>
+  </form>
+}

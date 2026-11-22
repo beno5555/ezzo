@@ -77,8 +77,8 @@
     }
     @case (ConversationOpenStatus.Failed) {
       <app-load-failure
-        class="flex-1 justify-center px-4 py-10"
-        [message]="conversation()?.failureMessage ?? null"
+        class="flex-1 justify-center px-4"
+        [message]="conversation()?.failureMessage ?? ''"
         [retryLabel]="text().messages.conversation.retryButton"
         (retry)="retryOpen()"
       />
@@ -121,8 +121,7 @@
                 }
                 @case (PageLoadStatus.Failed) {
                   <app-load-failure
-                    class="py-2"
-                    [message]="shown.historyFailure"
+                    [message]="shown.historyFailure ?? ''"
                     [retryLabel]="text().messages.conversation.retryButton"
                     (retry)="loadOlder()"
                   />

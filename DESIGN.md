@@ -126,8 +126,8 @@ WebCity is a small social platform: a feed, posts with photos, comments, friends
 **The structure is final. The skin is provisional.**
 
 - **Final:** the design token names, the two themes, the type sizes, the spacing scale, the radii, the layout rules and the floor for motion and accessibility.
-- **Provisional:** every colour value, both font families and the logo. They are deliberately neutral, so that nobody mistakes them for the finished look. The product's name is still open, and the brand is chosen after it.
-- **Until the name is settled, no component carries a brand metaphor.** The brand lives only in design token values and in the logo component. That is what keeps a change of name cheap.
+- **Provisional:** every colour value, both font families and the logo. They are deliberately neutral, so that nobody mistakes them for the finished look. The name is settled (Ezzo, `PRODUCT.md`); the brand session chooses the brand.
+- **Until the brand session, no component carries a brand metaphor.** The brand lives only in design token values and in the logo component. That is what keeps a change of name cheap.
 
 ## Colors
 
@@ -168,7 +168,7 @@ A colour is named for its job, never for its shade. A component uses the role na
 - **Fluid by default.** No fixed widths, only maximum widths. Rows wrap. Images shrink with their container.
 - **Phone first.** Write the phone layout, then add what changes on wider screens.
 - **The shell changes at 768 px.** Below it: the phone shell with the bottom bar. From it up: the desktop shell with the top bar. A tablet gets the desktop shell.
-- **A second change at 1024 px** is allowed only on a page with a real second column: chat and the admin panel.
+- **A second change at 1024 px** is allowed only on a page with a real second column: chat and the admin panel. One exception: a post's page moves its pinned "Back" button from a bar across the top into the margin left of the column (owner, 2026-11-22).
 - **Content sits in a capped column:** `column` (42rem) for reading pages such as the feed and a post, `wide` (75rem) for chat and the admin panel.
 - **Nothing scrolls sideways** at 360 px. On a phone, the rows of an admin table become stacked cards.
 - **Spacing** uses Tailwind's default scale, in steps of 0.25rem (4 px). Use no value outside the scale.
@@ -207,4 +207,4 @@ Three radii and "full": `sm` for small controls such as badges and checkboxes, `
 - Do keep text contrast at 4.5 to 1 or more in both themes.
 - Don't use ALL-CAPS labels, italics for meaning, or a monospace face for small labels.
 - Don't add a second accent colour, a gradient or a glow.
-- Don't give a component a brand metaphor before the name is settled.
+- Don't give a component a brand metaphor before the brand session.

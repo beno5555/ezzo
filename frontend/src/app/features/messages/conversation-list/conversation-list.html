@@ -39,8 +39,8 @@
     }
     @case (PageLoadStatus.Failed) {
       <app-load-failure
-        class="px-4 py-4"
-        [message]="failureMessage()"
+        class="px-4"
+        [message]="failureMessage() ?? ''"
         [retryLabel]="text().messages.list.retryButton"
         (retry)="loadMore()"
       />

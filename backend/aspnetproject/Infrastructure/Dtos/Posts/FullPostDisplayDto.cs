@@ -26,5 +26,6 @@ public class FullPostDisplayDto
     // True only for the author or an administrator: nobody else is ever sent hidden content.
     public bool IsHidden { get; set; }
 
-    public List<StandardCommentDto> Comments { get; set; } = [];
+    // The post's comments are not part of it: a post can have thousands, so they are read by pages from
+    // GET api/comments/post/{postId}. CommentCount says how many the caller may read.
 }

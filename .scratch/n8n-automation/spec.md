@@ -4,7 +4,7 @@ Status: ready-for-agent
 
 ## Problem Statement
 
-The documentation sent to the principal (`webcity-documentation.md`) promises six things that WebCity does on its own, without a person asking. None of them exists:
+The documentation sent to the academy (`webcity-documentation.md`) promises six things that WebCity does on its own, without a person asking. None of them exists:
 
 - Nobody checks new content. A post that breaks the rules stays visible until a user reports it and an administrator opens the report.
 - An administrator learns about a report only by opening the reports list. A post that many people report stays visible the whole time.

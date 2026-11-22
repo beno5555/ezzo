@@ -206,12 +206,12 @@ public class ContentVisibilityTests : IClassFixture<DatabaseFixture>, IAsyncLife
         Assert.True(posts.Single(post => post.Id == AlicesPostId).IsHidden);
     }
 
-    // ---------- comments inside GET /posts/{id} ----------
+    // ---------- the comment count of GET /posts/{id} (the comments themselves: GET /comments/post/{id}) ----------
 
     [Theory]
     [InlineData(OtherUser)]
     [InlineData(null)]
-    public async Task GetPostById_WithHiddenComment_AsCallerWhoCannotReadIt_LeavesItOutOfCommentsAndCount(string? caller)
+    public async Task GetPostById_WithHiddenComment_AsCallerWhoCannotReadIt_LeavesItOutOfCount(string? caller)
     {
         await SetCommentStatusAsync(AlicesCommentId, "Hidden");
         await SignInOrStayGuestAsync(caller);
@@ -219,14 +219,13 @@ public class ContentVisibilityTests : IClassFixture<DatabaseFixture>, IAsyncLife
         var response = await _client.GetAsync($"api/posts/{BobsPostId}");
 
         var post = await ResponseReader.ReadDataAsync<FullPostDisplayDto>(response);
-        Assert.DoesNotContain(post.Comments, comment => comment.Id == AlicesCommentId);
         Assert.Equal(BobsPostCommentCount - 1, post.CommentCount);
     }
 
     [Theory]
     [InlineData(Author)]
     [InlineData(Administrator)]
-    public async Task GetPostById_WithHiddenComment_AsAuthorOrAdministrator_ReturnsItMarkedHidden(string caller)
+    public async Task GetPostById_WithHiddenComment_AsAuthorOrAdministrator_CountsIt(string caller)
     {
         await SetCommentStatusAsync(AlicesCommentId, "Hidden");
         await SignInAsync(caller);
@@ -234,7 +233,6 @@ public class ContentVisibilityTests : IClassFixture<DatabaseFixture>, IAsyncLife
         var response = await _client.GetAsync($"api/posts/{BobsPostId}");
 
         var post = await ResponseReader.ReadDataAsync<FullPostDisplayDto>(response);
-        Assert.True(post.Comments.Single(comment => comment.Id == AlicesCommentId).IsHidden);
         Assert.Equal(BobsPostCommentCount, post.CommentCount);
     }
 
@@ -614,8 +612,11 @@ public class ContentVisibilityTests : IClassFixture<DatabaseFixture>, IAsyncLife
         Assert.DoesNotContain("Flagged", await response.Content.ReadAsStringAsync(), StringComparison.OrdinalIgnoreCase);
         var post = await ResponseReader.ReadDataAsync<FullPostDisplayDto>(response);
         Assert.False(post.IsHidden);
-        Assert.False(post.Comments.Single(comment => comment.Id == AlicesCommentId).IsHidden);
         Assert.Equal(BobsPostCommentCount, post.CommentCount);
+        var commentsResponse = await _client.GetAsync($"api/comments/post/{BobsPostId}");
+        Assert.DoesNotContain("Flagged", await commentsResponse.Content.ReadAsStringAsync(), StringComparison.OrdinalIgnoreCase);
+        var comments = await ResponseReader.ReadListAsync<StandardCommentDto>(commentsResponse);
+        Assert.False(comments.Single(comment => comment.Id == AlicesCommentId).IsHidden);
     }
 
     // ---------- restoring hidden content ----------
