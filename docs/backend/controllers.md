@@ -134,10 +134,12 @@ Route: `api/comments`. Inherits `BaseController`. Same `[Authorize]`-at-controll
 |--------|-------------------------------|-----------|-------------------------------------------|
 | POST   | `api/comments/posts/{postId}` | Required  | Create                                    |
 | GET    | `api/comments/mine`           | Required  | Caller's own comments                     |
-| GET    | `api/comments/post/{postId}`  | Anonymous | Paginated, comments for a post            |
+| GET    | `api/comments/post/{postId}`  | Anonymous | Paginated, comments for a post, the caller's own first (see below) |
 | GET    | `api/comments/{id}`           | Anonymous | Single comment                            |
 | PUT    | `api/comments/{id}`           | Required  | Update, ownership-scoped                  |
 | DELETE | `api/comments/{id}`           | Required  | Delete — commenter, post author, or admin |
+
+**The order of a post's comments** (`CommentRepository.GetByPostIdAsync`): a signed-in caller's own comments come first, newest first, then everyone else's, oldest first; a guest gets everyone's oldest first. Id breaks ties, so paging is deterministic. The order lives in the query because the list is paged: a client that sorted what it had loaded could not bring the caller's comment from page 5 to the top. A comment with no author (the purge removed the account) never counts as the caller's, even for a guest, whose id is also null. A new comment is the caller's newest, so it moves every other comment one place down: a client that loaded page 1 earlier may see the last comment of that page again at the top of page 2, and drops the repeat by id.
 
 Note the create/read route naming is inconsistent: creating posts a comment under `api/comments/posts/{postId}` (plural `posts`), while listing a post's comments reads from `api/comments/post/{postId}` (singular `post`) — not a typo to "fix" without checking client code depends on it.
 

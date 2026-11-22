@@ -40,15 +40,16 @@
         appActionButton
         type="button"
         [attr.aria-pressed]="post().likedByCaller"
-        [attr.aria-disabled]="isLiking()"
         [attr.aria-label]="text().posts.card.likeButton(post().likeCount)"
         (click)="requestLikeToggle()"
       >
+        <!-- The icon takes its classes through its own class input. A separate class binding on it is
+             overwritten when the icon draws itself, so a card that is liked from the start (the post's
+             own page) showed the heart empty. -->
         <svg
-          class="size-5"
           lucideHeart
           aria-hidden="true"
-          [class.fill-current]="post().likedByCaller"
+          [class]="post().likedByCaller ? 'size-5 fill-current' : 'size-5'"
         ></svg>
         <span aria-hidden="true">{{ post().likeCount }}</span>
       </button>

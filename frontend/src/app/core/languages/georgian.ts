@@ -255,7 +255,7 @@ export const georgian: Dictionary = {
       heading: 'ახლახან გაგვიზიარეს',
       writeButton: 'პოსტის დაწერა',
       loading: 'პოსტები იტვირთება…',
-      loadingMore: 'კიდევ პოსტები იტვირთება…',
+      loadingMore: 'იტვირთება…',
       emptyTitle: 'აქ ჯერ არაფერია',
       emptyMessage: 'როცა სხვები პოსტებს დაწერენ, ისინი აქ გამოჩნდება.',
       retryButton: 'თავიდან ცდა',

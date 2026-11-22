@@ -30,17 +30,13 @@
             <div class="lg:sticky lg:top-4">
               <a appButton look="quiet" class="lg:max-w-44" [routerLink]="feedAddress">
                 <svg class="size-5 shrink-0" lucideArrowLeft aria-hidden="true"></svg>
-                <span class="truncate">{{ text().posts.page.backLink }}</span>
+                <span class="min-w-0 text-start">{{ text().posts.page.backLink }}</span>
               </a>
             </div>
           </div>
         }
 
-        <app-post-card
-          [post]="shownPost"
-          [isLiking]="postLikes.isLiking(shownPost.id)"
-          (likeToggle)="toggleLike(shownPost)"
-        />
+        <app-post-card [post]="shownPost" (likeToggle)="toggleLike(shownPost)" />
 
         <app-comment-section
           [postId]="shownPost.id"

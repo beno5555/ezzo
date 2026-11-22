@@ -311,7 +311,7 @@ export const english = {
     },
     // A post's own page (/posts/:postId, features/posts/post-page).
     page: {
-      // The link above the post that leads a signed-in user back to the feed.
+      // The link above a post and above the composer that leads back to the feed.
       backLink: 'Back to feed',
       loading: 'Loading the post…',
       retryButton: 'Try again',

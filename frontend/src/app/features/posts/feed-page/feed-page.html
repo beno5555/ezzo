@@ -29,11 +29,7 @@
         }
         @for (post of feed.items(); track post.id) {
           <li>
-            <app-post-card
-              [post]="post"
-              [isLiking]="postLikes.isLiking(post.id)"
-              (likeToggle)="toggleLike(post)"
-            />
+            <app-post-card [post]="post" (likeToggle)="toggleLike(post)" />
           </li>
         }
       </ul>

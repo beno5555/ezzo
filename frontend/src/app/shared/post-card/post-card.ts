@@ -13,7 +13,7 @@ import { TextLink } from '../text-link/text-link';
 // One post in a list: the feed, a profile's posts, the post's own page and the admin panel, so it sits
 // in shared/. It only shows the post: a click on the like button asks the page through likeToggle, and the
 // page sends it through PostLikeStore, which shows the like at once (the store's comment shows how).
-//   <app-post-card [post]="post" [isLiking]="postLikes.isLiking(post.id)" (likeToggle)="toggleLike(post)" />
+//   <app-post-card [post]="post" (likeToggle)="toggleLike(post)" />
 // An author whose account is unavailable has no id, and is shown as text with no link. A new post still
 // on its way to the server (NewPostStore) is marked as uploading in place of its like and comment
 // controls, which would act on a post the server does not have yet.
@@ -34,9 +34,6 @@ import { TextLink } from '../text-link/text-link';
 })
 export class PostCard {
   readonly post = input.required<StandardPostDisplayDto>();
-  // True while the post's like or unlike is on its way. The button is then marked aria-disabled rather
-  // than disabled, which would drop the keyboard focus; the store ignores a click meanwhile.
-  readonly isLiking = input(false);
   readonly isUploading = input(false);
   readonly likeToggle = output();
 

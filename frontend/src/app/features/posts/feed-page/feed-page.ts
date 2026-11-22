@@ -33,7 +33,13 @@ export class FeedPage implements OnInit {
   protected readonly PageLoadStatus = PageLoadStatus;
   protected readonly newPostAddress = appAddresses.newPost;
   protected readonly feed = new PagedList<StandardPostDisplayDto>({
-    loadPage: (query) => this.postApi.getFeed(query),
+    loadPage: async (query) => {
+      const result = await this.postApi.getFeed(query);
+
+      return result.succeeded
+        ? { ...result, data: result.data.map((post) => this.postLikes.withUnsettledLike(post)) }
+        : result;
+    },
     pageSize: LIMITS.paging.defaultPageSize,
     keyOf: (post) => post.id,
   });
@@ -62,7 +68,7 @@ export class FeedPage implements OnInit {
   }
 
   // A card's like button: the post changes in place at once, and back if the server refuses.
-  async toggleLike(post: StandardPostDisplayDto): Promise<void> {
-    await this.postLikes.toggle(post, (shown) => this.feed.replace(shown));
+  toggleLike(post: StandardPostDisplayDto): void {
+    this.postLikes.toggle(post, (shown) => this.feed.replace(shown));
   }
 }

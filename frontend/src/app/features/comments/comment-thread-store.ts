@@ -13,8 +13,9 @@ import { StandardCommentDto } from './standard-comment-dto';
 // that shows them (providers: [CommentThreadStore]) and lives and dies with it; start() tells it which post.
 // What a user writes shows at once, before the server has it ("What a user writes shows at once too" in
 // the spec; NewPostStore is the pattern):
-//   - send: the comment shows at the end with "Sending…" and the post's count rises. The server's copy
-//     takes its place. A refusal removes it, lowers the count, shows a toast and keeps the text for the
+//   - send: the comment shows on top, with "Sending…", and the post's count rises. The server's copy
+//     takes its place. The caller's own comments come first in the list, newest first, as the server
+//     returns them, so a new one is the first to be seen. A refusal removes it, lowers the count, shows a toast and keeps the text for the
 //     form (takeReturnedText).
 //   - edit: the new text shows at once with the same mark. A refusal puts the old text back, shows a
 //     toast and keeps the new text for the comment's form (takeReturnedEdit).
@@ -48,8 +49,8 @@ export class CommentThreadStore {
   private readonly refusedTexts = signal<readonly string[]>([]);
   private readonly refusedEdits = signal<ReadonlyMap<number, string>>(new Map());
 
-  // The list as the reader sees it: the server's comments minus those being deleted, then the new
-  // comments still on their way.
+  // The list as the reader sees it: the new comments still on their way, newest first, then the
+  // server's comments minus those being deleted.
   readonly shown = computed<readonly ShownComment[]>(() => {
     const removingIds = this.removingIds();
     const editingIds = this.editingIds();
@@ -57,13 +58,13 @@ export class CommentThreadStore {
       .items()
       .filter((comment) => !removingIds.has(comment.id))
       .map((comment) => ({ comment, isSending: editingIds.has(comment.id), isOnServer: true }));
-    const notYetOnServer = this.sending().map((comment) => ({
+    const notYetOnServer = [...this.sending()].reverse().map((comment) => ({
       comment,
       isSending: true,
       isOnServer: false,
     }));
 
-    return [...onServer, ...notYetOnServer];
+    return [...notYetOnServer, ...onServer];
   });
   // True while a refused comment's text waits for the form to take it back.
   readonly hasReturnedText = computed(() => this.refusedTexts().length > 0);
@@ -82,7 +83,7 @@ export class CommentThreadStore {
     this.sending.update((comments) => comments.filter((one) => one.id !== pendingComment.id));
 
     if (result.succeeded) {
-      this.list.append(result.data);
+      this.list.prepend(result.data);
     } else {
       this.onCountChange(-1);
       this.refusedTexts.update((texts) => [...texts, content]);

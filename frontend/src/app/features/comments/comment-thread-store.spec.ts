@@ -99,7 +99,7 @@ describe('CommentThreadStore', () => {
   });
 
   describe('send', () => {
-    it('shows the comment at once as sending, raises the count, then swaps in the server copy', async () => {
+    it('shows the comment on top at once as sending, raises the count, then swaps in the server copy', async () => {
       await loadComments(comment(1));
       const answer = deferred<FullCommentDto>();
       commentApi.create.mockReturnValue(answer.promise);
@@ -107,17 +107,17 @@ describe('CommentThreadStore', () => {
       const sending = thread.send('Looks cold!');
 
       expect(commentApi.create).toHaveBeenCalledWith(postId, 'Looks cold!');
-      expect(shownTexts()).toEqual(['comment 1', 'Looks cold!']);
-      expect(thread.shown()[1]).toMatchObject({ isSending: true, isOnServer: false });
-      expect(thread.shown()[1].comment.author).toEqual({ id: me.id, username: me.username });
+      expect(shownTexts()).toEqual(['Looks cold!', 'comment 1']);
+      expect(thread.shown()[0]).toMatchObject({ isSending: true, isOnServer: false });
+      expect(thread.shown()[0].comment.author).toEqual({ id: me.id, username: me.username });
       expect(countNow()).toBe(1);
 
       answer.resolve(ok(fullComment(40, 'Looks cold!')));
       await sending;
 
-      expect(shownTexts()).toEqual(['comment 1', 'Looks cold!']);
-      expect(thread.shown()[1]).toMatchObject({ isSending: false, isOnServer: true });
-      expect(thread.shown()[1].comment.id).toBe(40);
+      expect(shownTexts()).toEqual(['Looks cold!', 'comment 1']);
+      expect(thread.shown()[0]).toMatchObject({ isSending: false, isOnServer: true });
+      expect(thread.shown()[0].comment.id).toBe(40);
       expect(countNow()).toBe(1);
     });
 
@@ -145,11 +145,12 @@ describe('CommentThreadStore', () => {
       const sendingSecond = thread.send('two');
       second.resolve(ok(fullComment(41, 'two')));
       await sendingSecond;
-      expect(shownTexts()).toEqual(['two', 'one']);
+      expect(shownTexts()).toEqual(['one', 'two']);
       first.resolve(ok(fullComment(40, 'one')));
       await sendingFirst;
 
-      expect(shownTexts()).toEqual(['two', 'one']);
+      // A comment the server answers before an older one lands below it until the page is reloaded.
+      expect(shownTexts()).toEqual(['one', 'two']);
       expect(countNow()).toBe(2);
     });
   });

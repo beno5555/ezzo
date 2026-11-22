@@ -75,7 +75,7 @@ export class PostPage {
 
       if (isStillWanted) {
         if (result.succeeded) {
-          this.post.set(result.data);
+          this.post.set(this.postLikes.withUnsettledLike(result.data));
           this.status.set(PostPageStatus.Ready);
         } else if (result.status === HttpStatusCode.NotFound) {
           this.status.set(PostPageStatus.NotFound);
@@ -96,7 +96,7 @@ export class PostPage {
   // The card's like button. A guest is sent to sign-in, which returns to this post.
   async toggleLike(post: StandardPostDisplayDto): Promise<void> {
     if (this.sessionStore.isSignedIn()) {
-      await this.postLikes.toggle(post, (shown) => this.post.set(shown));
+      this.postLikes.toggle(post, (shown) => this.post.set(shown));
     } else {
       await this.router.navigateByUrl(
         signInAddress(this.router, appAddresses.post(post.id).join('/')),

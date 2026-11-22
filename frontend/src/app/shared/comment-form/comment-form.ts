@@ -3,7 +3,7 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { map } from 'rxjs';
 import { LanguageStore } from '../../core/languages/language-store';
-import { LucideCircleExclamationPoint } from '@lucide/angular';
+import { LucideCircleExclamationPoint, LucideSendHorizontal } from '@lucide/angular';
 import { LIMITS } from '../../core/limits';
 import { Button } from '../button/button';
 import { fieldErrorMessage } from '../form-field/field-error-message';
@@ -15,13 +15,20 @@ import { canSendComment } from '../../features/comments/can-send-comment';
 // comment's text. The page gives the texts (they come from its dictionary) and decides what a send and a
 // dismiss do:
 //   <app-comment-form fieldId="new-comment" [label]="…" [contentLabel]="…" [submitLabel]="…" (send)="…" />
-// isCompact makes it one row. With a cancelLabel, a Cancel button shows beside the submit button (the edit form) and emits dismiss.
+// isCompact makes it one row with a counter of used characters and, on a phone, an icon for the submit button. With a cancelLabel, a Cancel button shows beside the submit button (the edit form) and emits dismiss.
 // The submit button stays disabled until canSendComment holds, and the form empties itself once it has
 // sent. initialContent fills it when it opens (an edit starts from the comment's text); fill() puts a
 // refused comment's text back, and isEmpty tells the page when it may.
 @Component({
   selector: 'app-comment-form',
-  imports: [ReactiveFormsModule, Button, FormField, LucideCircleExclamationPoint, TextInput],
+  imports: [
+    ReactiveFormsModule,
+    Button,
+    FormField,
+    LucideCircleExclamationPoint,
+    LucideSendHorizontal,
+    TextInput,
+  ],
   templateUrl: './comment-form.html',
   styleUrl: './comment-form.css',
 })
@@ -49,6 +56,10 @@ export class CommentForm implements OnInit {
   );
   protected readonly canSend = computed(() => canSendComment(this.written()));
   readonly isEmpty = computed(() => this.written() === '');
+  // The counter in the compact form's corner: used characters out of the limit.
+  protected readonly maxLength = LIMITS.comments.contentMaxLength;
+  protected readonly length = computed(() => this.written().length);
+  protected readonly isTooLong = computed(() => this.length() > this.maxLength);
 
   private readonly text = inject(LanguageStore).text;
   // The compact form has no field around it to show an error, so it shows the one a comment can carry:
