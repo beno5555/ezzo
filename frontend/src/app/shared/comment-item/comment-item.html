@@ -35,6 +35,10 @@
       }
     </header>
 
+    @if (isHidden()) {
+      <app-hidden-badge />
+    }
+
     @if (isEditing()) {
       <app-comment-form
         [fieldId]="'edit-comment-' + shown().comment.id"

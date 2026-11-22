@@ -28,6 +28,10 @@ export const LIMITS = {
   comments: {
     contentMaxLength: 500,
   },
+  // backend/aspnetproject/Common/ProjectConstants/Constants.cs (CreateReportDto)
+  reports: {
+    reasonMaxLength: 500,
+  },
   // backend/aspnetproject/Common/ProjectConstants/Constants.cs (CreateMessageDto)
   messages: {
     contentMaxLength: 1000,
