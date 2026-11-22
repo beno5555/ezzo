@@ -68,6 +68,25 @@ export class MessageApi {
     );
   }
 
+  // Edits the user's own message, while it is less than 20 minutes old (LIMITS.messages). The friend gets
+  // MessageEdited; the answer is the sender's copy. The backend names the new text NewContent.
+  edit(messageId: number, content: string): Promise<AppResult<StandardMessageDto>> {
+    return toAppResult(
+      this.http.put<ApplicationResponse<StandardMessageDto>>(`/api/messages/${messageId}`, {
+        newContent: content,
+      }),
+      this.languageStore.text().httpFailures,
+    );
+  }
+
+  // Deletes the user's own message and its photos, however old. The friend is sent no push.
+  delete(messageId: number): Promise<AppResult<void>> {
+    return toAppResult(
+      this.http.delete<ApplicationResponse<void>>(`/api/messages/${messageId}`),
+      this.languageStore.text().httpFailures,
+    );
+  }
+
   // Marks the friend's unread messages read, for one that arrives while their conversation is open. The
   // answer is empty; the friend gets MessageSeen when something was unread.
   markAsRead(otherUserId: number): Promise<AppResult<void>> {

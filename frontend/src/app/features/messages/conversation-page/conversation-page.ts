@@ -33,6 +33,7 @@ import { ConversationsStore } from '../conversations-store';
 import { MessageForm } from '../message-form/message-form';
 import { MessageItem } from '../message-item/message-item';
 import { NewMessage } from '../new-message';
+import { TypingStore } from '../typing-store';
 import { historyMarks } from '../history-marks';
 
 // The conversation at /messages/:username, inside MessagesPage. ConversationsStore finds the friend by the
@@ -67,6 +68,7 @@ import { historyMarks } from '../history-marks';
 })
 export class ConversationPage {
   private readonly conversationsStore = inject(ConversationsStore);
+  private readonly typingStore = inject(TypingStore);
 
   // The :username segment of the address.
   readonly username = input.required<string>();
@@ -85,6 +87,12 @@ export class ConversationPage {
     return opened !== null && opened.username === this.username() ? opened : null;
   });
   protected readonly friend = computed(() => this.conversation()?.friend ?? null);
+  // The friend is writing to the user (TypingStore): "typing…" shows under their name.
+  protected readonly isFriendTyping = computed(() => {
+    const friendId = this.friend()?.id ?? null;
+
+    return friendId !== null && this.typingStore.isTyping(friendId);
+  });
   protected readonly status = computed(
     () => this.conversation()?.status ?? ConversationOpenStatus.Loading,
   );

@@ -62,6 +62,84 @@ describe('MessageApi', () => {
     });
   });
 
+  describe('PUT /api/messages/{id}', () => {
+    const edited: StandardMessageDto = {
+      id: 12,
+      content: 'Fixed',
+      images: [],
+      sender: { id: 1, username: 'me' },
+      receiverId: 3,
+      sentAt: '2026-11-17T08:00:00Z',
+      seen: false,
+      seenAt: null,
+      isEdited: true,
+    };
+
+    it('sends the new text as NewContent, and returns the edited message', async () => {
+      const pending = messageApi.edit(12, 'Fixed');
+
+      const request = httpTesting.expectOne(
+        (candidate) => candidate.method === 'PUT' && candidate.url === '/api/messages/12',
+      );
+      expect(request.request.body).toEqual({ newContent: 'Fixed' });
+      request.flush({ succeeded: true, message: 'Message edited successfully', data: edited });
+
+      expect(await pending).toEqual({
+        succeeded: true,
+        data: edited,
+        message: 'Message edited successfully',
+      });
+    });
+
+    it('returns the backend’s message when the edit window has closed', async () => {
+      const pending = messageApi.edit(12, 'Fixed');
+
+      httpTesting
+        .expectOne('/api/messages/12')
+        .flush(
+          { succeeded: false, message: 'Message edit window has expired' },
+          { status: 400, statusText: 'Bad Request' },
+        );
+
+      expect(await pending).toEqual({
+        succeeded: false,
+        message: 'Message edit window has expired',
+        status: 400,
+      });
+    });
+  });
+
+  describe('DELETE /api/messages/{id}', () => {
+    it('deletes the message', async () => {
+      const pending = messageApi.delete(12);
+
+      const request = httpTesting.expectOne(
+        (candidate) => candidate.method === 'DELETE' && candidate.url === '/api/messages/12',
+      );
+      request.flush({ succeeded: true, message: 'Message deleted successfully' });
+
+      const result = await pending;
+      expect(result.succeeded).toBe(true);
+    });
+
+    it('returns the backend’s message when the caller may not delete it', async () => {
+      const pending = messageApi.delete(12);
+
+      httpTesting
+        .expectOne('/api/messages/12')
+        .flush(
+          { succeeded: false, message: 'Delete request declined' },
+          { status: 400, statusText: 'Bad Request' },
+        );
+
+      expect(await pending).toEqual({
+        succeeded: false,
+        message: 'Delete request declined',
+        status: 400,
+      });
+    });
+  });
+
   describe('GET /api/messages/conversations/unread', () => {
     it('returns the number of conversations with unread messages', async () => {
       const pending = messageApi.getUnreadCount();

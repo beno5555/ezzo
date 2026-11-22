@@ -6,6 +6,7 @@ import { appAddresses } from '../../core/routing/app-addresses';
 import { SessionStore } from '../../core/session/session-store';
 import { Avatar } from '../avatar/avatar';
 import { AvatarSize } from '../avatar/avatar-size';
+import { FadeOut } from '../fade-out/fade-out';
 import { Menu } from '../menu/menu';
 import { MenuEntry } from '../menu/menu-entry';
 import { TextLink } from '../text-link/text-link';
@@ -17,14 +18,15 @@ import { ShownComment } from '../../features/comments/shown-comment';
 // sends the edit and the deletion; the item only shows the comment and its "…" menu.
 //   <app-comment-item [shown]="shown" [postAuthorId]="post.author.id" />
 // The menu offers Edit to the comment's author and Delete to the author and to the post's author, and
-// nobody else. A comment still on its way to the server, or being saved, has no menu: there is nothing on
-// the server to change yet, and a second change would race the first. An edit opens a form in place of
+// nobody else. A comment still on its way to the server, being saved or fading out after its deletion
+// was confirmed has no menu: there is nothing on the server to change yet, and a second change would race
+// the first. A deleted comment fades out (FadeOut) before it leaves the list. An edit opens a form in place of
 // the text; saving shows the new text at once with "Sending…", and an edit the server refuses opens the
 // form again with what the author wrote (CommentThreadStore.takeReturnedEdit). Report, Hide and Make visible
 // join the menu with ticket 13.
 @Component({
   selector: 'app-comment-item',
-  imports: [Avatar, CommentForm, Menu, RouterLink, TextLink],
+  imports: [Avatar, CommentForm, FadeOut, Menu, RouterLink, TextLink],
   templateUrl: './comment-item.html',
   styleUrl: './comment-item.css',
 })
@@ -61,7 +63,7 @@ export class CommentItem {
     return userId !== null && this.postAuthorId() === userId;
   });
   private readonly isChangeable = computed(
-    () => this.shown().isOnServer && !this.shown().isSending,
+    () => this.shown().isOnServer && !this.shown().isSending && !this.shown().isFading,
   );
   private readonly canEdit = computed(() => this.isChangeable() && this.isOwn());
   private readonly canDelete = computed(

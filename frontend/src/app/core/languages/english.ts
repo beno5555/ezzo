@@ -534,6 +534,8 @@ export const english = {
       detail: 'This cannot be undone.',
       confirmButton: 'Delete',
     },
+    // After the server has deleted a comment.
+    deletedToast: 'The comment is deleted.',
   },
   // The chat at /messages and /messages/:username (features/messages).
   messages: {
@@ -581,7 +583,29 @@ export const english = {
       sending: 'Sending',
       // Under the user's last message that the friend has read.
       seen: 'Seen',
+      // Under the friend's name, in place of their presence, while they are writing.
+      typing: 'typing…',
     },
+    // The "…" menu at the end of the user's own message.
+    menu: {
+      label: 'Actions for this message',
+      editEntry: 'Edit',
+      deleteEntry: 'Delete',
+    },
+    // The message box while it holds an edit: its label, the line above it, and its two buttons.
+    edit: {
+      label: 'Edit your message',
+      banner: 'Editing message',
+      saveButton: 'Save',
+      cancelButton: 'Cancel editing',
+    },
+    deleteConfirmation: {
+      question: 'Delete this message?',
+      detail: 'It is deleted for you and for your friend, with its photos. This cannot be undone.',
+      confirmButton: 'Delete',
+    },
+    // After the server has deleted a message.
+    deletedToast: 'The message is deleted.',
     // The box under the open conversation where the user writes.
     messageBox: {
       label: 'Write a message',

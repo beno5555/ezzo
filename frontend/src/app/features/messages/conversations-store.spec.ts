@@ -5,6 +5,9 @@ import { TestBed } from '@angular/core/testing';
 import { PageLoadStatus } from '../../core/paging/page-load-status';
 import { SessionStore } from '../../core/session/session-store';
 import { waitForPendingWork } from '../../core/session/testing/wait-for-pending-work';
+import { english } from '../../core/languages/english';
+import { ConfirmationOpener } from '../../shared/confirmation/confirmation-opener';
+import { deleteFadeMilliseconds } from '../../shared/fade-out/delete-fade';
 import { PreviewAddressMaker } from '../../shared/photos/preview-address-maker';
 import { ToastStore } from '../../shared/toasts/toast-store';
 import { AcceptedFriendshipDto } from '../friendships/accepted-friendship-dto';
@@ -21,6 +24,7 @@ import {
 import { PushMessageDto } from './push-message-dto';
 import { SentMessageDto } from './sent-message-dto';
 import { StandardMessageDto } from './standard-message-dto';
+import { TypingStore } from './typing-store';
 import { UnreadStore } from './unread-store';
 
 const signedInUserId = 1;
@@ -101,7 +105,12 @@ describe('ConversationsStore', () => {
   // Preview addresses named after their file, and a record of those released.
   let previews: { released: string[] };
 
+  // Answers the confirmation of a deletion; the dialog itself is not under test here.
+  const confirmation = { ask: vi.fn() };
+
   beforeEach(() => {
+    confirmation.ask.mockReset();
+    confirmation.ask.mockResolvedValue(true);
     previews = { released: [] };
     TestBed.configureTestingModule({
       providers: [
@@ -121,6 +130,7 @@ describe('ConversationsStore', () => {
             release: (address: string) => previews.released.push(address),
           },
         },
+        { provide: ConfirmationOpener, useValue: confirmation },
       ],
     });
     store = TestBed.inject(ConversationsStore);
@@ -256,6 +266,7 @@ describe('ConversationsStore', () => {
         historyStatus: PageLoadStatus.Ended,
         historyFailure: null,
         sendingIds: new Set(),
+        fadingIds: new Set(),
       });
     });
 
@@ -782,6 +793,282 @@ describe('ConversationsStore', () => {
       store.markSeen({ seenBy: bob.id, seenAt: '2026-11-22T12:00:00Z' });
 
       expect(store.openConversation()?.messages).toEqual([own(1, alice)]);
+    });
+  });
+
+  describe('editing and deleting the user’s own messages', () => {
+    const messageAddress = (id: number) => `/api/messages/${id}`;
+    const lastOfRow = () => store.conversations()[0].lastMessageContent;
+    const toastMessages = () => toastStore.visible().map((toast) => toast.message);
+
+    function mine(id: number, content: string): StandardMessageDto {
+      return {
+        ...message(id, alice),
+        content,
+        sender: { id: signedInUserId, username: signedInUsername },
+        receiverId: alice.id,
+        seen: false,
+        seenAt: null,
+      };
+    }
+
+    async function openAlice(history: StandardMessageDto[]): Promise<void> {
+      await loadList([row(alice), row(bob)]);
+      const opening = store.open('alice');
+      await answerHistory(alice, history);
+      await answerUnread(0);
+      await opening;
+    }
+
+    describe('edit', () => {
+      afterEach(() => {
+        vi.useRealTimers();
+      });
+
+      it('shows the new text at once as edited, with the clock, then the server copy in its place', async () => {
+        await openAlice([mine(1, 'first'), mine(2, 'Helo')]);
+
+        const editing = store.edit(mine(2, 'Helo'), 'Hello');
+
+        const shown = store.openConversation();
+        expect(shown?.messages.at(-1)).toMatchObject({ id: 2, content: 'Hello', isEdited: true });
+        expect(shown?.sendingIds.has(2)).toBe(true);
+
+        const request = httpTesting.expectOne(messageAddress(2));
+        expect(request.request.method).toBe('PUT');
+        expect(request.request.body).toEqual({ newContent: 'Hello' });
+        const serverCopy = { ...mine(2, 'Hello'), isEdited: true };
+        request.flush(envelope(serverCopy));
+        await editing;
+
+        expect(store.openConversation()?.messages.at(-1)).toEqual(serverCopy);
+        expect(store.openConversation()?.sendingIds.size).toBe(0);
+      });
+
+      it('puts the old text back, shows the refusal and keeps what was written, when the server refuses', async () => {
+        await openAlice([mine(1, 'first'), mine(2, 'Helo')]);
+
+        const editing = store.edit(mine(2, 'Helo'), 'Hello');
+        httpTesting
+          .expectOne(messageAddress(2))
+          .flush(
+            { succeeded: false, message: 'Message edit window has expired' },
+            { status: 400, statusText: 'Bad Request' },
+          );
+        await editing;
+
+        expect(store.openConversation()?.messages.at(-1)).toEqual(mine(2, 'Helo'));
+        expect(store.openConversation()?.sendingIds.size).toBe(0);
+        expect(toastMessages()).toEqual(['Message edit window has expired']);
+        expect(store.editDraft()).toEqual({ message: mine(2, 'Helo'), content: 'Hello' });
+      });
+
+      it('holds the message’s text for the message box from startEditing until the edit ends', async () => {
+        await openAlice([mine(1, 'first'), mine(2, 'Helo')]);
+
+        store.startEditing(mine(2, 'Helo'));
+        expect(store.editDraft()).toEqual({ message: mine(2, 'Helo'), content: 'Helo' });
+
+        store.stopEditing();
+        expect(store.editDraft()).toBeNull();
+
+        store.startEditing(mine(2, 'Helo'));
+        const editing = store.edit(mine(2, 'Helo'), 'Hello');
+        expect(store.editDraft()).toBeNull();
+        httpTesting.expectOne(messageAddress(2)).flush(envelope(mine(2, 'Hello')));
+        await editing;
+        expect(store.editDraft()).toBeNull();
+      });
+
+      it('drops the edit when the conversation closes, and does not bring a refused edit back over a newer one', async () => {
+        await openAlice([mine(1, 'first'), mine(2, 'Helo')]);
+
+        store.startEditing(mine(2, 'Helo'));
+        store.close();
+        expect(store.editDraft()).toBeNull();
+
+        await openAlice([mine(1, 'first'), mine(2, 'Helo')]);
+        const editing = store.edit(mine(2, 'Helo'), 'Hello');
+        store.startEditing(mine(1, 'first'));
+        httpTesting
+          .expectOne(messageAddress(2))
+          .flush(
+            { succeeded: false, message: 'Message edit window has expired' },
+            { status: 400, statusText: 'Bad Request' },
+          );
+        await editing;
+
+        expect(store.editDraft()?.message.id).toBe(1);
+      });
+
+      it('shows the last message in the row, whether the edited message is the last one or not', async () => {
+        await openAlice([mine(1, 'first'), mine(2, 'Helo')]);
+
+        const editingFirst = store.edit(mine(1, 'first'), 'first!');
+        httpTesting.expectOne(messageAddress(1)).flush(envelope(mine(1, 'first!')));
+        await editingFirst;
+        const rowAfterFirst = lastOfRow();
+        const editingLast = store.edit(mine(2, 'Helo'), 'Hello');
+
+        // The edit of an earlier message leaves the last message as it is.
+        expect(rowAfterFirst).toBe('Helo');
+        expect(lastOfRow()).toBe('Hello');
+        httpTesting.expectOne(messageAddress(2)).flush(envelope(mine(2, 'Hello')));
+        await editingLast;
+        expect(lastOfRow()).toBe('Hello');
+      });
+
+      it('sends one request for a message whose edit is on its way', async () => {
+        await openAlice([mine(2, 'Helo')]);
+
+        const first = store.edit(mine(2, 'Helo'), 'Hello');
+        const second = store.edit(mine(2, 'Helo'), 'Hullo');
+
+        httpTesting.expectOne(messageAddress(2)).flush(envelope(mine(2, 'Hello')));
+        await Promise.all([first, second]);
+        expect(store.openConversation()?.messages[0].content).toBe('Hello');
+      });
+    });
+
+    describe('the friend’s edit (MessageEdited)', () => {
+      it('changes the message in the open conversation and marks it edited', async () => {
+        await openAlice([message(1, alice), message(2, alice)]);
+
+        await store.markEdited({ id: 1, content: 'changed' });
+
+        expect(store.openConversation()?.messages[0]).toMatchObject({
+          id: 1,
+          content: 'changed',
+          isEdited: true,
+        });
+        // The row shows message 2, the last one, which was not edited.
+        expect(lastOfRow()).toBe('message 2');
+      });
+
+      it('changes the row too when the message is the last one', async () => {
+        await openAlice([message(1, alice), message(2, alice)]);
+
+        await store.markEdited({ id: 2, content: 'changed' });
+
+        expect(lastOfRow()).toBe('changed');
+      });
+
+      it('reads the first page of the list again for a message the open conversation does not hold, and keeps the other rows', async () => {
+        await loadList([row(alice), row(bob)]);
+        const changedBob = { ...row(bob), lastMessageContent: 'edited by bob' };
+
+        const marking = store.markEdited({ id: 90, content: 'edited by bob' });
+        await answerList([row(alice), changedBob]);
+        await marking;
+
+        expect(store.conversations().map((shown) => shown.lastMessageContent)).toEqual([
+          'Hi from alice',
+          'edited by bob',
+        ]);
+      });
+
+      it('asks the backend for nothing when the list was never loaded', async () => {
+        await store.markEdited({ id: 90, content: 'edited' });
+
+        expect(store.conversations()).toEqual([]);
+      });
+    });
+
+    describe('delete', () => {
+      beforeEach(async () => {
+        await openAlice([mine(1, 'first'), mine(2, 'second')]);
+        vi.useFakeTimers();
+      });
+
+      afterEach(() => {
+        vi.useRealTimers();
+      });
+
+      it('asks first, and does nothing when the answer is no', async () => {
+        confirmation.ask.mockResolvedValue(false);
+
+        await store.deleteMessage(mine(2, 'second'));
+
+        expect(confirmation.ask).toHaveBeenCalledWith(
+          expect.objectContaining({
+            question: english.messages.deleteConfirmation.question,
+            isDestructive: true,
+          }),
+        );
+        expect(store.openConversation()?.messages).toHaveLength(2);
+        expect(store.openConversation()?.fadingIds.size).toBe(0);
+      });
+
+      it('fades the message out for 200 ms, then it leaves the view and the row shows the new last message', async () => {
+        const deleting = store.deleteMessage(mine(2, 'second'));
+        await vi.advanceTimersByTimeAsync(0);
+
+        expect(store.openConversation()?.messages).toHaveLength(2);
+        expect(store.openConversation()?.fadingIds.has(2)).toBe(true);
+        httpTesting.expectNone(messageAddress(2));
+
+        await vi.advanceTimersByTimeAsync(deleteFadeMilliseconds);
+
+        expect(store.openConversation()?.messages.map((shown) => shown.id)).toEqual([1]);
+        expect(store.openConversation()?.fadingIds.size).toBe(0);
+        expect(lastOfRow()).toBe('first');
+        const request = httpTesting.expectOne(messageAddress(2));
+        expect(request.request.method).toBe('DELETE');
+        request.flush(envelope(null));
+        await deleting;
+
+        expect(store.openConversation()?.messages.map((shown) => shown.id)).toEqual([1]);
+        expect(toastMessages()).toEqual([english.messages.deletedToast]);
+      });
+
+      it('brings the message and the row’s last message back, and shows the refusal, when the server refuses', async () => {
+        const deleting = store.deleteMessage(mine(2, 'second'));
+        await vi.advanceTimersByTimeAsync(deleteFadeMilliseconds);
+        httpTesting
+          .expectOne(messageAddress(2))
+          .flush(
+            { succeeded: false, message: 'Delete request declined' },
+            { status: 400, statusText: 'Bad Request' },
+          );
+        await deleting;
+
+        expect(store.openConversation()?.messages.map((shown) => shown.id)).toEqual([1, 2]);
+        expect(lastOfRow()).toBe('second');
+        expect(toastMessages()).toEqual(['Delete request declined']);
+      });
+
+      it('removes the row when the conversation has no message left', async () => {
+        const deleting = store.deleteMessage(mine(1, 'first'));
+        await vi.advanceTimersByTimeAsync(deleteFadeMilliseconds);
+        httpTesting.expectOne(messageAddress(1)).flush(envelope(null));
+        await deleting;
+        const deletingLast = store.deleteMessage(mine(2, 'second'));
+        await vi.advanceTimersByTimeAsync(deleteFadeMilliseconds);
+        httpTesting.expectOne(messageAddress(2)).flush(envelope(null));
+        await deletingLast;
+
+        expect(store.conversations().map((shown) => shown.conversationFriend.id)).toEqual([bob.id]);
+      });
+    });
+  });
+
+  describe('typing', () => {
+    it('hides the friend’s "typing…" when their message arrives', async () => {
+      await loadList([row(alice)]);
+      const typingStore = TestBed.inject(TypingStore);
+      typingStore.userTyping({ userId: alice.id });
+
+      const receiving = store.receive({
+        id: 60,
+        content: 'Done writing',
+        images: [],
+        sender: { id: alice.id, username: alice.username },
+        sentAt: '2026-11-22T11:00:00Z',
+      });
+      await answerUnread(1);
+      await receiving;
+
+      expect(typingStore.isTyping(alice.id)).toBe(false);
     });
   });
 

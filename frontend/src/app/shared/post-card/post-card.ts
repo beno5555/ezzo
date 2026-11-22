@@ -19,6 +19,7 @@ import { PostEditStore } from '../../features/posts/post-edit-store';
 import { StandardPostDisplayDto } from '../../features/posts/standard-post-display-dto';
 import { ActionButton } from '../action-button/action-button';
 import { Avatar } from '../avatar/avatar';
+import { FadeOut } from '../fade-out/fade-out';
 import { Menu } from '../menu/menu';
 import { MenuEntry } from '../menu/menu-entry';
 import { PhotoGrid } from '../photos/photo-grid/photo-grid';
@@ -45,6 +46,7 @@ import { TextLink } from '../text-link/text-link';
     RouterLink,
     ActionButton,
     Avatar,
+    FadeOut,
     Menu,
     PhotoGrid,
     TextLink,

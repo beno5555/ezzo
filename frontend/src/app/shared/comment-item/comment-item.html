@@ -1,4 +1,8 @@
-<article class="flex gap-3" [attr.aria-busy]="shown().isSending || null">
+<article
+  class="flex gap-3"
+  [appFadeOut]="shown().isFading"
+  [attr.aria-busy]="shown().isSending || shown().isFading || null"
+>
   <div class="mt-1">
     <app-avatar
       [userId]="authorAvatarId()"

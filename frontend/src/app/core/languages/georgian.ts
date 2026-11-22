@@ -453,6 +453,7 @@ export const georgian: Dictionary = {
       detail: 'ამის გაუქმება შეუძლებელია.',
       confirmButton: 'წაშლა',
     },
+    deletedToast: 'კომენტარი წაშლილია.',
   },
   messages: {
     list: {
@@ -491,7 +492,26 @@ export const georgian: Dictionary = {
       edited: 'შესწორებულია',
       sending: 'იგზავნება',
       seen: 'ნანახია',
+      typing: 'წერს…',
     },
+    menu: {
+      label: 'მოქმედებები ამ შეტყობინებაზე',
+      editEntry: 'შეცვლა',
+      deleteEntry: 'წაშლა',
+    },
+    edit: {
+      label: 'შეტყობინების შეცვლა',
+      banner: 'შეტყობინების შეცვლა',
+      saveButton: 'შენახვა',
+      cancelButton: 'შეცვლის გაუქმება',
+    },
+    deleteConfirmation: {
+      question: 'წაიშალოს ეს შეტყობინება?',
+      detail:
+        'ის წაიშლება თქვენთვისაც და თქვენი მეგობრისთვისაც, ფოტოებიანად. ამის გაუქმება შეუძლებელია.',
+      confirmButton: 'წაშლა',
+    },
+    deletedToast: 'შეტყობინება წაშლილია.',
     messageBox: {
       label: 'შეტყობინების დაწერა',
       contentLabel: 'შეტყობინება',

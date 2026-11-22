@@ -1,9 +1,12 @@
 import { HttpStatusCode } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { AppResult } from '../../core/http/app-result';
+import { LanguageStore } from '../../core/languages/language-store';
 import { LIMITS } from '../../core/limits';
 import { PageLoadStatus } from '../../core/paging/page-load-status';
 import { SessionStore } from '../../core/session/session-store';
+import { ConfirmationOpener } from '../../shared/confirmation/confirmation-opener';
+import { DeleteFade } from '../../shared/fade-out/delete-fade';
 import { PreviewAddressMaker } from '../../shared/photos/preview-address-maker';
 import { ToastStore } from '../../shared/toasts/toast-store';
 import { AcceptedFriendshipDto } from '../friendships/accepted-friendship-dto';
@@ -16,12 +19,15 @@ import { MinimalUserDto } from '../users/minimal-user-dto';
 import { ConversationFriendDto } from './conversation-friend-dto';
 import { ConversationOpenStatus } from './conversation-open-status';
 import { MessageApi } from './message-api';
+import { MessageEditedDto } from './message-edited-dto';
+import { EditDraft } from './edit-draft';
 import { MessageSeenDto } from './message-seen-dto';
 import { NewMessage } from './new-message';
 import { OpenConversation } from './open-conversation';
 import { PushMessageDto } from './push-message-dto';
 import { SentMessageDto } from './sent-message-dto';
 import { StandardMessageDto } from './standard-message-dto';
+import { TypingStore } from './typing-store';
 import { UnreadStore } from './unread-store';
 
 // How many conversations one page of the list holds, and how many messages one page of the history.
@@ -50,6 +56,16 @@ type RefusedMessage = { friendId: number; message: NewMessage };
 // The list stays right without a reload: a message sent or received moves its conversation to the top
 // with the new last message. One that arrives for the open conversation is marked read at once; one for
 // a closed conversation raises its row's count, and UnreadStore reads its number again.
+//
+// Editing and deleting follow the same pattern as comments (CommentThreadStore):
+//   - edit: the new text shows at once, marked edited and with the clock, until the server's copy takes its
+//     place. Edit itself happens in the message box (startEditing puts the message's text into it, and
+//     editDraft tells the box). A refusal puts the old text back, shows a toast and gives the box what the
+//     user wrote again. The friend's edit arrives as MessageEdited (markEdited).
+//   - delete: asks first; the message fades out (DeleteFade), then leaves the user's view. A refusal brings
+//     it back with a toast. The backend pushes nothing for a deletion, so the friend's open conversation
+//     keeps the message until it is loaded again.
+// The list row's last message follows both, as long as the message is one the open conversation holds.
 @Injectable({ providedIn: 'root' })
 export class ConversationsStore {
   private readonly messageApi = inject(MessageApi);
@@ -60,9 +76,18 @@ export class ConversationsStore {
   private readonly sessionStore = inject(SessionStore);
   private readonly toastStore = inject(ToastStore);
   private readonly previewAddressMaker = inject(PreviewAddressMaker);
+  private readonly confirmationOpener = inject(ConfirmationOpener);
+  private readonly typingStore = inject(TypingStore);
+  private readonly text = inject(LanguageStore).text;
 
   // The user's messages on their way to the server, oldest first, for every conversation.
   private readonly sending = signal<readonly StandardMessageDto[]>([]);
+  // The ids of the user's messages whose edit is on its way.
+  private readonly savingEditIds = signal<ReadonlySet<number>>(new Set());
+  private readonly currentEditDraft = signal<EditDraft | null>(null);
+  // The edit the user is writing in the message box, or null (see startEditing).
+  readonly editDraft = this.currentEditDraft.asReadonly();
+  private readonly deleteFade = new DeleteFade();
   // Oldest first, until the box of their conversation takes them back.
   private readonly refused = signal<readonly RefusedMessage[]>([]);
   // When each friend last read the user's messages (MessageSeen), for a server copy that arrives later.
@@ -112,11 +137,14 @@ export class ConversationsStore {
 
     if (conversation !== null && friend !== null) {
       const pending = this.sending().filter((message) => message.receiverId === friend.id);
+      const goneIds = this.deleteFade.goneIds();
+      const kept = conversation.messages.filter((message) => !goneIds.has(message.id));
       shown = {
         ...conversation,
         friend: this.withPresence(friend),
-        messages: [...conversation.messages, ...pending],
-        sendingIds: new Set(pending.map((message) => message.id)),
+        messages: [...kept, ...pending],
+        sendingIds: new Set([...pending.map((message) => message.id), ...this.savingEditIds()]),
+        fadingIds: this.deleteFade.fadingIds(),
       };
     }
 
@@ -153,6 +181,7 @@ export class ConversationsStore {
   async open(username: string): Promise<void> {
     this.openingNumber++;
     const opening = this.openingNumber;
+    this.currentEditDraft.set(null);
     this.readFriendId = null;
     this.nextHistoryPageNumber = LIMITS.paging.firstPageNumber;
     const listedFriend = this.listedFriend(username);
@@ -183,6 +212,7 @@ export class ConversationsStore {
   // When the conversation leaves the screen. An answer still on its way is ignored when it arrives.
   close(): void {
     this.openingNumber++;
+    this.currentEditDraft.set(null);
     this.readFriendId = null;
     this.opened.set(null);
   }
@@ -224,12 +254,82 @@ export class ConversationsStore {
     return returned;
   }
 
+  // The user's own message with new text. message is the message as the server holds it, which comes back
+  // if the server refuses the edit.
+  async edit(message: StandardMessageDto, content: string): Promise<void> {
+    const isIdle = !this.savingEditIds().has(message.id) && !this.deleteFade.isBusy(message.id);
+
+    if (isIdle) {
+      const clearNumber = this.clearNumber;
+      this.currentEditDraft.set(null);
+      this.markSavingEdit(message.id, true);
+      this.changeOpenedMessage(message.id, () => ({ ...message, content, isEdited: true }));
+      const result = await this.messageApi.edit(message.id, content);
+      this.markSavingEdit(message.id, false);
+      const isSameSession = clearNumber === this.clearNumber;
+
+      if (isSameSession) {
+        if (result.succeeded) {
+          this.changeOpenedMessage(message.id, () => result.data);
+        } else {
+          this.changeOpenedMessage(message.id, () => message);
+          // The message box takes what the user wrote back, unless they have started another edit since.
+          if (this.currentEditDraft() === null) {
+            this.currentEditDraft.set({ message, content });
+          }
+          this.toastStore.show(result.message);
+        }
+      }
+    }
+  }
+
+  // The user chose Edit on their own message: the message box takes its text. Only one edit is open at a
+  // time, so this replaces any other.
+  startEditing(message: StandardMessageDto): void {
+    this.currentEditDraft.set({ message, content: message.content });
+  }
+
+  // Cancel, or the box's conversation leaves the screen.
+  stopEditing(): void {
+    this.currentEditDraft.set(null);
+  }
+
+  // Asks first. Once the user confirms, the message fades out and leaves their view before the server has
+  // answered; a refusal brings it back.
+  async deleteMessage(message: StandardMessageDto): Promise<void> {
+    const isIdle = !this.savingEditIds().has(message.id) && !this.deleteFade.isBusy(message.id);
+
+    if (isIdle) {
+      const labels = this.text().messages.deleteConfirmation;
+      const isConfirmed = await this.confirmationOpener.ask({
+        question: labels.question,
+        detail: labels.detail,
+        confirmButton: labels.confirmButton,
+        isDestructive: true,
+      });
+
+      if (isConfirmed) {
+        const clearNumber = this.clearNumber;
+        await this.deleteFade.fadeOut(message.id);
+        this.showLastMessageInRow();
+        const result = await this.messageApi.delete(message.id);
+        const isSameSession = clearNumber === this.clearNumber;
+
+        if (isSameSession) {
+          this.settleDeleted(message, result);
+        }
+      }
+    }
+  }
+
   // ReceiveMessage: a friend's message, the moment it was stored.
   async receive(pushed: PushMessageDto): Promise<void> {
     const senderId = pushed.sender.id;
     const userId = this.sessionStore.userId();
 
     if (senderId !== null && userId !== null) {
+      // The friend has sent their message, so they are no longer writing it.
+      this.typingStore.stop(senderId);
       const arrived: StandardMessageDto = {
         ...pushed,
         receiverId: userId,
@@ -254,6 +354,20 @@ export class ConversationsStore {
         this.putOnTop(friend, arrived, senderId, (count) => count + 1);
       }
       await this.unreadStore.refresh();
+    }
+  }
+
+  // MessageEdited: the friend changed a message. The open conversation shows the new text and says it was
+  // edited, and its row follows when it is the last message. A message the open conversation does not hold
+  // may be the last one of a closed conversation, which the list does not say (a row carries no message
+  // id), so the list's rows are read again, quietly.
+  async markEdited({ id, content }: MessageEditedDto): Promise<void> {
+    const isShown = this.opened()?.messages.some((message) => message.id === id) ?? false;
+
+    if (isShown) {
+      this.changeOpenedMessage(id, (message) => ({ ...message, content, isEdited: true }));
+    } else if (this.rows().length > 0) {
+      await this.refreshListRows();
     }
   }
 
@@ -282,6 +396,8 @@ export class ConversationsStore {
     this.close();
     this.clearNumber++;
     this.sending.set([]);
+    this.savingEditIds.set(new Set());
+    this.currentEditDraft.set(null);
     this.refused.set([]);
     this.seenAtByFriend.clear();
     this.listReadNumber++;
@@ -456,6 +572,112 @@ export class ConversationsStore {
     }
   }
 
+  private markSavingEdit(messageId: number, isSaving: boolean): void {
+    this.savingEditIds.update((ids) => {
+      const next = new Set(ids);
+      if (isSaving) {
+        next.add(messageId);
+      } else {
+        next.delete(messageId);
+      }
+
+      return next;
+    });
+  }
+
+  // Changes one message of the open conversation, and the row's last message with it when that was it.
+  private changeOpenedMessage(
+    messageId: number,
+    change: (message: StandardMessageDto) => StandardMessageDto,
+  ): void {
+    this.opened.update(
+      (conversation) =>
+        conversation && {
+          ...conversation,
+          messages: conversation.messages.map((message) =>
+            message.id === messageId ? change(message) : message,
+          ),
+        },
+    );
+    this.showLastMessageInRow();
+  }
+
+  // The open conversation's row says what the conversation's last message is now. A conversation with no
+  // message to show leaves its row as it is.
+  private showLastMessageInRow(): void {
+    const friendId = this.opened()?.friend?.id ?? null;
+    const last = this.visibleOpenedMessages().at(-1);
+
+    if (friendId !== null && last !== undefined) {
+      this.rows.update((rows) =>
+        rows.map((row) =>
+          row.conversationFriend.id === friendId
+            ? {
+                ...row,
+                lastMessageContent: last.content,
+                lastMessageSentAt: last.sentAt,
+                lastMessageSenderId: last.sender.id ?? row.lastMessageSenderId,
+                lastMessageImageCount: last.images.length,
+              }
+            : row,
+        ),
+      );
+    }
+  }
+
+  // The messages of the open conversation that have not faded out and left.
+  private visibleOpenedMessages(): readonly StandardMessageDto[] {
+    const goneIds = this.deleteFade.goneIds();
+
+    return (this.opened()?.messages ?? []).filter((message) => !goneIds.has(message.id));
+  }
+
+  private settleDeleted(message: StandardMessageDto, result: AppResult<void>): void {
+    if (result.succeeded) {
+      const friendId = this.opened()?.friend?.id ?? null;
+      this.opened.update(
+        (conversation) =>
+          conversation && {
+            ...conversation,
+            messages: conversation.messages.filter((shown) => shown.id !== message.id),
+          },
+      );
+      const isConversationEmpty =
+        this.opened()?.historyStatus === PageLoadStatus.Ended &&
+        this.visibleOpenedMessages().length === 0;
+
+      if (isConversationEmpty) {
+        // The backend lists only conversations that hold a message.
+        this.rows.update((rows) => rows.filter((row) => row.conversationFriend.id !== friendId));
+      } else {
+        this.showLastMessageInRow();
+      }
+      this.toastStore.show(this.text().messages.deletedToast);
+    } else {
+      this.deleteFade.bringBack(message.id);
+      this.showLastMessageInRow();
+      this.toastStore.show(result.message);
+    }
+  }
+
+  // Reads the first page of the list again and replaces the rows it holds, leaving the others and the
+  // list's paging alone, so that the list does not flicker or lose its place.
+  private async refreshListRows(): Promise<void> {
+    const readNumber = this.listReadNumber;
+    const result = await this.messageApi.getConversationFriends({
+      pageNumber: LIMITS.paging.firstPageNumber,
+      pageSize: conversationListPageSize,
+    });
+    const isNewestRead = readNumber === this.listReadNumber;
+
+    if (result.succeeded && isNewestRead) {
+      const fresh = new Map(result.data.map((row) => [row.conversationFriend.id, row]));
+      this.rows.update((rows) =>
+        rows.map((row) => this.withReadCountCleared(fresh.get(row.conversationFriend.id) ?? row)),
+      );
+    }
+  }
+
   // Into the open conversation, if it is with that friend, in the order of the server's times.
   private addToOpened(friendId: number, added: StandardMessageDto): void {
     this.opened.update((conversation) => {
@@ -556,8 +778,9 @@ function conversationLoading(username: string): OpenConversation {
     messages: [],
     historyStatus: PageLoadStatus.Idle,
     historyFailure: null,
-    // openConversation fills it from the messages on their way.
+    // openConversation fills both from the messages on their way and the ones fading out.
     sendingIds: new Set(),
+    fadingIds: new Set(),
   };
 }
 

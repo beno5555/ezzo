@@ -1,26 +1,47 @@
 <form
   class="flex flex-col border-t border-border p-2 md:px-4 md:py-3"
-  [attr.aria-label]="text().messages.messageBox.label"
+  [attr.aria-label]="editing() ? text().messages.edit.label : text().messages.messageBox.label"
   [formGroup]="form"
   (ngSubmit)="submit()"
 >
+  <!-- Hidden, not removed, while an edit is in the box: the photos of a sent message cannot be changed. -->
   <app-photo-picker
+    [class.hidden]="editing()"
     [class.pb-3]="pickerHasContent()"
     [rules]="photoRules"
     [compact]="true"
     [(photos)]="photos"
   />
 
+  @if (editing()) {
+    <p class="flex items-center gap-2 px-1 pb-2 text-sm text-ink-muted" role="status">
+      <svg class="size-4 shrink-0" lucidePencil aria-hidden="true"></svg>
+      {{ text().messages.edit.banner }}
+    </p>
+  }
+
   <div class="flex items-end gap-2">
-    <button
-      appIconButton
-      type="button"
-      [disabled]="isFull()"
-      [attr.aria-label]="text().shared.photos.addButton"
-      (click)="openPhotos()"
-    >
-      <svg class="size-5" lucideImagePlus aria-hidden="true"></svg>
-    </button>
+    <!-- The photo button, or Cancel in its place while an edit is in the box. -->
+    @if (editing()) {
+      <button
+        appIconButton
+        type="button"
+        [attr.aria-label]="text().messages.edit.cancelButton"
+        (click)="cancelEdit()"
+      >
+        <svg class="size-5" lucideX aria-hidden="true"></svg>
+      </button>
+    } @else {
+      <button
+        appIconButton
+        type="button"
+        [disabled]="isFull()"
+        [attr.aria-label]="text().shared.photos.addButton"
+        (click)="openPhotos()"
+      >
+        <svg class="size-5" lucideImagePlus aria-hidden="true"></svg>
+      </button>
+    }
     <!-- One row, like the comment form: screen readers read the label and the placeholder shows the same
          words (owner, 2026-11-22, for the pinned comment form), so the box stays low. It grows with what
          is typed, up to a few lines. -->
@@ -29,6 +50,7 @@
     }}</label>
     <div class="relative min-w-0 flex-1">
       <textarea
+        #field
         appTextInput
         class="block max-h-32 min-h-11 w-full field-sizing-content resize-none md:max-h-48"
         id="message-content"
@@ -40,6 +62,8 @@
         [attr.maxlength]="maxLength"
         [placeholder]="text().messages.messageBox.placeholder"
         (keydown)="sendOnEnter($event)"
+        (keydown.escape)="cancelEdit()"
+        (input)="typed()"
       ></textarea>
       <!-- Used characters out of the limit, in the corner of the box, from the first character typed and
            from a tablet up: a phone's row is too narrow for it (owner, 2026-11-22), and maxlength still
@@ -54,10 +78,15 @@
         />
       }
     </div>
-    <!-- An icon alone on a phone, the word from a tablet up. -->
+    <!-- An icon alone on a phone, the word from a tablet up. Save in place of Send while an edit is in the box. -->
     <button appButton look="primary" type="submit" [disabled]="!canSend()">
-      <svg class="size-5 md:hidden" lucideSendHorizontal aria-hidden="true"></svg>
-      <span class="sr-only md:not-sr-only">{{ text().messages.messageBox.sendButton }}</span>
+      @if (editing()) {
+        <svg class="size-5 md:hidden" lucideCheck aria-hidden="true"></svg>
+        <span class="sr-only md:not-sr-only">{{ text().messages.edit.saveButton }}</span>
+      } @else {
+        <svg class="size-5 md:hidden" lucideSendHorizontal aria-hidden="true"></svg>
+        <span class="sr-only md:not-sr-only">{{ text().messages.messageBox.sendButton }}</span>
+      }
     </button>
   </div>
 </form>
