@@ -19,6 +19,13 @@
       <div class="flex flex-col gap-6">
         <h1 class="sr-only">{{ text().pages.post }}</h1>
 
+        @if (isSignedIn()) {
+          <a appButton look="quiet" class="self-start" [routerLink]="feedAddress">
+            <svg class="size-5" lucideArrowLeft aria-hidden="true"></svg>
+            {{ text().posts.page.backLink }}
+          </a>
+        }
+
         <app-post-card
           [post]="shownPost"
           [isLiking]="postLikes.isLiking(shownPost.id)"

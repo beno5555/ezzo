@@ -36,25 +36,32 @@
       }
     }
   }
-
-  @if (isSignedIn()) {
-    <div class="rounded-lg border border-border bg-surface-raised p-4">
-      <app-comment-form
-        fieldId="new-comment"
-        [label]="text().comments.form.label"
-        [contentLabel]="text().comments.form.contentLabel"
-        [submitLabel]="text().comments.form.submitButton"
-        (send)="send($event)"
-      />
-    </div>
-  } @else {
-    <div
-      class="flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-surface-raised p-4"
-    >
-      <p class="text-ink-strong">{{ text().comments.guest.message }}</p>
-      <a appButton look="primary" [routerLink]="signInAddress" [queryParams]="signInParameters()">
-        {{ text().comments.guest.signInLink }}
-      </a>
-    </div>
-  }
 </section>
+
+<!-- The form (or, for a guest, the way to sign in) is pinned to the bottom of the screen, above the phone's
+     bottom bar (h-16), so a reader can write without scrolling to the end of the comments. It sits outside
+     the section on purpose: a sticky element stays inside its parent, and the parent here is the page's
+     column (the host is display: contents), so the form stays pinned from the first screen on. -->
+@if (isSignedIn()) {
+  <div
+    class="sticky bottom-16 rounded-lg border border-border bg-surface-raised p-4 shadow-raised md:bottom-4"
+  >
+    <app-comment-form
+      [rows]="2"
+      fieldId="new-comment"
+      [label]="text().comments.form.label"
+      [contentLabel]="text().comments.form.contentLabel"
+      [submitLabel]="text().comments.form.submitButton"
+      (send)="send($event)"
+    />
+  </div>
+} @else {
+  <div
+    class="sticky bottom-0 md:bottom-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-surface-raised p-4 shadow-raised"
+  >
+    <p class="text-ink-strong">{{ text().comments.guest.message }}</p>
+    <a appButton look="primary" [routerLink]="signInAddress" [queryParams]="signInParameters()">
+      {{ text().comments.guest.signInLink }}
+    </a>
+  </div>
+}

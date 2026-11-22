@@ -41,6 +41,8 @@ import { ScrollSentinel } from '../scroll-sentinel/scroll-sentinel';
     LucideMessageCircle,
   ],
   providers: [CommentThreadStore],
+  // The host adds no box of its own, so the section and the pinned form are children of the page's column.
+  host: { class: 'contents' },
   templateUrl: './comment-section.html',
   styleUrl: './comment-section.css',
 })

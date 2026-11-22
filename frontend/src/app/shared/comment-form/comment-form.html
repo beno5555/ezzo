@@ -7,7 +7,7 @@
   <app-form-field [fieldId]="fieldId()" [label]="contentLabel()" [control]="form.controls.content">
     <textarea
       appTextInput
-      rows="3"
+      [rows]="rows()"
       autocomplete="off"
       formControlName="content"
       [id]="fieldId()"

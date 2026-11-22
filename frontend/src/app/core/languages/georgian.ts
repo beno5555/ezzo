@@ -252,6 +252,8 @@ export const georgian: Dictionary = {
       publishedToast: 'თქვენი პოსტი გამოქვეყნდა.',
     },
     feed: {
+      heading: 'რა ახალია?',
+      subheading: 'მეგობრებისა და ჯერ უცნობი ადამიანების ახალი პოსტები.',
       writeButton: 'პოსტის დაწერა',
       loading: 'პოსტები იტვირთება…',
       loadingMore: 'კიდევ პოსტები იტვირთება…',
@@ -261,6 +263,7 @@ export const georgian: Dictionary = {
       end: 'სიახლეების ბოლოს მიაღწიეთ.',
     },
     page: {
+      backLink: 'უკან სიახლეებზე',
       loading: 'პოსტი იტვირთება…',
       retryButton: 'თავიდან ცდა',
     },

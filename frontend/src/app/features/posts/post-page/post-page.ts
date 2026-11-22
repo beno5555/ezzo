@@ -1,11 +1,13 @@
 import { HttpStatusCode } from '@angular/common/http';
 import { Component, effect, inject, input, signal, untracked } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { LucideArrowLeft } from '@lucide/angular';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { NotFoundPage } from '../../../core/not-found/not-found-page';
 import { appAddresses } from '../../../core/routing/app-addresses';
 import { signInAddress } from '../../../core/routing/sign-in-address';
 import { SessionStore } from '../../../core/session/session-store';
+import { Button } from '../../../shared/button/button';
 import { CommentSection } from '../../../shared/comment-section/comment-section';
 import { LoadFailure } from '../../../shared/load-failure/load-failure';
 import { PostCard } from '../../../shared/post-card/post-card';
@@ -16,12 +18,20 @@ import { PostPageStatus } from './post-page-status';
 
 // One post at /posts/:postId, for a guest too: the post's card, and under it its comments (the comment
 // section). The address is the post's to share. A post that does not exist, or that the visitor may not
-// read, shows the not-found page at the same address. The like button leads a guest to sign-in and back.
+// read, shows the not-found page at the same address. The like button leads a guest to sign-in and back; a signed-in user also gets a link back to the feed (a guest has no feed to go back to).
 // The post's comment count follows the section: it rises when a comment is sent and falls when one is
 // refused or deleted, so the card is right before the server has answered.
 @Component({
   selector: 'app-post-page',
-  imports: [CommentSection, LoadFailure, NotFoundPage, PostCard],
+  imports: [
+    Button,
+    CommentSection,
+    LoadFailure,
+    LucideArrowLeft,
+    NotFoundPage,
+    PostCard,
+    RouterLink,
+  ],
   templateUrl: './post-page.html',
   styleUrl: './post-page.css',
 })
@@ -34,6 +44,8 @@ export class PostPage {
   readonly postId = input.required<string>();
 
   protected readonly text = inject(LanguageStore).text;
+  protected readonly isSignedIn = this.sessionStore.isSignedIn;
+  protected readonly feedAddress = appAddresses.feed;
   protected readonly postLikes = inject(PostLikeStore);
   protected readonly PostPageStatus = PostPageStatus;
   protected readonly status = signal<PostPageStatus>(PostPageStatus.Loading);

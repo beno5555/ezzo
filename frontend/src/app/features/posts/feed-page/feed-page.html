@@ -1,6 +1,9 @@
 <div class="flex flex-col gap-6">
   <div class="flex flex-wrap items-center justify-between gap-4">
-    <h1 class="font-display text-2xl text-ink-strong">{{ text().pages.feed }}</h1>
+    <div class="flex flex-col gap-1">
+      <h1 class="font-display text-2xl text-ink-strong">{{ text().posts.feed.heading }}</h1>
+      <p class="text-ink-muted">{{ text().posts.feed.subheading }}</p>
+    </div>
     <a appButton look="primary" [routerLink]="newPostAddress">
       <svg class="size-5" lucidePlus aria-hidden="true"></svg>
       {{ text().posts.feed.writeButton }}

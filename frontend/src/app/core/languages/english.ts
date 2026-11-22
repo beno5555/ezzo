@@ -299,6 +299,9 @@ export const english = {
     },
     feed: {
       // The link beside the feed's heading to the composer's page.
+      // The feed's heading and the line under it. The browser tab keeps the page's plain name (pages.feed).
+      heading: "What's new",
+      subheading: 'Fresh posts from your friends and from people you may not know yet.',
       writeButton: 'Write a post',
       loading: 'Loading posts…',
       loadingMore: 'Loading more posts…',
@@ -309,6 +312,8 @@ export const english = {
     },
     // A post's own page (/posts/:postId, features/posts/post-page).
     page: {
+      // The link above the post that leads a signed-in user back to the feed.
+      backLink: 'Back to feed',
       loading: 'Loading the post…',
       retryButton: 'Try again',
     },

@@ -30,6 +30,8 @@ export class CommentForm implements OnInit {
   readonly submitLabel = input.required<string>();
   readonly cancelLabel = input<string | null>(null);
   readonly initialContent = input('');
+  // How tall the text box is. The pinned new-comment form uses fewer rows than an edit.
+  readonly rows = input(3);
   readonly send = output<string>();
   readonly dismiss = output();
 
