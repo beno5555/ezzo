@@ -249,6 +249,17 @@ describe('HubClient', () => {
 
       expect(markEdited).toHaveBeenCalledExactlyOnceWith({ id: 12, content: 'Fixed' });
     });
+
+    it('hands MessageDeleted to the conversations', async () => {
+      const connection = await connect();
+      const markDeleted = vi
+        .spyOn(TestBed.inject(ConversationsStore), 'markDeleted')
+        .mockResolvedValue(undefined);
+
+      connection.push('MessageDeleted', { id: 12 });
+
+      expect(markDeleted).toHaveBeenCalledExactlyOnceWith({ id: 12 });
+    });
   });
 
   describe('when the load fails', () => {

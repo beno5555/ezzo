@@ -592,10 +592,9 @@ export const english = {
       editEntry: 'Edit',
       deleteEntry: 'Delete',
     },
-    // The message box while it holds an edit: its label, the line above it, and its two buttons.
+    // The message box while it holds an edit: its label and its two buttons.
     edit: {
       label: 'Edit your message',
-      banner: 'Editing message',
       saveButton: 'Save',
       cancelButton: 'Cancel editing',
     },

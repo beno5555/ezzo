@@ -501,7 +501,6 @@ export const georgian: Dictionary = {
     },
     edit: {
       label: 'შეტყობინების შეცვლა',
-      banner: 'შეტყობინების შეცვლა',
       saveButton: 'შენახვა',
       cancelButton: 'შეცვლის გაუქმება',
     },

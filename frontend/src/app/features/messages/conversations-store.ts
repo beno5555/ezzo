@@ -13,12 +13,12 @@ import { AcceptedFriendshipDto } from '../friendships/accepted-friendship-dto';
 import { DisplayFriendDto } from '../friendships/display-friend-dto';
 import { FriendshipApi } from '../friendships/friendship-api';
 import { PresenceStore } from '../friendships/presence-store';
-import { isUnavailableUsername } from '../users/unavailable-username';
 import { UserApi } from '../users/user-api';
 import { MinimalUserDto } from '../users/minimal-user-dto';
-import { ConversationFriendDto } from './conversation-friend-dto';
+import { ConversationListStore } from './conversation-list-store';
 import { ConversationOpenStatus } from './conversation-open-status';
 import { MessageApi } from './message-api';
+import { MessageDeletedDto } from './message-deleted-dto';
 import { MessageEditedDto } from './message-edited-dto';
 import { EditDraft } from './edit-draft';
 import { MessageSeenDto } from './message-seen-dto';
@@ -30,17 +30,17 @@ import { StandardMessageDto } from './standard-message-dto';
 import { TypingStore } from './typing-store';
 import { UnreadStore } from './unread-store';
 
-// How many conversations one page of the list holds, and how many messages one page of the history.
-export const conversationListPageSize = 20;
+// How many messages one page of the history holds.
 export const messageHistoryPageSize = 30;
 
 // A message the server refused, kept for the box of the conversation it was written in.
 type RefusedMessage = { friendId: number; message: NewMessage };
 
-// The chat's shared state: the conversation list and the open conversation. It is a store because the hub
-// changes both: HubClient hands it ReceiveMessage (receive) and MessageSeen (markSeen). The friends'
-// presence comes from PresenceStore, so a row and the open conversation follow UserOnline and UserOffline
-// without a reload.
+// The chat's shared state: the open conversation, and the conversation list (ConversationListStore) that
+// it keeps right. It is a store because the hub changes both: HubClient hands it ReceiveMessage (receive),
+// MessageSeen (markSeen), MessageEdited (markEdited) and MessageDeleted (markDeleted). The friends'
+// presence comes from PresenceStore, so the open conversation follows UserOnline and UserOffline without a
+// reload.
 //
 // The pages address a conversation by username, while the message endpoints take the id, so open() finds
 // the friend first: in the loaded list, or else through the read by username and the friendship check.
@@ -63,14 +63,16 @@ type RefusedMessage = { friendId: number; message: NewMessage };
 //     editDraft tells the box). A refusal puts the old text back, shows a toast and gives the box what the
 //     user wrote again. The friend's edit arrives as MessageEdited (markEdited).
 //   - delete: asks first; the message fades out (DeleteFade), then leaves the user's view. A refusal brings
-//     it back with a toast. The backend pushes nothing for a deletion, so the friend's open conversation
-//     keeps the message until it is loaded again.
-// The list row's last message follows both, as long as the message is one the open conversation holds.
+//     it back with a toast. The friend's deletion arrives as MessageDeleted (markDeleted), and the message
+//     leaves their open conversation at once.
+// The list row's last message follows all of these, as long as the message is one the open conversation
+// holds; for one it does not hold, the list is read again.
 @Injectable({ providedIn: 'root' })
 export class ConversationsStore {
   private readonly messageApi = inject(MessageApi);
   private readonly userApi = inject(UserApi);
   private readonly friendshipApi = inject(FriendshipApi);
+  private readonly conversationListStore = inject(ConversationListStore);
   private readonly presenceStore = inject(PresenceStore);
   private readonly unreadStore = inject(UnreadStore);
   private readonly sessionStore = inject(SessionStore);
@@ -97,37 +99,10 @@ export class ConversationsStore {
   // Counts clear() calls, so that a send answered after a sign-out changes nothing.
   private clearNumber = 0;
 
-  private readonly rows = signal<readonly ConversationFriendDto[]>([]);
-  private readonly currentListStatus = signal<PageLoadStatus>(PageLoadStatus.Idle);
-  private readonly lastListFailure = signal<string | null>(null);
-  private nextListPageNumber: number = LIMITS.paging.firstPageNumber;
-  // True from loadConversations until its first page arrives, which then replaces the rows.
-  private isListRestarting = false;
-  // Numbers each read of the list, so that only the answer to the newest one is kept.
-  private listReadNumber = 0;
-
   private readonly opened = signal<OpenConversation | null>(null);
   private nextHistoryPageNumber: number = LIMITS.paging.firstPageNumber;
   // Numbers each opening, so that answers meant for a conversation the user has left are ignored.
   private openingNumber = 0;
-  // The friend whose conversation the current opening marked read. A list page that was read before the
-  // mark can arrive after it, and must not bring the old count back.
-  private readFriendId: number | null = null;
-
-  private readonly lastActiveById = computed(
-    () => new Map(this.presenceStore.friends().map((friend) => [friend.id, friend.lastActiveAt])),
-  );
-
-  // The rows, most recent conversation first, each friend with their live presence.
-  readonly conversations = computed(() =>
-    this.rows().map((row) => ({
-      ...row,
-      conversationFriend: this.withPresence(row.conversationFriend),
-    })),
-  );
-  readonly listStatus = this.currentListStatus.asReadonly();
-  // The text of the last failed page of the list, null once a page arrives.
-  readonly listFailure = this.lastListFailure.asReadonly();
 
   // Null while no conversation is open. The messages on their way come after the history.
   readonly openConversation = computed(() => {
@@ -141,7 +116,7 @@ export class ConversationsStore {
       const kept = conversation.messages.filter((message) => !goneIds.has(message.id));
       shown = {
         ...conversation,
-        friend: this.withPresence(friend),
+        friend: this.presenceStore.withPresence(friend),
         messages: [...kept, ...pending],
         sendingIds: new Set([...pending.map((message) => message.id), ...this.savingEditIds()]),
         fadingIds: this.deleteFade.fadingIds(),
@@ -159,32 +134,14 @@ export class ConversationsStore {
     return returned?.message ?? null;
   });
 
-  // Reads the list from its first page, replacing the rows once that page arrives.
-  async loadConversations(): Promise<void> {
-    this.nextListPageNumber = LIMITS.paging.firstPageNumber;
-    this.isListRestarting = true;
-    await this.loadListPage();
-  }
-
-  // From the end of the list, and from its Try again button: the next page, or the one that failed.
-  async loadMoreConversations(): Promise<void> {
-    const canLoad =
-      this.currentListStatus() === PageLoadStatus.Idle ||
-      this.currentListStatus() === PageLoadStatus.Failed;
-
-    if (canLoad) {
-      await this.loadListPage();
-    }
-  }
-
   // Opens the conversation at /messages/:username, and again from a Try again button after a failure.
   async open(username: string): Promise<void> {
     this.openingNumber++;
     const opening = this.openingNumber;
     this.currentEditDraft.set(null);
-    this.readFriendId = null;
+    this.conversationListStore.forgetRead();
     this.nextHistoryPageNumber = LIMITS.paging.firstPageNumber;
-    const listedFriend = this.listedFriend(username);
+    const listedFriend = this.conversationListStore.friendOf(username);
 
     if (listedFriend !== null) {
       this.opened.set(conversationWith(username, listedFriend));
@@ -213,7 +170,7 @@ export class ConversationsStore {
   close(): void {
     this.openingNumber++;
     this.currentEditDraft.set(null);
-    this.readFriendId = null;
+    this.conversationListStore.forgetRead();
     this.opened.set(null);
   }
 
@@ -348,10 +305,10 @@ export class ConversationsStore {
 
       if (isOpen) {
         this.addToOpened(senderId, arrived);
-        this.putOnTop(friend, arrived, senderId, () => 0);
+        this.conversationListStore.putOnTop(friend, arrived, senderId, () => 0);
         await this.messageApi.markAsRead(senderId);
       } else {
-        this.putOnTop(friend, arrived, senderId, (count) => count + 1);
+        this.conversationListStore.putOnTop(friend, arrived, senderId, (count) => count + 1);
       }
       await this.unreadStore.refresh();
     }
@@ -360,14 +317,25 @@ export class ConversationsStore {
   // MessageEdited: the friend changed a message. The open conversation shows the new text and says it was
   // edited, and its row follows when it is the last message. A message the open conversation does not hold
   // may be the last one of a closed conversation, which the list does not say (a row carries no message
-  // id), so the list's rows are read again, quietly.
+  // id), so the list is read again, quietly.
   async markEdited({ id, content }: MessageEditedDto): Promise<void> {
-    const isShown = this.opened()?.messages.some((message) => message.id === id) ?? false;
-
-    if (isShown) {
+    if (this.holdsMessage(id)) {
       this.changeOpenedMessage(id, (message) => ({ ...message, content, isEdited: true }));
-    } else if (this.rows().length > 0) {
-      await this.refreshListRows();
+    } else {
+      await this.refreshListIfLoaded();
+    }
+  }
+
+  // MessageDeleted: the friend deleted a message. It leaves the open conversation at once (no fade: the
+  // user did not ask for it), and the row follows. A message the open conversation does not hold may be
+  // the last one of a closed conversation, or an unread one, so the list and the unread count are read
+  // again, quietly.
+  async markDeleted({ id }: MessageDeletedDto): Promise<void> {
+    if (this.holdsMessage(id)) {
+      this.removeFromOpened(id);
+    } else {
+      // The header's unread count follows even when the list was never loaded.
+      await Promise.all([this.refreshListIfLoaded(), this.unreadStore.refresh()]);
     }
   }
 
@@ -400,55 +368,7 @@ export class ConversationsStore {
     this.currentEditDraft.set(null);
     this.refused.set([]);
     this.seenAtByFriend.clear();
-    this.listReadNumber++;
-    this.rows.set([]);
-    this.currentListStatus.set(PageLoadStatus.Idle);
-    this.lastListFailure.set(null);
-    this.nextListPageNumber = LIMITS.paging.firstPageNumber;
-    this.isListRestarting = false;
-  }
-
-  private async loadListPage(): Promise<void> {
-    this.listReadNumber++;
-    const thisReadNumber = this.listReadNumber;
-    const pageNumber = this.nextListPageNumber;
-    const askedAt = Date.now();
-    this.currentListStatus.set(PageLoadStatus.Loading);
-
-    const result = await this.messageApi.getConversationFriends({
-      pageNumber,
-      pageSize: conversationListPageSize,
-    });
-
-    const isNewestRead = thisReadNumber === this.listReadNumber;
-    if (isNewestRead) {
-      if (result.succeeded) {
-        this.presenceStore.track(
-          result.data.map((row) => row.conversationFriend),
-          askedAt,
-        );
-        const page = result.data.map((row) => this.withReadCountCleared(row));
-        const shownRows = this.isListRestarting ? [] : this.rows();
-        this.rows.set(withNewRows(shownRows, page));
-        this.isListRestarting = false;
-        this.nextListPageNumber = pageNumber + 1;
-        this.lastListFailure.set(null);
-        const isLastPage = result.data.length < conversationListPageSize;
-        this.currentListStatus.set(isLastPage ? PageLoadStatus.Ended : PageLoadStatus.Idle);
-      } else {
-        this.lastListFailure.set(result.message);
-        this.currentListStatus.set(PageLoadStatus.Failed);
-      }
-    }
-  }
-
-  // A friend the list holds under that username. A placeholder name (an unavailable account) can stand for
-  // several rows, so it never matches.
-  private listedFriend(username: string): DisplayFriendDto | null {
-    const isAddressable = !isUnavailableUsername(username);
-    const row = this.rows().find((shown) => shown.conversationFriend.username === username);
-
-    return isAddressable && row !== undefined ? row.conversationFriend : null;
+    this.conversationListStore.clear();
   }
 
   private async findFriend(opening: number, username: string): Promise<void> {
@@ -533,24 +453,8 @@ export class ConversationsStore {
 
   // The backend marked the conversation read when its history was read.
   private async markRead(friendId: number): Promise<void> {
-    this.readFriendId = friendId;
-    this.rows.update((rows) => rows.map((row) => this.withReadCountCleared(row)));
+    this.conversationListStore.markRead(friendId);
     await this.unreadStore.refresh();
-  }
-
-  private withReadCountCleared(row: ConversationFriendDto): ConversationFriendDto {
-    const isRead = row.conversationFriend.id === this.readFriendId;
-
-    return isRead ? { ...row, unreadCount: 0 } : row;
-  }
-
-  private withPresence(friend: DisplayFriendDto): DisplayFriendDto {
-    const lastActiveById = this.lastActiveById();
-    const lastActiveAt = lastActiveById.has(friend.id)
-      ? (lastActiveById.get(friend.id) ?? null)
-      : friend.lastActiveAt;
-
-    return { ...friend, lastActiveAt, isActive: lastActiveAt === null };
   }
 
   private settleSent(
@@ -562,7 +466,7 @@ export class ConversationsStore {
     if (result.succeeded) {
       const copy = this.toOwnCopy(result.data, friend.id);
       this.addToOpened(friend.id, copy);
-      this.putOnTop(friend, copy, userId, (count) => count);
+      this.conversationListStore.putOnTop(friend, copy, userId, (count) => count);
     } else {
       this.refused.update((refusals) => [
         ...refusals,
@@ -609,19 +513,7 @@ export class ConversationsStore {
     const last = this.visibleOpenedMessages().at(-1);
 
     if (friendId !== null && last !== undefined) {
-      this.rows.update((rows) =>
-        rows.map((row) =>
-          row.conversationFriend.id === friendId
-            ? {
-                ...row,
-                lastMessageContent: last.content,
-                lastMessageSentAt: last.sentAt,
-                lastMessageSenderId: last.sender.id ?? row.lastMessageSenderId,
-                lastMessageImageCount: last.images.length,
-              }
-            : row,
-        ),
-      );
+      this.conversationListStore.showLastMessage(friendId, last);
     }
   }
 
@@ -634,24 +526,7 @@ export class ConversationsStore {
 
   private settleDeleted(message: StandardMessageDto, result: AppResult<void>): void {
     if (result.succeeded) {
-      const friendId = this.opened()?.friend?.id ?? null;
-      this.opened.update(
-        (conversation) =>
-          conversation && {
-            ...conversation,
-            messages: conversation.messages.filter((shown) => shown.id !== message.id),
-          },
-      );
-      const isConversationEmpty =
-        this.opened()?.historyStatus === PageLoadStatus.Ended &&
-        this.visibleOpenedMessages().length === 0;
-
-      if (isConversationEmpty) {
-        // The backend lists only conversations that hold a message.
-        this.rows.update((rows) => rows.filter((row) => row.conversationFriend.id !== friendId));
-      } else {
-        this.showLastMessageInRow();
-      }
+      this.removeFromOpened(message.id);
       this.toastStore.show(this.text().messages.deletedToast);
     } else {
       this.deleteFade.bringBack(message.id);
@@ -660,21 +535,25 @@ export class ConversationsStore {
     }
   }
 
-  // Reads the first page of the list again and replaces the rows it holds, leaving the others and the
-  // list's paging alone, so that the list does not flicker or lose its place.
-  private async refreshListRows(): Promise<void> {
-    const readNumber = this.listReadNumber;
-    const result = await this.messageApi.getConversationFriends({
-      pageNumber: LIMITS.paging.firstPageNumber,
-      pageSize: conversationListPageSize,
-    });
-    const isNewestRead = readNumber === this.listReadNumber;
+  // The message leaves the open conversation for good, and its row says what the last message is now: the
+  // row of a conversation with no message left goes, when the whole history has been read.
+  private removeFromOpened(messageId: number): void {
+    const friendId = this.opened()?.friend?.id ?? null;
+    this.opened.update(
+      (conversation) =>
+        conversation && {
+          ...conversation,
+          messages: conversation.messages.filter((shown) => shown.id !== messageId),
+        },
+    );
+    const isConversationEmpty =
+      this.opened()?.historyStatus === PageLoadStatus.Ended &&
+      this.visibleOpenedMessages().length === 0;
 
-    if (result.succeeded && isNewestRead) {
-      const fresh = new Map(result.data.map((row) => [row.conversationFriend.id, row]));
-      this.rows.update((rows) =>
-        rows.map((row) => this.withReadCountCleared(fresh.get(row.conversationFriend.id) ?? row)),
-      );
+    if (isConversationEmpty && friendId !== null) {
+      this.conversationListStore.remove(friendId);
+    } else {
+      this.showLastMessageInRow();
     }
   }
 
@@ -686,28 +565,6 @@ export class ConversationsStore {
       return conversation && isWithFriend
         ? { ...conversation, messages: withMessage(conversation.messages, added) }
         : conversation;
-    });
-  }
-
-  // The friend's row goes first, with the message as its last; a friend without a row gets one.
-  private putOnTop(
-    friend: DisplayFriendDto,
-    last: StandardMessageDto,
-    senderId: number,
-    unreadCountOf: (count: number) => number,
-  ): void {
-    this.rows.update((rows) => {
-      const shown = rows.find((row) => row.conversationFriend.id === friend.id);
-      const moved: ConversationFriendDto = {
-        conversationFriend: shown?.conversationFriend ?? friend,
-        lastMessageContent: last.content,
-        lastMessageSentAt: last.sentAt,
-        lastMessageSenderId: senderId,
-        lastMessageImageCount: last.images.length,
-        unreadCount: unreadCountOf(shown?.unreadCount ?? 0),
-      };
-
-      return [moved, ...rows.filter((row) => row !== shown)];
     });
   }
 
@@ -758,6 +615,16 @@ export class ConversationsStore {
     return { id: user?.id ?? null, username: user?.username ?? '' };
   }
 
+  private async refreshListIfLoaded(): Promise<void> {
+    if (this.conversationListStore.hasRows()) {
+      await this.conversationListStore.refresh();
+    }
+  }
+
+  private holdsMessage(messageId: number): boolean {
+    return this.opened()?.messages.some((message) => message.id === messageId) ?? false;
+  }
+
   private isCurrent(opening: number): boolean {
     return opening === this.openingNumber;
   }
@@ -786,17 +653,6 @@ function conversationLoading(username: string): OpenConversation {
 
 function conversationWith(username: string, friend: DisplayFriendDto): OpenConversation {
   return { ...conversationLoading(username), status: ConversationOpenStatus.Ready, friend };
-}
-
-// A later page of the list can repeat a row when a conversation moved up between two reads.
-function withNewRows(
-  rows: readonly ConversationFriendDto[],
-  page: readonly ConversationFriendDto[],
-): readonly ConversationFriendDto[] {
-  const shownIds = new Set(rows.map((row) => row.conversationFriend.id));
-  const fresh = page.filter((row) => !shownIds.has(row.conversationFriend.id));
-
-  return [...rows, ...fresh];
 }
 
 // A message that arrives or was sent goes where its time puts it, usually last, and only once: the history

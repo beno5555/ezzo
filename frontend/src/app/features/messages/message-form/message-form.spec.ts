@@ -80,13 +80,14 @@ describe('MessageForm editing', () => {
     vi.useRealTimers();
   });
 
-  it('puts the message’s text into the box, with a line saying it is an edit', () => {
+  it('puts the message’s text into the box, with Save in place of Send and no extra line', () => {
     const fixture = createForm();
 
     startEdit(fixture, messageSentAgo(1));
 
     expect(box(fixture).value).toBe('Helo');
-    expect(fixture.nativeElement.textContent).toContain('Editing message');
+    expect(fixture.nativeElement.textContent).toContain('Save');
+    expect(fixture.nativeElement.querySelector('[role="status"]')).toBeNull();
   });
 
   it('keeps what the user was writing and gives it back when the edit is cancelled', () => {
@@ -99,7 +100,7 @@ describe('MessageForm editing', () => {
     fixture.detectChanges();
 
     expect(box(fixture).value).toBe('my unfinished draft');
-    expect(fixture.nativeElement.textContent).not.toContain('Editing message');
+    expect(fixture.nativeElement.querySelector('[aria-label="Cancel editing"]')).toBeNull();
   });
 
   it('saves the changed text, trimmed, through the store and sends no new message', () => {
@@ -172,6 +173,6 @@ describe('MessageForm editing', () => {
     startEdit(fixture, { ...messageSentAgo(1), receiverId: friendId + 1 });
 
     expect(box(fixture).value).toBe('');
-    expect(fixture.nativeElement.textContent).not.toContain('Editing message');
+    expect(fixture.nativeElement.querySelector('[aria-label="Cancel editing"]')).toBeNull();
   });
 });

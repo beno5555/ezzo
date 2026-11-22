@@ -13,13 +13,6 @@
     [(photos)]="photos"
   />
 
-  @if (editing()) {
-    <p class="flex items-center gap-2 px-1 pb-2 text-sm text-ink-muted" role="status">
-      <svg class="size-4 shrink-0" lucidePencil aria-hidden="true"></svg>
-      {{ text().messages.edit.banner }}
-    </p>
-  }
-
   <div class="flex items-end gap-2">
     <!-- The photo button, or Cancel in its place while an edit is in the box. -->
     @if (editing()) {

@@ -269,6 +269,9 @@ public class MessageService : BaseService
                 await _messageRepository.DeleteAsync(message);
                 await _imageStorage.DeleteAsync(imageAddresses);
 
+                var messageDeletedDto = MessageMapper.ToMessageDeleted(message);
+                await _hubContext.Clients.Group(message.ReceiverUserId.ToString()).SendAsync("MessageDeleted", messageDeletedDto);
+
                 response.Ok(ResponseMessages.MessageDeleted);
                 await LogResultAsync(response.Succeeded, nameof(DeleteMessage), nameof(Message), null, id);
             }

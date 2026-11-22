@@ -79,7 +79,7 @@ export class MessageApi {
     );
   }
 
-  // Deletes the user's own message and its photos, however old. The friend is sent no push.
+  // Deletes the user's own message and its photos, however old. The friend's open conversation drops it through the MessageDeleted push.
   delete(messageId: number): Promise<AppResult<void>> {
     return toAppResult(
       this.http.delete<ApplicationResponse<void>>(`/api/messages/${messageId}`),

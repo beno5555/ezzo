@@ -10,6 +10,7 @@ import {
 import type { HubConnection, IRetryPolicy, RetryContext } from '@microsoft/signalr';
 import { PresenceStore } from '../../features/friendships/presence-store';
 import { ConversationsStore } from '../../features/messages/conversations-store';
+import { MessageDeletedDto } from '../../features/messages/message-deleted-dto';
 import { MessageEditedDto } from '../../features/messages/message-edited-dto';
 import { MessageSeenDto } from '../../features/messages/message-seen-dto';
 import { PushMessageDto } from '../../features/messages/push-message-dto';
@@ -163,6 +164,9 @@ export class HubClient {
     });
     connection.on(HubEvent.MessageEdited, (payload: MessageEditedDto) => {
       void this.conversationsStore.markEdited(payload); // fire-and-forget: the store shows the new text
+    });
+    connection.on(HubEvent.MessageDeleted, (payload: MessageDeletedDto) => {
+      void this.conversationsStore.markDeleted(payload); // fire-and-forget: the store drops the message
     });
     connection.on(HubEvent.UserTyping, (payload: UserTypingDto) => {
       this.typingStore.userTyping(payload);

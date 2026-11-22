@@ -13,13 +13,7 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { map } from 'rxjs';
-import {
-  LucideCheck,
-  LucideImagePlus,
-  LucidePencil,
-  LucideSendHorizontal,
-  LucideX,
-} from '@lucide/angular';
+import { LucideCheck, LucideImagePlus, LucideSendHorizontal, LucideX } from '@lucide/angular';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { LIMITS } from '../../../core/limits';
 import { Button } from '../../../shared/button/button';
@@ -47,10 +41,10 @@ import { TypingSender } from '../typing-sender';
 // box once that box is empty, so what the user is writing now is never overwritten.
 //
 // The box is also where a message is edited (ConversationsStore.editDraft): Edit on a message puts its text
-// into the box, with a line "Editing message" above, Cancel where the photo button was and Save where Send
-// was; Enter saves, Escape cancels, and the edit ends by itself when its 20 minutes pass. The photos cannot
-// be changed, so the picker is hidden meanwhile. What the user had been writing comes back when the edit
-// ends, and no typing signal goes to the friend.
+// into the box, with Cancel where the photo button was and Save where Send was (no line says "editing":
+// the two buttons do, owner, 2026-11-23); Enter saves, Escape cancels, and the edit ends by itself when
+// its 20 minutes pass. The photos cannot be changed, so the picker is hidden meanwhile. What the user had
+// been writing comes back when the edit ends, and no typing signal goes to the friend.
 @Component({
   selector: 'app-message-form',
   imports: [
@@ -62,7 +56,6 @@ import { TypingSender } from '../typing-sender';
     TextInput,
     LucideCheck,
     LucideImagePlus,
-    LucidePencil,
     LucideSendHorizontal,
     LucideX,
   ],

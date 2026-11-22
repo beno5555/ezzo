@@ -16,11 +16,8 @@ import { PresenceStore } from '../friendships/presence-store';
 import { StandardUserDto } from '../users/standard-user-dto';
 import { ConversationFriendDto } from './conversation-friend-dto';
 import { ConversationOpenStatus } from './conversation-open-status';
-import {
-  ConversationsStore,
-  conversationListPageSize,
-  messageHistoryPageSize,
-} from './conversations-store';
+import { ConversationListStore, conversationListPageSize } from './conversation-list-store';
+import { ConversationsStore, messageHistoryPageSize } from './conversations-store';
 import { PushMessageDto } from './push-message-dto';
 import { SentMessageDto } from './sent-message-dto';
 import { StandardMessageDto } from './standard-message-dto';
@@ -98,6 +95,7 @@ const listEnvelope = <T>(data: T[]) => ({ succeeded: true, message: null, data, 
 
 describe('ConversationsStore', () => {
   let store: ConversationsStore;
+  let conversationListStore: ConversationListStore;
   let presenceStore: PresenceStore;
   let unreadStore: UnreadStore;
   let toastStore: ToastStore;
@@ -134,6 +132,7 @@ describe('ConversationsStore', () => {
       ],
     });
     store = TestBed.inject(ConversationsStore);
+    conversationListStore = TestBed.inject(ConversationListStore);
     presenceStore = TestBed.inject(PresenceStore);
     unreadStore = TestBed.inject(UnreadStore);
     toastStore = TestBed.inject(ToastStore);
@@ -177,7 +176,7 @@ describe('ConversationsStore', () => {
   }
 
   async function loadList(rows: ConversationFriendDto[]): Promise<void> {
-    const loading = store.loadConversations();
+    const loading = conversationListStore.load();
     await answerList(rows);
     await loading;
   }
@@ -186,8 +185,8 @@ describe('ConversationsStore', () => {
     it('loads the first page, and ends when the page is shorter than the page size', async () => {
       await loadList([row(alice, 2), row(bob)]);
 
-      expect(store.conversations()).toEqual([row(alice, 2), row(bob)]);
-      expect(store.listStatus()).toBe(PageLoadStatus.Ended);
+      expect(conversationListStore.conversations()).toEqual([row(alice, 2), row(bob)]);
+      expect(conversationListStore.status()).toBe(PageLoadStatus.Ended);
     });
 
     it('appends the next page while the pages are full', async () => {
@@ -195,14 +194,14 @@ describe('ConversationsStore', () => {
         row({ ...bob, id: 100 + index, username: `friend${index}` }),
       );
       await loadList(fullPage);
-      expect(store.listStatus()).toBe(PageLoadStatus.Idle);
+      expect(conversationListStore.status()).toBe(PageLoadStatus.Idle);
 
-      const loadingMore = store.loadMoreConversations();
+      const loadingMore = conversationListStore.loadMore();
       await answerList([row(alice)], 2);
       await loadingMore;
 
-      expect(store.conversations()).toEqual([...fullPage, row(alice)]);
-      expect(store.listStatus()).toBe(PageLoadStatus.Ended);
+      expect(conversationListStore.conversations()).toEqual([...fullPage, row(alice)]);
+      expect(conversationListStore.status()).toBe(PageLoadStatus.Ended);
     });
 
     it('starts again from the first page when loaded again', async () => {
@@ -210,13 +209,13 @@ describe('ConversationsStore', () => {
 
       await loadList([row(bob), row(alice)]);
 
-      expect(store.conversations()).toEqual([row(bob), row(alice)]);
+      expect(conversationListStore.conversations()).toEqual([row(bob), row(alice)]);
     });
 
     it('keeps the rows and says why when a page fails', async () => {
       await loadList([row(alice)]);
 
-      const failing = store.loadConversations();
+      const failing = conversationListStore.load();
       httpTesting
         .expectOne((candidate) => candidate.url === listAddress)
         .flush(null, {
@@ -225,9 +224,9 @@ describe('ConversationsStore', () => {
         });
       await failing;
 
-      expect(store.conversations()).toEqual([row(alice)]);
-      expect(store.listStatus()).toBe(PageLoadStatus.Failed);
-      expect(store.listFailure()).not.toBeNull();
+      expect(conversationListStore.conversations()).toEqual([row(alice)]);
+      expect(conversationListStore.status()).toBe(PageLoadStatus.Failed);
+      expect(conversationListStore.failure()).not.toBeNull();
     });
 
     it('changes a row when its friend goes offline or comes online', async () => {
@@ -236,7 +235,7 @@ describe('ConversationsStore', () => {
       presenceStore.markOffline(alice.id, '2026-11-17T10:00:00Z');
       await presenceStore.markOnline(bob.id);
 
-      const [aliceRow, bobRow] = store.conversations();
+      const [aliceRow, bobRow] = conversationListStore.conversations();
       expect(aliceRow.conversationFriend).toEqual({
         ...alice,
         lastActiveAt: '2026-11-17T10:00:00Z',
@@ -352,7 +351,7 @@ describe('ConversationsStore', () => {
       await opening;
 
       expect(store.openConversation()).toBeNull();
-      expect(store.conversations()[0].unreadCount).toBe(2);
+      expect(conversationListStore.conversations()[0].unreadCount).toBe(2);
     });
   });
 
@@ -365,12 +364,14 @@ describe('ConversationsStore', () => {
       await answerUnread(1);
       await opening;
 
-      expect(store.conversations().map((shown) => shown.unreadCount)).toEqual([0, 1]);
+      expect(conversationListStore.conversations().map((shown) => shown.unreadCount)).toEqual([
+        0, 1,
+      ]);
       expect(unreadStore.count()).toBe(1);
     });
 
     it('keeps the count cleared when the list arrives after the conversation was read', async () => {
-      const listLoading = store.loadConversations();
+      const listLoading = conversationListStore.load();
       const opening = store.open('alice');
       httpTesting.expectOne('/api/users/alice').flush(envelope(user(alice)));
       await waitForPendingWork();
@@ -383,7 +384,9 @@ describe('ConversationsStore', () => {
       await answerList([row(alice, 2), row(bob, 1)]);
       await listLoading;
 
-      expect(store.conversations().map((shown) => shown.unreadCount)).toEqual([0, 1]);
+      expect(conversationListStore.conversations().map((shown) => shown.unreadCount)).toEqual([
+        0, 1,
+      ]);
     });
 
     it('marks nothing read when the history fails', async () => {
@@ -397,7 +400,7 @@ describe('ConversationsStore', () => {
 
       expect(store.openConversation()?.historyStatus).toBe(PageLoadStatus.Failed);
       expect(store.openConversation()?.historyFailure).not.toBeNull();
-      expect(store.conversations()[0].unreadCount).toBe(2);
+      expect(conversationListStore.conversations()[0].unreadCount).toBe(2);
     });
   });
 
@@ -458,7 +461,7 @@ describe('ConversationsStore', () => {
       await retrying;
 
       expect(store.openConversation()?.messages).toEqual(messages(1, 2, alice));
-      expect(store.conversations()[0].unreadCount).toBe(0);
+      expect(conversationListStore.conversations()[0].unreadCount).toBe(0);
     });
   });
 
@@ -534,7 +537,7 @@ describe('ConversationsStore', () => {
       httpTesting.expectOne(sendAddress).flush(envelope(sentCopy(40, '', 1)));
       await sending;
 
-      expect(store.conversations()[0]).toEqual({
+      expect(conversationListStore.conversations()[0]).toEqual({
         conversationFriend: bob,
         lastMessageContent: '',
         lastMessageSentAt: '2026-11-22T10:00:00Z',
@@ -542,7 +545,7 @@ describe('ConversationsStore', () => {
         lastMessageImageCount: 1,
         unreadCount: 0,
       });
-      expect(store.conversations()[1]).toEqual(row(alice));
+      expect(conversationListStore.conversations()[1]).toEqual(row(alice));
     });
 
     it('puts a first message’s conversation on top of the list', async () => {
@@ -560,10 +563,9 @@ describe('ConversationsStore', () => {
       httpTesting.expectOne(sendAddress).flush(envelope(sentCopy(40, 'Hello')));
       await sending;
 
-      expect(store.conversations().map((shown) => shown.conversationFriend.id)).toEqual([
-        bob.id,
-        alice.id,
-      ]);
+      expect(
+        conversationListStore.conversations().map((shown) => shown.conversationFriend.id),
+      ).toEqual([bob.id, alice.id]);
     });
 
     it('removes a refused message, says why, and keeps its text and photos for the box', async () => {
@@ -582,7 +584,7 @@ describe('ConversationsStore', () => {
       expect(toastStore.visible().map((toast) => toast.message)).toEqual([
         'You can message only your friends',
       ]);
-      expect(store.conversations()).toEqual([row(bob)]);
+      expect(conversationListStore.conversations()).toEqual([row(bob)]);
       expect(store.returnedMessage()).toEqual({ content: 'Look', photos: [lake] });
       expect(store.takeReturned()).toEqual({ content: 'Look', photos: [lake] });
       expect(store.returnedMessage()).toBeNull();
@@ -668,7 +670,7 @@ describe('ConversationsStore', () => {
       await answerUnread(0);
       await receiving;
 
-      expect(store.conversations()[0]).toMatchObject({
+      expect(conversationListStore.conversations()[0]).toMatchObject({
         conversationFriend: alice,
         lastMessageContent: 'Are you there?',
         lastMessageSenderId: alice.id,
@@ -683,7 +685,7 @@ describe('ConversationsStore', () => {
       await answerUnread(2);
       await receiving;
 
-      expect(store.conversations()).toEqual([
+      expect(conversationListStore.conversations()).toEqual([
         {
           conversationFriend: bob,
           lastMessageContent: 'Ping',
@@ -710,7 +712,7 @@ describe('ConversationsStore', () => {
       await answerUnread(1);
       await receiving;
 
-      expect(store.conversations()[0]).toEqual({
+      expect(conversationListStore.conversations()[0]).toEqual({
         conversationFriend: carol,
         lastMessageContent: 'Hi, it is Carol',
         lastMessageSentAt: '2026-11-22T11:00:00Z',
@@ -718,7 +720,7 @@ describe('ConversationsStore', () => {
         lastMessageImageCount: 0,
         unreadCount: 1,
       });
-      expect(store.conversations()).toHaveLength(2);
+      expect(conversationListStore.conversations()).toHaveLength(2);
     });
 
     it('does not show a message twice', async () => {
@@ -798,7 +800,7 @@ describe('ConversationsStore', () => {
 
   describe('editing and deleting the user’s own messages', () => {
     const messageAddress = (id: number) => `/api/messages/${id}`;
-    const lastOfRow = () => store.conversations()[0].lastMessageContent;
+    const lastOfRow = () => conversationListStore.conversations()[0].lastMessageContent;
     const toastMessages = () => toastStore.visible().map((toast) => toast.message);
 
     function mine(id: number, content: string): StandardMessageDto {
@@ -961,16 +963,90 @@ describe('ConversationsStore', () => {
         await answerList([row(alice), changedBob]);
         await marking;
 
-        expect(store.conversations().map((shown) => shown.lastMessageContent)).toEqual([
-          'Hi from alice',
-          'edited by bob',
-        ]);
+        expect(
+          conversationListStore.conversations().map((shown) => shown.lastMessageContent),
+        ).toEqual(['Hi from alice', 'edited by bob']);
       });
 
       it('asks the backend for nothing when the list was never loaded', async () => {
         await store.markEdited({ id: 90, content: 'edited' });
 
-        expect(store.conversations()).toEqual([]);
+        expect(conversationListStore.conversations()).toEqual([]);
+      });
+    });
+
+    describe('the friend’s deletion (MessageDeleted)', () => {
+      it('drops the message from the open conversation at once, and the row shows the new last message', async () => {
+        await openAlice([message(1, alice), message(2, alice)]);
+
+        const marking = store.markDeleted({ id: 2 });
+        await marking;
+
+        expect(store.openConversation()?.messages.map((shown) => shown.id)).toEqual([1]);
+        expect(lastOfRow()).toBe('message 1');
+        expect(store.openConversation()?.fadingIds.size).toBe(0);
+      });
+
+      it('removes the row when the open conversation has no message left', async () => {
+        await openAlice([message(1, alice)]);
+
+        await store.markDeleted({ id: 1 });
+
+        expect(
+          conversationListStore.conversations().map((shown) => shown.conversationFriend.id),
+        ).toEqual([bob.id]);
+      });
+
+      it('reads the list and the unread count again for a message the open conversation does not hold', async () => {
+        await loadList([row(alice), row(bob)]);
+        const changedBob = { ...row(bob), lastMessageContent: 'the one before' };
+
+        const marking = store.markDeleted({ id: 90 });
+        await answerList([row(alice), changedBob]);
+        await answerUnread(1);
+        await marking;
+
+        expect(
+          conversationListStore.conversations().map((shown) => shown.lastMessageContent),
+        ).toEqual(['Hi from alice', 'the one before']);
+      });
+
+      it('drops the row of a conversation the whole list no longer holds', async () => {
+        await loadList([row(alice), row(bob)]);
+
+        const marking = store.markDeleted({ id: 90 });
+        await answerList([row(bob)]);
+        await answerUnread(0);
+        await marking;
+
+        expect(
+          conversationListStore.conversations().map((shown) => shown.conversationFriend.id),
+        ).toEqual([bob.id]);
+      });
+
+      it('reads only the unread count when the list was never loaded', async () => {
+        const marking = store.markDeleted({ id: 90 });
+        await answerUnread(0);
+        await marking;
+
+        expect(conversationListStore.conversations()).toEqual([]);
+      });
+
+      it('shows a conversation whose last message got older where its time puts it', async () => {
+        await loadList([row(alice), { ...row(bob), lastMessageSentAt: '2026-11-17T08:30:00Z' }]);
+        const opening = store.open('alice');
+        await answerHistory(alice, [
+          { ...message(1, alice), sentAt: '2026-11-17T08:00:00Z' },
+          message(2, alice),
+        ]);
+        await answerUnread(0);
+        await opening;
+
+        await store.markDeleted({ id: 2 });
+
+        expect(
+          conversationListStore.conversations().map((shown) => shown.conversationFriend.id),
+        ).toEqual([bob.id, alice.id]);
       });
     });
 
@@ -1047,7 +1123,9 @@ describe('ConversationsStore', () => {
         httpTesting.expectOne(messageAddress(2)).flush(envelope(null));
         await deletingLast;
 
-        expect(store.conversations().map((shown) => shown.conversationFriend.id)).toEqual([bob.id]);
+        expect(
+          conversationListStore.conversations().map((shown) => shown.conversationFriend.id),
+        ).toEqual([bob.id]);
       });
     });
   });
@@ -1081,8 +1159,8 @@ describe('ConversationsStore', () => {
 
     store.clear();
 
-    expect(store.conversations()).toEqual([]);
-    expect(store.listStatus()).toBe(PageLoadStatus.Idle);
+    expect(conversationListStore.conversations()).toEqual([]);
+    expect(conversationListStore.status()).toBe(PageLoadStatus.Idle);
     expect(store.openConversation()).toBeNull();
   });
 });

@@ -198,7 +198,7 @@ No `GetMessage(id)` action — a single message isn't fetched by id from the cli
 | GET    | `api/messages/conversations/unread`                    | `{ UnreadCount: int }` — distinct-sender count of unread messages, via `GetUnreadConversationsCount`                                                     |
 | PUT    | `api/messages/conversation/{otherUserId}/mark-as-read` | Mark the conversation as read. No content                                                                                                                |
 | PUT    | `api/messages/{id}`                                    | Edit own message, sender-scoped, allowed while the message is younger than `Constants.EditMessageWindow` (20 minutes). Pushes `MessageEdited` to the receiver |
-| DELETE | `api/messages/{id}`                                    | Delete own message, sender-scoped. Not time-limited. Removes the message's photo rows (cascade) and then its files                                       |
+| DELETE | `api/messages/{id}`                                    | Delete own message, sender-scoped. Not time-limited. Removes the message's photo rows (cascade) and then its files. Pushes `MessageDeleted` to the receiver                                       |
 
 **`ValidFriendship` check** (`MessageService`) gates `SendMessage`: rejects self-messaging, nonexistent receiver, and non-friends, collapsing to one `ApplicationResponse.Fail` → `BadRequest`, same oracle-avoidance reasoning as elsewhere.
 

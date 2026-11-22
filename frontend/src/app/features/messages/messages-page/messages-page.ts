@@ -7,7 +7,7 @@ import { appAddresses } from '../../../core/routing/app-addresses';
 import { Button } from '../../../shared/button/button';
 import { DialogOpener } from '../../../shared/dialog/dialog-opener';
 import { ConversationList } from '../conversation-list/conversation-list';
-import { ConversationsStore } from '../conversations-store';
+import { ConversationListStore } from '../conversation-list-store';
 import { NewMessageDialog } from '../new-message-dialog/new-message-dialog';
 
 // The chat's one layout, around both of its addresses. On a desktop the list and the open conversation
@@ -24,7 +24,7 @@ import { NewMessageDialog } from '../new-message-dialog/new-message-dialog';
   host: { class: 'flex min-h-0 flex-1 flex-col' },
 })
 export class MessagesPage implements OnInit {
-  private readonly conversationsStore = inject(ConversationsStore);
+  private readonly conversationListStore = inject(ConversationListStore);
   private readonly dialogOpener = inject(DialogOpener);
   private readonly router = inject(Router);
 
@@ -39,7 +39,7 @@ export class MessagesPage implements OnInit {
   // The hub keeps the list right while the user is connected; each visit still reads it again, which
   // also brings in what arrived while the connection was down.
   async ngOnInit(): Promise<void> {
-    await this.conversationsStore.loadConversations();
+    await this.conversationListStore.load();
   }
 
   async startConversation(): Promise<void> {
