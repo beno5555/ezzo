@@ -97,7 +97,7 @@ export const georgian: Dictionary = {
       deleteEntry: 'წაშლა',
       hideEntry: 'დამალვა',
       makeVisibleEntry: 'გამოჩენა',
-      reportEntry: 'გასაჩივრება',
+      reportEntry: 'დარეპორტება',
       hiddenBadge: 'დამალულია',
     },
     toasts: {
@@ -421,7 +421,8 @@ export const georgian: Dictionary = {
     },
     deleteConfirmation: {
       question: 'წაიშალოს ეს პოსტი?',
-      detail: 'მასთან ერთად მისი ფოტოები და კომენტარებიც წაიშლება. ამის გაუქმება შეუძლებელია.',
+      detail:
+        'მასთან ერთად მისი ფოტოები და კომენტარებიც წაიშლება. ამ ოპერაციის გაუქმება შეუძლებელია.',
       confirmButton: 'წაშლა',
     },
     deletedToast: 'პოსტი წაშლილია.',
@@ -463,7 +464,7 @@ export const georgian: Dictionary = {
       commentTitle: 'კომენტარის გასაჩივრება',
       reasonLabel: 'მიზეზი',
       reasonHint: 'მიუწერეთ ადმინისტრატორებს, რა არის მასში არასწორი.',
-      submitButton: 'საჩივრის გაგზავნა',
+      submitButton: 'დარეპორტება',
     },
     sentToast: 'გმადლობთ. თქვენი საჩივარი გაიგზავნა.',
   },
