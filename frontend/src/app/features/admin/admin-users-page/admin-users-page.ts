@@ -37,6 +37,14 @@ const stateBadgeClasses: Record<AccountState, string> = {
   [AccountState.SoftDeleted]: 'border-danger text-danger',
 };
 
+// An account that is not active is greyed: sunken and in the muted ink, so that it reads as out of use
+// (it can not be edited, and a deactivated one must be restored first). The state badge says which.
+const rowClasses: Record<AccountState, string> = {
+  [AccountState.Active]: 'bg-surface-raised lg:bg-transparent',
+  [AccountState.Deactivated]: 'bg-surface-sunken text-ink-muted',
+  [AccountState.SoftDeleted]: 'bg-surface-sunken text-ink-muted',
+};
+
 // The admin panel's users area at /admin/users: the accounts in any state, page after page as the reader
 // scrolls, filtered by state and by username. On a desktop they are a table; on a phone each row is a
 // card. The "…" menu of a row offers what fits its state: edit the profile, and the actions that ask
@@ -123,6 +131,10 @@ export class AdminUsersPage implements OnInit {
       table.add(created);
       this.toastStore.show(this.text().admin.users.createDialog.createdToast(created.username));
     }
+  }
+
+  rowClass(state: AccountState): string {
+    return rowClasses[state];
   }
 
   stateBadgeClass(state: AccountState): string {

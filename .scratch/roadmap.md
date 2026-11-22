@@ -25,12 +25,12 @@ Dates are the day a step should finish. **Steps 5 to 8 are crucial and late.** T
 
 ### Lanes: which tickets run in parallel
 
-Two worktree lanes at a time (`docs/agents/worktrees.md`), each taking frontend tickets from **different feature areas**, so that the only shared files are the routes and the two dictionaries. A lane that finishes early takes the next ticket in its own column. "F" is a frontend ticket. Rounds 0 to 6 are merged, and so are F10 and F22.
+Two worktree lanes at a time (`docs/agents/worktrees.md`), each taking frontend tickets from **different feature areas**, so that the only shared files are the routes and the two dictionaries. A lane that finishes early takes the next ticket in its own column. "F" is a frontend ticket. Rounds 0 to 6 are merged, and so is F10.
 
 | Round | Lane 1 | Lane 2 |
 |---|---|---|
 | 7 | F10, write a post (merged) | F18, chat: list and reading |
-| 8 | F11, the post page | F22, admin: layout and users (merged) |
+| 8 | F11, the post page | F22, admin: layout and users |
 | 9 | F12, edit and delete a post | F19, chat: send and receive live |
 | 10 | F13, reports from the normal pages | F20, chat: edit, delete, typing |
 | 11 | F14, the profile page | F23, admin: reports and the queue |
@@ -50,7 +50,7 @@ Backend lane: n8n 08 and 11 are finished on their worktree branches and parked: 
 5. [ ] **Tue 17, late, crucial: feed, posts and comments.** Feed with pagination, create a post with photos, edit and delete, like, comment, edit and delete a comment, report a post or comment. The feed (F09) and writing a post (F10) are merged; F09's `PagedList` (`core/paging/`) is the paging pattern the later lists copy.
 6. [ ] **Wed 18, late, crucial: profile, friends and search.** Profile page (bio, posts, friends), edit profile, user search, friend requests (send, accept, decline, remove; the three lists), account settings (deactivate, delete, digest opt-out), the guest view.
 7. [ ] **Fri 20, late, crucial: chat and live notifications.** The SignalR service and the central state for the session, conversations, online friends and unread count. Conversation list with last message, conversation with photos, edit and delete, seen, typing, presence and last active. Toasts for a new message, comment, like and a friend coming online.
-8. [ ] **Sat 21, late, crucial: admin panel.** The layout and Users (F22) are merged; its `AccountTable` and `AccountActionStore` (`features/admin/`) are the pattern for the other admin lists and row actions. Left: delete any post or comment, logs, statistics, the reports list, the moderation queue.
+8. [ ] **Sat 21, late, crucial: admin panel.** Users (create, edit, deactivate, restore, delete, grant and remove the administrator role), delete any post or comment, logs, statistics, the reports list, the moderation queue.
 9. [ ] **Sun 22 and Mon 23: n8n.**
    - Merged: the backend tickets 01, 03 and 04, and the setup (02).
    - Ticket 02 stays `in-progress` until the owner adds the Telegram bot token and the chat ids and runs the checklist in `n8n/README.md` (the ticket's Comments list the steps). Workflows 05 to 14 copy its setup.
@@ -78,4 +78,5 @@ On the frontend, in this order from the end: the default picture's new look (a r
 - Russian and Spanish dictionary files (ADR 0006).
 - Translated server text, which needs a stable code on every backend failure (ADR 0006).
 - **A topic check for posts:** the automation flags, never hides, a post that is not something its author made, with a paid chat-model call beside ticket 06's moderation. It needs a spec first.
+- **The profile of a deactivated account** (found in frontend ticket 22). `GET api/users/{id}` and `PUT api/users/{id}` go through the `User` query filter, so the backend can neither read nor edit a deactivated account's bio and date of birth. The admin panel lists such an account (the admin list ignores the filter), greyed, and offers Restore and Delete only; to edit it, an administrator restores it first (owner, 2026-11-22). Whether an administrator should be able to read or edit a deactivated profile is a backend decision to discuss. No ticket yet.
 - **Georgian dates in Chrome** (found in frontend ticket 09). Desktop Chrome has no Georgian locale data, so `DateFormatter` falls back to English month names on the Georgian interface; the time zone is right. The fix is a locale polyfill (`@formatjs/intl-datetimeformat` with `ka` data) or our own Georgian month names. No ticket yet; the owner accepts the English dates until then. Also worth doing in spare time before the deadline.

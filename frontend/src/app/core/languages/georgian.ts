@@ -241,7 +241,6 @@ export const georgian: Dictionary = {
       },
       administratorRole: 'ადმინისტრატორი',
       userRole: 'მომხმარებელი',
-      noDate: '—',
       loading: 'ანგარიშები იტვირთება…',
       loadingMore: 'სხვა ანგარიშები იტვირთება…',
       retryButton: 'ხელახლა ცდა',

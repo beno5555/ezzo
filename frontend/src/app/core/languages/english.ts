@@ -284,8 +284,6 @@ export const english = {
       },
       administratorRole: 'Administrator',
       userRole: 'User',
-      // Where a date is empty: the account was never deactivated, or never deleted.
-      noDate: '—',
       loading: 'Loading accounts…',
       loadingMore: 'Loading more accounts…',
       retryButton: 'Try again',
