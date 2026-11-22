@@ -1,4 +1,5 @@
 import { Injectable, computed, inject } from '@angular/core';
+import { MinuteClock, minuteInMilliseconds } from '../time/minute-clock';
 import { LanguageStore } from './language-store';
 
 const timeOptions: Intl.DateTimeFormatOptions = { dateStyle: 'medium', timeStyle: 'short' };
@@ -8,6 +9,11 @@ const todayOptions: Intl.DateTimeFormatOptions = { timeStyle: 'short' };
 const thisYearOptions: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
 const earlierYearOptions: Intl.DateTimeFormatOptions = { dateStyle: 'medium' };
 
+// How long ago (timeSince, shortTimeSince).
+const hourInMilliseconds = 60 * minuteInMilliseconds;
+const dayInMilliseconds = 24 * hourInMilliseconds;
+const weekInMilliseconds = 7 * dayInMilliseconds;
+
 // A date of birth is a calendar date sent as midnight UTC; read in UTC, so nobody west of UTC sees the day before.
 const dateOfBirthOptions: Intl.DateTimeFormatOptions = { dateStyle: 'long', timeZone: 'UTC' };
 
@@ -16,6 +22,7 @@ const dateOfBirthOptions: Intl.DateTimeFormatOptions = { dateStyle: 'long', time
 @Injectable({ providedIn: 'root' })
 export class DateFormatter {
   private readonly languageStore = inject(LanguageStore);
+  private readonly minuteClock = inject(MinuteClock);
 
   private readonly timeFormat = computed(
     () => new Intl.DateTimeFormat(this.languageStore.language(), timeOptions),
@@ -55,6 +62,45 @@ export class DateFormatter {
     }
 
     return format.format(moment);
+  }
+
+  // How long ago a moment was, for "Active 5 minutes ago": "just now" under a minute, then minutes, hours
+  // and days ("yesterday"), and the short date (shortTime) from a week back. It moves on with the clock.
+  timeSince(isoTime: string): string {
+    const elapsed = this.minuteClock.now() - Date.parse(isoTime);
+    const texts = this.languageStore.text().shared.timeSince;
+    const days = Math.floor(elapsed / dayInMilliseconds);
+
+    let text = this.shortTime(isoTime);
+    if (elapsed < minuteInMilliseconds) {
+      text = texts.justNow;
+    } else if (elapsed < hourInMilliseconds) {
+      text = texts.minutesAgo(Math.floor(elapsed / minuteInMilliseconds));
+    } else if (elapsed < dayInMilliseconds) {
+      text = texts.hoursAgo(Math.floor(elapsed / hourInMilliseconds));
+    } else if (days === 1) {
+      text = texts.yesterday;
+    } else if (elapsed < weekInMilliseconds) {
+      text = texts.daysAgo(days);
+    }
+
+    return text;
+  }
+
+  // The same, as a count small enough for a badge: "12m", "3h" (Georgian "12წთ", "3სთ"); at least one
+  // minute. Null from a day back, where a count of days would be too wide for a badge in Georgian.
+  shortTimeSince(isoTime: string): string | null {
+    const elapsed = this.minuteClock.now() - Date.parse(isoTime);
+    const texts = this.languageStore.text().shared.timeSince;
+
+    let text: string | null = null;
+    if (elapsed < hourInMilliseconds) {
+      text = texts.minutesShort(Math.max(1, Math.floor(elapsed / minuteInMilliseconds)));
+    } else if (elapsed < dayInMilliseconds) {
+      text = texts.hoursShort(Math.floor(elapsed / hourInMilliseconds));
+    }
+
+    return text;
   }
 
   dateOfBirth(isoDate: string): string {

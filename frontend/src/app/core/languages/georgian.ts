@@ -95,8 +95,17 @@ export const georgian: Dictionary = {
       regionLabel: 'შეტყობინებები',
     },
     presence: {
-      online: 'ხაზზეა',
+      online: 'ახლა აქტიურია',
       lastActive: (time: string) => `აქტიური იყო ${time}`,
+    },
+    timeSince: {
+      justNow: 'ახლახან',
+      minutesAgo: (count: number) => `${count} წუთის წინ`,
+      hoursAgo: (count: number) => `${count} საათის წინ`,
+      yesterday: 'გუშინ',
+      daysAgo: (count: number) => `${count} დღის წინ`,
+      minutesShort: (count: number) => `${count}წთ`,
+      hoursShort: (count: number) => `${count}სთ`,
     },
     photos: {
       openButton: (position: number, total: number) => `ფოტო ${position} / ${total}-ის გახსნა`,
@@ -291,6 +300,7 @@ export const georgian: Dictionary = {
       notFriendMessage: (username: string) =>
         `მიწერა მხოლოდ მეგობრებს შეგიძლიათ, ${username} კი თქვენი მეგობარი არ არის.`,
       listLink: 'თქვენი საუბრები',
+      profileLink: 'პროფილის ნახვა',
       emptyTitle: 'შეტყობინებები ჯერ არ არის',
       emptyMessage: 'ჯერ არცერთ თქვენგანს არ დაუწერია.',
       start: 'აქ თქვენი საუბარი იწყება.',

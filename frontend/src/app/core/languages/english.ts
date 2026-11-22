@@ -111,10 +111,30 @@ export const english = {
     toasts: {
       regionLabel: 'Notifications',
     },
-    // Whether a friend is online, or when they last were (shared/presence-label).
+    // Whether a friend is online, or when they last were (shared/presence-label, shared/presence-dot).
+    // time is DateFormatter.timeSince: "5 minutes ago", "yesterday", "Nov 19".
     presence: {
-      online: 'Online',
+      online: 'Active now',
       lastActive: (time: string) => `Active ${time}`,
+    },
+    // How long ago something was (DateFormatter.timeSince), and the same as a count small enough for a badge
+    // (shortTimeSince). Written here, not by Intl: Chrome has no Georgian data for relative times or units.
+    timeSince: {
+      justNow: 'just now',
+      minutesAgo: (count: number) =>
+        pluralize(Language.English, count, {
+          one: `${count} minute ago`,
+          other: `${count} minutes ago`,
+        }),
+      hoursAgo: (count: number) =>
+        pluralize(Language.English, count, {
+          one: `${count} hour ago`,
+          other: `${count} hours ago`,
+        }),
+      yesterday: 'yesterday',
+      daysAgo: (count: number) => `${count} days ago`,
+      minutesShort: (count: number) => `${count}m`,
+      hoursShort: (count: number) => `${count}h`,
     },
     // A post's or a message's photos: the grid of thumbnails and the full-screen viewer (shared/photos).
     photos: {
@@ -344,6 +364,7 @@ export const english = {
       notFriendMessage: (username: string) =>
         `You can write only to your friends, and ${username} is not one of them.`,
       listLink: 'See your conversations',
+      profileLink: 'See their profile',
       emptyTitle: 'No messages yet',
       emptyMessage: 'Neither of you has written yet.',
       start: 'This is the beginning of your conversation.',

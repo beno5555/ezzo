@@ -6,9 +6,8 @@
     [class.hidden]="!isOnList()"
     aria-labelledby="messages-heading"
   >
-    <h1 id="messages-heading" class="font-display text-2xl text-ink-strong">
-      {{ text().pages.messages }}
-    </h1>
+    <!-- The shell's Messages link already says where the reader is, so only screen readers get the heading. -->
+    <h1 id="messages-heading" class="sr-only">{{ text().pages.messages }}</h1>
     <app-conversation-list class="flex min-h-0 flex-1 flex-col" />
   </section>
 

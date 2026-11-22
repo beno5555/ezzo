@@ -10,7 +10,7 @@ import { CountBadge } from '../../../core/shell/count-badge/count-badge';
 import { Avatar } from '../../../shared/avatar/avatar';
 import { EmptyState } from '../../../shared/empty-state/empty-state';
 import { LoadFailure } from '../../../shared/load-failure/load-failure';
-import { PresenceLabel } from '../../../shared/presence-label/presence-label';
+import { PresenceDot } from '../../../shared/presence-dot/presence-dot';
 import { ScrollSentinel } from '../../../shared/scroll-sentinel/scroll-sentinel';
 import { toConversationRow } from '../conversation-row';
 import { ConversationsStore } from '../conversations-store';
@@ -28,7 +28,7 @@ import { ConversationsStore } from '../conversations-store';
     CountBadge,
     EmptyState,
     LoadFailure,
-    PresenceLabel,
+    PresenceDot,
     ScrollSentinel,
     LucideImage,
     LucideMessageCircleDashed,

@@ -89,6 +89,60 @@ describe('DateFormatter', () => {
     });
   });
 
+  describe('timeSince and shortTimeSince', () => {
+    const now = new Date('2026-11-15T14:30:00Z');
+
+    beforeEach(() => {
+      vi.useFakeTimers();
+      vi.setSystemTime(now);
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('says "just now" under a minute, and counts at least one minute for a badge', () => {
+      const dates = startFormatter('Asia/Tbilisi', Language.English);
+
+      expect(dates.timeSince('2026-11-15T14:29:30Z')).toBe('just now');
+      expect(dates.shortTimeSince('2026-11-15T14:29:30Z')).toBe('1m');
+    });
+
+    it('counts minutes, then hours', () => {
+      const dates = startFormatter('Asia/Tbilisi', Language.English);
+
+      expect(dates.timeSince('2026-11-15T14:18:00Z')).toBe('12 minutes ago');
+      expect(dates.shortTimeSince('2026-11-15T14:18:00Z')).toBe('12m');
+      expect(dates.timeSince('2026-11-15T11:20:00Z')).toBe('3 hours ago');
+      expect(dates.shortTimeSince('2026-11-15T11:20:00Z')).toBe('3h');
+    });
+
+    it('says "yesterday", then the date, and gives a badge no count from a day back', () => {
+      const dates = startFormatter('Asia/Tbilisi', Language.English);
+
+      expect(dates.timeSince('2026-11-14T12:00:00Z')).toBe('yesterday');
+      expect(dates.timeSince('2026-11-11T12:00:00Z')).toBe('4 days ago');
+      expect(dates.timeSince('2026-11-02T12:00:00Z')).toBe('Nov 2');
+      expect(dates.shortTimeSince('2026-11-14T12:00:00Z')).toBeNull();
+    });
+
+    it('writes Georgian', () => {
+      const dates = startFormatter('Asia/Tbilisi', Language.Georgian);
+
+      expect(dates.timeSince('2026-11-15T14:18:00Z')).toBe('12 წუთის წინ');
+      expect(dates.shortTimeSince('2026-11-15T14:18:00Z')).toBe('12წთ');
+      expect(dates.timeSince('2026-11-15T14:29:30Z')).toBe('ახლახან');
+    });
+
+    it('moves on as the minutes pass', () => {
+      const dates = startFormatter('Asia/Tbilisi', Language.English);
+
+      vi.advanceTimersByTime(2 * 60_000);
+
+      expect(dates.timeSince('2026-11-15T14:29:30Z')).toBe('2 minutes ago');
+    });
+  });
+
   describe('dateOfBirth', () => {
     // Midnight UTC, which is still the evening before in Los Angeles.
     const dateOfBirth = '2000-03-01T00:00:00Z';

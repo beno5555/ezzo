@@ -59,18 +59,22 @@
 </div>
 
 <ng-template #rowContent let-row>
-  <app-avatar
-    [userId]="row.friend.id"
-    [username]="row.friend.username"
-    [isUnavailable]="row.address === null"
-  />
+  <span class="relative shrink-0">
+    <app-avatar
+      [userId]="row.friend.id"
+      [username]="row.friend.username"
+      [isUnavailable]="row.address === null"
+    />
+    @if (row.address !== null) {
+      <app-presence-dot
+        class="absolute -end-1 -bottom-1"
+        [lastActiveAt]="row.friend.lastActiveAt"
+      />
+    }
+  </span>
   <span class="flex min-w-0 flex-1 flex-col">
     <span class="flex items-center gap-2">
-      <!-- The name keeps its width up to two thirds of the line; the presence text gives way first. -->
-      <span class="max-w-2/3 shrink-0 truncate font-semibold">{{ row.friend.username }}</span>
-      @if (row.address !== null) {
-        <app-presence-label class="min-w-0" [lastActiveAt]="row.friend.lastActiveAt" />
-      }
+      <span class="min-w-0 truncate font-semibold">{{ row.friend.username }}</span>
       <time class="ms-auto shrink-0 text-xs text-ink-muted" [attr.datetime]="row.sentAt">{{
         dateFormatter.shortTime(row.sentAt)
       }}</time>

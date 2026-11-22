@@ -43,7 +43,10 @@
         [headingLevel]="3"
       >
         <svg class="size-8 text-ink-muted" lucideUserX aria-hidden="true"></svg>
-        <a appTextLink [routerLink]="listAddress">{{ text().messages.conversation.listLink }}</a>
+        <!-- On a phone the list is a screen away; beside it, on a wider screen, it needs no link. -->
+        <a appTextLink class="md:hidden" [routerLink]="listAddress">{{
+          text().messages.conversation.listLink
+        }}</a>
       </app-empty-state>
     }
     @case (ConversationOpenStatus.NotFriend) {
@@ -54,7 +57,14 @@
         [headingLevel]="3"
       >
         <svg class="size-8 text-ink-muted" lucideUserRoundX aria-hidden="true"></svg>
-        <a appTextLink [routerLink]="listAddress">{{ text().messages.conversation.listLink }}</a>
+        <!-- The profile is where a friend request is sent (ticket 14). -->
+        <a appTextLink [routerLink]="profileAddress()">{{
+          text().messages.conversation.profileLink
+        }}</a>
+        <!-- On a phone the list is a screen away; beside it, on a wider screen, it needs no link. -->
+        <a appTextLink class="md:hidden" [routerLink]="listAddress">{{
+          text().messages.conversation.listLink
+        }}</a>
       </app-empty-state>
     }
     @case (ConversationOpenStatus.Failed) {
