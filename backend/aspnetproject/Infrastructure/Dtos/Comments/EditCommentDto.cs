@@ -5,7 +5,7 @@ namespace aspnetproject.Infrastructure.Dtos.Comments;
 
 public class EditCommentDto
 {
-    [MaxLength(Constants.PostContentMaxLength)]
+    [MaxLength(Constants.CommentMaxLength)]
     [Required]
     public string Content { get; set; } = string.Empty;
 }

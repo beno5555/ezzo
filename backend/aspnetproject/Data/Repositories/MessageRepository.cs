@@ -64,37 +64,26 @@ public class MessageRepository : BaseEntityRepository<Message>
         await DeleteWhereAsync(InConversation(userA, userB));
     }
 
+    // Marks every unread message from otherUserId to readerId as seen, wherever it sits in the conversation.
+    // marked is false when there was none, so reopening a read conversation sends no MessageSeen.
     public async Task<(bool marked, DateTime seenAt)> MarkConversationAsReadAsync(int readerId, int otherUserId)
     {
-        bool executedSeen = false;
-        var  seenAt       = DateTime.UtcNow;
-        
-        var lastMessage = await _dbSet
-            .Where(InConversation(readerId, otherUserId))
-            .OrderByDescending(message => message.CreatedAt)
-            .FirstOrDefaultAsync();
-        
+        var seenAt = DateTime.UtcNow;
 
-        if (lastMessage is not null &&
-            lastMessage.SenderUserId == otherUserId &&
-            lastMessage.ReceiverUserId == readerId &&
-            !lastMessage.Seen)
-        {
-            await _dbSet
-                .Where(message =>
-                    message.SenderUserId   == otherUserId &&
-                    message.ReceiverUserId == readerId &&
-                    !message.Seen
-                )
-                .ExecuteUpdateAsync(setter => setter
-                    .SetProperty(message => message.Seen,          true)
-                    .SetProperty(message => message.SeenAt,        seenAt)
-                    .SetProperty(message => message.LastUpdatedAt, seenAt));
-            
-            executedSeen = true;
-        }
+        // LastUpdatedAt stays as it is: it marks an edit (Message.IsEdited), and reading is not one.
+        int markedCount = await _dbSet
+            .Where(message =>
+                message.SenderUserId   == otherUserId &&
+                message.ReceiverUserId == readerId &&
+                !message.Seen
+            )
+            .ExecuteUpdateAsync(setter => setter
+                .SetProperty(message => message.Seen,   true)
+                .SetProperty(message => message.SeenAt, seenAt));
 
-        return (executedSeen, seenAt);
+        bool marked = markedCount > 0;
+
+        return (marked, seenAt);
     }
 
     public async Task<int> GetUnreadConversationsCount(int userId)

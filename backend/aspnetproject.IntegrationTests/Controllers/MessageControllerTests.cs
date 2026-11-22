@@ -218,6 +218,37 @@ public class MessageControllerTests : IClassFixture<DatabaseFixture>, IAsyncLife
         Assert.All(messages.Where(other => other.Id != sent.Id), other => Assert.Empty(other.Images));
     }
 
+    [Fact]
+    public async Task GetConversation_AfterReceiverReadsIt_MessageIsSeenButNotEdited()
+    {
+        await LoginAsAsync("alice");
+        var sent = await ResponseReader.ReadDataAsync<SentMessageDto>(
+            await _client.PostAsync("api/messages/3", MessageForm.Create("Unread until bob opens it")));
+        await LoginAsAsync("bob");
+        await _client.GetAsync("api/messages/conversation/2");
+
+        var messages = await ResponseReader.ReadListAsync<StandardMessageDto>(await _client.GetAsync("api/messages/conversation/2"));
+
+        var message = messages.Single(message => message.Id == sent.Id);
+        Assert.True(message.Seen);
+        Assert.False(message.IsEdited);
+    }
+
+    [Fact]
+    public async Task GetConversation_ReceiverRepliedWithoutReading_MarksTheEarlierMessageSeen()
+    {
+        await LoginAsAsync("alice");
+        var sent = await ResponseReader.ReadDataAsync<SentMessageDto>(
+            await _client.PostAsync("api/messages/3", MessageForm.Create("Are you there?")));
+        await LoginAsAsync("bob");
+        await _client.PostAsync("api/messages/2", MessageForm.Create("Sent before reading yours"));
+        await _client.GetAsync("api/messages/conversation/2");
+
+        var messages = await ResponseReader.ReadListAsync<StandardMessageDto>(await _client.GetAsync("api/messages/conversation/2"));
+
+        Assert.True(messages.Single(message => message.Id == sent.Id).Seen);
+    }
+
     // ---------- GET /messages/friends/conversation ----------
     // bob (3) has one conversation, with alice (2). Its seeded messages carry no photos.
 

@@ -1,7 +1,9 @@
 import { Component, inject } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, RouterLink } from '@angular/router';
+import { LucideArrowLeft } from '@lucide/angular';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { appAddresses } from '../../../core/routing/app-addresses';
+import { Button } from '../../../shared/button/button';
 import { NewPost } from '../new-post';
 import { NewPostStore } from '../new-post-store';
 import { PostComposer } from '../post-composer/post-composer';
@@ -10,10 +12,11 @@ import { PostComposer } from '../post-composer/post-composer';
 // post's toast. It is a page of its own so that the feed stays a list, and other kinds of post can get
 // their own fields here later. Sending goes to the feed first, where the post shows as pending; the feed
 // then already listens when the server answers. The feed takes this page's place in the history, so Back
-// does not return to an empty composer.
+// does not return to an empty composer. A link above the heading leads back to the feed without
+// writing anything.
 @Component({
   selector: 'app-new-post-page',
-  imports: [PostComposer],
+  imports: [Button, LucideArrowLeft, PostComposer, RouterLink],
   templateUrl: './new-post-page.html',
   styleUrl: './new-post-page.css',
 })
@@ -22,6 +25,7 @@ export class NewPostPage {
   private readonly newPosts = inject(NewPostStore);
 
   protected readonly text = inject(LanguageStore).text;
+  protected readonly feedAddress = appAddresses.feed;
 
   async publish(newPost: NewPost): Promise<void> {
     await this.router.navigateByUrl(appAddresses.feed, { replaceUrl: true });

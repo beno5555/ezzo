@@ -9,6 +9,7 @@ import {
 // Types only: the library itself is loaded on demand by SignalRLoader, so it stays out of the first download.
 import type { HubConnection, IRetryPolicy, RetryContext } from '@microsoft/signalr';
 import { PresenceStore } from '../../features/friendships/presence-store';
+import { ConversationsStore } from '../../features/messages/conversations-store';
 import { UnreadStore } from '../../features/messages/unread-store';
 import { SessionStore } from '../session/session-store';
 import { HubEvent } from './hub-event';
@@ -42,6 +43,7 @@ export class HubClient {
   private readonly sessionStore = inject(SessionStore);
   private readonly presenceStore = inject(PresenceStore);
   private readonly unreadStore = inject(UnreadStore);
+  private readonly conversationsStore = inject(ConversationsStore);
   private readonly signalRLoader = inject(SignalRLoader);
 
   private connection: HubConnection | null = null;
@@ -175,6 +177,7 @@ export class HubClient {
       await connection.stop();
       this.presenceStore.clear();
       this.unreadStore.clear();
+      this.conversationsStore.clear();
     }
   }
 }

@@ -1,0 +1,6 @@
+/* The heading takes the room the Write a post button leaves; the button's column is as wide as the button.
+   Tailwind has no class for this without a bracketed value, which the design rules forbid. */
+.feed-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+}

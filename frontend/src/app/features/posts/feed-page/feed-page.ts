@@ -1,12 +1,13 @@
 import { Component, DestroyRef, OnInit, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { LucideCircleExclamationPoint, LucideNewspaper, LucidePlus } from '@lucide/angular';
+import { LucideNewspaper, LucidePlus } from '@lucide/angular';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { LIMITS } from '../../../core/limits';
 import { PageLoadStatus } from '../../../core/paging/page-load-status';
 import { PagedList } from '../../../core/paging/paged-list';
 import { appAddresses } from '../../../core/routing/app-addresses';
 import { Button } from '../../../shared/button/button';
+import { LoadFailure } from '../../../shared/load-failure/load-failure';
 import { PostCard } from '../../../shared/post-card/post-card';
 import { ScrollSentinel } from '../../../shared/scroll-sentinel/scroll-sentinel';
 import { NewPostStore } from '../new-post-store';
@@ -20,15 +21,7 @@ import { StandardPostDisplayDto } from '../standard-post-display-dto';
 // way to try again, or ended. An empty list shows the same states in place of the posts.
 @Component({
   selector: 'app-feed-page',
-  imports: [
-    Button,
-    PostCard,
-    RouterLink,
-    ScrollSentinel,
-    LucideCircleExclamationPoint,
-    LucideNewspaper,
-    LucidePlus,
-  ],
+  imports: [Button, LoadFailure, PostCard, RouterLink, ScrollSentinel, LucideNewspaper, LucidePlus],
   templateUrl: './feed-page.html',
   styleUrl: './feed-page.css',
 })
@@ -40,7 +33,13 @@ export class FeedPage implements OnInit {
   protected readonly PageLoadStatus = PageLoadStatus;
   protected readonly newPostAddress = appAddresses.newPost;
   protected readonly feed = new PagedList<StandardPostDisplayDto>({
-    loadPage: (query) => this.postApi.getFeed(query),
+    loadPage: async (query) => {
+      const result = await this.postApi.getFeed(query);
+
+      return result.succeeded
+        ? { ...result, data: result.data.map((post) => this.postLikes.withUnsettledLike(post)) }
+        : result;
+    },
     pageSize: LIMITS.paging.defaultPageSize,
     keyOf: (post) => post.id,
   });
@@ -69,7 +68,7 @@ export class FeedPage implements OnInit {
   }
 
   // A card's like button: the post changes in place at once, and back if the server refuses.
-  async toggleLike(post: StandardPostDisplayDto): Promise<void> {
-    await this.postLikes.toggle(post, (shown) => this.feed.replace(shown));
+  toggleLike(post: StandardPostDisplayDto): void {
+    this.postLikes.toggle(post, (shown) => this.feed.replace(shown));
   }
 }

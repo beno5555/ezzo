@@ -1,5 +1,7 @@
 ﻿using System.Net;
 using System.Net.Http.Json;
+using System.Text.Json;
+using aspnetproject.Common.ProjectConstants;
 using aspnetproject.Infrastructure.Dtos.Comments;
 using aspnetproject.IntegrationTests.Fixtures;
 using aspnetproject.IntegrationTests.Helpers;
@@ -150,6 +152,87 @@ public class CommentControllerTests : IClassFixture<DatabaseFixture>, IAsyncLife
     }
 
     [Fact]
+    public async Task GetByPost_Anonymous_ListsCommentsOldestFirst()
+    {
+        var response = await _client.GetAsync("api/comments/post/2"); // Alice, then Bob, then Charlie
+
+        Assert.Equal(
+            ["Alice comments on Bob's post.", "Bob comments on his own post.", "Charlie comments on Bob's post."],
+            await ReadContentsAsync(response));
+    }
+
+    [Fact]
+    public async Task GetByPost_Anonymous_DoesNotPutTheOrphanedCommentFirst()
+    {
+        // A guest has no id and an orphaned comment has no author: the two must not count as the same person.
+        var response = await _client.GetAsync("api/comments/post/1");
+
+        Assert.Equal(
+            ["Bob comments on Alice's post.", "Orphaned comment with no active author."],
+            await ReadContentsAsync(response));
+    }
+
+    [Fact]
+    public async Task GetByPost_SignedIn_ListsTheCallersOwnCommentsFirstNewestFirst()
+    {
+        var token = await AuthTestHelper.LoginAsync(_client, "bob", TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(_client, token);
+        await _client.PostAsJsonAsync("api/comments/posts/2", new CreateCommentDto { Content = "Bob again" });
+
+        var response = await _client.GetAsync("api/comments/post/2");
+
+        // Bob's two comments, newest first, then the others oldest first.
+        Assert.Equal(
+            [
+                "Bob again",
+                "Bob comments on his own post.",
+                "Alice comments on Bob's post.",
+                "Charlie comments on Bob's post."
+            ],
+            await ReadContentsAsync(response));
+    }
+
+    [Fact]
+    public async Task GetByPost_SignedInWithNoCommentThere_ListsOldestFirst()
+    {
+        var token = await AuthTestHelper.LoginAsync(_client, "diana", TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(_client, token);
+
+        var response = await _client.GetAsync("api/comments/post/2");
+
+        Assert.Equal(
+            ["Alice comments on Bob's post.", "Bob comments on his own post.", "Charlie comments on Bob's post."],
+            await ReadContentsAsync(response));
+    }
+
+    [Fact]
+    public async Task GetByPost_PagesFollowTheSameOrder()
+    {
+        var token = await AuthTestHelper.LoginAsync(_client, "charlie", TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(_client, token);
+
+        var first  = await _client.GetAsync("api/comments/post/2?pageNumber=1&pageSize=2");
+        var second = await _client.GetAsync("api/comments/post/2?pageNumber=2&pageSize=2");
+
+        // Charlie's own comment leads the first page, then the others oldest first.
+        Assert.Equal(["Charlie comments on Bob's post.", "Alice comments on Bob's post."], await ReadContentsAsync(first));
+        Assert.Equal(["Bob comments on his own post."], await ReadContentsAsync(second));
+    }
+
+    private static async Task<List<string?>> ReadContentsAsync(HttpResponseMessage response)
+    {
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+
+        using var document = JsonDocument.Parse(await response.Content.ReadAsStringAsync());
+
+        return document.RootElement
+            .GetProperty("data")
+            .EnumerateArray()
+            .Select(comment => comment.GetProperty("content").GetString())
+            .ToList();
+    }
+
+    [Fact]
     public async Task GetByPost_RouteIsSingular_NotPlural()
     {
         // Explicitly documenting the plural/singular route split from controllers.md:
@@ -274,6 +357,33 @@ public class CommentControllerTests : IClassFixture<DatabaseFixture>, IAsyncLife
         });
 
         Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Update_WithContentOverTheCommentLimit_ReturnsBadRequest()
+    {
+        // The edit takes the same limit as a new comment (500), which is also the column's size.
+        var token = await AuthTestHelper.LoginAsync(_client, "alice", TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(_client, token);
+
+        var response = await _client.PutAsJsonAsync("api/comments/1", new
+        {
+            Content = new string('a', Constants.CommentMaxLength + 1)
+        });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task Update_WithContentOfExactlyTheCommentLimit_Succeeds()
+    {
+        var token = await AuthTestHelper.LoginAsync(_client, "alice", TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(_client, token);
+        var content = new string('a', Constants.CommentMaxLength);
+
+        var response = await _client.PutAsJsonAsync("api/comments/1", new { Content = content });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
     // ---------- DELETE /comments/{id}  (three-way: commenter, post author, or admin) ----------

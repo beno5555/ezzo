@@ -111,6 +111,71 @@ export const english = {
     toasts: {
       regionLabel: 'Notifications',
     },
+    // Whether a friend is online, or when they last were (shared/presence-label, shared/presence-dot).
+    // time is DateFormatter.timeSince: "5 minutes ago", "yesterday", "Nov 19".
+    presence: {
+      online: 'Active now',
+      lastActive: (time: string) => `Active ${time}`,
+    },
+    // How DateFormatter writes a date: month names and the order of the parts. Written here, not by Intl,
+    // because Chrome has no Georgian data for dates.
+    dates: {
+      monthsShort: [
+        'Jan',
+        'Feb',
+        'Mar',
+        'Apr',
+        'May',
+        'Jun',
+        'Jul',
+        'Aug',
+        'Sep',
+        'Oct',
+        'Nov',
+        'Dec',
+      ],
+      monthsLong: [
+        'January',
+        'February',
+        'March',
+        'April',
+        'May',
+        'June',
+        'July',
+        'August',
+        'September',
+        'October',
+        'November',
+        'December',
+      ],
+      dayMonth: (day: number, month: string) => `${month} ${day}`,
+      dayMonthYear: (day: number, month: string, year: number) => `${month} ${day}, ${year}`,
+      dateAndTime: (date: string, time: string) => `${date}, ${time}`,
+    },
+    // The day of a moment, when it is today or yesterday (DateFormatter.day).
+    days: {
+      today: 'Today',
+      yesterday: 'Yesterday',
+    },
+    // How long ago something was (DateFormatter.timeSince), and the same as a count small enough for a badge
+    // (shortTimeSince). Written here, not by Intl: Chrome has no Georgian data for relative times or units.
+    timeSince: {
+      justNow: 'just now',
+      minutesAgo: (count: number) =>
+        pluralize(Language.English, count, {
+          one: `${count} minute ago`,
+          other: `${count} minutes ago`,
+        }),
+      hoursAgo: (count: number) =>
+        pluralize(Language.English, count, {
+          one: `${count} hour ago`,
+          other: `${count} hours ago`,
+        }),
+      yesterday: 'yesterday',
+      daysAgo: (count: number) => `${count} days ago`,
+      minutesShort: (count: number) => `${count}m`,
+      hoursShort: (count: number) => `${count}h`,
+    },
     // A post's or a message's photos: the grid of thumbnails and the full-screen viewer (shared/photos).
     photos: {
       openButton: (position: number, total: number) => `Open photo ${position} of ${total}`,
@@ -369,6 +434,8 @@ export const english = {
         }),
       // In place of the like and comment controls while a new post is on its way to the server.
       uploading: 'Uploading…',
+      // Under a long post in a list: it opens the rest of the text in place.
+      seeMore: 'See more',
     },
     // The card on its own page (/posts/new) where a user writes a post (features/posts/post-composer).
     composer: {
@@ -382,6 +449,8 @@ export const english = {
     },
     feed: {
       // The link beside the feed's heading to the composer's page.
+      // The feed's heading, a short invitation in the product's voice (PRODUCT.md). The browser tab keeps the page's plain name (pages.feed).
+      heading: "What we've brought lately",
       writeButton: 'Write a post',
       loading: 'Loading posts…',
       loadingMore: 'Loading more posts…',
@@ -389,6 +458,95 @@ export const english = {
       emptyMessage: 'When other people write posts, they show up here.',
       retryButton: 'Try again',
       end: 'You have reached the end of the feed.',
+    },
+    // A post's own page (/posts/:postId, features/posts/post-page).
+    page: {
+      // The link above a post and above the composer that leads back to the feed.
+      backLink: 'Back',
+      loading: 'Loading the post…',
+      retryButton: 'Try again',
+    },
+  },
+  // A post's comments and the form under them (features/comments).
+  comments: {
+    heading: 'Comments',
+    loading: 'Loading comments…',
+    loadingMore: 'Loading more comments…',
+    retryButton: 'Try again',
+    emptyMessage: 'No comments yet. Be the first to write one.',
+    // Under a comment that is on its way to the server, a new one or an edit.
+    sending: 'Sending…',
+    // The form under the comments, for a signed-in user.
+    form: {
+      label: 'Write a comment',
+      contentLabel: 'Your comment',
+      submitButton: 'Comment',
+    },
+    // In place of the form for a guest.
+    guest: {
+      message: 'Sign in to write a comment.',
+      signInLink: 'Sign in',
+    },
+    // The form that opens in place of a comment's text when its author edits it.
+    edit: {
+      label: 'Edit your comment',
+      contentLabel: 'Your comment',
+      saveButton: 'Save',
+      cancelButton: 'Cancel',
+    },
+    menu: {
+      label: 'Actions for this comment',
+      editEntry: 'Edit',
+      deleteEntry: 'Delete',
+    },
+    deleteConfirmation: {
+      question: 'Delete this comment?',
+      detail: 'This cannot be undone.',
+      confirmButton: 'Delete',
+    },
+  },
+  // The chat at /messages and /messages/:username (features/messages).
+  messages: {
+    // The list of conversations, beside the open one on a desktop and on its own screen on a phone.
+    list: {
+      loading: 'Loading conversations…',
+      loadingMore: 'Loading more conversations…',
+      retryButton: 'Try again',
+      emptyTitle: 'No conversations yet',
+      emptyMessage: 'When you and a friend write to each other, the conversation shows up here.',
+      // The last message when it has photos and no text.
+      photo: 'Photo',
+      // Before the last message when the signed-in user sent it.
+      ownMessage: (preview: string) => `You: ${preview}`,
+      unreadBadge: (badge: string) => `${badge} unread messages`,
+    },
+    // The right-hand side on a desktop while no conversation is open.
+    noConversation: {
+      title: 'Choose a conversation',
+      message: 'Pick a friend from the list to read your messages.',
+    },
+    conversation: {
+      backLink: 'Back to conversations',
+      loading: 'Opening the conversation…',
+      loadingOlder: 'Loading older messages…',
+      retryButton: 'Try again',
+      notFoundTitle: 'No such user',
+      notFoundMessage: (username: string) => `Nobody on WebCity is called ${username}.`,
+      notFriendTitle: 'You are not friends',
+      notFriendMessage: (username: string) =>
+        `You can write only to your friends, and ${username} is not one of them.`,
+      listLink: 'See your conversations',
+      profileLink: 'See their profile',
+      emptyTitle: 'No messages yet',
+      emptyMessage: 'Neither of you has written yet.',
+      start: 'This is the beginning of your conversation.',
+      historyLabel: (username: string) => `Messages with ${username}`,
+      // Above the first message of a day: "Yesterday, 1:25 PM" (DateFormatter.day and clockTime).
+      dayHeading: (day: string, time: string) => `${day}, ${time}`,
+      // Read by screen readers before each message, which shows its sender only by its side.
+      ownSender: 'You',
+      senderLabel: (sender: string) => `${sender}:`,
+      edited: 'Edited',
     },
   },
 };
