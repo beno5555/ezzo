@@ -2,6 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { english } from '../../core/languages/english';
+import { FullPostDisplayDto } from './full-post-display-dto';
 import { PostApi } from './post-api';
 import { StandardPostDisplayDto } from './standard-post-display-dto';
 
@@ -88,6 +89,34 @@ describe('PostApi', () => {
         message: 'Post Text or at least one Image is required',
         status: 400,
       });
+    });
+  });
+
+  describe('GET /api/posts/{id}', () => {
+    it('returns the post with its counts', async () => {
+      const full: FullPostDisplayDto = { ...post };
+
+      const pending = postApi.getById(3);
+
+      const request = httpTesting.expectOne(
+        (candidate) => candidate.method === 'GET' && candidate.url === '/api/posts/3',
+      );
+      request.flush({ succeeded: true, message: null, data: full });
+
+      expect(await pending).toEqual({ succeeded: true, data: full });
+    });
+
+    it('returns the backend message with status 404 for a post that cannot be read', async () => {
+      const pending = postApi.getById(99);
+
+      httpTesting
+        .expectOne('/api/posts/99')
+        .flush(
+          { succeeded: false, message: 'Post not found', data: null },
+          { status: 404, statusText: 'Not Found' },
+        );
+
+      expect(await pending).toEqual({ succeeded: false, message: 'Post not found', status: 404 });
     });
   });
 

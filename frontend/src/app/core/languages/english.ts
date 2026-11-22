@@ -286,6 +286,8 @@ export const english = {
         }),
       // In place of the like and comment controls while a new post is on its way to the server.
       uploading: 'Uploading…',
+      // Under a long post in a list: it opens the rest of the text in place.
+      seeMore: 'See more',
     },
     // The card on its own page (/posts/new) where a user writes a post (features/posts/post-composer).
     composer: {
@@ -299,6 +301,8 @@ export const english = {
     },
     feed: {
       // The link beside the feed's heading to the composer's page.
+      // The feed's heading, a short invitation in the product's voice (PRODUCT.md). The browser tab keeps the page's plain name (pages.feed).
+      heading: "What we've brought lately",
       writeButton: 'Write a post',
       loading: 'Loading posts…',
       loadingMore: 'Loading more posts…',
@@ -306,6 +310,51 @@ export const english = {
       emptyMessage: 'When other people write posts, they show up here.',
       retryButton: 'Try again',
       end: 'You have reached the end of the feed.',
+    },
+    // A post's own page (/posts/:postId, features/posts/post-page).
+    page: {
+      // The link above a post and above the composer that leads back to the feed.
+      backLink: 'Back',
+      loading: 'Loading the post…',
+      retryButton: 'Try again',
+    },
+  },
+  // A post's comments and the form under them (features/comments).
+  comments: {
+    heading: 'Comments',
+    loading: 'Loading comments…',
+    loadingMore: 'Loading more comments…',
+    retryButton: 'Try again',
+    emptyMessage: 'No comments yet. Be the first to write one.',
+    // Under a comment that is on its way to the server, a new one or an edit.
+    sending: 'Sending…',
+    // The form under the comments, for a signed-in user.
+    form: {
+      label: 'Write a comment',
+      contentLabel: 'Your comment',
+      submitButton: 'Comment',
+    },
+    // In place of the form for a guest.
+    guest: {
+      message: 'Sign in to write a comment.',
+      signInLink: 'Sign in',
+    },
+    // The form that opens in place of a comment's text when its author edits it.
+    edit: {
+      label: 'Edit your comment',
+      contentLabel: 'Your comment',
+      saveButton: 'Save',
+      cancelButton: 'Cancel',
+    },
+    menu: {
+      label: 'Actions for this comment',
+      editEntry: 'Edit',
+      deleteEntry: 'Delete',
+    },
+    deleteConfirmation: {
+      question: 'Delete this comment?',
+      detail: 'This cannot be undone.',
+      confirmButton: 'Delete',
     },
   },
 };

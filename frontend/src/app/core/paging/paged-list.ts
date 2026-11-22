@@ -58,7 +58,12 @@ export class PagedList<T> {
     );
   }
 
-  // Puts an item the user just made (the server's copy of a new post) on top. It shows once: a page that
+  // Takes an item out, such as a deleted comment.
+  remove(removedKey: number | string): void {
+    this.loaded.update((items) => items.filter((item) => this.options.keyOf(item) !== removedKey));
+  }
+
+  // Puts an item the user just made (the server's copy of a new post or a new comment) on top. It shows once: a page that
   // already brought it keeps it where it is, and a later page that holds it does not show it again.
   prepend(added: T): void {
     const addedKey = this.options.keyOf(added);

@@ -6,6 +6,7 @@ import { ListResponse } from '../../core/http/list-response';
 import { PageQuery } from '../../core/http/page-query';
 import { toAppResult } from '../../core/http/to-app-result';
 import { LanguageStore } from '../../core/languages/language-store';
+import { FullPostDisplayDto } from './full-post-display-dto';
 import { NewPost } from './new-post';
 import { StandardPostDisplayDto } from './standard-post-display-dto';
 
@@ -18,6 +19,15 @@ export class PostApi {
   getFeed(query: PageQuery): Promise<AppResult<StandardPostDisplayDto[]>> {
     return toAppResult(
       this.http.get<ListResponse<StandardPostDisplayDto>>('/api/posts/feed', { params: query }),
+      this.languageStore.text().httpFailures,
+    );
+  }
+
+  // One post, for a guest too. A post that does not exist, or that the caller may not read (hidden), is a
+  // 404 with the same message.
+  getById(postId: number): Promise<AppResult<FullPostDisplayDto>> {
+    return toAppResult(
+      this.http.get<ApplicationResponse<FullPostDisplayDto>>(`/api/posts/${postId}`),
       this.languageStore.text().httpFailures,
     );
   }
