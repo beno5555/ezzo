@@ -92,6 +92,14 @@ export const georgian: Dictionary = {
     menu: {
       buttonLabel: 'სხვა მოქმედებები',
     },
+    content: {
+      editEntry: 'შეცვლა',
+      deleteEntry: 'წაშლა',
+      hideEntry: 'დამალვა',
+      makeVisibleEntry: 'გამოჩენა',
+      reportEntry: 'გასაჩივრება',
+      hiddenBadge: 'დამალულია',
+    },
     toasts: {
       regionLabel: 'შეტყობინებები',
     },
@@ -399,8 +407,6 @@ export const georgian: Dictionary = {
     },
     menu: {
       label: 'მოქმედებები ამ პოსტზე',
-      editEntry: 'შეცვლა',
-      deleteEntry: 'წაშლა',
     },
     edit: {
       loading: 'პოსტი იტვირთება…',
@@ -418,7 +424,7 @@ export const georgian: Dictionary = {
       detail: 'მასთან ერთად მისი ფოტოები და კომენტარებიც წაიშლება. ამის გაუქმება შეუძლებელია.',
       confirmButton: 'წაშლა',
     },
-    deletedToast: 'თქვენი პოსტი წაშლილია.',
+    deletedToast: 'პოსტი წაშლილია.',
   },
   comments: {
     heading: 'კომენტარები',
@@ -444,14 +450,22 @@ export const georgian: Dictionary = {
     },
     menu: {
       label: 'მოქმედებები ამ კომენტარზე',
-      editEntry: 'შეცვლა',
-      deleteEntry: 'წაშლა',
     },
     deleteConfirmation: {
       question: 'წაიშალოს ეს კომენტარი?',
       detail: 'ამის გაუქმება შეუძლებელია.',
       confirmButton: 'წაშლა',
     },
+  },
+  reports: {
+    dialog: {
+      postTitle: 'პოსტის გასაჩივრება',
+      commentTitle: 'კომენტარის გასაჩივრება',
+      reasonLabel: 'მიზეზი',
+      reasonHint: 'მიუწერეთ ადმინისტრატორებს, რა არის მასში არასწორი.',
+      submitButton: 'საჩივრის გაგზავნა',
+    },
+    sentToast: 'გმადლობთ. თქვენი საჩივარი გაიგზავნა.',
   },
   messages: {
     list: {

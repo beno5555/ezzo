@@ -28,6 +28,10 @@ export const LIMITS = {
   comments: {
     contentMaxLength: 500,
   },
+  // backend/aspnetproject/Common/ProjectConstants/Constants.cs (CreateReportDto)
+  reports: {
+    reasonMaxLength: 500,
+  },
   // The defaults of backend/aspnetproject/Infrastructure/Services/Storage/Configuration/
   // ImageStorageConfiguration.cs, and the formats ImageStorage accepts (it judges a file by its leading
   // bytes; the browser can only go by the type it reads from the name).
