@@ -1,4 +1,4 @@
-import { Component, DestroyRef, OnInit, computed, inject } from '@angular/core';
+import { Component, OnInit, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucideNewspaper, LucidePlus, LucideSquarePen } from '@lucide/angular';
 import { LanguageStore } from '../../../core/languages/language-store';
@@ -10,7 +10,6 @@ import { Button } from '../../../shared/button/button';
 import { LoadFailure } from '../../../shared/load-failure/load-failure';
 import { PostCard } from '../../../shared/post-card/post-card';
 import { ScrollSentinel } from '../../../shared/scroll-sentinel/scroll-sentinel';
-import { NewPostStore } from '../new-post-store';
 import { PostApi } from '../post-api';
 import { PostEditStore } from '../post-edit-store';
 import { PostLikeStore } from '../post-like-store';
@@ -53,24 +52,13 @@ export class FeedPage implements OnInit {
     pageSize: LIMITS.paging.defaultPageSize,
     keyOf: (post) => post.id,
   });
-  protected readonly newPosts = inject(NewPostStore);
   private readonly postEdits = inject(PostEditStore);
-  // The posts the feed shows: those it loaded, and the caller's own once the server has them (prepend),
-  // without a post whose deletion the author confirmed.
+  // The posts the feed shows: those it loaded, without a post whose deletion the author confirmed. The
+  // caller's own posts are never in the ranked feed; a new post shows on the caller's profile.
   protected readonly shownPosts = computed(() =>
     this.feed.items().filter((post) => !this.postEdits.isDeleted(post.id)),
   );
-  // Posts still on their way are not in the list, but they are shown, so they open it too.
   protected readonly hasPosts = computed(() => this.shownPosts().length > 0);
-  protected readonly isListShown = computed(
-    () => this.hasPosts() || this.newPosts.pending().length > 0,
-  );
-
-  constructor() {
-    // The server's copy of a post sent from the composer's page goes on top of the list.
-    const stopShowing = this.newPosts.onPublished((created) => this.feed.prepend(created));
-    inject(DestroyRef).onDestroy(stopShowing);
-  }
 
   async ngOnInit(): Promise<void> {
     await this.feed.loadNext();

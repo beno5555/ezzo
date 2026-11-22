@@ -1,0 +1,101 @@
+<div class="flex flex-col gap-6">
+  <header class="flex flex-col gap-4 rounded-lg border border-border bg-surface-raised p-4">
+    <!-- On a phone the name goes under the picture, on the full row, so a long name is not broken into a
+         narrow column beside the large picture; from md: up it sits beside it. -->
+    <div class="flex flex-wrap items-start gap-x-4 gap-y-3 md:flex-nowrap">
+      <app-avatar [userId]="user().id" [username]="user().username" [size]="AvatarSize.Large" />
+
+      <div class="order-last flex w-full min-w-0 flex-col gap-1 md:order-none md:w-auto md:flex-1">
+        <h1 class="font-display text-2xl text-ink-strong wrap-anywhere">{{ user().username }}</h1>
+        <p class="flex items-center gap-2 text-sm text-ink-muted">
+          <svg class="size-4 shrink-0" lucideCake aria-hidden="true"></svg>
+          <span>{{ text().users.profile.birthday(birthday()) }}</span>
+        </p>
+      </div>
+
+      @if (menuEntries().length > 0) {
+        <div class="ml-auto md:ml-0">
+          <app-menu [entries]="menuEntries()" [label]="text().users.profile.menuLabel" />
+        </div>
+      }
+    </div>
+
+    @if (user().bio) {
+      <p class="whitespace-pre-line text-ink-strong wrap-break-word">{{ user().bio }}</p>
+    }
+
+    @if (isOwn()) {
+      <a appButton look="quiet" class="self-start" [routerLink]="settingsAddress">
+        <svg class="size-5 shrink-0" lucideSettings aria-hidden="true"></svg>
+        {{ text().users.profile.settingsLink }}
+      </a>
+    } @else if (hasFriendshipButton()) {
+      @switch (relationships.status()) {
+        @case (RelationshipReadStatus.Loading) {
+          <p class="min-h-11 content-center text-sm text-ink-muted" role="status">
+            {{ text().users.profile.friendshipLoading }}
+          </p>
+        }
+        @case (RelationshipReadStatus.Failed) {
+          <app-load-failure
+            [message]="relationships.failureMessage() ?? ''"
+            [retryLabel]="text().users.profile.retryButton"
+            (retry)="retryRelationship()"
+          />
+        }
+        @case (RelationshipReadStatus.Ready) {
+          <div class="flex flex-wrap gap-3">
+            @for (action of relationships.actions(); track $index) {
+              <button
+                appButton
+                type="button"
+                [look]="lookOf(action)"
+                [disabled]="relationships.isBusy()"
+                (click)="perform(action)"
+              >
+                {{ text().friendships.actions[action] }}
+              </button>
+            }
+            @if (relationships.isFriend()) {
+              <a appButton look="quiet" [routerLink]="conversationAddress()">
+                <svg class="size-5 shrink-0" lucideMessageCircle aria-hidden="true"></svg>
+                {{ text().users.profile.messageButton }}
+              </a>
+            }
+          </div>
+        }
+      }
+    }
+  </header>
+
+  <div class="flex flex-col gap-4">
+    <app-tabs
+      [idPrefix]="tabsIdPrefix"
+      [tabs]="tabs()"
+      [label]="text().users.profile.tabsLabel"
+      [(selected)]="selectedTab"
+    />
+
+    <div
+      role="tabpanel"
+      tabindex="0"
+      [id]="panelIdOf(tabsIdPrefix, ProfileTab.Posts)"
+      [attr.aria-labelledby]="tabIdOf(tabsIdPrefix, ProfileTab.Posts)"
+      [hidden]="selectedTab() !== ProfileTab.Posts"
+    >
+      <app-profile-posts [user]="user()" />
+    </div>
+
+    @if (isSignedIn() && hasOpenedFriends()) {
+      <div
+        role="tabpanel"
+        tabindex="0"
+        [id]="panelIdOf(tabsIdPrefix, ProfileTab.Friends)"
+        [attr.aria-labelledby]="tabIdOf(tabsIdPrefix, ProfileTab.Friends)"
+        [hidden]="selectedTab() !== ProfileTab.Friends"
+      >
+        <app-profile-friends [userId]="user().id" [reloadKey]="relationships.changeCount()" />
+      </div>
+    }
+  </div>
+</div>

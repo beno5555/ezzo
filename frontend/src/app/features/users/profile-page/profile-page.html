@@ -1,0 +1,22 @@
+@switch (status()) {
+  @case (ProfilePageStatus.Loading) {
+    <p class="py-4 text-center text-sm text-ink-muted" role="status">
+      {{ text().users.profile.loading }}
+    </p>
+  }
+  @case (ProfilePageStatus.NotFound) {
+    <app-not-found-page />
+  }
+  @case (ProfilePageStatus.Failed) {
+    <app-load-failure
+      [message]="failureMessage() ?? ''"
+      [retryLabel]="text().users.profile.retryButton"
+      (retry)="retry()"
+    />
+  }
+  @case (ProfilePageStatus.Ready) {
+    @if (user(); as shownUser) {
+      <app-profile-view [user]="shownUser" />
+    }
+  }
+}

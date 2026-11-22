@@ -204,4 +204,24 @@ describe('DateFormatter', () => {
       expect(dates.dateOfBirth(dateOfBirth)).toBe('1 მარტი, 2000');
     });
   });
+
+  describe('birthday', () => {
+    // Midnight UTC, which is still the evening before in Los Angeles.
+    const dateOfBirth = '2000-03-01T00:00:00Z';
+
+    it.each(['America/Los_Angeles', 'Asia/Tbilisi', 'Pacific/Kiritimati'])(
+      'writes the day and the month the user entered, without the year, in %s',
+      (timeZone) => {
+        const dates = startFormatter(timeZone, Language.English);
+
+        expect(dates.birthday(dateOfBirth)).toBe('March 1');
+      },
+    );
+
+    it('writes it in Georgian too', () => {
+      const dates = startFormatter('America/Los_Angeles', Language.Georgian);
+
+      expect(dates.birthday(dateOfBirth)).toBe('1 მარტი');
+    });
+  });
 });
