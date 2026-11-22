@@ -41,7 +41,7 @@ Decisions are under "Profile" in `.scratch/frontend/spec.md`. The friendship rul
 - [x] A guest sees no Friends tab and no action buttons
 - [x] A user reports another user from the menu, and is not offered that on their own profile
 - [x] The friendship and user `…Api` methods are unit-tested against the HTTP testing backend
-- [ ] Checked in the running app on a desktop width and on a phone width, as a guest, as the owner, as a friend and as a stranger
+- [x] Checked in the running app at 360, 768 and 1280 px (light English for every role; dark and Georgian in part, see round 2), as a guest, as the owner, as a friend and as a stranger
 
 ## Comments
 
@@ -78,3 +78,15 @@ Decisions are under "Profile" in `.scratch/frontend/spec.md`. The friendship rul
 **Screenshots:** `.scratch/frontend/shots/14/` in the main checkout (3 images).
 
 **Branch:** `worktree-profile-page`, committed in the lane; it waits for the owner's review and merge. The trial merge result is in the chat report.
+
+**2026-11-23, round 2: revision (Sonnet 5.5).**
+
+- **Owner decision: keep `StandardFriendshipDto.IsRequester`** unless a better way exists. None does: the only alternative is searching the paged `pending` and `sent` lists for the other user (two calls, wrong past one page).
+- **Owner decision: keep the guest's like click as is** (sign-in and back, as on the post page).
+- **Owner decision: the last box stays open and is done now.** The profile is checked as guest, owner, friend and stranger at 360, 768 and 1280 px in both themes (`frontend/CLAUDE.md`, `DESIGN.md` Layout); 768 was skipped in round 1 without a recorded reason.
+- **No code changed this round.** The checks of round 1 (backend build and 891 integration tests; Prettier on `src/app`, lint, 722 unit tests, build) still stand; spec-review had nothing to review.
+- **Checked in the running app** (the screenshot command on the lane's own servers, 4200 and 7102; three new throwaway accounts `r2owner`, `r2friend`, `r2stranger`, who are gone with the database's next reset). `/users/r2owner` photographed as a guest, as the owner, as their friend and as a stranger: 12 images each (360, 768, 1280 × light, dark × English, Georgian). Looked at: all four roles at 360, 768 and 1280 in light English (12 images); beyond that the guest at 1280 dark English, the friend at 768 dark English and 360 dark Georgian, the stranger at 360 dark Georgian, the owner at 768 dark Georgian. The other dark and Georgian images were taken but not opened. Then a request sent by the stranger to the owner, and the owner's view of the stranger's profile at 360 Georgian (Accept and Decline side by side).
+- **Found:** nothing. Header, buttons and tabs fit at 360 in both languages (in Georgian at 360 the friend's two buttons wrap onto two rows); nothing scrolls sideways; the guest has a Posts tab only and no buttons; the stranger has Add friend and the Report menu; the friend has Remove friend and Message; the owner has "Edit your profile" and no header menu; the owner's own post has no "(you)" mark.
+- **Still not tried in a browser:** the "failed to load" and "loading more" states of the two lists. Their logic is covered by unit tests only.
+- **Screenshots:** `C:\Users\admin\Workspace\Programming\web development\backend\projects\aspnetproject\.scratch\frontend\shots\14\` in the main checkout, now 16 images (the 3 of round 1, the 12 light English ones of this round, and the pending-request view).
+- **Branch:** `worktree-profile-page`, pushed; waits for the owner's review and merge. The trial merge result is in the chat report.
