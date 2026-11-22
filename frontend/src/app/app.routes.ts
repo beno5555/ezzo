@@ -108,7 +108,7 @@ export const routes: Routes = [
       },
       {
         path: ':username',
-        title: 'conversation',
+        title: 'messages',
         loadComponent: () =>
           import('./features/messages/conversation-page/conversation-page').then(
             (m) => m.ConversationPage,

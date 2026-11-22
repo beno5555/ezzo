@@ -27,7 +27,7 @@ import { ConversationsStore } from '../conversations-store';
 import { NewMessage } from '../new-message';
 
 // The box under the open conversation: text, up to 5 photos, or both. One row of a photo button, a text
-// box that grows with what is typed and the Send button, with up to three small thumbnails of the chosen
+// box that grows with what is typed and the Send button, with a row of small thumbnails of the chosen
 // photos above it, so that it stays low on a phone. The box takes no character past the limit (maxlength),
 // and Send stays disabled until canSendMessage holds; Enter sends and Shift+Enter starts a new line. Sending hands the message to the page through send and empties
 // the box at once:

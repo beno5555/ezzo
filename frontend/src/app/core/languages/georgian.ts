@@ -44,7 +44,6 @@ export const georgian: Dictionary = {
     settings: 'პარამეტრები',
     friends: 'მეგობრები',
     messages: 'შეტყობინებები',
-    conversation: 'საუბარი',
     adminUsers: 'მომხმარებლები',
     adminReports: 'საჩივრები',
     adminModeration: 'მოდერაციის რიგი',
@@ -373,6 +372,7 @@ export const georgian: Dictionary = {
         }),
       uploading: 'იტვირთება…',
       seeMore: 'მეტის ნახვა',
+      ownMark: '(თქვენ)',
     },
     composer: {
       label: 'პოსტის დაწერა',

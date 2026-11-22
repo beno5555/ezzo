@@ -6,7 +6,7 @@ import { PhotoGridTile } from './photo-grid-tile';
 export const MAX_GRID_TILES = 4;
 
 // The thumbnails a grid shows: the photos in upload order, at most maxTiles of them (a post card's four by
-// default, three in the chat's message box), with the count of the rest on the last one.
+// default, as many as fit in the chat's message box), with the count of the rest on the last one.
 export function photoGridTiles(
   images: readonly ImageDto[],
   maxTiles = MAX_GRID_TILES,

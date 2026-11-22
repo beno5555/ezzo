@@ -14,8 +14,8 @@ import { NewMessageDialog } from '../new-message-dialog/new-message-dialog';
 // (the child route: ConversationPage, or NoConversationPage at /messages) sit side by side. On a phone
 // they are two screens: /messages is the list alone and /messages/:username the conversation alone, so
 // the browser's back button returns from the conversation to the list. The layout stays while the user
-// moves between conversations, so the list keeps its place. The New message button above the list opens
-// the friends without a conversation, and choosing one opens theirs.
+// moves between conversations, so the list keeps its place. The New message button, fixed under the
+// list, opens the friends without a conversation, and choosing one opens theirs.
 @Component({
   selector: 'app-messages-page',
   imports: [RouterOutlet, Button, ConversationList, LucideSquarePen],

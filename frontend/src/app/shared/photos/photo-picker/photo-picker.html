@@ -1,14 +1,15 @@
 <div class="flex flex-col gap-3">
   @if (compact()) {
-    <!-- Small thumbnails, three at most, "+N" on the last when there are more. Each opens the viewer, which
-         shows every picked photo with a Remove button. -->
+    <!-- Small thumbnails, as many as the row has room for, "+N" on the last when the rest do not fit. Each
+         opens the viewer, which shows every picked photo with a Remove button; each thumbnail but "+N"
+         also has its own remove button in its corner. -->
     @if (previews().length > 0) {
-      <div class="flex items-center gap-3">
-        <ul class="flex gap-2">
+      <div #strip class="flex items-center gap-3">
+        <ul class="flex min-w-0 gap-2 overflow-hidden">
           @for (tile of compactTiles(); track tile.image.address) {
-            <li>
+            <li class="relative shrink-0">
               <button
-                class="relative block size-16 cursor-pointer overflow-hidden rounded-md bg-surface-sunken focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus md:size-20"
+                class="relative block size-16 cursor-pointer overflow-hidden rounded-md bg-surface-sunken focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus md:size-20"
                 type="button"
                 [attr.aria-label]="tileLabel(tile)"
                 (click)="openViewer(tile.index)"
@@ -22,10 +23,24 @@
                   </span>
                 }
               </button>
+              @if (tile.moreCount === 0) {
+                <button
+                  appIconButton
+                  look="on-photo"
+                  class="absolute top-0 right-0"
+                  type="button"
+                  [attr.aria-label]="
+                    text().shared.photos.removeButton(tile.index + 1, previews().length)
+                  "
+                  (click)="removeAt(tile.index)"
+                >
+                  <svg class="size-4" lucideX aria-hidden="true"></svg>
+                </button>
+              }
             </li>
           }
         </ul>
-        <span class="text-sm text-ink-muted">{{
+        <span class="shrink-0 text-sm text-ink-muted">{{
           text().shared.photos.count(previews().length, rules().maxCount)
         }}</span>
       </div>

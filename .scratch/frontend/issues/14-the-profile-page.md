@@ -5,6 +5,7 @@
 - **Header.** The username, the bio, and the birthday as a day and a month without the year, formatted in UTC. No joined date.
 - **Posts tab.** The user's posts, loaded by pages, shown with the post card.
   - **Own posts leave the feed here** (owner, 2026-11-22). The feed shows a user's new post on top, as pending and then as the server's copy (`NewPostStore`, `onPublished`), only because there was no profile to show it on; the ranked feed never lists the caller's own posts. This ticket removes that from the feed and shows the new post on the profile, where it belongs. An edit already shows on the post's own page and never in the feed (`PostEditStore`). The list must leave out a post whose deletion `PostEditStore.isDeleted` reports, as the feed does; the card fades and menus itself.
+  - **No "(you)" mark here** (owner, 2026-11-22). The post card puts "(you)" after the author's name on the reader's own post (`posts.card.ownMark`), for the feed and the post page, where it stands among other people's posts. On a profile every post is that user's, so the card needs a way to leave the mark out.
 - **Friends tab.** The user's friends, each a link to their profile. A guest sees no Friends tab, because that list requires sign-in.
 - **Friendship button,** for a signed-in visitor on someone else's profile. It follows the relationship the backend reports:
 
