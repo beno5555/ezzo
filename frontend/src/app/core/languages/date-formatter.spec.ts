@@ -32,7 +32,7 @@ describe('DateFormatter', () => {
     it('writes a time in Georgian, in the local time zone', () => {
       const dates = startFormatter('Asia/Tbilisi', Language.Georgian);
 
-      expect(dates.time(sentAt)).toBe('15 ნოე. 2026, 18:30');
+      expect(dates.time(sentAt)).toBe('15 ნოე, 2026, 18:30');
     });
 
     it('follows a language switch', () => {
@@ -40,7 +40,7 @@ describe('DateFormatter', () => {
 
       TestBed.inject(LanguageStore).setLanguage(Language.Georgian);
 
-      expect(dates.time(sentAt)).toBe('15 ნოე. 2026, 18:30');
+      expect(dates.time(sentAt)).toBe('15 ნოე, 2026, 18:30');
     });
   });
 
@@ -123,6 +123,8 @@ describe('DateFormatter', () => {
 
       expect(dates.day('2026-11-15T10:00:00Z')).toBe('დღეს');
       expect(dates.day('2026-11-14T10:00:00Z')).toBe('გუშინ');
+      expect(dates.day('2026-11-02T10:00:00Z')).toBe('2 ნოე');
+      expect(dates.shortTime('2025-12-31T10:00:00Z')).toBe('31 დეკ, 2025');
     });
   });
 

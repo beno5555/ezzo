@@ -2,20 +2,14 @@ import { Injectable, computed, inject } from '@angular/core';
 import { MinuteClock, minuteInMilliseconds } from '../time/minute-clock';
 import { LanguageStore } from './language-store';
 
-const timeOptions: Intl.DateTimeFormatOptions = { dateStyle: 'medium', timeStyle: 'short' };
-
-// The three forms of a short time (shortTime).
-const todayOptions: Intl.DateTimeFormatOptions = { timeStyle: 'short' };
-const thisYearOptions: Intl.DateTimeFormatOptions = { month: 'short', day: 'numeric' };
-const earlierYearOptions: Intl.DateTimeFormatOptions = { dateStyle: 'medium' };
+// The clock time. The dates around it are written from the dictionary (shared.dates), not by Intl:
+// Chrome has no Georgian data for dates and would write them in English.
+const clockOptions: Intl.DateTimeFormatOptions = { timeStyle: 'short' };
 
 // How long ago (timeSince, shortTimeSince).
 const hourInMilliseconds = 60 * minuteInMilliseconds;
 const dayInMilliseconds = 24 * hourInMilliseconds;
 const weekInMilliseconds = 7 * dayInMilliseconds;
-
-// A date of birth is a calendar date sent as midnight UTC; read in UTC, so nobody west of UTC sees the day before.
-const dateOfBirthOptions: Intl.DateTimeFormatOptions = { dateStyle: 'long', timeZone: 'UTC' };
 
 // The one formatter for times and dates the backend sends (UTC ISO strings, ADR 0005), in the current
 // language. A template that calls it redraws when the language changes, because it reads the store.
@@ -24,49 +18,39 @@ export class DateFormatter {
   private readonly languageStore = inject(LanguageStore);
   private readonly minuteClock = inject(MinuteClock);
 
-  private readonly timeFormat = computed(
-    () => new Intl.DateTimeFormat(this.languageStore.language(), timeOptions),
-  );
-  private readonly todayFormat = computed(
-    () => new Intl.DateTimeFormat(this.languageStore.language(), todayOptions),
-  );
-  private readonly thisYearFormat = computed(
-    () => new Intl.DateTimeFormat(this.languageStore.language(), thisYearOptions),
-  );
-  private readonly earlierYearFormat = computed(
-    () => new Intl.DateTimeFormat(this.languageStore.language(), earlierYearOptions),
-  );
-  private readonly dateOfBirthFormat = computed(
-    () => new Intl.DateTimeFormat(this.languageStore.language(), dateOfBirthOptions),
+  private readonly clockFormat = computed(
+    () => new Intl.DateTimeFormat(this.languageStore.language(), clockOptions),
   );
 
-  // A moment, such as when a post was written, shown in the visitor's own time zone.
+  // A moment, such as when a post was written, shown in the visitor's own time zone:
+  // "Nov 15, 2026, 6:30 PM".
   time(isoTime: string): string {
-    return this.timeFormat().format(new Date(isoTime));
+    const dates = this.languageStore.text().shared.dates;
+
+    return dates.dateAndTime(this.dateWithYear(new Date(isoTime)), this.clockTime(isoTime));
   }
 
-  // A moment shown in a narrow place (a chat row, beside a message): the clock time when it is today, the
-  // day and the month when it is this year, and the date with the year before that. "Today" is the
-  // visitor's own day.
+  // A moment shown in a narrow place (a chat row): the clock time when it is today, the day and the
+  // month when it is this year, and the date with the year before that. "Today" is the visitor's own day.
   shortTime(isoTime: string): string {
     const moment = new Date(isoTime);
     const now = new Date();
     const isToday = moment.toDateString() === now.toDateString();
     const isThisYear = moment.getFullYear() === now.getFullYear();
 
-    let format = this.earlierYearFormat();
+    let text = this.dateWithYear(moment);
     if (isToday) {
-      format = this.todayFormat();
+      text = this.clockTime(isoTime);
     } else if (isThisYear) {
-      format = this.thisYearFormat();
+      text = this.dateWithoutYear(moment);
     }
 
-    return format.format(moment);
+    return text;
   }
 
   // Only the clock time, such as under a message: "3:38 PM".
   clockTime(isoTime: string): string {
-    return this.todayFormat().format(new Date(isoTime));
+    return this.clockFormat().format(new Date(isoTime));
   }
 
   // The day of a moment, without the year, such as above the first message of a day: "Today",
@@ -78,7 +62,7 @@ export class DateFormatter {
     yesterday.setDate(now.getDate() - 1);
     const days = this.languageStore.text().shared.days;
 
-    let text = this.thisYearFormat().format(moment);
+    let text = this.dateWithoutYear(moment);
     if (moment.toDateString() === now.toDateString()) {
       text = days.today;
     } else if (moment.toDateString() === yesterday.toDateString()) {
@@ -127,7 +111,34 @@ export class DateFormatter {
     return text;
   }
 
+  // A date of birth: "March 1, 2000". It is a calendar date sent as midnight UTC, read in UTC, so nobody
+  // west of UTC sees the day before.
   dateOfBirth(isoDate: string): string {
-    return this.dateOfBirthFormat().format(new Date(isoDate));
+    const date = new Date(isoDate);
+    const dates = this.languageStore.text().shared.dates;
+
+    return dates.dayMonthYear(
+      date.getUTCDate(),
+      dates.monthsLong[date.getUTCMonth()],
+      date.getUTCFullYear(),
+    );
+  }
+
+  // "Nov 19" in the visitor's time zone.
+  private dateWithoutYear(moment: Date): string {
+    const dates = this.languageStore.text().shared.dates;
+
+    return dates.dayMonth(moment.getDate(), dates.monthsShort[moment.getMonth()]);
+  }
+
+  // "Nov 19, 2025" in the visitor's time zone.
+  private dateWithYear(moment: Date): string {
+    const dates = this.languageStore.text().shared.dates;
+
+    return dates.dayMonthYear(
+      moment.getDate(),
+      dates.monthsShort[moment.getMonth()],
+      moment.getFullYear(),
+    );
   }
 }
