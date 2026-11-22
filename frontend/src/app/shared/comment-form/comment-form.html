@@ -13,11 +13,12 @@
       <div class="relative min-w-0 flex-1">
         <textarea
           appTextInput
-          class="max-h-32 min-h-11 w-full field-sizing-content resize-none md:max-h-48 md:min-h-16 md:resize-y"
+          class="block max-h-32 min-h-11 w-full field-sizing-content resize-none md:max-h-48 md:min-h-16 md:resize-y"
           rows="1"
           autocomplete="off"
           formControlName="content"
           [class.pe-16]="length() > 0"
+          [attr.maxlength]="maxLength"
           [id]="fieldId()"
           [placeholder]="contentLabel()"
         ></textarea>
@@ -27,7 +28,7 @@
         @if (length() > 0) {
           <span
             class="pointer-events-none absolute end-3 bottom-2 text-xs"
-            [class]="isTooLong() ? 'text-danger' : 'text-ink-muted'"
+            [class]="isAtLimit() ? 'text-danger' : 'text-ink-muted'"
             aria-hidden="true"
           >
             {{ length() }}/{{ maxLength }}
@@ -40,13 +41,6 @@
         <span class="sr-only md:not-sr-only">{{ submitLabel() }}</span>
       </button>
     </div>
-
-    @if (errorMessage(); as message) {
-      <p class="flex items-start gap-1.5 text-sm text-danger" role="alert">
-        <svg class="mt-0.5 size-4 shrink-0" lucideCircleExclamationPoint aria-hidden="true"></svg>
-        {{ message }}
-      </p>
-    }
   </form>
 } @else {
   <form
@@ -65,6 +59,7 @@
         rows="3"
         autocomplete="off"
         formControlName="content"
+        [attr.maxlength]="maxLength"
         [id]="fieldId()"
       ></textarea>
     </app-form-field>

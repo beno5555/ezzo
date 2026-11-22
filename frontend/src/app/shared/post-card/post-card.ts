@@ -1,4 +1,14 @@
-import { Component, computed, inject, input, output } from '@angular/core';
+import {
+  Component,
+  ElementRef,
+  afterRenderEffect,
+  computed,
+  inject,
+  input,
+  output,
+  signal,
+  viewChild,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucideCloudUpload, LucideHeart, LucideMessageCircle } from '@lucide/angular';
 import { DateFormatter } from '../../core/languages/date-formatter';
@@ -17,6 +27,9 @@ import { TextLink } from '../text-link/text-link';
 // An author whose account is unavailable has no id, and is shown as text with no link. A new post still
 // on its way to the server (NewPostStore) is marked as uploading in place of its like and comment
 // controls, which would act on a post the server does not have yet.
+// In a list the text of a long post stops after a few lines, with a See more button that opens the rest in
+// place (it goes nowhere). isFull, for the post's own page, shows all of it. commentsAddress is where the
+// comments button leads; the post's own page sends it back to the feed.
 @Component({
   selector: 'app-post-card',
   imports: [
@@ -35,6 +48,9 @@ import { TextLink } from '../text-link/text-link';
 export class PostCard {
   readonly post = input.required<StandardPostDisplayDto>();
   readonly isUploading = input(false);
+  readonly isFull = input(false);
+  // Null leads to the post's own page.
+  readonly commentsAddress = input<string | null>(null);
   readonly likeToggle = output();
 
   protected readonly text = inject(LanguageStore).text;
@@ -45,9 +61,38 @@ export class PostCard {
   protected readonly profileAddress = computed(() =>
     appAddresses.profile(this.post().author.username),
   );
-  protected readonly postAddress = computed(() => appAddresses.post(this.post().id));
+  protected readonly commentsTarget = computed(
+    () => this.commentsAddress() ?? appAddresses.post(this.post().id),
+  );
+
+  private readonly content = viewChild<ElementRef<HTMLElement>>('content');
+  protected readonly isExpanded = signal(false);
+  protected readonly isCollapsed = computed(() => !this.isFull() && !this.isExpanded());
+  // Whether the collapsed text is cut off, which only the browser knows once it has laid the text out.
+  protected readonly isCut = signal(false);
+
+  constructor() {
+    // While the text is collapsed, watch whether it is cut: its width changes with the window.
+    afterRenderEffect((onCleanup) => {
+      const element = this.content()?.nativeElement;
+      const canWatch = element !== undefined && this.isCollapsed();
+
+      if (canWatch && typeof ResizeObserver !== 'undefined') {
+        const observer = new ResizeObserver(() => {
+          this.isCut.set(element.scrollHeight > element.clientHeight);
+        });
+
+        observer.observe(element);
+        onCleanup(() => observer.disconnect());
+      }
+    });
+  }
 
   requestLikeToggle(): void {
     this.likeToggle.emit();
+  }
+
+  expand(): void {
+    this.isExpanded.set(true);
   }
 }

@@ -28,15 +28,22 @@
             class="sticky top-0 z-10 -mx-4 border-b border-border bg-surface-page px-4 py-2 lg:absolute lg:inset-y-0 lg:right-full lg:mx-0 lg:mr-4 lg:border-0 lg:bg-transparent lg:p-0"
           >
             <div class="lg:sticky lg:top-4">
-              <a appButton look="quiet" class="lg:max-w-44" [routerLink]="feedAddress">
+              <a appButton look="quiet" class="whitespace-nowrap" [routerLink]="feedAddress">
                 <svg class="size-5 shrink-0" lucideArrowLeft aria-hidden="true"></svg>
-                <span class="min-w-0 text-start">{{ text().posts.page.backLink }}</span>
+                {{ text().posts.page.backLink }}
               </a>
             </div>
           </div>
         }
 
-        <app-post-card [post]="shownPost" (likeToggle)="toggleLike(shownPost)" />
+        <!-- On its own page the card shows the whole post, and its comments button goes back to the feed
+             like the back button (a guest has no feed, so it keeps the post's own address). -->
+        <app-post-card
+          [post]="shownPost"
+          [isFull]="true"
+          [commentsAddress]="isSignedIn() ? feedAddress : null"
+          (likeToggle)="toggleLike(shownPost)"
+        />
 
         <app-comment-section
           [postId]="shownPost.id"

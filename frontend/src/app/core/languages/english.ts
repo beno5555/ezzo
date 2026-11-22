@@ -286,6 +286,8 @@ export const english = {
         }),
       // In place of the like and comment controls while a new post is on its way to the server.
       uploading: 'Uploading…',
+      // Under a long post in a list: it opens the rest of the text in place.
+      seeMore: 'See more',
     },
     // The card on its own page (/posts/new) where a user writes a post (features/posts/post-composer).
     composer: {
@@ -312,7 +314,7 @@ export const english = {
     // A post's own page (/posts/:postId, features/posts/post-page).
     page: {
       // The link above a post and above the composer that leads back to the feed.
-      backLink: 'Back to feed',
+      backLink: 'Back',
       loading: 'Loading the post…',
       retryButton: 'Try again',
     },

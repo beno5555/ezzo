@@ -24,7 +24,16 @@
 
   <h2 class="font-display text-lg wrap-break-word">{{ post().title }}</h2>
   @if (post().postContent) {
-    <p class="whitespace-pre-line wrap-break-word">{{ post().postContent }}</p>
+    <div class="flex flex-col">
+      <p #content class="whitespace-pre-line wrap-break-word" [class.line-clamp-5]="isCollapsed()">
+        {{ post().postContent }}
+      </p>
+      @if (isCollapsed() && isCut()) {
+        <button appTextLink class="self-start" type="button" (click)="expand()">
+          {{ text().posts.card.seeMore }}
+        </button>
+      }
+    </div>
   }
 
   <app-photo-grid [images]="post().images" />
@@ -53,7 +62,7 @@
         ></svg>
         <span aria-hidden="true">{{ post().likeCount }}</span>
       </button>
-      <a appActionButton [routerLink]="postAddress()">
+      <a appActionButton [routerLink]="commentsTarget()">
         <svg class="size-5" lucideMessageCircle aria-hidden="true"></svg>
         {{ text().posts.card.commentsLink(post().commentCount) }}
       </a>

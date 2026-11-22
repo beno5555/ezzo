@@ -241,6 +241,7 @@ export const georgian: Dictionary = {
           other: `${count} კომენტარი`,
         }),
       uploading: 'იტვირთება…',
+      seeMore: 'მეტის ნახვა',
     },
     composer: {
       label: 'პოსტის დაწერა',
@@ -262,7 +263,7 @@ export const georgian: Dictionary = {
       end: 'სიახლეების ბოლოს მიაღწიეთ.',
     },
     page: {
-      backLink: 'დაბრუნება სიახლეებში',
+      backLink: 'დაბრუნება',
       loading: 'პოსტი იტვირთება…',
       retryButton: 'თავიდან ცდა',
     },
