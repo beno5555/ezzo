@@ -45,7 +45,13 @@ Backend lane: n8n 08 and 11 are finished on their worktree branches and parked: 
 1. [ ] **Design.** The name was still open, so the design session fixed the structure and left the brand for later. The frontend setup (tickets 27 to 29) is merged.
    - [ ] **Frontend ticket 30: Impeccable.** Merged, and the owner kept the hook on after its trial on F10. Open only for box 6, a cloud session's run of the launcher. No ticket waits for it.
    - [x] **The name session.** The product is Ezzo (`PRODUCT.md`).
-   - [ ] **Next: the brand session.** One approval page in two skins; the owner chooses. It replaces the provisional values in `DESIGN.md` and the token file, and adds the logo ("ezzo"). It also changes every on-screen "WebCity" to Ezzo: the two dictionaries, the browser-tab title and its spec.
+   - [ ] **Next: the brand session** (worktree `brand`). The owner chose skin A, **Balcony** (2026-11-23): the painted balconies over Tbilisi's courtyards, a cool plaster page with a deep teal accent, Bricolage Grotesque for display, Noto Sans stays the body. The approval page's values (contrast-checked in both themes) are in the session's scratchpad and are re-derived from this line if lost. The session waits for F13 and F20 to reach `master`, merges `master` into its branch, then:
+     - Replaces the provisional values in `DESIGN.md` and the token file, and adds the scrollbar rule (`border-strong` on `surface-page`).
+     - The display stack is Bricolage, then Noto Sans (Cyrillic), then Noto Sans Georgian; Georgian headings drop the Latin letter spacing; Bricolage's Latin Extended file ships too. `DESIGN.md`'s typography names the Cyrillic partner.
+     - The logo is the wordmark "ezzo" drawn as an SVG, with the balcony zigzag only beside it on the sign-in and landing pages; the browser tab gets a compact mark. The owner picks from two or three tab marks, shown with the eight discs before anything goes in.
+     - The discs (`disc-1` to `disc-8`) are redrawn from the Balcony palette (teals, greens, slate and faded blues, wood browns, a dusk plum), none equal to the accent, white letters at 4.5 to 1. Still chosen by id.
+     - Every on-screen "WebCity" becomes Ezzo: the two dictionaries, the browser-tab title and its spec.
+     - Then a full screenshot run (360, 768, 1280; both themes; signed out and in; English and Georgian) and Impeccable's `critique` on the real pages. Check by eye: the liked state of a post (filled heart and `aria-pressed`, not colour alone), Georgian headings and tagline, teal discs beside the accent.
 2. [x] **Write the tickets.** Of the n8n tickets, 01, 03, 04, 08 and 11 are backend work proven by integration tests; 02, 05, 06, 07, 09, 12 and 14 are workflows, open until the owner has run their checklist; 10 and 13 are visual frontend work.
 3. [x] **The backend gaps** (documented-backend-features), the last of them ticket 04.
 4. [x] **Shell and auth.**
