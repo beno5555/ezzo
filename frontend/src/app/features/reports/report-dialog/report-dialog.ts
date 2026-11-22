@@ -11,13 +11,16 @@ import { applyFieldErrors } from '../../../shared/form-field/apply-field-errors'
 import { FormField } from '../../../shared/form-field/form-field';
 import { FormMessage } from '../../../shared/form-message/form-message';
 import { TextInput } from '../../../shared/text-input/text-input';
+import { ToastStore } from '../../../shared/toasts/toast-store';
 import { canSendReport } from '../can-send-report';
 import { ReportApi } from '../report-api';
 import { ReportTargetType } from '../report-target-type';
 import { ReportDialogData } from './report-dialog-data';
 
-// The dialog where a user reports a post or a comment, with a required reason. It closes with true once the
-// server has the report, and with nothing when it is cancelled. A report the server refuses (one already
+// The dialog where a user reports a post or a comment, with a required reason. Once the server has the
+// report it shows the toast that says so and closes. The toast comes from here, not from whoever opened the
+// dialog, because Escape, a click outside or Cancel can close the dialog while the request is on its way:
+// the report is still made, and the user must still be told. A report the server refuses (one already
 // pending, content that is gone) keeps the dialog open with the server's message and the reason as written.
 // The text box stops taking characters at the limit (maxlength), and the Send button stays disabled until
 // canSendReport holds.
@@ -30,6 +33,7 @@ import { ReportDialogData } from './report-dialog-data';
 export class ReportDialog {
   private readonly dialogRef = inject<DialogRef<boolean>>(DialogRef);
   private readonly reportApi = inject(ReportApi);
+  private readonly toastStore = inject(ToastStore);
   private readonly target = inject<ReportDialogData>(DIALOG_DATA);
 
   protected readonly text = inject(LanguageStore).text;
@@ -66,6 +70,7 @@ export class ReportDialog {
       });
 
       if (result.succeeded) {
+        this.toastStore.show(this.text().reports.sentToast);
         this.dialogRef.close(true);
       } else {
         this.isSubmitting.set(false);

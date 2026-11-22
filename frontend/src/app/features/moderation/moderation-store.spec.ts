@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { Router, provideRouter } from '@angular/router';
 import { AppResult, fail, ok } from '../../core/http/app-result';
 import { ToastStore } from '../../shared/toasts/toast-store';
 import { ModeratedKind } from './moderated-kind';
@@ -35,7 +36,10 @@ describe('ModerationStore', () => {
   beforeEach(() => {
     moderationApi = createModerationApi();
     TestBed.configureTestingModule({
-      providers: [{ provide: ModerationApi, useValue: moderationApi }],
+      providers: [
+        { provide: ModerationApi, useValue: moderationApi },
+        provideRouter([{ path: 'elsewhere', children: [] }]),
+      ],
     });
     store = TestBed.inject(ModerationStore);
     toastStore = TestBed.inject(ToastStore);
@@ -102,11 +106,72 @@ describe('ModerationStore', () => {
     expect(store.isHidden(ModeratedKind.Post, 3, false)).toBe(true);
   });
 
-  it('ignores a second request for an item whose request is on its way', () => {
-    void store.setHidden(ModeratedKind.Post, 3, true);
+  it('shows a second request at once but sends it only after the first is answered', async () => {
+    const hide = store.setHidden(ModeratedKind.Post, 3, true);
     void store.setHidden(ModeratedKind.Post, 3, false);
 
     expect(moderationApi.calls).toHaveLength(1);
+    expect(store.isHidden(ModeratedKind.Post, 3, false)).toBe(false);
+
+    moderationApi.answer(ok(undefined));
+    await Promise.resolve();
+    await Promise.resolve();
+
+    expect(moderationApi.calls.map((call) => call.status)).toEqual([
+      ModerationStatus.Hidden,
+      ModerationStatus.Visible,
+    ]);
+
+    moderationApi.answer(ok(undefined));
+    await hide;
+
+    expect(store.isHidden(ModeratedKind.Post, 3, true)).toBe(false);
+  });
+
+  it('keeps only the latest of several requests made while one is on its way', async () => {
+    const first = store.setHidden(ModeratedKind.Post, 3, true);
+    void store.setHidden(ModeratedKind.Post, 3, false);
+    void store.setHidden(ModeratedKind.Post, 3, true);
+
+    moderationApi.answer(ok(undefined));
+    await Promise.resolve();
+    await Promise.resolve();
+    moderationApi.answer(ok(undefined));
+    await first;
+
+    expect(moderationApi.calls.map((call) => call.status)).toEqual([
+      ModerationStatus.Hidden,
+      ModerationStatus.Hidden,
+    ]);
+    expect(store.isHidden(ModeratedKind.Post, 3, false)).toBe(true);
+  });
+
+  it('puts the settled state back when the first request is refused and nothing newer was asked', async () => {
+    const hide = store.setHidden(ModeratedKind.Post, 3, true);
+
+    moderationApi.answer(fail('Post not found', 404));
+    await hide;
+
+    expect(moderationApi.calls).toHaveLength(1);
+    expect(store.isHidden(ModeratedKind.Post, 3, false)).toBe(false);
+  });
+
+  it('drops the answered states on the next navigation, so the server’s flag shows again', async () => {
+    const hide = store.setHidden(ModeratedKind.Post, 3, true);
+    moderationApi.answer(ok(undefined));
+    await hide;
+    expect(store.isHidden(ModeratedKind.Post, 3, false)).toBe(true);
+
+    await TestBed.inject(Router).navigateByUrl('/elsewhere');
+
+    expect(store.isHidden(ModeratedKind.Post, 3, false)).toBe(false);
+  });
+
+  it('keeps the state of a request still on its way through a navigation', async () => {
+    void store.setHidden(ModeratedKind.Post, 3, true);
+
+    await TestBed.inject(Router).navigateByUrl('/elsewhere');
+
     expect(store.isHidden(ModeratedKind.Post, 3, false)).toBe(true);
   });
 
