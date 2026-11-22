@@ -1,25 +1,27 @@
-<div class="feed-layout gap-x-4 gap-y-6">
-  <!-- On a phone the heading is only for screen readers: its words wrap onto several lines beside the
-       button. The row keeps the button's height either way. -->
-  <div class="col-start-1 row-start-1 flex min-h-11 items-center">
+<div class="feed-layout gap-x-4 md:gap-y-6">
+  <!-- On a phone the heading is only for screen readers and this row has no height, so the posts start
+       right under the top bar. From a tablet up the row keeps the button's height. -->
+  <div class="col-start-1 row-start-1 flex items-center md:min-h-11">
     <h1 class="sr-only font-display text-2xl text-ink-strong md:not-sr-only">
       {{ text().posts.feed.heading }}
     </h1>
   </div>
 
-  <!-- It spans the heading's row and the list's row, so once the reader scrolls it stays pinned near the
-       top of the screen over the posts, a tap away. At the start it sits beside the heading. -->
+  <!-- On a phone it floats above the bottom bar, out of the layout, so it pushes no post down and covers
+       no post's top corner (a post's "…" menu sits there). From a tablet up it spans the heading's row and
+       the list's row, so once the reader scrolls it stays pinned near the top of the screen over the
+       posts, a tap away; at the start it sits beside the heading. -->
   <a
     appButton
     look="primary"
-    class="sticky top-4 z-10 col-start-2 row-span-2 row-start-1 self-start shadow-raised"
+    class="fixed right-4 bottom-20 z-10 shadow-overlay md:sticky md:top-4 md:right-auto md:bottom-auto md:col-start-2 md:row-span-2 md:row-start-1 md:self-start md:shadow-raised"
     [routerLink]="newPostAddress"
   >
     <svg class="size-5" lucidePlus aria-hidden="true"></svg>
     {{ text().posts.feed.writeButton }}
   </a>
 
-  <div class="col-span-2 col-start-1 row-start-2 flex flex-col gap-6">
+  <div class="col-span-2 col-start-1 row-start-2 flex flex-col gap-6 pb-16 md:pb-0">
     @if (isListShown()) {
       <ul class="flex flex-col gap-4">
         @for (post of newPosts.pending(); track post.id) {
