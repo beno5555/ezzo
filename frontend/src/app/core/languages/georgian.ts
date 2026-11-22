@@ -159,6 +159,7 @@ export const georgian: Dictionary = {
       nextButton: 'შემდეგი ფოტო',
       addButton: 'ფოტოების დამატება',
       removeButton: (position: number, total: number) => `ფოტო ${position} / ${total}-ის ამოღება`,
+      removeInViewer: 'ამოღება',
       count: (count: number, max: number) => `${count} / ${max} ფოტო`,
       refusals: {
         tooMany: (fileName: string, max: number) =>

@@ -1,26 +1,71 @@
 <div class="flex flex-col gap-3">
-  @if (previews().length > 0) {
-    <ul class="grid grid-cols-3 gap-2 md:grid-cols-5">
-      @for (preview of previews(); track preview.address; let index = $index) {
-        <li class="relative aspect-square overflow-hidden rounded-md bg-surface-sunken">
-          <img
-            class="size-full object-cover"
-            [src]="preview.address"
-            [alt]="text().shared.photos.photoDescription(index + 1, previews().length)"
-          />
-          <button
-            appIconButton
-            look="on-photo"
-            class="absolute top-0 right-0"
-            type="button"
-            [attr.aria-label]="text().shared.photos.removeButton(index + 1, previews().length)"
-            (click)="remove(preview)"
-          >
-            <svg class="size-4" lucideX aria-hidden="true"></svg>
-          </button>
-        </li>
+  @if (compact()) {
+    <!-- Small thumbnails, three at most, "+N" on the last when there are more. Each opens the viewer, which
+         shows every picked photo with a Remove button. -->
+    @if (previews().length > 0) {
+      <div class="flex items-center gap-3">
+        <ul class="flex gap-2">
+          @for (tile of compactTiles(); track tile.image.address) {
+            <li>
+              <button
+                class="relative block size-16 cursor-pointer overflow-hidden rounded-md bg-surface-sunken focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus md:size-20"
+                type="button"
+                [attr.aria-label]="tileLabel(tile)"
+                (click)="openViewer(tile.index)"
+              >
+                <img class="size-full object-cover" alt="" [src]="tile.image.address" />
+                @if (tile.moreCount > 0) {
+                  <span
+                    class="absolute inset-0 flex items-center justify-center bg-surface-sunken/70 font-display text-xl text-ink-strong"
+                  >
+                    {{ text().shared.photos.moreBadge(tile.moreCount) }}
+                  </span>
+                }
+              </button>
+            </li>
+          }
+        </ul>
+        <span class="text-sm text-ink-muted">{{
+          text().shared.photos.count(previews().length, rules().maxCount)
+        }}</span>
+      </div>
+    }
+  } @else {
+    @if (previews().length > 0) {
+      <ul class="grid grid-cols-3 gap-2 md:grid-cols-5">
+        @for (preview of previews(); track preview.address; let index = $index) {
+          <li class="relative aspect-square overflow-hidden rounded-md bg-surface-sunken">
+            <img
+              class="size-full object-cover"
+              [src]="preview.address"
+              [alt]="text().shared.photos.photoDescription(index + 1, previews().length)"
+            />
+            <button
+              appIconButton
+              look="on-photo"
+              class="absolute top-0 right-0"
+              type="button"
+              [attr.aria-label]="text().shared.photos.removeButton(index + 1, previews().length)"
+              (click)="remove(preview)"
+            >
+              <svg class="size-4" lucideX aria-hidden="true"></svg>
+            </button>
+          </li>
+        }
+      </ul>
+    }
+
+    <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+      <button appButton look="quiet" type="button" [disabled]="isFull()" (click)="openFiles()">
+        <svg class="size-5" lucideImagePlus aria-hidden="true"></svg>
+        {{ text().shared.photos.addButton }}
+      </button>
+      @if (previews().length > 0) {
+        <span class="text-sm text-ink-muted">{{
+          text().shared.photos.count(previews().length, rules().maxCount)
+        }}</span>
       }
-    </ul>
+    </div>
   }
 
   <input
@@ -31,21 +76,6 @@
     [accept]="acceptedTypes()"
     (change)="pick(fileInput)"
   />
-  @if (hasAddButton() || previews().length > 0) {
-    <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-      @if (hasAddButton()) {
-        <button appButton look="quiet" type="button" [disabled]="isFull()" (click)="openFiles()">
-          <svg class="size-5" lucideImagePlus aria-hidden="true"></svg>
-          {{ text().shared.photos.addButton }}
-        </button>
-      }
-      @if (previews().length > 0) {
-        <span class="text-sm text-ink-muted">{{
-          text().shared.photos.count(previews().length, rules().maxCount)
-        }}</span>
-      }
-    </div>
-  }
 
   @if (refusalMessages().length > 0) {
     <ul class="flex flex-col gap-1" role="alert">

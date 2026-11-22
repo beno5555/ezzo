@@ -196,6 +196,8 @@ export const english = {
       // The photo picker (shared/photos/photo-picker), in the composer and in the chat's message box.
       addButton: 'Add photos',
       removeButton: (position: number, total: number) => `Remove photo ${position} of ${total}`,
+      // The viewer's button for a picked photo; screen readers hear removeButton, which starts the same.
+      removeInViewer: 'Remove',
       count: (count: number, max: number) => `${count} of ${max} photos`,
       // A picked file the browser did not add, named so that the user knows which one.
       refusals: {

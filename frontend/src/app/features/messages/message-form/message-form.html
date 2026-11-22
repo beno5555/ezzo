@@ -7,7 +7,7 @@
   <app-photo-picker
     [class.pb-3]="pickerHasContent()"
     [rules]="photoRules"
-    [hasAddButton]="false"
+    [compact]="true"
     [(photos)]="photos"
   />
 
@@ -34,16 +34,20 @@
         id="message-content"
         rows="1"
         autocomplete="off"
+        enterkeyhint="send"
         formControlName="content"
-        [class.pe-20]="length() > 0"
+        [class.md:pe-20]="length() > 0"
         [attr.maxlength]="maxLength"
         [placeholder]="text().messages.messageBox.placeholder"
+        (keydown)="sendOnEnter($event)"
       ></textarea>
-      <!-- Used characters out of the limit, in the corner of the box, from the first character typed; the
-           box keeps room for it on its right (pe-20), so the text never runs under it. -->
+      <!-- Used characters out of the limit, in the corner of the box, from the first character typed and
+           from a tablet up: a phone's row is too narrow for it (owner, 2026-11-22), and maxlength still
+           stops the typing there. The box keeps room for it on its right (md:pe-20), so the text never
+           runs under it. -->
       @if (length() > 0) {
         <app-character-counter
-          class="pointer-events-none absolute end-3 bottom-2 text-xs"
+          class="pointer-events-none absolute end-3 bottom-2 hidden text-xs md:block"
           aria-hidden="true"
           [length]="length()"
           [max]="maxLength"

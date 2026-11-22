@@ -22,13 +22,14 @@ import { PhotoPicker } from '../../../shared/photos/photo-picker/photo-picker';
 import { PhotoRules } from '../../../shared/photos/photo-rules';
 import { TextInput } from '../../../shared/text-input/text-input';
 import { canSendMessage } from '../can-send-message';
+import { isSendKey } from '../is-send-key';
 import { ConversationsStore } from '../conversations-store';
 import { NewMessage } from '../new-message';
 
 // The box under the open conversation: text, up to 5 photos, or both. One row of a photo button, a text
-// box that grows with what is typed and the Send button, with the chosen photos' thumbnails above it, so
-// that it stays low on a phone. The box takes no character past the limit (maxlength), and Send stays
-// disabled until canSendMessage holds. Sending hands the message to the page through send and empties
+// box that grows with what is typed and the Send button, with up to three small thumbnails of the chosen
+// photos above it, so that it stays low on a phone. The box takes no character past the limit (maxlength),
+// and Send stays disabled until canSendMessage holds; Enter sends and Shift+Enter starts a new line. Sending hands the message to the page through send and empties
 // the box at once:
 //   <app-message-form [friendId]="friend.id" (send)="send($event)" />
 // ConversationPage stays while the user moves to another conversation, so the box empties when friendId
@@ -101,6 +102,14 @@ export class MessageForm {
   // The photo button: the picker opens the browser's file chooser.
   openPhotos(): void {
     this.picker().openFiles();
+  }
+
+  // Enter sends, Shift+Enter starts a new line. An Enter that cannot send yet still adds no line.
+  sendOnEnter(event: KeyboardEvent): void {
+    if (isSendKey(event)) {
+      event.preventDefault();
+      this.submit();
+    }
   }
 
   submit(): void {
