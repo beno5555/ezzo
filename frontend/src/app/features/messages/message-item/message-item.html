@@ -6,7 +6,7 @@
     [class.border]="!isOwn()"
     [class.border-border]="!isOwn()"
     [class.bg-surface-page]="!isOwn()"
-    [attr.title]="showsTime() ? null : dateFormatter.time(message().sentAt)"
+    [attr.title]="showsTime() ? null : dateFormatter.clockTime(message().sentAt)"
   >
     <span class="sr-only">{{ senderLabel() }}</span>
     @if (hasText()) {
@@ -19,7 +19,9 @@
   @if (showsTime() || message().isEdited) {
     <p class="flex flex-wrap gap-x-1 px-1 text-xs text-ink-muted">
       @if (showsTime()) {
-        <time [attr.datetime]="message().sentAt">{{ dateFormatter.time(message().sentAt) }}</time>
+        <time [attr.datetime]="message().sentAt">{{
+          dateFormatter.clockTime(message().sentAt)
+        }}</time>
       }
       @if (showsTime() && message().isEdited) {
         <span aria-hidden="true">·</span>

@@ -64,6 +64,30 @@ export class DateFormatter {
     return format.format(moment);
   }
 
+  // Only the clock time, such as under a message: "3:38 PM".
+  clockTime(isoTime: string): string {
+    return this.todayFormat().format(new Date(isoTime));
+  }
+
+  // The day of a moment, without the year, such as above the first message of a day: "Today",
+  // "Yesterday", "Nov 19". Today is the visitor's own day, and the text moves on at midnight.
+  day(isoTime: string): string {
+    const moment = new Date(isoTime);
+    const now = new Date(this.minuteClock.now());
+    const yesterday = new Date(now);
+    yesterday.setDate(now.getDate() - 1);
+    const days = this.languageStore.text().shared.days;
+
+    let text = this.thisYearFormat().format(moment);
+    if (moment.toDateString() === now.toDateString()) {
+      text = days.today;
+    } else if (moment.toDateString() === yesterday.toDateString()) {
+      text = days.yesterday;
+    }
+
+    return text;
+  }
+
   // How long ago a moment was, for "Active 5 minutes ago": "just now" under a minute, then minutes, hours
   // and days ("yesterday"), and the short date (shortTime) from a week back. It moves on with the clock.
   timeSince(isoTime: string): string {

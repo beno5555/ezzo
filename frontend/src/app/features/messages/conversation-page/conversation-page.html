@@ -142,10 +142,23 @@
                 >
                   @for (message of shown.messages; track message.id) {
                     <li>
+                      @let mark = marks().get(message.id);
+                      @if (mark?.startsDay || mark?.followsLongPause) {
+                        <p class="pt-4 pb-2 text-center text-xs text-ink-muted">
+                          <time [attr.datetime]="message.sentAt">{{
+                            mark?.startsDay
+                              ? text().messages.conversation.dayHeading(
+                                  dateFormatter.day(message.sentAt),
+                                  dateFormatter.clockTime(message.sentAt)
+                                )
+                              : dateFormatter.clockTime(message.sentAt)
+                          }}</time>
+                        </p>
+                      }
                       <app-message-item
                         [message]="message"
                         [isOwn]="message.sender.id === signedInUserId()"
-                        [showsTime]="runEnds().has(message.id)"
+                        [showsTime]="mark?.showsTime ?? true"
                       />
                     </li>
                   }

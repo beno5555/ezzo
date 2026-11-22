@@ -98,6 +98,10 @@ export const georgian: Dictionary = {
       online: 'ახლა აქტიურია',
       lastActive: (time: string) => `აქტიური იყო ${time}`,
     },
+    days: {
+      today: 'დღეს',
+      yesterday: 'გუშინ',
+    },
     timeSince: {
       justNow: 'ახლახან',
       minutesAgo: (count: number) => `${count} წუთის წინ`,
@@ -305,6 +309,7 @@ export const georgian: Dictionary = {
       emptyMessage: 'ჯერ არცერთ თქვენგანს არ დაუწერია.',
       start: 'აქ თქვენი საუბარი იწყება.',
       historyLabel: (username: string) => `შეტყობინებები ${username}-თან`,
+      dayHeading: (day: string, time: string) => `${day}, ${time}`,
       ownSender: 'თქვენ',
       senderLabel: (sender: string) => `${sender}:`,
       edited: 'შესწორებულია',

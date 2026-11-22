@@ -89,6 +89,43 @@ describe('DateFormatter', () => {
     });
   });
 
+  describe('clockTime and day', () => {
+    // 18:30 on 15 November in Tbilisi.
+    const now = new Date('2026-11-15T14:30:00Z');
+
+    beforeEach(() => {
+      vi.useFakeTimers();
+      vi.setSystemTime(now);
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('writes only the clock time, even for another day', () => {
+      const dates = startFormatter('Asia/Tbilisi', Language.English);
+
+      expect(withPlainSpaces(dates.clockTime('2026-10-02T05:10:00Z'))).toBe('9:10 AM');
+    });
+
+    it('says today and yesterday in the local time zone, and the date without the year before', () => {
+      const dates = startFormatter('Asia/Tbilisi', Language.English);
+
+      // 01:00 on the 15th in Tbilisi, still the 14th in UTC.
+      expect(dates.day('2026-11-14T21:00:00Z')).toBe('Today');
+      expect(dates.day('2026-11-14T10:00:00Z')).toBe('Yesterday');
+      expect(dates.day('2026-11-02T10:00:00Z')).toBe('Nov 2');
+      expect(dates.day('2025-11-02T10:00:00Z')).toBe('Nov 2');
+    });
+
+    it('writes Georgian', () => {
+      const dates = startFormatter('Asia/Tbilisi', Language.Georgian);
+
+      expect(dates.day('2026-11-15T10:00:00Z')).toBe('დღეს');
+      expect(dates.day('2026-11-14T10:00:00Z')).toBe('გუშინ');
+    });
+  });
+
   describe('timeSince and shortTimeSince', () => {
     const now = new Date('2026-11-15T14:30:00Z');
 

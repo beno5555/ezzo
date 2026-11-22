@@ -117,6 +117,11 @@ export const english = {
       online: 'Active now',
       lastActive: (time: string) => `Active ${time}`,
     },
+    // The day of a moment, when it is today or yesterday (DateFormatter.day).
+    days: {
+      today: 'Today',
+      yesterday: 'Yesterday',
+    },
     // How long ago something was (DateFormatter.timeSince), and the same as a count small enough for a badge
     // (shortTimeSince). Written here, not by Intl: Chrome has no Georgian data for relative times or units.
     timeSince: {
@@ -369,6 +374,8 @@ export const english = {
       emptyMessage: 'Neither of you has written yet.',
       start: 'This is the beginning of your conversation.',
       historyLabel: (username: string) => `Messages with ${username}`,
+      // Above the first message of a day: "Yesterday, 1:25 PM" (DateFormatter.day and clockTime).
+      dayHeading: (day: string, time: string) => `${day}, ${time}`,
       // Read by screen readers before each message, which shows its sender only by its side.
       ownSender: 'You',
       senderLabel: (sender: string) => `${sender}:`,
