@@ -11,7 +11,7 @@ This file is for agents other than Claude Code, such as OpenAI's Codex. Claude C
 
 ## Claude Code terms and what to do instead
 
-- **Skills:** `.agents/skills/` holds symlinks to the skills under `.claude/skills/` that any agent may use, so they are in your skills list. Never run any other skill there, even when `CLAUDE.md` or a ticket names it (`implement`, `to-spec`, `to-tickets`, `handoff`, `grill-with-docs`, `grilling`, `setup-matt-pocock-skills`). Only the owner starts those.
+- **Skills:** `.agents/skills/` holds symlinks to the skills under `.claude/skills/` that any agent may use, so they are in your skills list. Never run any other skill there, even when `CLAUDE.md` or a ticket names it (`implement`, `revise`, `to-spec`, `to-tickets`, `handoff`, `grill-with-docs`, `grilling`, `setup-matt-pocock-skills`). Only the owner starts those.
 - **Subagents** (for example, the two parallel reviews in `spec-review`): do each part yourself, one after another.
 - **Claude in Chrome and the Playwright MCP server:** if you have no browser tool, use the screenshot command (`npm run screenshots` in `frontend/CLAUDE.md`). If neither exists, say the page was not checked in a browser. Never claim it was.
 - **`claude --worktree`:** a Codex lane makes its own worktree under `.claude/worktrees/` (steps in `docs/agents/codex.md`).
