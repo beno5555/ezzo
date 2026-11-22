@@ -3,6 +3,7 @@ export const HubEvent = {
   ReceiveMessage: 'ReceiveMessage',
   MessageSeen: 'MessageSeen',
   MessageEdited: 'MessageEdited',
+  MessageDeleted: 'MessageDeleted',
   ReceiveComment: 'ReceiveComment',
   PostLiked: 'PostLiked',
   UserOnline: 'UserOnline',

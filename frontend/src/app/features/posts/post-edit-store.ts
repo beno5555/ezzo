@@ -1,14 +1,12 @@
-import { Injectable, WritableSignal, inject, signal } from '@angular/core';
+import { Injectable, inject, signal } from '@angular/core';
 import { LanguageStore } from '../../core/languages/language-store';
 import { appAddresses } from '../../core/routing/app-addresses';
 import { ConfirmationOpener } from '../../shared/confirmation/confirmation-opener';
+import { DeleteFade } from '../../shared/fade-out/delete-fade';
 import { ToastStore } from '../../shared/toasts/toast-store';
 import { PostApi } from './post-api';
 import { PostEdit } from './post-edit';
 import { StandardPostDisplayDto } from './standard-post-display-dto';
-
-// How long a post card takes to fade out once its deletion is confirmed (the card's duration-200).
-const deleteFadeMilliseconds = 200;
 
 // What an author does to a post that already exists: edit its title and text on the edit page, delete it.
 // Both show their result at once, as the spec's "What a user writes shows at once too" and "Quick actions
@@ -31,8 +29,8 @@ export class PostEditStore {
   private readonly text = inject(LanguageStore).text;
 
   private readonly pending = signal<ReadonlyMap<number, StandardPostDisplayDto>>(new Map());
-  private readonly deletingIds = signal<ReadonlySet<number>>(new Set());
-  private readonly deletedIds = signal<ReadonlySet<number>>(new Set());
+  // The fade-out of a deleted post's card, shared with comments and messages (DeleteFade).
+  private readonly deleteFade = new DeleteFade();
   private readonly refusedEdits = signal<ReadonlyMap<number, PostEdit>>(new Map());
   // The pages showing posts, each told of every server copy that arrives while it listens.
   private readonly listeners = new Set<(saved: StandardPostDisplayDto) => void>();
@@ -49,13 +47,13 @@ export class PostEditStore {
 
   // True from the author's confirmation until the card has faded out: the card is fading.
   isDeleting(postId: number): boolean {
-    return this.deletingIds().has(postId);
+    return this.deleteFade.isFading(postId);
   }
 
   // True from the moment the card has faded out, until the server refuses the deletion. A list leaves
   // such a post out of what it shows (a post's id is never used again, so it needs no cleaning up).
   isDeleted(postId: number): boolean {
-    return this.deletedIds().has(postId);
+    return this.deleteFade.isGone(postId);
   }
 
   // show puts a server's copy of an edited post on the page as it arrives. Returns the call that
@@ -130,17 +128,14 @@ export class PostEditStore {
       });
 
       if (isConfirmed) {
-        this.mark(this.deletingIds, post.id, true);
-        await new Promise((resolve) => setTimeout(resolve, deleteFadeMilliseconds));
-        this.mark(this.deletedIds, post.id, true);
-        this.mark(this.deletingIds, post.id, false);
+        await this.deleteFade.fadeOut(post.id);
         whenGone();
         const result = await this.postApi.delete(post.id);
 
         if (result.succeeded) {
           this.toastStore.show(this.text().posts.deletedToast);
         } else {
-          this.mark(this.deletedIds, post.id, false);
+          this.deleteFade.bringBack(post.id);
           this.toastStore.show(result.message);
         }
       }
@@ -148,20 +143,8 @@ export class PostEditStore {
   }
 
   private isIdle(postId: number): boolean {
-    const isBusy = this.isSaving(postId) || this.isDeleting(postId) || this.isDeleted(postId);
+    const isBusy = this.isSaving(postId) || this.deleteFade.isBusy(postId);
 
     return !isBusy;
-  }
-
-  private mark(ids: WritableSignal<ReadonlySet<number>>, postId: number, isMarked: boolean): void {
-    ids.update((current) => {
-      const next = new Set(current);
-      if (isMarked) {
-        next.add(postId);
-      } else {
-        next.delete(postId);
-      }
-      return next;
-    });
   }
 }

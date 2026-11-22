@@ -16,7 +16,10 @@ export type OpenConversation = {
   historyStatus: PageLoadStatus;
   // The text of the last failed page of the history, null once a page arrives.
   historyFailure: string | null;
-  // The user's messages still on their way to the server, shown with the clock instead of their time.
-  // They come last in messages, with negative ids and preview addresses for their photos.
+  // The user's messages still on their way to the server, shown with the clock instead of their time: new
+  // ones, which come last in messages with negative ids and preview addresses for their photos, and edited
+  // ones, which sit in their place in messages with the new text.
   sendingIds: ReadonlySet<number>;
+  // The messages whose deletion was confirmed and that are fading out before they leave.
+  fadingIds: ReadonlySet<number>;
 };

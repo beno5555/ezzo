@@ -23,6 +23,20 @@ export class PresenceStore {
     this.friends().filter((friend) => friend.lastActiveAt === null),
   );
 
+  private readonly lastActiveById = computed(
+    () => new Map(this.friends().map((friend) => [friend.id, friend.lastActiveAt])),
+  );
+
+  // The friend with the presence the store holds for them; a friend it does not know stays as given.
+  withPresence(friend: DisplayFriendDto): DisplayFriendDto {
+    const lastActiveById = this.lastActiveById();
+    const lastActiveAt = lastActiveById.has(friend.id)
+      ? (lastActiveById.get(friend.id) ?? null)
+      : friend.lastActiveAt;
+
+    return { ...friend, lastActiveAt, isActive: lastActiveAt === null };
+  }
+
   // Takes the presence that friend rows carry. askedAt is when the rows were asked for (as Date.now()):
   // a friend a hub event changed since then keeps what the event said, which is newer than the row.
   track(rows: DisplayFriendDto[], askedAt: number): void {

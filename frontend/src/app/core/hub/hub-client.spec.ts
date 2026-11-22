@@ -2,6 +2,8 @@ import { ErrorHandler, signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import type { IHttpConnectionOptions } from '@microsoft/signalr';
 import { PresenceStore } from '../../features/friendships/presence-store';
+import { ConversationsStore } from '../../features/messages/conversations-store';
+import { TypingStore } from '../../features/messages/typing-store';
 import { UnreadStore } from '../../features/messages/unread-store';
 import { SessionStore } from '../session/session-store';
 import { waitForPendingWork } from '../session/testing/wait-for-pending-work';
@@ -13,11 +15,27 @@ import { SignalRLoader } from './signalr-loader';
 class FakeConnection {
   isStarted = false;
   isStopped = false;
+  // What the client has called on the hub, as [method, ...arguments].
+  readonly invocations: unknown[][] = [];
+  // Set to make the next call fail, as a call does while the connection is down.
+  invokeError: Error | null = null;
+  private readonly handlers = new Map<string, (payload: unknown) => void>();
 
   constructor(readonly options: IHttpConnectionOptions) {}
 
-  on(): void {
-    // These tests send no server events.
+  on(event: string, handler: (payload: unknown) => void): void {
+    this.handlers.set(event, handler);
+  }
+
+  // Plays a server push to the client.
+  push(event: string, payload: unknown): void {
+    this.handlers.get(event)?.(payload);
+  }
+
+  invoke(method: string, ...args: unknown[]): Promise<void> {
+    this.invocations.push([method, ...args]);
+
+    return this.invokeError === null ? Promise.resolve() : Promise.reject(this.invokeError);
   }
 
   onreconnected(): void {
@@ -177,6 +195,71 @@ describe('HubClient', () => {
 
     expect(connections).toHaveLength(1);
     expect(await connections[0].options.accessTokenFactory?.()).toBe('token-of-8');
+  });
+
+  describe('typing and edits', () => {
+    async function connect(): Promise<FakeConnection> {
+      signIn(7);
+      await waitForPendingWork();
+      finishLoading(fakeLibrary());
+      await waitForPendingWork();
+
+      return connections[0];
+    }
+
+    it('calls SendTyping on the hub with the friend’s id', async () => {
+      const connection = await connect();
+
+      await hubClient.sendTyping(3);
+
+      expect(connection.invocations).toEqual([['SendTyping', 3]]);
+    });
+
+    it('calls nothing while there is no connection', async () => {
+      await hubClient.sendTyping(3);
+
+      expect(connections).toHaveLength(0);
+    });
+
+    it('lets a SendTyping that fails pass, as one does while the connection is down', async () => {
+      const connection = await connect();
+      connection.invokeError = new Error('The connection is not in the Connected state');
+
+      await expect(hubClient.sendTyping(3)).resolves.toBeUndefined();
+      expect(handleError).not.toHaveBeenCalled();
+    });
+
+    it('shows a friend as typing on UserTyping', async () => {
+      const connection = await connect();
+      const typingStore = TestBed.inject(TypingStore);
+
+      connection.push('UserTyping', { userId: 3 });
+
+      expect(typingStore.isTyping(3)).toBe(true);
+      typingStore.clear();
+    });
+
+    it('hands MessageEdited to the conversations', async () => {
+      const connection = await connect();
+      const markEdited = vi
+        .spyOn(TestBed.inject(ConversationsStore), 'markEdited')
+        .mockResolvedValue(undefined);
+
+      connection.push('MessageEdited', { id: 12, content: 'Fixed' });
+
+      expect(markEdited).toHaveBeenCalledExactlyOnceWith({ id: 12, content: 'Fixed' });
+    });
+
+    it('hands MessageDeleted to the conversations', async () => {
+      const connection = await connect();
+      const markDeleted = vi
+        .spyOn(TestBed.inject(ConversationsStore), 'markDeleted')
+        .mockResolvedValue(undefined);
+
+      connection.push('MessageDeleted', { id: 12 });
+
+      expect(markDeleted).toHaveBeenCalledExactlyOnceWith({ id: 12 });
+    });
   });
 
   describe('when the load fails', () => {

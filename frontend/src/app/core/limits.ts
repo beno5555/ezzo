@@ -28,9 +28,15 @@ export const LIMITS = {
   comments: {
     contentMaxLength: 500,
   },
-  // backend/aspnetproject/Common/ProjectConstants/Constants.cs (CreateMessageDto)
+  // backend/aspnetproject/Common/ProjectConstants/Constants.cs (CreateReportDto)
+  reports: {
+    reasonMaxLength: 500,
+  },
+  // backend/aspnetproject/Common/ProjectConstants/Constants.cs (CreateMessageDto, and EditMessageWindow, the
+  // 20 minutes after sending in which the sender may edit a message)
   messages: {
     contentMaxLength: 1000,
+    editWindowMilliseconds: 20 * 60 * 1000,
   },
   // The defaults of backend/aspnetproject/Infrastructure/Services/Storage/Configuration/
   // ImageStorageConfiguration.cs, and the formats ImageStorage accepts (it judges a file by its leading

@@ -10,11 +10,16 @@ import {
 import type { HubConnection, IRetryPolicy, RetryContext } from '@microsoft/signalr';
 import { PresenceStore } from '../../features/friendships/presence-store';
 import { ConversationsStore } from '../../features/messages/conversations-store';
+import { MessageDeletedDto } from '../../features/messages/message-deleted-dto';
+import { MessageEditedDto } from '../../features/messages/message-edited-dto';
 import { MessageSeenDto } from '../../features/messages/message-seen-dto';
 import { PushMessageDto } from '../../features/messages/push-message-dto';
+import { TypingStore } from '../../features/messages/typing-store';
 import { UnreadStore } from '../../features/messages/unread-store';
+import { UserTypingDto } from '../../features/messages/user-typing-dto';
 import { SessionStore } from '../session/session-store';
 import { HubEvent } from './hub-event';
+import { HubMethod } from './hub-method';
 import { SignalRLibrary } from './signalr-library';
 import { SignalRLoader } from './signalr-loader';
 import { UserOfflineDto } from './user-offline-dto';
@@ -37,7 +42,8 @@ const retryForever: IRetryPolicy = {
 // The one owner of the connection to the hub (ADR 0001: same origin, through the dev proxy in development).
 // It connects while a user is signed in and maps each server event to one store method. It holds no logic
 // of its own: what an event means is the store's business. Events whose store arrives in a later ticket
-// (edited, comments, likes, typing) are mapped then.
+// (comments, likes) are mapped then. The one call to the hub, SendTyping, goes through sendTyping, so no
+// store or component touches the connection.
 @Injectable({ providedIn: 'root' })
 export class HubClient {
   private readonly injector = inject(EnvironmentInjector);
@@ -46,6 +52,7 @@ export class HubClient {
   private readonly presenceStore = inject(PresenceStore);
   private readonly unreadStore = inject(UnreadStore);
   private readonly conversationsStore = inject(ConversationsStore);
+  private readonly typingStore = inject(TypingStore);
   private readonly signalRLoader = inject(SignalRLoader);
 
   private connection: HubConnection | null = null;
@@ -64,6 +71,20 @@ export class HubClient {
       },
       { injector: this.injector },
     );
+  }
+
+  // Calls SendTyping for the friend. A call while the connection is down or reconnecting is lost, which is
+  // expected and harmless: the friend only sees "typing…" a little late.
+  async sendTyping(friendId: number): Promise<void> {
+    const connection = this.connection;
+
+    if (connection !== null) {
+      try {
+        await connection.invoke(HubMethod.SendTyping, friendId);
+      } catch {
+        // Typing is best effort; the next keystroke tries again.
+      }
+    }
   }
 
   // A turn that fails is reported as a bug, and the turns after it still run.
@@ -141,6 +162,15 @@ export class HubClient {
     connection.on(HubEvent.MessageSeen, (payload: MessageSeenDto) => {
       this.conversationsStore.markSeen(payload);
     });
+    connection.on(HubEvent.MessageEdited, (payload: MessageEditedDto) => {
+      void this.conversationsStore.markEdited(payload); // fire-and-forget: the store shows the new text
+    });
+    connection.on(HubEvent.MessageDeleted, (payload: MessageDeletedDto) => {
+      void this.conversationsStore.markDeleted(payload); // fire-and-forget: the store drops the message
+    });
+    connection.on(HubEvent.UserTyping, (payload: UserTypingDto) => {
+      this.typingStore.userTyping(payload);
+    });
     connection.onreconnected(() => {
       this.connected();
     });
@@ -182,6 +212,7 @@ export class HubClient {
       this.presenceStore.clear();
       this.unreadStore.clear();
       this.conversationsStore.clear();
+      this.typingStore.clear();
     }
   }
 }

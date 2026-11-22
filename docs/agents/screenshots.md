@@ -40,6 +40,8 @@ Set them in the environment, or put them in `frontend/.env` (gitignored), one `N
 
 Register the account through the dev backend's register endpoint and write its name and password to `frontend/.env` in the main checkout. The first one, registered on 2026-11-18, was lost on 2026-11-19 along with its worktree's `.env`, so the next signed-in run starts by registering a new one. A new worktree does not get that file, so copy it in by hand. **Before you remove a worktree, copy its `frontend/.env` to the main checkout if the main checkout has none:** `git worktree remove --force` deletes gitignored files too, and they exist nowhere else. A fresh development database needs a new account.
 
+**An administrator account** for checking the administrator's side of a page lives beside it in the same file: `WEBCITY_ADMIN_USER` and `WEBCITY_ADMIN_PASSWORD`. The screenshot command does not read them; sign in with them through the sign-in form. A new development database needs a new one: register the account, then give it the role with the `INSERT INTO UserRoles` statement in `cloud-backend.md` (for the local database: `sqlcmd -S localhost -d SocialMediaWebApiDb -E -C`).
+
 ## The Playwright MCP server (on trial)
 
 `.mcp.json` starts `@playwright/mcp` (pinned version) with `--isolated`, so each session starts with an empty browser profile, signed out. It opens the installed Google Chrome in a window.

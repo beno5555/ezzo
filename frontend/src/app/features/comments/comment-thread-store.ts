@@ -4,6 +4,7 @@ import { LIMITS } from '../../core/limits';
 import { PagedList } from '../../core/paging/paged-list';
 import { SessionStore } from '../../core/session/session-store';
 import { ConfirmationOpener } from '../../shared/confirmation/confirmation-opener';
+import { DeleteFade } from '../../shared/fade-out/delete-fade';
 import { ToastStore } from '../../shared/toasts/toast-store';
 import { CommentApi } from './comment-api';
 import { ShownComment } from './shown-comment';
@@ -19,8 +20,9 @@ import { StandardCommentDto } from './standard-comment-dto';
 //     form (takeReturnedText).
 //   - edit: the new text shows at once with the same mark. A refusal puts the old text back, shows a
 //     toast and keeps the new text for the comment's form (takeReturnedEdit).
-//   - remove: once the user confirms, the comment leaves the list and the count falls. A refusal puts it
-//     back in its place, raises the count again and shows a toast.
+//   - remove: once the user confirms, the comment fades out (DeleteFade, shared with posts and messages),
+//     then leaves the list and the count falls, and a toast says it is deleted. A refusal puts it back in
+//     its place, raises the count again and shows a toast.
 // A comment already on its way (an edit, a deletion) ignores a second request.
 // onCountChange tells the page how the post's comment count moves, +1 and -1.
 @Injectable()
@@ -45,23 +47,30 @@ export class CommentThreadStore {
 
   private readonly sending = signal<readonly StandardCommentDto[]>([]);
   private readonly editingIds = signal<ReadonlySet<number>>(new Set());
-  private readonly removingIds = signal<ReadonlySet<number>>(new Set());
+  private readonly deleteFade = new DeleteFade();
   private readonly refusedTexts = signal<readonly string[]>([]);
   private readonly refusedEdits = signal<ReadonlyMap<number, string>>(new Map());
 
   // The list as the reader sees it: the new comments still on their way, newest first, then the
   // server's comments minus those being deleted.
   readonly shown = computed<readonly ShownComment[]>(() => {
-    const removingIds = this.removingIds();
+    const goneIds = this.deleteFade.goneIds();
+    const fadingIds = this.deleteFade.fadingIds();
     const editingIds = this.editingIds();
     const onServer = this.list
       .items()
-      .filter((comment) => !removingIds.has(comment.id))
-      .map((comment) => ({ comment, isSending: editingIds.has(comment.id), isOnServer: true }));
+      .filter((comment) => !goneIds.has(comment.id))
+      .map((comment) => ({
+        comment,
+        isSending: editingIds.has(comment.id),
+        isOnServer: true,
+        isFading: fadingIds.has(comment.id),
+      }));
     const notYetOnServer = [...this.sending()].reverse().map((comment) => ({
       comment,
       isSending: true,
       isOnServer: false,
+      isFading: false,
     }));
 
     return [...notYetOnServer, ...onServer];
@@ -112,7 +121,7 @@ export class CommentThreadStore {
   }
 
   async remove(comment: StandardCommentDto): Promise<void> {
-    const isIdle = !this.removingIds().has(comment.id);
+    const isIdle = !this.deleteFade.isBusy(comment.id);
 
     if (isIdle) {
       const isConfirmed = await this.confirmationOpener.ask({
@@ -123,15 +132,15 @@ export class CommentThreadStore {
       });
 
       if (isConfirmed) {
-        this.mark(this.removingIds, comment.id, true);
+        await this.deleteFade.fadeOut(comment.id);
         this.onCountChange(-1);
         const result = await this.commentApi.delete(comment.id);
 
         if (result.succeeded) {
           this.list.remove(comment.id);
-          this.mark(this.removingIds, comment.id, false);
+          this.toastStore.show(this.text().comments.deletedToast);
         } else {
-          this.mark(this.removingIds, comment.id, false);
+          this.deleteFade.bringBack(comment.id);
           this.onCountChange(1);
           this.toastStore.show(result.message);
         }

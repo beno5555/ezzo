@@ -338,8 +338,8 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 - **Sending:** text up to the backend's limit, up to 5 photos, or both, as `multipart/form-data`. The sender sees the message at once with the clock icon, until the HTTP response's copy takes its place; the receiver's copy comes from `ReceiveMessage`.
 - **Opening a conversation marks it read.** So does a message arriving while the conversation is open.
 - **Seen:** `MessageSeen` marks the user's sent messages as seen; "seen" is shown under the last of them.
-- **Edit** is offered for 20 minutes after sending (mirrored in `LIMITS`). The editor sees the edit at once with the clock icon; `MessageEdited` updates the receiver's copy. An edited message is marked.
-- **Delete** removes the message for the sender at once. The backend sends no push for a deletion, so the friend's open conversation keeps it until it is loaded again.
+- **Edit** is offered for 20 minutes after sending (mirrored in `LIMITS`), from the "…" menu at the end of the user's own bubble (shown on hover with a mouse, always on a touch screen). The text is edited in the conversation's own message box, not in the bubble: the box holds the text with Cancel and Save (no "editing" line: the buttons say it); what the user was writing comes back afterwards, and the edit ends by itself when the 20 minutes pass (owner, 2026-11-23). The editor sees the edit at once with the clock icon; `MessageEdited` updates the receiver's copy. An edited message is marked. Only the text changes, so a photo-only message can be given a caption.
+- **Delete** removes the message for the sender at once, and for the friend live: the backend pushes `MessageDeleted` to the receiver (added in ticket 20, round 2), and the friend's open conversation drops the message, and the list row follows.
 - **Typing:** the client calls `SendTyping` at most once every 2 seconds while the user types, and hides the friend's "typing…" 3 seconds after the last `UserTyping`.
 
 ### Toasts

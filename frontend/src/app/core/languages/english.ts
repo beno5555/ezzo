@@ -110,6 +110,16 @@ export const english = {
     menu: {
       buttonLabel: 'More actions',
     },
+    // The entries of the "…" menu on a post and on a comment (shared/content-actions), and the badge on
+    // content that moderation hid.
+    content: {
+      editEntry: 'Edit',
+      deleteEntry: 'Delete',
+      hideEntry: 'Hide',
+      makeVisibleEntry: 'Make visible',
+      reportEntry: 'Report',
+      hiddenBadge: 'Hidden',
+    },
     toasts: {
       regionLabel: 'Notifications',
     },
@@ -470,11 +480,9 @@ export const english = {
       loading: 'Loading the post…',
       retryButton: 'Try again',
     },
-    // The "…" menu on a post card, for its author.
+    // The "…" menu on a post card. Its entries are shared.content's.
     menu: {
       label: 'Actions for this post',
-      editEntry: 'Edit',
-      deleteEntry: 'Delete',
     },
     // The page where a post's author edits it (/posts/:postId/edit, features/posts/edit-post-page).
     edit: {
@@ -494,8 +502,8 @@ export const english = {
       detail: 'Its photos and comments are deleted with it. This cannot be undone.',
       confirmButton: 'Delete',
     },
-    // After the server has deleted a post.
-    deletedToast: 'Your post is deleted.',
+    // After the server has deleted a post, the author's or, for an administrator, anyone's.
+    deletedToast: 'The post is deleted.',
   },
   // A post's comments and the form under them (features/comments).
   comments: {
@@ -524,16 +532,28 @@ export const english = {
       saveButton: 'Save',
       cancelButton: 'Cancel',
     },
+    // The "…" menu on a comment. Its entries are shared.content's.
     menu: {
       label: 'Actions for this comment',
-      editEntry: 'Edit',
-      deleteEntry: 'Delete',
     },
     deleteConfirmation: {
       question: 'Delete this comment?',
       detail: 'This cannot be undone.',
       confirmButton: 'Delete',
     },
+    // After the server has deleted a comment.
+    deletedToast: 'The comment is deleted.',
+  },
+  // Reporting a post or a comment to the administrators (features/reports).
+  reports: {
+    dialog: {
+      postTitle: 'Report this post',
+      commentTitle: 'Report this comment',
+      reasonLabel: 'Reason',
+      reasonHint: 'Tell the administrators what is wrong with it.',
+      submitButton: 'Send report',
+    },
+    sentToast: 'Thank you. Your report was sent.',
   },
   // The chat at /messages and /messages/:username (features/messages).
   messages: {
@@ -581,7 +601,28 @@ export const english = {
       sending: 'Sending',
       // Under the user's last message that the friend has read.
       seen: 'Seen',
+      // Under the friend's name, in place of their presence, while they are writing.
+      typing: 'typing…',
     },
+    // The "…" menu at the end of the user's own message.
+    menu: {
+      label: 'Actions for this message',
+      editEntry: 'Edit',
+      deleteEntry: 'Delete',
+    },
+    // The message box while it holds an edit: its label and its two buttons.
+    edit: {
+      label: 'Edit your message',
+      saveButton: 'Save',
+      cancelButton: 'Cancel editing',
+    },
+    deleteConfirmation: {
+      question: 'Delete this message?',
+      detail: 'It is deleted for you and for your friend, with its photos. This cannot be undone.',
+      confirmButton: 'Delete',
+    },
+    // After the server has deleted a message.
+    deletedToast: 'The message is deleted.',
     // The box under the open conversation where the user writes.
     messageBox: {
       label: 'Write a message',
