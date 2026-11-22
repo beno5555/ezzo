@@ -1,10 +1,11 @@
-import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { LucideSearch, LucidePlus, LucideUsers } from '@lucide/angular';
 import { DateFormatter } from '../../../core/languages/date-formatter';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { LIMITS } from '../../../core/limits';
 import { PageLoadStatus } from '../../../core/paging/page-load-status';
+import { Debouncer, typingPauseMilliseconds } from '../../../core/timing/debouncer';
 import { Avatar } from '../../../shared/avatar/avatar';
 import { AvatarSize } from '../../../shared/avatar/avatar-size';
 import { Button } from '../../../shared/button/button';
@@ -75,6 +76,13 @@ export class AdminUsersPage implements OnInit {
   private readonly accountDialogs = inject(AccountDialogOpener);
   private readonly confirmationOpener = inject(ConfirmationOpener);
   private readonly toastStore = inject(ToastStore);
+  // The search that follows typing: it runs when the user has stopped typing for a moment, and only when
+  // the username is not the one the table already shows.
+  private readonly typingPause = new Debouncer(
+    () => void this.searchIfChanged(),
+    typingPauseMilliseconds,
+  );
+  private appliedUsername = '';
 
   protected readonly text = inject(LanguageStore).text;
   protected readonly dates = inject(DateFormatter);
@@ -102,6 +110,10 @@ export class AdminUsersPage implements OnInit {
   protected readonly table = signal(new AccountTable({}, this.adminApi));
   protected readonly hasRows = computed(() => this.table().rows().length > 0);
 
+  constructor() {
+    inject(DestroyRef).onDestroy(() => this.typingPause.cancel());
+  }
+
   async ngOnInit(): Promise<void> {
     await this.table().loadNext();
   }
@@ -111,12 +123,19 @@ export class AdminUsersPage implements OnInit {
     await this.reload();
   }
 
+  // The Search button and Enter: searches at once, without waiting for the pause.
   async search(): Promise<void> {
+    this.typingPause.cancel();
     if (this.filterForm.invalid) {
       return;
     }
 
     await this.reload();
+  }
+
+  // From the username box, on each key: the search starts when the typing stops.
+  searchAfterTyping(): void {
+    this.typingPause.call();
   }
 
   // From the scroll sentinel, and from the Try again button after a failed page.
@@ -191,8 +210,21 @@ export class AdminUsersPage implements OnInit {
     }
   }
 
+  private async searchIfChanged(): Promise<void> {
+    const isChanged = this.typedUsername() !== this.appliedUsername;
+
+    if (isChanged && this.filterForm.valid) {
+      await this.reload();
+    }
+  }
+
+  private typedUsername(): string {
+    return this.filterForm.controls.username.value.trim();
+  }
+
   private async reload(): Promise<void> {
-    const username = this.filterForm.controls.username.value.trim();
+    const username = this.typedUsername();
+    this.appliedUsername = username;
     const state = this.selectedState();
     const table = new AccountTable(
       { state: state ?? undefined, username: username === '' ? undefined : username },

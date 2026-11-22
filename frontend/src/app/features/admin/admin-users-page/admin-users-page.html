@@ -41,6 +41,7 @@
           spellcheck="false"
           [maxlength]="usernameMaxLength"
           formControlName="username"
+          (input)="searchAfterTyping()"
         />
         <button appButton look="quiet" type="submit" [disabled]="filterForm.invalid">
           <svg class="size-5" lucideSearch aria-hidden="true"></svg>
