@@ -16,6 +16,9 @@ riderModule.iml
 # Playwright MCP server: page snapshots and screenshots it writes
 /.playwright-mcp/
 
+# Screenshots kept per ticket for the owner's review (implement skill, "The round report")
+/.scratch/*/shots/
+
 #postman
 *.postman_environment.json
 /postman/
