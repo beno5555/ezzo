@@ -14,14 +14,14 @@ Decisions are under "Feed, posts and comments" and "Actions on content, reports 
 
 **Blocked by:** 09 (The feed shows posts with photos and likes), and the frontend setup (27, 28, 29)
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Difficulty:** routine: an edit form and a confirmed delete on patterns that already exist, with the one unfinished part clearly marked.
 
-- [ ] Only the author sees the menu's Edit and Delete on a post
-- [ ] Saving an edit changes the card at once, with the uploading toast and then the saved toast; on the post's page it returns the author to the feed; Cancel restores the card
-- [ ] An edit the server refuses puts the old title and text back, shows its message, and its toast leads to the edit form filled with what the author wrote
-- [ ] Delete asks first, removes the post from the list, and on the post's own page leads to the feed
-- [ ] Each photo in the edit form shows a remove control that says "Coming soon" and does nothing, or works if backend ticket 04 is done
-- [ ] The edit, delete and remove-photo `…Api` methods are unit-tested against the HTTP testing backend
+- [x] Only the author sees the menu's Edit and Delete on a post
+- [x] Saving an edit changes the card at once, with the uploading toast and then the saved toast; on the post's page it returns the author to the feed; Cancel restores the card
+- [x] An edit the server refuses puts the old title and text back, shows its message, and its toast leads to the edit form filled with what the author wrote
+- [x] Delete asks first, removes the post from the list, and on the post's own page leads to the feed
+- [x] Each photo in the edit form shows a remove control that says "Coming soon" and does nothing, or works if backend ticket 04 is done
+- [x] The edit, delete and remove-photo `…Api` methods are unit-tested against the HTTP testing backend
 - [ ] Checked in the running app on a desktop width and on a phone width, in the feed and on the post's page

@@ -6,6 +6,7 @@ import { IconButtonLook } from './icon-button-look';
 const sharedClasses =
   'inline-flex size-11 shrink-0 cursor-pointer items-center justify-center ' +
   'transition-colors motion-reduce:transition-none ' +
+  'disabled:cursor-not-allowed disabled:opacity-50 ' +
   'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus';
 
 // On a photo, the square stays clear and only a small raised disc in its middle shows; the disc darkens

@@ -466,6 +466,30 @@ export const english = {
       loading: 'Loading the post…',
       retryButton: 'Try again',
     },
+    // The "…" menu on a post card, for its author.
+    menu: {
+      label: 'Actions for this post',
+      editEntry: 'Edit',
+      deleteEntry: 'Delete',
+    },
+    // The form that opens in place of a post's title, text and photos when its author edits it
+    // (shared/post-edit-form).
+    edit: {
+      label: 'Edit your post',
+      titleLabel: 'Title',
+      contentLabel: 'Text',
+      photosLabel: 'Photos',
+      photosHint: 'You can remove photos, but not add new ones. A removed photo is gone at once.',
+      saveButton: 'Save',
+      cancelButton: 'Cancel',
+      // Replaces the uploading toast (posts.composer.uploadingToast) once the server has the edit.
+      savedToast: 'Your post is saved.',
+    },
+    deleteConfirmation: {
+      question: 'Delete this post?',
+      detail: 'Its photos and comments are deleted with it. This cannot be undone.',
+      confirmButton: 'Delete',
+    },
   },
   // A post's comments and the form under them (features/comments).
   comments: {

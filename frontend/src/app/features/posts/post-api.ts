@@ -8,6 +8,7 @@ import { toAppResult } from '../../core/http/to-app-result';
 import { LanguageStore } from '../../core/languages/language-store';
 import { FullPostDisplayDto } from './full-post-display-dto';
 import { NewPost } from './new-post';
+import { PostEdit } from './post-edit';
 import { StandardPostDisplayDto } from './standard-post-display-dto';
 
 @Injectable({ providedIn: 'root' })
@@ -39,6 +40,36 @@ export class PostApi {
       this.http.post<ApplicationResponse<StandardPostDisplayDto>>(
         '/api/posts',
         toFormData(newPost),
+      ),
+      this.languageStore.text().httpFailures,
+    );
+  }
+
+  // Text only, as JSON: the title and the text. An empty text is refused unless the post has photos.
+  edit(postId: number, change: PostEdit): Promise<AppResult<FullPostDisplayDto>> {
+    return toAppResult(
+      this.http.put<ApplicationResponse<FullPostDisplayDto>>(`/api/posts/${postId}`, {
+        title: change.title,
+        content: change.content,
+      }),
+      this.languageStore.text().httpFailures,
+    );
+  }
+
+  // Allowed to the post's author and an administrator; the post's comments, likes and photos go with it.
+  delete(postId: number): Promise<AppResult<void>> {
+    return toAppResult(
+      this.http.delete<ApplicationResponse<void>>(`/api/posts/${postId}`),
+      this.languageStore.text().httpFailures,
+    );
+  }
+
+  // Removes one photo and answers with the post without it. The backend refuses, with a message, the
+  // last photo of a post that has no text, so a post never ends up empty.
+  removeImage(postId: number, imageId: number): Promise<AppResult<FullPostDisplayDto>> {
+    return toAppResult(
+      this.http.delete<ApplicationResponse<FullPostDisplayDto>>(
+        `/api/posts/${postId}/images/${imageId}`,
       ),
       this.languageStore.text().httpFailures,
     );

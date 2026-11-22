@@ -10,8 +10,12 @@ import { Button } from '../../../shared/button/button';
 import { LoadFailure } from '../../../shared/load-failure/load-failure';
 import { PostCard } from '../../../shared/post-card/post-card';
 import { ScrollSentinel } from '../../../shared/scroll-sentinel/scroll-sentinel';
+import { ImageDto } from '../image-dto';
 import { NewPostStore } from '../new-post-store';
 import { PostApi } from '../post-api';
+import { PostChange } from '../post-change';
+import { PostEdit } from '../post-edit';
+import { PostEditStore } from '../post-edit-store';
 import { PostLikeStore } from '../post-like-store';
 import { StandardPostDisplayDto } from '../standard-post-display-dto';
 
@@ -44,9 +48,14 @@ export class FeedPage implements OnInit {
     keyOf: (post) => post.id,
   });
   protected readonly newPosts = inject(NewPostStore);
-  // The posts in the feed's list: those it loaded, and the caller's own once the server has them (prepend).
-  // Posts still on their way are not in it, but they are shown, so they open the list too.
-  protected readonly hasPosts = computed(() => this.feed.items().length > 0);
+  private readonly postEdits = inject(PostEditStore);
+  // The posts the feed shows: those it loaded, and the caller's own once the server has them (prepend),
+  // without a post whose deletion the author confirmed.
+  protected readonly shownPosts = computed(() =>
+    this.feed.items().filter((post) => !this.postEdits.isDeleted(post.id)),
+  );
+  // Posts still on their way are not in the list, but they are shown, so they open it too.
+  protected readonly hasPosts = computed(() => this.shownPosts().length > 0);
   protected readonly isListShown = computed(
     () => this.hasPosts() || this.newPosts.pending().length > 0,
   );
@@ -70,5 +79,27 @@ export class FeedPage implements OnInit {
   // A card's like button: the post changes in place at once, and back if the server refuses.
   toggleLike(post: StandardPostDisplayDto): void {
     this.postLikes.toggle(post, (shown) => this.feed.replace(shown));
+  }
+
+  // A card's edit, photo removal and deletion go to PostEditStore, which shows each at once.
+  async editPost(post: StandardPostDisplayDto, change: PostEdit): Promise<void> {
+    await this.postEdits.edit(post, change, (apply) => this.change(post.id, apply));
+  }
+
+  async removePhoto(post: StandardPostDisplayDto, image: ImageDto): Promise<void> {
+    await this.postEdits.removePhoto(post, image, (apply) => this.change(post.id, apply));
+  }
+
+  async deletePost(post: StandardPostDisplayDto): Promise<void> {
+    await this.postEdits.delete(post);
+  }
+
+  // Applies a change to the post as the list holds it now, if it is still there.
+  private change(postId: number, apply: PostChange): void {
+    const current = this.feed.items().find((post) => post.id === postId);
+
+    if (current !== undefined) {
+      this.feed.replace(apply(current));
+    }
   }
 }

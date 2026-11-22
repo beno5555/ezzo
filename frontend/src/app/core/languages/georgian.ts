@@ -396,6 +396,26 @@ export const georgian: Dictionary = {
       loading: 'პოსტი იტვირთება…',
       retryButton: 'თავიდან ცდა',
     },
+    menu: {
+      label: 'მოქმედებები ამ პოსტზე',
+      editEntry: 'შეცვლა',
+      deleteEntry: 'წაშლა',
+    },
+    edit: {
+      label: 'პოსტის შეცვლა',
+      titleLabel: 'სათაური',
+      contentLabel: 'ტექსტი',
+      photosLabel: 'ფოტოები',
+      photosHint: 'ფოტოს წაშლა შეგიძლიათ, ახლის დამატება — არა. წაშლილი ფოტო მაშინვე იკარგება.',
+      saveButton: 'შენახვა',
+      cancelButton: 'გაუქმება',
+      savedToast: 'თქვენი პოსტი შენახულია.',
+    },
+    deleteConfirmation: {
+      question: 'წაიშალოს ეს პოსტი?',
+      detail: 'მასთან ერთად მისი ფოტოები და კომენტარებიც წაიშლება. ამის გაუქმება შეუძლებელია.',
+      confirmButton: 'წაშლა',
+    },
   },
   comments: {
     heading: 'კომენტარები',

@@ -1,0 +1,73 @@
+<form
+  class="flex flex-col gap-4"
+  [attr.aria-label]="text().posts.edit.label"
+  [formGroup]="form"
+  (ngSubmit)="submit()"
+>
+  <app-form-field
+    [fieldId]="'edit-post-title-' + postId()"
+    [label]="text().posts.edit.titleLabel"
+    [control]="form.controls.title"
+  >
+    <input
+      appTextInput
+      type="text"
+      autocomplete="off"
+      formControlName="title"
+      [id]="'edit-post-title-' + postId()"
+    />
+  </app-form-field>
+
+  <app-form-field
+    [fieldId]="'edit-post-content-' + postId()"
+    [label]="text().posts.edit.contentLabel"
+    [control]="form.controls.content"
+  >
+    <textarea
+      appTextInput
+      rows="4"
+      formControlName="content"
+      [id]="'edit-post-content-' + postId()"
+    ></textarea>
+  </app-form-field>
+
+  @if (orderedImages().length > 0) {
+    <div class="flex flex-col gap-2">
+      <p class="font-semibold text-ink-strong">{{ text().posts.edit.photosLabel }}</p>
+      <ul class="grid grid-cols-3 gap-2 md:grid-cols-5">
+        @for (image of orderedImages(); track image.id; let index = $index) {
+          <li class="relative aspect-square overflow-hidden rounded-md bg-surface-sunken">
+            <img
+              class="size-full object-cover"
+              [src]="image.address"
+              [alt]="text().shared.photos.photoDescription(index + 1, orderedImages().length)"
+            />
+            <button
+              appIconButton
+              look="on-photo"
+              class="absolute top-0 right-0"
+              type="button"
+              [disabled]="!canRemovePhoto()"
+              [attr.aria-label]="
+                text().shared.photos.removeButton(index + 1, orderedImages().length)
+              "
+              (click)="requestPhotoRemoval(image)"
+            >
+              <svg class="size-4" lucideX aria-hidden="true"></svg>
+            </button>
+          </li>
+        }
+      </ul>
+      <p class="text-sm text-ink-muted">{{ text().posts.edit.photosHint }}</p>
+    </div>
+  }
+
+  <div class="flex flex-wrap justify-end gap-2 border-t border-border pt-4">
+    <button appButton look="quiet" type="button" (click)="requestCancel()">
+      {{ text().posts.edit.cancelButton }}
+    </button>
+    <button appButton look="primary" type="submit" [disabled]="!canSave()">
+      {{ text().posts.edit.saveButton }}
+    </button>
+  </div>
+</form>

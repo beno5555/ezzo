@@ -27,9 +27,15 @@
             <app-post-card [post]="post" [isUploading]="true" />
           </li>
         }
-        @for (post of feed.items(); track post.id) {
+        @for (post of shownPosts(); track post.id) {
           <li>
-            <app-post-card [post]="post" (likeToggle)="toggleLike(post)" />
+            <app-post-card
+              [post]="post"
+              (likeToggle)="toggleLike(post)"
+              (postEdit)="editPost(post, $event)"
+              (photoRemove)="removePhoto(post, $event)"
+              (postDelete)="deletePost(post)"
+            />
           </li>
         }
       </ul>

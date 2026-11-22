@@ -1,6 +1,6 @@
 <article
   class="flex flex-col gap-3 rounded-lg border border-border bg-surface-raised p-4 text-ink-strong"
-  [attr.aria-busy]="isUploading() || null"
+  [attr.aria-busy]="isMarkedUploading() || null"
 >
   <header class="flex items-center gap-3">
     <app-avatar
@@ -8,7 +8,7 @@
       [username]="post().author.username"
       [isUnavailable]="!isAuthorAvailable()"
     />
-    <div class="flex min-w-0 flex-col">
+    <div class="flex min-w-0 flex-1 flex-col">
       @if (isAuthorAvailable()) {
         <a appTextLink class="self-start wrap-anywhere" [routerLink]="profileAddress()">{{
           post().author.username
@@ -20,30 +20,50 @@
         dateFormatter.time(post().uploadedAt)
       }}</time>
     </div>
+    @if (menuEntries().length > 0) {
+      <app-menu [entries]="menuEntries()" [label]="text().posts.menu.label" />
+    }
   </header>
 
-  <h2 class="font-display text-lg wrap-break-word">{{ post().title }}</h2>
-  @if (post().postContent) {
-    <div class="flex flex-col">
-      <p #content class="whitespace-pre-line wrap-break-word" [class.line-clamp-5]="isCollapsed()">
-        {{ post().postContent }}
-      </p>
-      @if (isCollapsed() && isCut()) {
-        <button appTextLink class="self-start" type="button" (click)="expand()">
-          {{ text().posts.card.seeMore }}
-        </button>
-      }
-    </div>
+  @if (isEditing()) {
+    <app-post-edit-form
+      [postId]="post().id"
+      [images]="post().images"
+      [initialEdit]="editInitial()"
+      [isRemovingPhoto]="isRemovingPhoto()"
+      [hasSavedText]="hasSavedText()"
+      (save)="saveEdit($event)"
+      (dismiss)="stopEditing()"
+      (photoRemove)="requestPhotoRemoval($event)"
+    />
+  } @else {
+    <h2 class="font-display text-lg wrap-break-word">{{ post().title }}</h2>
+    @if (post().postContent) {
+      <div class="flex flex-col">
+        <p
+          #content
+          class="whitespace-pre-line wrap-break-word"
+          [class.line-clamp-5]="isCollapsed()"
+        >
+          {{ post().postContent }}
+        </p>
+        @if (isCollapsed() && isCut()) {
+          <button appTextLink class="self-start" type="button" (click)="expand()">
+            {{ text().posts.card.seeMore }}
+          </button>
+        }
+      </div>
+    }
+
+    <app-photo-grid [images]="post().images" />
   }
 
-  <app-photo-grid [images]="post().images" />
-
-  @if (isUploading()) {
+  @if (isMarkedUploading()) {
     <p class="flex min-h-11 items-center gap-2 text-sm text-ink-muted" role="status">
       <svg class="size-5 shrink-0" lucideCloudUpload aria-hidden="true"></svg>
       {{ text().posts.card.uploading }}
     </p>
-  } @else {
+  } @else if (!isEditing()) {
     <footer class="-mx-3 -mb-2 flex flex-wrap items-center gap-1">
       <button
         appActionButton
