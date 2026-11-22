@@ -15,11 +15,19 @@ import { DateFormatter } from '../../core/languages/date-formatter';
 import { LanguageStore } from '../../core/languages/language-store';
 import { appAddresses } from '../../core/routing/app-addresses';
 import { SessionStore } from '../../core/session/session-store';
+import { ModeratedKind } from '../../features/moderation/moderated-kind';
+import { ModerationStore } from '../../features/moderation/moderation-store';
 import { PostEditStore } from '../../features/posts/post-edit-store';
 import { StandardPostDisplayDto } from '../../features/posts/standard-post-display-dto';
+import { ReportOpener } from '../../features/reports/report-opener';
+import { ReportTargetType } from '../../features/reports/report-target-type';
 import { ActionButton } from '../action-button/action-button';
 import { Avatar } from '../avatar/avatar';
+import { ContentAction } from '../content-actions/content-action';
+import { contentActionsOffered } from '../content-actions/content-actions-offered';
+import { contentMenuEntries } from '../content-actions/content-menu-entries';
 import { FadeOut } from '../fade-out/fade-out';
+import { HiddenBadge } from '../hidden-badge/hidden-badge';
 import { Menu } from '../menu/menu';
 import { MenuEntry } from '../menu/menu-entry';
 import { PhotoGrid } from '../photos/photo-grid/photo-grid';
@@ -35,10 +43,12 @@ import { TextLink } from '../text-link/text-link';
 // In a list the text of a long post stops after a few lines, with a See more button that opens the rest in
 // place (it goes nowhere). isFull, for the post's own page, shows all of it. commentsAddress is where the
 // comments button leads; the post's own page sends it back to the feed.
-// The "…" menu offers the post's author Edit and Delete, and nobody else (Report and the administrator's
-// entries join with ticket 13). Edit leads to the edit page; a deletion goes to the page through
-// postDelete, which hands it to PostEditStore, and a card being deleted fades out. A post on its way to
-// the server, or whose edit is being saved, has no menu: there is nothing on the server to change yet,
+// The "…" menu's entries come from contentActionsOffered (shared/content-actions): Edit and Delete for the
+// author, Report for another signed-in user, and for an administrator also Delete and Hide or Make
+// visible. Edit leads to the edit page; a deletion goes to the page through postDelete, which hands it to
+// PostEditStore, and a card being deleted fades out. Report opens the report dialog; Hide and Make visible
+// go through ModerationStore, which also says whether the post shows the "Hidden" badge. A post on its way
+// to the server, or whose edit is being saved, has no menu: there is nothing on the server to change yet,
 // and a second change would race the first.
 @Component({
   selector: 'app-post-card',
@@ -47,6 +57,7 @@ import { TextLink } from '../text-link/text-link';
     ActionButton,
     Avatar,
     FadeOut,
+    HiddenBadge,
     Menu,
     PhotoGrid,
     TextLink,
@@ -67,6 +78,8 @@ export class PostCard {
   readonly postDelete = output();
 
   private readonly postEdits = inject(PostEditStore);
+  private readonly moderation = inject(ModerationStore);
+  private readonly reportOpener = inject(ReportOpener);
   private readonly router = inject(Router);
   private readonly sessionStore = inject(SessionStore);
   protected readonly text = inject(LanguageStore).text;
@@ -80,27 +93,32 @@ export class PostCard {
     return userId !== null && this.post().author.id === userId;
   });
   private readonly isChangeable = computed(() => !this.isMarkedUploading() && this.post().id > 0);
-  private readonly canChange = computed(
-    () => this.isOwn() && this.isChangeable() && !this.isDeleting(),
+  // The post's moderation state as shown: what an administrator has set here, else the post's own flag.
+  protected readonly isHidden = computed(() =>
+    this.moderation.isHidden(ModeratedKind.Post, this.post().id, this.post().isHidden),
   );
   protected readonly menuEntries = computed<readonly MenuEntry[]>(() => {
-    const labels = this.text().posts.menu;
-    const entries: MenuEntry[] = [];
+    const isOffered = this.isChangeable() && !this.isDeleting();
+    const actions = isOffered
+      ? contentActionsOffered(
+          {
+            userId: this.sessionStore.userId(),
+            isAdministrator: this.sessionStore.isAdministrator(),
+          },
+          { authorId: this.post().author.id, isHidden: this.isHidden(), postAuthorId: null },
+        )
+      : [];
 
-    if (this.canChange()) {
-      entries.push({
-        label: labels.editEntry,
-        isDestructive: false,
-        choose: () => void this.router.navigate(appAddresses.editPost(this.post().id)),
-      });
-      entries.push({
-        label: labels.deleteEntry,
-        isDestructive: true,
-        choose: () => this.requestDelete(),
-      });
-    }
-
-    return entries;
+    return contentMenuEntries(actions, this.text().shared.content, {
+      [ContentAction.Edit]: () => void this.router.navigate(appAddresses.editPost(this.post().id)),
+      [ContentAction.Delete]: () => this.requestDelete(),
+      [ContentAction.Hide]: () =>
+        void this.moderation.setHidden(ModeratedKind.Post, this.post().id, true),
+      [ContentAction.MakeVisible]: () =>
+        void this.moderation.setHidden(ModeratedKind.Post, this.post().id, false),
+      [ContentAction.Report]: () =>
+        void this.reportOpener.report(ReportTargetType.Post, this.post().id),
+    });
   });
   protected readonly isAuthorAvailable = computed(() => this.post().author.id !== null);
   // The avatar picks its disc by id; an unavailable author gets the grey disc, whatever the id.

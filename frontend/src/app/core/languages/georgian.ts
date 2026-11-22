@@ -45,7 +45,7 @@ export const georgian: Dictionary = {
     friends: 'მეგობრები',
     messages: 'შეტყობინებები',
     adminUsers: 'მომხმარებლები',
-    adminReports: 'საჩივრები',
+    adminReports: 'რეპორტები',
     adminModeration: 'მოდერაციის რიგი',
     adminLogs: 'ჟურნალი',
     adminStatistics: 'სტატისტიკა',
@@ -91,6 +91,14 @@ export const georgian: Dictionary = {
     },
     menu: {
       buttonLabel: 'სხვა მოქმედებები',
+    },
+    content: {
+      editEntry: 'შეცვლა',
+      deleteEntry: 'წაშლა',
+      hideEntry: 'დამალვა',
+      makeVisibleEntry: 'გამოჩენა',
+      reportEntry: 'დარეპორტება',
+      hiddenBadge: 'დამალულია',
     },
     toasts: {
       regionLabel: 'შეტყობინებები',
@@ -400,8 +408,6 @@ export const georgian: Dictionary = {
     },
     menu: {
       label: 'მოქმედებები ამ პოსტზე',
-      editEntry: 'შეცვლა',
-      deleteEntry: 'წაშლა',
     },
     edit: {
       loading: 'პოსტი იტვირთება…',
@@ -416,10 +422,11 @@ export const georgian: Dictionary = {
     },
     deleteConfirmation: {
       question: 'წაიშალოს ეს პოსტი?',
-      detail: 'მასთან ერთად მისი ფოტოები და კომენტარებიც წაიშლება. ამის გაუქმება შეუძლებელია.',
+      detail:
+        'მასთან ერთად მისი ფოტოები და კომენტარებიც წაიშლება. ამ ოპერაციის გაუქმება შეუძლებელია.',
       confirmButton: 'წაშლა',
     },
-    deletedToast: 'თქვენი პოსტი წაშლილია.',
+    deletedToast: 'პოსტი წაშლილია.',
   },
   comments: {
     heading: 'კომენტარები',
@@ -445,15 +452,23 @@ export const georgian: Dictionary = {
     },
     menu: {
       label: 'მოქმედებები ამ კომენტარზე',
-      editEntry: 'შეცვლა',
-      deleteEntry: 'წაშლა',
     },
     deleteConfirmation: {
       question: 'წაიშალოს ეს კომენტარი?',
-      detail: 'ამის გაუქმება შეუძლებელია.',
+      detail: 'ამ ოპერაციის გაუქმება შეუძლებელია.',
       confirmButton: 'წაშლა',
     },
     deletedToast: 'კომენტარი წაშლილია.',
+  },
+  reports: {
+    dialog: {
+      postTitle: 'პოსტის დარეპორტება',
+      commentTitle: 'კომენტარის დარეპორტება',
+      reasonLabel: 'მიზეზი',
+      reasonHint: 'მიუწერეთ ადმინისტრატორებს, რა არის მასში არასწორი.',
+      submitButton: 'დარეპორტება',
+    },
+    sentToast: 'გმადლობთ. თქვენი რეპორტი გაიგზავნა.',
   },
   messages: {
     list: {
