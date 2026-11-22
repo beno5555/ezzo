@@ -2,11 +2,10 @@
 
 **What to build:** The author of a post gets a "…" menu on it, in the feed and on the post's page, with Edit and Delete.
 
-- **Edit** happens in place: the title and the text become a form on the card, with Save and Cancel. The same limits apply as in the composer.
-- **Save never waits** (owner, 2026-11-20; "What a user writes shows at once too" under "Across the whole frontend" in the spec). The form closes and the card shows the new title and text at once, marked as uploading; saved on the post's own page, it sends the author to the feed. The uploading toast from ticket 10 stays until the server answers; then a toast says the post was saved and leads to it. A refusal puts the old title and text back and shows a toast that says why and leads to the post's page with the edit form open and filled with what the author wrote.
-- **Delete** asks for a confirmation. A deleted post leaves the list; on the post's own page the author is sent to the feed.
-- **Photos while editing.** Each photo shows a remove control. The backend endpoint for it, `DELETE /api/posts/{postId}/images/{imageId}`, is not built yet (documented-backend-features ticket 04). So the `…Api` method for it is written and unit-tested now, and the control is shown disabled with a "Coming soon" label from the dictionary. When ticket 04 is done, the control is enabled and removes the photo; nothing else changes. If ticket 04 is already done when this ticket starts, build the control working.
-- **Photos cannot be added** to an existing post.
+- **Edit** happens on a page of its own, `/posts/:postId/edit` (owner, 2026-11-22, after the visual review: not in place in the feed): a form with the title and the text, and Save and Cancel. The same limits apply as in the composer: the title and text boxes take no character past the limit and show "used/limit" beside their label (the composer gets the same).
+- **Save never waits** (owner, 2026-11-20; "What a user writes shows at once too" under "Across the whole frontend" in the spec). Save sends the author to the feed, where the post shows with the new title and text at once, marked as uploading (the ranked feed never lists the caller's own posts, so the edited post goes on top, as a new post does). The uploading toast from ticket 10 stays until the server answers; then a toast says the post was saved and leads to it. A refusal puts the old title and text back and shows a toast that says why and leads to the edit page, with the form filled with what the author wrote; that is dropped as soon as the author leaves the edit page.
+- **Delete** asks for a confirmation. The post's card fades out (200 ms) and leaves the list, a toast says it was deleted, and on the post's own page the author is sent to the feed. A refusal brings the post back, with a toast.
+- **Photos while editing** are shown, with no control on them at all (owner, 2026-11-22: photos cannot be added to an existing post, so the edit page does not touch them). The `…Api` method for `DELETE /api/posts/{postId}/images/{imageId}` is written and unit-tested, and stays unused until a ticket brings photo editing back, whose remove control must ask first.
 
 The menu holds only the author's entries here. Report and the administrator's entries join it in ticket 13.
 
@@ -19,9 +18,10 @@ Decisions are under "Feed, posts and comments" and "Actions on content, reports 
 **Difficulty:** routine: an edit form and a confirmed delete on patterns that already exist, with the one unfinished part clearly marked.
 
 - [x] Only the author sees the menu's Edit and Delete on a post
-- [x] Saving an edit changes the card at once, with the uploading toast and then the saved toast; on the post's page it returns the author to the feed; Cancel restores the card
-- [x] An edit the server refuses puts the old title and text back, shows its message, and its toast leads to the edit form filled with what the author wrote
-- [x] Delete asks first, removes the post from the list, and on the post's own page leads to the feed
-- [x] Each photo in the edit form shows a remove control that says "Coming soon" and does nothing, or works if backend ticket 04 is done
+- [x] The edit page opens from the menu; Save shows the post in the feed at once with the new text, marked as uploading, with the uploading toast and then the saved toast; Cancel leaves the post as it was
+- [x] An edit the server refuses puts the old title and text back, shows its message, and its toast leads to the edit page filled with what the author wrote; leaving the edit page drops it
+- [x] Delete asks first, fades the post out, removes it from the list, shows a toast, and on the post's own page leads to the feed
+- [x] The edit page shows the photos and offers no control on them
+- [x] The composer's and the edit page's title and text boxes stop at their limit and show the count
 - [x] The edit, delete and remove-photo `…Api` methods are unit-tested against the HTTP testing backend
-- [ ] Checked in the running app on a desktop width and on a phone width, in the feed and on the post's page
+- [ ] Checked in the running app on a desktop width and on a phone width, on the feed and on the edit page

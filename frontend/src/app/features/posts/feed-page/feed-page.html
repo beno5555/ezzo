@@ -32,8 +32,6 @@
             <app-post-card
               [post]="post"
               (likeToggle)="toggleLike(post)"
-              (postEdit)="editPost(post, $event)"
-              (photoRemove)="removePhoto(post, $event)"
               (postDelete)="deletePost(post)"
             />
           </li>

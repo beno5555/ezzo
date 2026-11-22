@@ -3,8 +3,16 @@
     <label class="py-1 text-sm font-semibold text-ink-strong" [for]="fieldId()">{{
       label()
     }}</label>
+    @if (maxLength(); as max) {
+      <app-character-counter
+        class="ms-auto text-sm"
+        aria-hidden="true"
+        [length]="length()"
+        [max]="max"
+      />
+    }
     <!-- The action keeps its 44 px touch target without making this row taller than a bare label. -->
-    <div class="-my-1.5">
+    <div class="-my-1.5 empty:hidden">
       <ng-content select="[fieldAction]" />
     </div>
   </div>

@@ -5,6 +5,7 @@ import { map } from 'rxjs';
 import { LucideSendHorizontal } from '@lucide/angular';
 import { LIMITS } from '../../core/limits';
 import { Button } from '../button/button';
+import { CharacterCounter } from '../character-counter/character-counter';
 import { FormField } from '../form-field/form-field';
 import { TextInput } from '../text-input/text-input';
 import { canSendComment } from '../../features/comments/can-send-comment';
@@ -21,7 +22,14 @@ import { canSendComment } from '../../features/comments/can-send-comment';
 // refused comment's text back, and isEmpty tells the page when it may.
 @Component({
   selector: 'app-comment-form',
-  imports: [ReactiveFormsModule, Button, FormField, LucideSendHorizontal, TextInput],
+  imports: [
+    ReactiveFormsModule,
+    Button,
+    CharacterCounter,
+    FormField,
+    LucideSendHorizontal,
+    TextInput,
+  ],
   templateUrl: './comment-form.html',
   styleUrl: './comment-form.css',
 })
@@ -52,7 +60,6 @@ export class CommentForm implements OnInit {
   // The counter in the compact form's corner: used characters out of the limit.
   protected readonly maxLength = LIMITS.comments.contentMaxLength;
   protected readonly length = computed(() => this.written().length);
-  protected readonly isAtLimit = computed(() => this.length() >= this.maxLength);
 
   ngOnInit(): void {
     this.form.setValue({ content: this.initialContent() });

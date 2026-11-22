@@ -26,13 +26,12 @@
              box then keeps room for it on its right (pe-16), so the text never runs under it; while it is
              empty the whole width is the placeholder's, which is long in Georgian. -->
         @if (length() > 0) {
-          <span
+          <app-character-counter
             class="pointer-events-none absolute end-3 bottom-2 text-xs"
-            [class]="isAtLimit() ? 'text-danger' : 'text-ink-muted'"
             aria-hidden="true"
-          >
-            {{ length() }}/{{ maxLength }}
-          </span>
+            [length]="length()"
+            [max]="maxLength"
+          />
         }
       </div>
       <!-- An icon alone on a phone, the word from a tablet up. -->

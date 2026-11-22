@@ -47,6 +47,7 @@ export const english = {
     resetPassword: 'Choose a new password',
     reactivateAccount: 'Reactivate your account',
     newPost: 'Write a post',
+    editPost: 'Edit your post',
     post: 'Post',
     profile: 'Profile',
     search: 'Search',
@@ -472,14 +473,14 @@ export const english = {
       editEntry: 'Edit',
       deleteEntry: 'Delete',
     },
-    // The form that opens in place of a post's title, text and photos when its author edits it
-    // (shared/post-edit-form).
+    // The page where a post's author edits it (/posts/:postId/edit, features/posts/edit-post-page).
     edit: {
-      label: 'Edit your post',
+      loading: 'Loading the post…',
+      retryButton: 'Try again',
       titleLabel: 'Title',
       contentLabel: 'Text',
       photosLabel: 'Photos',
-      photosHint: 'You can remove photos, but not add new ones. A removed photo is gone at once.',
+      photosHint: 'Photos cannot be changed yet.',
       saveButton: 'Save',
       cancelButton: 'Cancel',
       // Replaces the uploading toast (posts.composer.uploadingToast) once the server has the edit.
@@ -490,6 +491,8 @@ export const english = {
       detail: 'Its photos and comments are deleted with it. This cannot be undone.',
       confirmButton: 'Delete',
     },
+    // After the server has deleted a post.
+    deletedToast: 'Your post is deleted.',
   },
   // A post's comments and the form under them (features/comments).
   comments: {

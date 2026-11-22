@@ -21,6 +21,8 @@ export const appAddresses = {
   // As router link commands, so the username is encoded as one segment.
   profile: (username: string) => ['/users', username],
   post: (postId: number) => ['/posts', postId],
+  // The page where a post's author edits it, opened from the post card's menu and from a refused edit's toast.
+  editPost: (postId: number) => ['/posts', postId, 'edit'],
   conversation: (username: string) => ['/messages', username],
 } as const;
 

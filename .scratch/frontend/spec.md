@@ -86,8 +86,8 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 41. As a reader, I want each feed card to show the author, the time, the like count and the comment count, so that I can judge a post at a glance.
 42. As a user, I want to like and unlike a post from its card, so that reacting takes one click.
 43. As a reader, I want to open a post on its own page, so that I can read its comments and share its address.
-44. As a post author, I want to edit the title and the text of my post in place, so that I can fix a mistake.
-45. As a post author, I want to remove one photo from my post, and to see "Coming soon" on that control until the server supports it, so that I can fix a mistake without deleting the post and am never offered a button that fails.
+44. As a post author, I want to edit the title and the text of my post on a page of its own, so that I can fix a mistake (owner, 2026-11-22: not in place in the feed).
+45. As a post author, I want to remove one photo from my post, so that I can fix a mistake without deleting the post. (Owner, 2026-11-22: the edit page does not touch photos until it can add them too; the control comes back with that ticket, and asks before it removes.)
 46. As a post author, I want to delete my post after a confirmation, so that I do not delete it by accident.
 47. As a reader, I want times shown in my own time zone and language, so that "when" is never ambiguous.
 
@@ -252,6 +252,7 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 | `/` | Landing page for guests; a signed-in user is sent to `/feed` | anyone |
 | `/feed` | Feed, with a Write a post button | signed in |
 | `/posts/new` | The composer | signed in |
+| `/posts/:postId/edit` | Where an author edits a post | signed in |
 | `/sign-in`, `/register` | Sign in, register | signed out only |
 | `/forgot-password` | Ask for a reset link | anyone |
 | `/reset-password?token=…` | Choose a new password | anyone |
@@ -301,7 +302,10 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 
 - **Composer:** a card on its own page, `/posts/new`, opened from a Write a post button beside the feed's heading (owner, 2026-11-21: the feed stays a list, and other kinds of post can get their own fields there later). Sending goes to the feed, where the post shows as pending, and the feed takes the composer's place in the history. A title is required, and so is either text or at least one photo, as the backend requires. Up to 10 photos, each JPEG, PNG or WebP and at most 5 MB, checked in the browser against `LIMITS` before upload. The post goes as `multipart/form-data`. It shows at the top of the list at once, with an uploading toast and then a published one ("What a user writes shows at once too", under "Across the whole frontend").
 - **Editing** happens on the post, in the feed card and on the post's page: title and text. Saving shows the edit at once, and from the post's page returns the author to the feed, with the same two toasts as a new post. Photos are removed one at a time. Photos cannot be added to an existing post.
-- **Removing a photo is built against an endpoint that does not exist yet.** `PostApi` gets its method for the documented `DELETE /api/posts/{postId}/images/{imageId}`, and the edit form shows a remove control on each photo, disabled and labelled "Coming soon" from the dictionary. When documented-backend-features ticket 04 lands, the control is enabled and nothing else changes.
+- **Photos on the edit page are shown and left alone** (owner, 2026-11-22). Photos cannot be added to an existing post, so the edit page offers no control on them at all, not even a remove one. `PostApi` has its method for `DELETE /api/posts/{postId}/images/{imageId}` (backend ticket 04 is done), unused until a ticket brings photo editing back; the control must then ask before it removes, as the removal is immediate and final.
+- **Editing is a page, not a form in the feed** (owner, 2026-11-22): `/posts/:postId/edit`, opened from the card's menu. Save goes to the feed, where the edited post shows at once, marked as uploading, even though the ranked feed never lists the caller's own posts (the same rule as a new post, "What a user writes shows at once too"). A refused edit's toast leads back to the edit page with what the author wrote, and that is dropped as soon as the page is left.
+- **Text boxes of posts stop at their limit** (owner, 2026-11-22): the composer's and the edit page's title and text boxes take no character past the limit (`maxlength`) and show "used/limit" beside their label (`FormField`, `CharacterCounter`), as the comment box does.
+- **A deleted post fades out** over 200 ms, then leaves the list, and a toast says it is deleted.
 - **Feed card:** author, time, title, text, photo grid, like button with the count, comment count linking to the post's page, the "…" menu. Comments are not shown or written in the feed.
 - **Likes** change the card at once, as every quick action does ("Across the whole frontend"). There is no list of who liked. The server hears of a click a second after the last click on that post (owner, 2026-11-22): a like taken back inside that second, or an unlike taken back, is never sent, and clicking never waits for an answer.
 - **Photo grid and viewer:** up to four thumbnails with a "+N" on the last when there are more; a click opens a full-screen viewer with previous and next.

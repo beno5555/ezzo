@@ -42,10 +42,7 @@
           [post]="shownPost"
           [isFull]="true"
           [commentsAddress]="isSignedIn() ? feedAddress : null"
-          [opensReturnedEdit]="true"
           (likeToggle)="toggleLike(shownPost)"
-          (postEdit)="editPost(shownPost, $event)"
-          (photoRemove)="removePhoto(shownPost, $event)"
           (postDelete)="deletePost(shownPost)"
         />
 

@@ -10,11 +10,8 @@ import { Button } from '../../../shared/button/button';
 import { LoadFailure } from '../../../shared/load-failure/load-failure';
 import { PostCard } from '../../../shared/post-card/post-card';
 import { ScrollSentinel } from '../../../shared/scroll-sentinel/scroll-sentinel';
-import { ImageDto } from '../image-dto';
 import { NewPostStore } from '../new-post-store';
 import { PostApi } from '../post-api';
-import { PostChange } from '../post-change';
-import { PostEdit } from '../post-edit';
 import { PostEditStore } from '../post-edit-store';
 import { PostLikeStore } from '../post-like-store';
 import { StandardPostDisplayDto } from '../standard-post-display-dto';
@@ -49,11 +46,19 @@ export class FeedPage implements OnInit {
   });
   protected readonly newPosts = inject(NewPostStore);
   private readonly postEdits = inject(PostEditStore);
-  // The posts the feed shows: those it loaded, and the caller's own once the server has them (prepend),
-  // without a post whose deletion the author confirmed.
-  protected readonly shownPosts = computed(() =>
-    this.feed.items().filter((post) => !this.postEdits.isDeleted(post.id)),
-  );
+  // The posts the feed shows: those it loaded, without a post whose deletion the author confirmed; an
+  // edit on its way shows in the post's place, or on top when the ranked feed has not brought the
+  // caller's own post.
+  protected readonly shownPosts = computed(() => {
+    const pending = this.postEdits.pendingEdits();
+    const loaded = this.feed.items().filter((post) => !this.postEdits.isDeleted(post.id));
+    const isLoaded = (id: number) => loaded.some((post) => post.id === id);
+
+    return [
+      ...pending.filter((post) => !isLoaded(post.id)),
+      ...loaded.map((post) => pending.find((edited) => edited.id === post.id) ?? post),
+    ];
+  });
   // Posts still on their way are not in the list, but they are shown, so they open it too.
   protected readonly hasPosts = computed(() => this.shownPosts().length > 0);
   protected readonly isListShown = computed(
@@ -63,8 +68,22 @@ export class FeedPage implements OnInit {
   constructor() {
     // The server's copy of a post sent from the composer's page goes on top of the list.
     const stopShowing = this.newPosts.onPublished((created) => this.feed.prepend(created));
+    // The server's copy of an edited post takes the post's place in the list, or goes on top of it.
+    const stopShowingEdits = this.postEdits.onSaved((saved) => {
+      const isListed = this.feed.items().some((post) => post.id === saved.id);
+      const shown = this.postLikes.withUnsettledLike(saved);
 
-    inject(DestroyRef).onDestroy(stopShowing);
+      if (isListed) {
+        this.feed.replace(shown);
+      } else {
+        this.feed.prepend(shown);
+      }
+    });
+
+    inject(DestroyRef).onDestroy(() => {
+      stopShowing();
+      stopShowingEdits();
+    });
   }
 
   async ngOnInit(): Promise<void> {
@@ -81,25 +100,8 @@ export class FeedPage implements OnInit {
     this.postLikes.toggle(post, (shown) => this.feed.replace(shown));
   }
 
-  // A card's edit, photo removal and deletion go to PostEditStore, which shows each at once.
-  async editPost(post: StandardPostDisplayDto, change: PostEdit): Promise<void> {
-    await this.postEdits.edit(post, change, (apply) => this.change(post.id, apply));
-  }
-
-  async removePhoto(post: StandardPostDisplayDto, image: ImageDto): Promise<void> {
-    await this.postEdits.removePhoto(post, image, (apply) => this.change(post.id, apply));
-  }
-
+  // A card's deletion goes to PostEditStore, which asks first and shows it at once.
   async deletePost(post: StandardPostDisplayDto): Promise<void> {
     await this.postEdits.delete(post);
-  }
-
-  // Applies a change to the post as the list holds it now, if it is still there.
-  private change(postId: number, apply: PostChange): void {
-    const current = this.feed.items().find((post) => post.id === postId);
-
-    if (current !== undefined) {
-      this.feed.replace(apply(current));
-    }
   }
 }

@@ -11,10 +11,7 @@ import { Button } from '../../../shared/button/button';
 import { CommentSection } from '../../../shared/comment-section/comment-section';
 import { LoadFailure } from '../../../shared/load-failure/load-failure';
 import { PostCard } from '../../../shared/post-card/post-card';
-import { ImageDto } from '../image-dto';
 import { PostApi } from '../post-api';
-import { PostChange } from '../post-change';
-import { PostEdit } from '../post-edit';
 import { PostEditStore } from '../post-edit-store';
 import { PostLikeStore } from '../post-like-store';
 import { StandardPostDisplayDto } from '../standard-post-display-dto';
@@ -109,27 +106,12 @@ export class PostPage {
     }
   }
 
-  // The card's edit. Saving sends the author to the feed, where the toasts follow the edit: the page
-  // shows it at once, but the author leaves it (the post's own page is never where an edit is waited for).
-  async editPost(post: StandardPostDisplayDto, change: PostEdit): Promise<void> {
-    await this.router.navigateByUrl(appAddresses.feed);
-    await this.postEdits.edit(post, change, (apply) => this.change(post.id, apply));
-  }
-
-  async removePhoto(post: StandardPostDisplayDto, image: ImageDto): Promise<void> {
-    await this.postEdits.removePhoto(post, image, (apply) => this.change(post.id, apply));
-  }
-
-  // Once the author confirms, the page leads to the feed, as the post is gone.
+  // Once the card has faded out, the page leads to the feed, as the post is gone.
   async deletePost(post: StandardPostDisplayDto): Promise<void> {
     await this.postEdits.delete(post, () => {
       // Fire-and-forget on purpose: the store's request must not wait for the navigation.
       void this.router.navigateByUrl(appAddresses.feed);
     });
-  }
-
-  private change(postId: number, apply: PostChange): void {
-    this.post.update((post) => (post === null || post.id !== postId ? post : apply(post)));
   }
 
   // From the comment section: +1 for a comment sent or a deletion refused, -1 for one refused or deleted.
