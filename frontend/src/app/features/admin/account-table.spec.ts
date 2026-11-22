@@ -3,7 +3,8 @@ import { HttpTestingController, provideHttpClientTesting } from '@angular/common
 import { TestBed } from '@angular/core/testing';
 import { PageLoadStatus } from '../../core/paging/page-load-status';
 import { AccountState } from './account-state';
-import { AccountFilter, AccountTable } from './account-table';
+import { AccountFilter } from './account-filter';
+import { AccountTable } from './account-table';
 import { AdminApi } from './admin-api';
 import { AdminUserDto } from './admin-user-dto';
 

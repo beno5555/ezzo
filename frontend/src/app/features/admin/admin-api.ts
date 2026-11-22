@@ -17,15 +17,18 @@ export class AdminApi {
   // Accounts in any state, oldest first. The state goes as its name, and a filter left out or empty is
   // left out of the address, since the backend reads an empty state as no state at all and refuses it.
   getUsers(query: AccountListQuery): Promise<AppResult<AdminUserDto[]>> {
+    const { state, username = '' } = query;
+    const hasState = state !== undefined;
+    const hasUsername = username !== '';
     let params = new HttpParams()
       .set('pageNumber', query.pageNumber)
       .set('pageSize', query.pageSize);
 
-    if (query.state !== undefined) {
-      params = params.set('state', query.state);
+    if (hasState) {
+      params = params.set('state', state);
     }
-    if (query.username !== undefined && query.username !== '') {
-      params = params.set('username', query.username);
+    if (hasUsername) {
+      params = params.set('username', username);
     }
 
     return toAppResult(

@@ -8,8 +8,11 @@ import { AdminUserDto } from './admin-user-dto';
 // and offers none.
 export function accountActionsOffered(account: AdminUserDto): AccountRowAction[] {
   const offered: AccountRowAction[] = [];
+  const isActive = account.state === AccountState.Active;
+  const isDeactivated = account.state === AccountState.Deactivated;
+  const isDeleted = account.state === AccountState.SoftDeleted;
 
-  if (account.state === AccountState.Active) {
+  if (isActive) {
     offered.push(AccountRowAction.Deactivate);
     offered.push(
       account.isAdministrator
@@ -17,10 +20,10 @@ export function accountActionsOffered(account: AdminUserDto): AccountRowAction[]
         : AccountRowAction.GrantAdministrator,
     );
   }
-  if (account.state === AccountState.Deactivated) {
+  if (isDeactivated) {
     offered.push(AccountRowAction.Restore);
   }
-  if (account.state !== AccountState.SoftDeleted) {
+  if (!isDeleted) {
     offered.push(AccountRowAction.Delete);
   }
 

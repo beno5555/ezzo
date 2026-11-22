@@ -1,16 +1,11 @@
 import { computed, signal } from '@angular/core';
+import { PageQuery } from '../../core/http/page-query';
 import { LIMITS } from '../../core/limits';
 import { PagedList } from '../../core/paging/paged-list';
 import { AccountListQuery } from './account-list-query';
-import { AccountState } from './account-state';
+import { AccountFilter } from './account-filter';
 import { AdminApi } from './admin-api';
 import { AdminUserDto } from './admin-user-dto';
-
-// What the table is filtered by. A filter left out matches every account.
-export type AccountFilter = {
-  state?: AccountState;
-  username?: string;
-};
 
 // The accounts the users page shows for one filter: a paged list of the server's rows, and the rows the
 // administrator created meanwhile, shown after them (the list is oldest first, so a new account belongs
@@ -73,8 +68,6 @@ export class AccountTable {
   }
 }
 
-function toQuery(page: { pageNumber: number; pageSize: number }, filter: AccountFilter) {
-  const query: AccountListQuery = { ...page, state: filter.state, username: filter.username };
-
-  return query;
+function toQuery(page: PageQuery, filter: AccountFilter): AccountListQuery {
+  return { ...page, ...filter };
 }
