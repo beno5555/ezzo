@@ -27,7 +27,15 @@
           >
             {{ shownFriend.username }}
           </h2>
-          <app-presence-label [lastActiveAt]="shownFriend.lastActiveAt" />
+          <!-- "typing…" takes the place of the presence while the friend writes; the wrapper stays, so
+               screen readers hear the change. -->
+          <span aria-live="polite">
+            @if (isFriendTyping()) {
+              <span class="text-xs text-ink-muted">{{ text().messages.conversation.typing }}</span>
+            } @else {
+              <app-presence-label [lastActiveAt]="shownFriend.lastActiveAt" />
+            }
+          </span>
         </span>
       </a>
     } @else {
@@ -159,6 +167,7 @@
                         [isOwn]="message.sender.id === signedInUserId()"
                         [showsTime]="mark?.showsTime ?? true"
                         [isSending]="shown.sendingIds.has(message.id)"
+                        [isFading]="shown.fadingIds.has(message.id)"
                         [isLastSeen]="message.id === lastSeenOwnId()"
                       />
                     </li>

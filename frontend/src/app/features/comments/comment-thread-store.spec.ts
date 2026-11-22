@@ -4,6 +4,7 @@ import { AppResult, fail, ok } from '../../core/http/app-result';
 import { english } from '../../core/languages/english';
 import { SessionStore } from '../../core/session/session-store';
 import { ConfirmationOpener } from '../../shared/confirmation/confirmation-opener';
+import { deleteFadeMilliseconds } from '../../shared/fade-out/delete-fade';
 import { ToastStore } from '../../shared/toasts/toast-store';
 import { CommentApi } from './comment-api';
 import { CommentThreadStore } from './comment-thread-store';
@@ -223,14 +224,22 @@ describe('CommentThreadStore', () => {
       expect(countNow()).toBe(0);
     });
 
-    it('takes the comment off the list at once once it is confirmed, and lowers the count', async () => {
+    it('fades the comment out for 200 ms once it is confirmed, then takes it off the list and lowers the count', async () => {
       await loadComments(comment(1), comment(2));
       const answer = deferred<void>();
       commentApi.delete.mockReturnValue(answer.promise);
 
       const removing = thread.remove(comment(1));
-      await vi.waitFor(() => expect(commentApi.delete).toHaveBeenCalledWith(1));
+      await vi.advanceTimersByTimeAsync(0);
 
+      expect(shownTexts()).toEqual(['comment 1', 'comment 2']);
+      expect(thread.shown().map((shown) => shown.isFading)).toEqual([true, false]);
+      expect(commentApi.delete).not.toHaveBeenCalled();
+      expect(countNow()).toBe(0);
+
+      await vi.advanceTimersByTimeAsync(deleteFadeMilliseconds);
+
+      expect(commentApi.delete).toHaveBeenCalledWith(1);
       expect(shownTexts()).toEqual(['comment 2']);
       expect(countNow()).toBe(-1);
 
@@ -241,15 +250,42 @@ describe('CommentThreadStore', () => {
       expect(countNow()).toBe(-1);
     });
 
+    it('says the comment is deleted once the server has deleted it', async () => {
+      await loadComments(comment(1), comment(2));
+      commentApi.delete.mockResolvedValue(ok(undefined));
+
+      const removing = thread.remove(comment(1));
+      await vi.advanceTimersByTimeAsync(deleteFadeMilliseconds);
+      await removing;
+
+      expect(toastMessages()).toEqual([english.comments.deletedToast]);
+    });
+
     it('puts a refused deletion back in its place, raises the count again and shows a toast', async () => {
       await loadComments(comment(1), comment(2), comment(3));
       commentApi.delete.mockResolvedValue(fail('Comment not found', 400));
 
-      await thread.remove(comment(2));
+      const removing = thread.remove(comment(2));
+      await vi.advanceTimersByTimeAsync(deleteFadeMilliseconds);
+      await removing;
 
       expect(shownTexts()).toEqual(['comment 1', 'comment 2', 'comment 3']);
+      expect(thread.shown().map((shown) => shown.isFading)).toEqual([false, false, false]);
       expect(countNow()).toBe(0);
       expect(toastMessages()).toEqual(['Comment not found']);
+    });
+
+    it('ignores a second deletion of a comment that is fading out', async () => {
+      await loadComments(comment(1));
+      commentApi.delete.mockResolvedValue(ok(undefined));
+
+      void thread.remove(comment(1));
+      await vi.advanceTimersByTimeAsync(0);
+      void thread.remove(comment(1));
+      await vi.advanceTimersByTimeAsync(deleteFadeMilliseconds);
+
+      expect(confirmationOpener.ask).toHaveBeenCalledTimes(1);
+      expect(commentApi.delete).toHaveBeenCalledTimes(1);
     });
   });
 });

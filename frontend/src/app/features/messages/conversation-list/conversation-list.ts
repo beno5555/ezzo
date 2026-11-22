@@ -13,7 +13,7 @@ import { LoadFailure } from '../../../shared/load-failure/load-failure';
 import { PresenceDot } from '../../../shared/presence-dot/presence-dot';
 import { ScrollSentinel } from '../../../shared/scroll-sentinel/scroll-sentinel';
 import { toConversationRow } from '../conversation-row';
-import { ConversationsStore } from '../conversations-store';
+import { ConversationListStore } from '../conversation-list-store';
 
 // The conversation list, in its own scrolling box: each friend with their presence, the last message and
 // its time, and how many messages are unread. The open conversation's row is marked. MessagesPage loads
@@ -37,16 +37,16 @@ import { ConversationsStore } from '../conversations-store';
   styleUrl: './conversation-list.css',
 })
 export class ConversationList {
-  private readonly conversationsStore = inject(ConversationsStore);
+  private readonly conversationListStore = inject(ConversationListStore);
   private readonly sessionStore = inject(SessionStore);
 
   protected readonly text = inject(LanguageStore).text;
   protected readonly dateFormatter = inject(DateFormatter);
   protected readonly PageLoadStatus = PageLoadStatus;
-  protected readonly status = this.conversationsStore.listStatus;
-  protected readonly failureMessage = this.conversationsStore.listFailure;
+  protected readonly status = this.conversationListStore.status;
+  protected readonly failureMessage = this.conversationListStore.failure;
   protected readonly rows = computed(() =>
-    this.conversationsStore
+    this.conversationListStore
       .conversations()
       .map((row) => toConversationRow(row, this.sessionStore.userId(), this.text().messages.list)),
   );
@@ -54,6 +54,6 @@ export class ConversationList {
 
   // From the scroll sentinel, and from the Try again button after a failed page.
   async loadMore(): Promise<void> {
-    await this.conversationsStore.loadMoreConversations();
+    await this.conversationListStore.loadMore();
   }
 }

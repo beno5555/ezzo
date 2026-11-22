@@ -232,7 +232,7 @@ GET  /api/internal/birthdays
 POST /api/internal/notifications
 
 SIGNALR HUB (/hubs/messages):
-server → client: ReceiveMessage, MessageEdited, MessageSeen, ReceiveComment, PostLiked,
+server → client: ReceiveMessage, MessageEdited, MessageDeleted, MessageSeen, ReceiveComment, PostLiked,
                  UserOnline, UserOffline, UserTyping, ReceiveNotification
 client → server: SendTyping
 ```

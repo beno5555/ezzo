@@ -81,4 +81,12 @@ public static class MessageMapper
             Content = message.MessageContent,
         };
     }
+
+    public static MessageDeletedDto ToMessageDeleted(Message message)
+    {
+        return new MessageDeletedDto
+        {
+            Id = message.Id,
+        };
+    }
 }

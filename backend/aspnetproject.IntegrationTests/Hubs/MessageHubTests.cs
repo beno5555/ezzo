@@ -159,6 +159,55 @@ public class MessageHubTests : IClassFixture<DatabaseFixture>, IAsyncLifetime
         await bob.AssertNoEventAsync(HubEvents.MessageEdited);
     }
 
+    // ---------- DELETE /messages/{id} → MessageDeleted ----------
+    // Message 3: alice (2) → bob (3). Deleting is not time-limited.
+
+    [Fact]
+    public async Task DeleteMessage_BySender_DeliversMessageDeletedToReceiver()
+    {
+        await using var bob = await HubTestClient.ConnectAsync(_factory, "bob");
+        var token = await AuthTestHelper.LoginAsync(_client, "alice", TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(_client, token);
+
+        var response = await _client.DeleteAsync("api/messages/3");
+        var pushed = await bob.WaitForEventAsync<MessageDeletedDto>(HubEvents.MessageDeleted);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.Equal(3, pushed.Id);
+    }
+
+    [Fact]
+    public async Task DeleteMessage_BySender_DeliversNothingToSenderOrThirdUser()
+    {
+        await using var alice   = await HubTestClient.ConnectAsync(_factory, "alice");
+        await using var bob     = await HubTestClient.ConnectAsync(_factory, "bob");
+        await using var charlie = await HubTestClient.ConnectAsync(_factory, "charlie");
+        var token = await AuthTestHelper.LoginAsync(_client, "alice", TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(_client, token);
+
+        var response = await _client.DeleteAsync("api/messages/3");
+        await bob.WaitForEventAsync<MessageDeletedDto>(HubEvents.MessageDeleted);
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        await alice.AssertNoEventAsync(HubEvents.MessageDeleted);
+        await charlie.AssertNoEventAsync(HubEvents.MessageDeleted);
+    }
+
+    [Fact]
+    public async Task DeleteMessage_ByReceiver_DeliversNothing()
+    {
+        await using var alice = await HubTestClient.ConnectAsync(_factory, "alice");
+        await using var bob   = await HubTestClient.ConnectAsync(_factory, "bob");
+        var token = await AuthTestHelper.LoginAsync(_client, "bob", TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(_client, token);
+
+        var response = await _client.DeleteAsync("api/messages/3"); // alice's message
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        await alice.AssertNoEventAsync(HubEvents.MessageDeleted);
+        await bob.AssertNoEventAsync(HubEvents.MessageDeleted);
+    }
+
     // ---------- POST /posts/{postId}/likes → PostLiked ----------
     // Post 2 is bob's (3). alice (2), charlie (4) and erin (6) already like it; diana (5) does not.
 

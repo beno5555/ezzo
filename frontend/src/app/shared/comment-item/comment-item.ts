@@ -9,6 +9,7 @@ import { AvatarSize } from '../avatar/avatar-size';
 import { ContentAction } from '../content-actions/content-action';
 import { contentActionsOffered } from '../content-actions/content-actions-offered';
 import { contentMenuEntries } from '../content-actions/content-menu-entries';
+import { FadeOut } from '../fade-out/fade-out';
 import { HiddenBadge } from '../hidden-badge/hidden-badge';
 import { Menu } from '../menu/menu';
 import { MenuEntry } from '../menu/menu-entry';
@@ -28,13 +29,14 @@ import { ReportTargetType } from '../../features/reports/report-target-type';
 // author, Delete for the post's author, Report for another signed-in user, and for an administrator also
 // Delete and Hide or Make visible. Report opens the report dialog; Hide and Make visible go through
 // ModerationStore, which also says whether the comment shows the "Hidden" badge. A comment still on its
-// way to the server, or being saved, has no menu: there is nothing on the server to change yet, and a
-// second change would race the first. An edit opens a form in place of the text; saving shows the new
+// way to the server, being saved or fading out after its deletion was confirmed has no menu: there is
+// nothing on the server to change yet, and a second change would race the first. A deleted comment fades
+// out (FadeOut) before it leaves the list. An edit opens a form in place of the text; saving shows the new
 // text at once with "Sending…", and an edit the server refuses opens the form again with what the author
 // wrote (CommentThreadStore.takeReturnedEdit).
 @Component({
   selector: 'app-comment-item',
-  imports: [Avatar, CommentForm, HiddenBadge, Menu, RouterLink, TextLink],
+  imports: [Avatar, CommentForm, FadeOut, HiddenBadge, Menu, RouterLink, TextLink],
   templateUrl: './comment-item.html',
   styleUrl: './comment-item.css',
 })
@@ -68,7 +70,7 @@ export class CommentItem {
     return userId !== null && this.comment().author.id === userId;
   });
   private readonly isChangeable = computed(
-    () => this.shown().isOnServer && !this.shown().isSending,
+    () => this.shown().isOnServer && !this.shown().isSending && !this.shown().isFading,
   );
   // The comment's moderation state as shown: what an administrator has set here, else its own flag.
   protected readonly isHidden = computed(() =>

@@ -1,7 +1,6 @@
 <article
-  class="flex flex-col gap-3 rounded-lg transition-opacity duration-200 motion-reduce:transition-none motion-reduce:opacity-100 border border-border bg-surface-raised p-4 text-ink-strong"
-  [class.opacity-0]="isDeleting()"
-  [class.pointer-events-none]="isDeleting()"
+  class="flex flex-col gap-3 rounded-lg border border-border bg-surface-raised p-4 text-ink-strong"
+  [appFadeOut]="isDeleting()"
   [attr.aria-busy]="isMarkedUploading() || isDeleting() || null"
 >
   <header class="flex items-center gap-3">

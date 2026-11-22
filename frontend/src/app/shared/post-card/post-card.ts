@@ -26,6 +26,7 @@ import { Avatar } from '../avatar/avatar';
 import { ContentAction } from '../content-actions/content-action';
 import { contentActionsOffered } from '../content-actions/content-actions-offered';
 import { contentMenuEntries } from '../content-actions/content-menu-entries';
+import { FadeOut } from '../fade-out/fade-out';
 import { HiddenBadge } from '../hidden-badge/hidden-badge';
 import { Menu } from '../menu/menu';
 import { MenuEntry } from '../menu/menu-entry';
@@ -55,6 +56,7 @@ import { TextLink } from '../text-link/text-link';
     RouterLink,
     ActionButton,
     Avatar,
+    FadeOut,
     HiddenBadge,
     Menu,
     PhotoGrid,

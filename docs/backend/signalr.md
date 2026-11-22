@@ -88,6 +88,7 @@ Policy name: `OriginPolicy` (`CorsExtensions.AddCorsPolicies`), applied globally
 | `PushMessageDto` | Receiver's live hub arrival (`ReceiveMessage`) | Id, Content, Images, Sender, SentAt |
 | `StandardMessageDto` | Full conversation history (`GetConversation`) | Id, Content, Images, Sender, ReceiverId, SentAt, Seen, SeenAt, IsEdited |
 | `MessageEditedDto` | Edit push (`MessageEdited`) | Id, Content |
+| `MessageDeletedDto` | Delete push (`MessageDeleted`) | Id |
 | `NotifyCommentDto` | Live comment push (`ReceiveComment`) | Id, AuthorUsername, Content |
 | `UserTypingDto` | Typing signal (`UserTyping`) | UserId (the sender) |
 | `PostLikedDto` | Like push (`PostLiked`) | PostId, LikedBy (`MinimalUserDto`: Id, Username), LikeCount (the post's count after the like) |
@@ -101,6 +102,7 @@ Policy name: `OriginPolicy` (`CorsExtensions.AddCorsPolicies`), applied globally
 | `ReceiveMessage` | `SendMessage` persists successfully | `PushMessageDto` | Receiver's group |
 | `MessageSeen` | Conversation marked read (at least one unread message from the other user, seen) | `{ SeenBy, SeenAt }` | Sender's group |
 | `MessageEdited` | Message edit persists successfully | `MessageEditedDto` | Receiver's group only (the editor gets the edited message in the HTTP response) |
+| `MessageDeleted` | The sender deletes a message (not time-limited) | `MessageDeletedDto` | Receiver's group only (the sender's HTTP response is their confirmation). The payload holds only the message id: the client drops the message from an open conversation, and reads its list and the unread count again if it does not hold it |
 | `ReceiveComment` | A comment is added to a post, by someone other than the post's author | `NotifyCommentDto` | Post author's group |
 | `PostLiked` | A post is liked by someone other than its author. A repeated like (already liked) pushes nothing; an unlike pushes nothing | `PostLikedDto` | Post author's group only |
 | `UserOnline` | A user's first connection opens | `{ UserId }` | Each accepted friend's group |
