@@ -24,4 +24,4 @@ Decisions are under "Feed, posts and comments" and "Actions on content, reports 
 - [x] The edit page shows the photos and offers no control on them
 - [x] The composer's and the edit page's title and text boxes stop at their limit and show the count
 - [x] The edit, delete and remove-photo `…Api` methods are unit-tested against the HTTP testing backend
-- [ ] Checked in the running app on a desktop width and on a phone width, on the feed and on the edit page
+- [x] Checked in the running app on a desktop width and on a phone width, on the feed and on the edit page
