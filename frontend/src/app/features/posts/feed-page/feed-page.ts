@@ -46,19 +46,11 @@ export class FeedPage implements OnInit {
   });
   protected readonly newPosts = inject(NewPostStore);
   private readonly postEdits = inject(PostEditStore);
-  // The posts the feed shows: those it loaded, without a post whose deletion the author confirmed; an
-  // edit on its way shows in the post's place, or on top when the ranked feed has not brought the
-  // caller's own post.
-  protected readonly shownPosts = computed(() => {
-    const pending = this.postEdits.pendingEdits();
-    const loaded = this.feed.items().filter((post) => !this.postEdits.isDeleted(post.id));
-    const isLoaded = (id: number) => loaded.some((post) => post.id === id);
-
-    return [
-      ...pending.filter((post) => !isLoaded(post.id)),
-      ...loaded.map((post) => pending.find((edited) => edited.id === post.id) ?? post),
-    ];
-  });
+  // The posts the feed shows: those it loaded, and the caller's own once the server has them (prepend),
+  // without a post whose deletion the author confirmed.
+  protected readonly shownPosts = computed(() =>
+    this.feed.items().filter((post) => !this.postEdits.isDeleted(post.id)),
+  );
   // Posts still on their way are not in the list, but they are shown, so they open it too.
   protected readonly hasPosts = computed(() => this.shownPosts().length > 0);
   protected readonly isListShown = computed(
@@ -68,22 +60,7 @@ export class FeedPage implements OnInit {
   constructor() {
     // The server's copy of a post sent from the composer's page goes on top of the list.
     const stopShowing = this.newPosts.onPublished((created) => this.feed.prepend(created));
-    // The server's copy of an edited post takes the post's place in the list, or goes on top of it.
-    const stopShowingEdits = this.postEdits.onSaved((saved) => {
-      const isListed = this.feed.items().some((post) => post.id === saved.id);
-      const shown = this.postLikes.withUnsettledLike(saved);
-
-      if (isListed) {
-        this.feed.replace(shown);
-      } else {
-        this.feed.prepend(shown);
-      }
-    });
-
-    inject(DestroyRef).onDestroy(() => {
-      stopShowing();
-      stopShowingEdits();
-    });
+    inject(DestroyRef).onDestroy(stopShowing);
   }
 
   async ngOnInit(): Promise<void> {

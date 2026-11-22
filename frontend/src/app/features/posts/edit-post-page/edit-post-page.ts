@@ -32,10 +32,10 @@ import { StandardPostDisplayDto } from '../standard-post-display-dto';
 // Where a post's author edits it, at /posts/:postId/edit: opened from the post card's menu and from a
 // refused edit's toast. It loads the post and fills a card-shaped form with its title and text, with the
 // composer's limits. Another user's post, or one that does not exist, shows the not-found page. Photos
-// show as they are but cannot be changed (removing and adding come later). Save goes to the feed first,
-// where the post shows with its new text, marked as uploading; PostEditStore sends the edit and its
-// toasts follow it. The feed takes this page's place in the history, so Back does not return to a form
-// that has been sent. Cancel leads to the post. When an edit was refused, the form opens with what the
+// show as they are but cannot be changed (removing and adding come later). Save goes to the post's own
+// page first, where the post shows with its new text, marked as uploading; PostEditStore sends the edit
+// and its toasts follow it. That page takes this one's place in the history, so Back does not return to a
+// form that has been sent. Cancel leads to the post. When an edit was refused, the form opens with what the
 // author wrote in it; that is dropped as soon as the page opens or closes, never kept for a later visit.
 @Component({
   selector: 'app-edit-post-page',
@@ -126,7 +126,7 @@ export class EditPostPage {
     if (post !== null && this.canSave()) {
       const written = this.form.getRawValue();
 
-      await this.router.navigateByUrl(appAddresses.feed, { replaceUrl: true });
+      await this.router.navigate(appAddresses.post(post.id), { replaceUrl: true });
       await this.postEdits.edit(post, written);
     }
   }

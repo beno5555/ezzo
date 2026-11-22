@@ -1,4 +1,4 @@
-import { Injectable, WritableSignal, computed, inject, signal } from '@angular/core';
+import { Injectable, WritableSignal, inject, signal } from '@angular/core';
 import { LanguageStore } from '../../core/languages/language-store';
 import { appAddresses } from '../../core/routing/app-addresses';
 import { ConfirmationOpener } from '../../shared/confirmation/confirmation-opener';
@@ -13,12 +13,13 @@ const deleteFadeMilliseconds = 200;
 // What an author does to a post that already exists: edit its title and text on the edit page, delete it.
 // Both show their result at once, as the spec's "What a user writes shows at once too" and "Quick actions
 // show their result at once" ask; NewPostStore and CommentThreadStore are the patterns.
-//   - edit: the edit page sends the post to the feed first, where it shows with the new title and text,
-//     marked as uploading (pendingEdits), and a toast says the post is uploading until the server answers.
-//     Then the server's copy goes to every page listening (onSaved) and a second toast says it is saved
-//     and leads to the post. On a refusal the post shows as it was, and the toast says why and leads to
-//     the edit page, which opens filled with what the author wrote (takeReturnedEdit). The store lives as
-//     long as the app, so the toasts tell even after the author has left the feed.
+//   - edit: the edit page sends the author to the post's own page first, where the post shows with the new
+//     title and text, marked as uploading (pendingEdit), and a toast says the post is uploading until the
+//     server answers. Then the server's copy goes to every page listening (onSaved) and a second toast says
+//     it is saved and leads to the post. On a refusal the post shows as it was, and the toast says why and
+//     leads to the edit page, which opens filled with what the author wrote (takeReturnedEdit). The store
+//     lives as long as the app, so the toasts tell even after the author has left the page. An author's own
+//     posts are not shown in the feed, so no list is told about an edit that is on its way.
 //   - delete: asks first. Once the author confirms, the post's card fades out and every list leaves it
 //     out; a toast says it is deleted. If the server refuses, the post comes back, with a toast.
 // A post with a request on its way ignores another edit or deletion, so the answers never cross.
@@ -36,8 +37,10 @@ export class PostEditStore {
   // The pages showing posts, each told of every server copy that arrives while it listens.
   private readonly listeners = new Set<(saved: StandardPostDisplayDto) => void>();
 
-  // The posts whose edit is on its way, as they show now: with the new title and text.
-  readonly pendingEdits = computed(() => [...this.pending().values()]);
+  // The post as it shows while its edit is on its way, with the new title and text, or null.
+  pendingEdit(postId: number): StandardPostDisplayDto | null {
+    return this.pending().get(postId) ?? null;
+  }
 
   // True while the post's edit is on its way: its card shows it as uploading.
   isSaving(postId: number): boolean {
@@ -55,7 +58,7 @@ export class PostEditStore {
     return this.deletedIds().has(postId);
   }
 
-  // show puts a server's copy of an edited post in the page's list as it arrives. Returns the call that
+  // show puts a server's copy of an edited post on the page as it arrives. Returns the call that
   // stops it, for the page to make when it is destroyed.
   onSaved(show: (saved: StandardPostDisplayDto) => void): () => void {
     this.listeners.add(show);

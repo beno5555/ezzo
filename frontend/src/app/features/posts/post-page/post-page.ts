@@ -1,5 +1,14 @@
 import { HttpStatusCode } from '@angular/common/http';
-import { Component, effect, inject, input, signal, untracked } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  computed,
+  effect,
+  inject,
+  input,
+  signal,
+  untracked,
+} from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { LucideArrowLeft } from '@lucide/angular';
 import { LanguageStore } from '../../../core/languages/language-store';
@@ -53,6 +62,12 @@ export class PostPage {
   protected readonly status = signal<PostPageStatus>(PostPageStatus.Loading);
   protected readonly post = signal<StandardPostDisplayDto | null>(null);
   protected readonly failureMessage = signal<string | null>(null);
+  // The post as the card shows it: with the new title and text while the author's edit is on its way.
+  protected readonly displayedPost = computed(() => {
+    const post = this.post();
+
+    return post === null ? null : (this.postEdits.pendingEdit(post.id) ?? post);
+  });
 
   constructor() {
     // The address can change to another post while the page stays open, so the page loads in an effect.
@@ -63,6 +78,15 @@ export class PostPage {
         void this.load(postId);
       });
     });
+
+    // The server's copy of an edit the author sent from the edit page takes the post's place.
+    const stopShowingEdits = this.postEdits.onSaved((saved) => {
+      this.post.update((post) =>
+        post !== null && post.id === saved.id ? this.postLikes.withUnsettledLike(saved) : post,
+      );
+    });
+
+    inject(DestroyRef).onDestroy(stopShowingEdits);
   }
 
   private async load(postIdText: string): Promise<void> {
