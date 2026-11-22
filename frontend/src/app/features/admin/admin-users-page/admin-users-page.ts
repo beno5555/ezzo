@@ -30,15 +30,16 @@ import { AccountTable } from '../account-table';
 import { AdminApi } from '../admin-api';
 import { AdminUserDto } from '../admin-user-dto';
 
-// What marks each state's badge: its colour and its word, never the colour alone (DESIGN.md, Colors).
-const stateBadgeClasses: Record<AccountState, string> = {
-  [AccountState.Active]: 'border-success text-success',
-  [AccountState.Deactivated]: 'border-warning text-warning',
-  [AccountState.SoftDeleted]: 'border-danger text-danger',
+// The colour of each state's word, which is plain text, not a control: the word carries the meaning, the
+// colour only helps (DESIGN.md, Colors).
+const stateTextClasses: Record<AccountState, string> = {
+  [AccountState.Active]: 'text-success',
+  [AccountState.Deactivated]: 'text-warning',
+  [AccountState.SoftDeleted]: 'text-danger',
 };
 
 // An account that is not active is greyed: sunken and in the muted ink, so that it reads as out of use
-// (it can not be edited, and a deactivated one must be restored first). The state badge says which.
+// (it can not be edited, and a deactivated one must be restored first). The state word says which.
 const rowClasses: Record<AccountState, string> = {
   [AccountState.Active]: 'bg-surface-raised lg:bg-transparent',
   [AccountState.Deactivated]: 'bg-surface-sunken text-ink-muted',
@@ -137,8 +138,8 @@ export class AdminUsersPage implements OnInit {
     return rowClasses[state];
   }
 
-  stateBadgeClass(state: AccountState): string {
-    return stateBadgeClasses[state];
+  stateTextClass(state: AccountState): string {
+    return stateTextClasses[state];
   }
 
   // The entries of a row's menu: edit, then each action that fits the row's state.

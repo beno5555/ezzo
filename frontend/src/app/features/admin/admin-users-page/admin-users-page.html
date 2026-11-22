@@ -124,11 +124,9 @@
                 <span class="min-w-24 text-sm text-ink-muted lg:hidden">{{
                   text().admin.users.columns.state
                 }}</span>
-                <span
-                  class="inline-flex items-center rounded-sm border px-2 text-sm font-semibold"
-                  [class]="stateBadgeClass(row.state)"
-                  >{{ text().admin.users.states[row.state] }}</span
-                >
+                <span class="font-semibold" [class]="stateTextClass(row.state)">{{
+                  text().admin.users.states[row.state]
+                }}</span>
               </td>
               <td class="flex flex-wrap gap-x-2 lg:table-cell lg:px-2 lg:py-3 lg:align-middle">
                 <span class="min-w-24 text-sm text-ink-muted lg:hidden">{{
