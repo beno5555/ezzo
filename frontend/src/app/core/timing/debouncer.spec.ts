@@ -2,7 +2,7 @@ import type { Mock } from 'vitest';
 import { Debouncer } from './debouncer';
 
 describe('Debouncer', () => {
-  const wait = 300;
+  const wait = 500;
   let action: Mock<() => void>;
   let debouncer: Debouncer;
 
