@@ -12,14 +12,13 @@
       [attr.aria-controls]="navigationId"
       (click)="toggleNavigation()"
     >
-      <svg class="size-5" lucideMenu aria-hidden="true"></svg>
-      {{ text().admin.navigationButton }}
       <svg
         class="size-5 transition-transform duration-150 motion-reduce:transition-none"
-        [class.rotate-180]="isNavigationOpen()"
-        lucideChevronDown
+        [class.rotate-90]="isNavigationOpen()"
+        lucideMenu
         aria-hidden="true"
       ></svg>
+      {{ text().admin.navigationButton }}
     </button>
 
     <ul

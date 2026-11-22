@@ -17,9 +17,9 @@ Decisions are under "Friends and search" in `.scratch/frontend/spec.md`.
 **Difficulty:** routine: one page on an existing `…Api` method, with one rule that is unit-tested.
 
 - [ ] Typing in the shell's search box and confirming opens `/search` with the words in the address
-- [ ] Results appear 300 ms after the typing stops, not on every keystroke
+- [ ] Results appear 300 ms after the typing stops, not on every keystroke (**already built** while doing ticket 22, on the search page from ticket 07: `Debouncer` in `core/timing/`, address replaced without a history entry, emptying the field clears it, a class-level spec with fake timers in `user-search-page.spec.ts`; this ticket keeps it working through the restyle and adds the paging and the rest)
 - [ ] The "latest answer wins" rule is unit-tested: an older answer that arrives after a newer one is ignored
-- [ ] The pause is tested with fake timers
+- [x] The pause is tested with fake timers (already in `user-search-page.spec.ts`)
 - [ ] Reloading the page with words in the address shows their results
 - [ ] A guest can search and open a profile from the results
 - [ ] Checked in the running app on a desktop width and on a phone width, as a guest and as a user
