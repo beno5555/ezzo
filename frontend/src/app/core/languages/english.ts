@@ -47,6 +47,7 @@ export const english = {
     resetPassword: 'Choose a new password',
     reactivateAccount: 'Reactivate your account',
     newPost: 'Write a post',
+    editPost: 'Edit your post',
     post: 'Post',
     profile: 'Profile',
     search: 'Search',
@@ -466,6 +467,32 @@ export const english = {
       loading: 'Loading the post…',
       retryButton: 'Try again',
     },
+    // The "…" menu on a post card, for its author.
+    menu: {
+      label: 'Actions for this post',
+      editEntry: 'Edit',
+      deleteEntry: 'Delete',
+    },
+    // The page where a post's author edits it (/posts/:postId/edit, features/posts/edit-post-page).
+    edit: {
+      loading: 'Loading the post…',
+      retryButton: 'Try again',
+      titleLabel: 'Title',
+      contentLabel: 'Text',
+      photosLabel: 'Photos',
+      photosHint: 'Photos cannot be changed yet.',
+      saveButton: 'Save',
+      cancelButton: 'Cancel',
+      // Replaces the uploading toast (posts.composer.uploadingToast) once the server has the edit.
+      savedToast: 'Your post is saved.',
+    },
+    deleteConfirmation: {
+      question: 'Delete this post?',
+      detail: 'Its photos and comments are deleted with it. This cannot be undone.',
+      confirmButton: 'Delete',
+    },
+    // After the server has deleted a post.
+    deletedToast: 'Your post is deleted.',
   },
   // A post's comments and the form under them (features/comments).
   comments: {

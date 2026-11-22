@@ -8,8 +8,17 @@
     fieldId="post-title"
     [label]="text().posts.composer.titleLabel"
     [control]="form.controls.title"
+    [length]="written().title.length"
+    [maxLength]="titleMaxLength"
   >
-    <input appTextInput id="post-title" type="text" autocomplete="off" formControlName="title" />
+    <input
+      appTextInput
+      id="post-title"
+      type="text"
+      autocomplete="off"
+      formControlName="title"
+      [attr.maxlength]="titleMaxLength"
+    />
   </app-form-field>
 
   <app-form-field
@@ -17,8 +26,16 @@
     [label]="text().posts.composer.contentLabel"
     [hint]="text().posts.composer.contentHint"
     [control]="form.controls.content"
+    [length]="written().content.length"
+    [maxLength]="contentMaxLength"
   >
-    <textarea appTextInput id="post-content" rows="4" formControlName="content"></textarea>
+    <textarea
+      appTextInput
+      id="post-content"
+      rows="4"
+      formControlName="content"
+      [attr.maxlength]="contentMaxLength"
+    ></textarea>
   </app-form-field>
 
   <app-photo-picker [rules]="photoRules" [(photos)]="photos" />

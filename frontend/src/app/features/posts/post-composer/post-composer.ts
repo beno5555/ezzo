@@ -36,13 +36,16 @@ export class PostComposer {
     maxFileSizeBytes: LIMITS.images.maxFileSizeBytes,
     acceptedTypes: LIMITS.images.acceptedTypes,
   };
+  // The boxes stop taking characters at these (maxlength), and show the count beside their labels.
+  protected readonly titleMaxLength = LIMITS.posts.titleMaxLength;
+  protected readonly contentMaxLength = LIMITS.posts.contentMaxLength;
   protected readonly form = inject(NonNullableFormBuilder).group({
-    title: ['', [Validators.required, Validators.maxLength(LIMITS.posts.titleMaxLength)]],
-    content: ['', [Validators.maxLength(LIMITS.posts.contentMaxLength)]],
+    title: ['', [Validators.required, Validators.maxLength(this.titleMaxLength)]],
+    content: ['', [Validators.maxLength(this.contentMaxLength)]],
   });
   protected readonly photos = signal<readonly File[]>([]);
 
-  private readonly written = toSignal(
+  protected readonly written = toSignal(
     this.form.valueChanges.pipe(map(() => this.form.getRawValue())),
     { initialValue: this.form.getRawValue() },
   );

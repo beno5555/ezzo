@@ -70,6 +70,13 @@ export const routes: Routes = [
       import('./features/posts/new-post-page/new-post-page').then((m) => m.NewPostPage),
   },
   {
+    path: 'posts/:postId/edit',
+    title: 'editPost',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/posts/edit-post-page/edit-post-page').then((m) => m.EditPostPage),
+  },
+  {
     path: 'posts/:postId',
     title: 'post',
     loadComponent: () => import('./features/posts/post-page/post-page').then((m) => m.PostPage),

@@ -1,5 +1,14 @@
 import { HttpStatusCode } from '@angular/common/http';
-import { Component, effect, inject, input, signal, untracked } from '@angular/core';
+import {
+  Component,
+  DestroyRef,
+  computed,
+  effect,
+  inject,
+  input,
+  signal,
+  untracked,
+} from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
 import { LucideArrowLeft } from '@lucide/angular';
 import { LanguageStore } from '../../../core/languages/language-store';
@@ -12,6 +21,7 @@ import { CommentSection } from '../../../shared/comment-section/comment-section'
 import { LoadFailure } from '../../../shared/load-failure/load-failure';
 import { PostCard } from '../../../shared/post-card/post-card';
 import { PostApi } from '../post-api';
+import { PostEditStore } from '../post-edit-store';
 import { PostLikeStore } from '../post-like-store';
 import { StandardPostDisplayDto } from '../standard-post-display-dto';
 import { PostPageStatus } from './post-page-status';
@@ -39,6 +49,7 @@ export class PostPage {
   private readonly postApi = inject(PostApi);
   private readonly router = inject(Router);
   private readonly sessionStore = inject(SessionStore);
+  private readonly postEdits = inject(PostEditStore);
 
   // From the route, as the text of the address's last segment (withComponentInputBinding).
   readonly postId = input.required<string>();
@@ -51,6 +62,12 @@ export class PostPage {
   protected readonly status = signal<PostPageStatus>(PostPageStatus.Loading);
   protected readonly post = signal<StandardPostDisplayDto | null>(null);
   protected readonly failureMessage = signal<string | null>(null);
+  // The post as the card shows it: with the new title and text while the author's edit is on its way.
+  protected readonly displayedPost = computed(() => {
+    const post = this.post();
+
+    return post === null ? null : (this.postEdits.pendingEdit(post.id) ?? post);
+  });
 
   constructor() {
     // The address can change to another post while the page stays open, so the page loads in an effect.
@@ -61,6 +78,15 @@ export class PostPage {
         void this.load(postId);
       });
     });
+
+    // The server's copy of an edit the author sent from the edit page takes the post's place.
+    const stopShowingEdits = this.postEdits.onSaved((saved) => {
+      this.post.update((post) =>
+        post !== null && post.id === saved.id ? this.postLikes.withUnsettledLike(saved) : post,
+      );
+    });
+
+    inject(DestroyRef).onDestroy(stopShowingEdits);
   }
 
   private async load(postIdText: string): Promise<void> {
@@ -102,6 +128,14 @@ export class PostPage {
         signInAddress(this.router, appAddresses.post(post.id).join('/')),
       );
     }
+  }
+
+  // Once the card has faded out, the page leads to the feed, as the post is gone.
+  async deletePost(post: StandardPostDisplayDto): Promise<void> {
+    await this.postEdits.delete(post, () => {
+      // Fire-and-forget on purpose: the store's request must not wait for the navigation.
+      void this.router.navigateByUrl(appAddresses.feed);
+    });
   }
 
   // From the comment section: +1 for a comment sent or a deletion refused, -1 for one refused or deleted.

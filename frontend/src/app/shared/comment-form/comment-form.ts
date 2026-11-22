@@ -5,7 +5,7 @@ import { map } from 'rxjs';
 import { LucideSendHorizontal } from '@lucide/angular';
 import { LIMITS } from '../../core/limits';
 import { Button } from '../button/button';
-import { CharacterCount } from '../character-count/character-count';
+import { CharacterCounter } from '../character-counter/character-counter';
 import { FormField } from '../form-field/form-field';
 import { TextInput } from '../text-input/text-input';
 import { canSendComment } from '../../features/comments/can-send-comment';
@@ -25,7 +25,7 @@ import { canSendComment } from '../../features/comments/can-send-comment';
   imports: [
     ReactiveFormsModule,
     Button,
-    CharacterCount,
+    CharacterCounter,
     FormField,
     LucideSendHorizontal,
     TextInput,

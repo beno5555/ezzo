@@ -1,5 +1,6 @@
 <section class="flex flex-col gap-4" [attr.aria-label]="text().comments.heading">
-  <h2 class="font-display text-xl text-ink-strong">{{ text().comments.heading }}</h2>
+  <!-- Only for screen readers: the post card above already shows the comment count. -->
+  <h2 class="sr-only">{{ text().comments.heading }}</h2>
 
   @if (hasComments()) {
     <ul class="flex flex-col gap-3">

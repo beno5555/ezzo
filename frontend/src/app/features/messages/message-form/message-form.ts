@@ -16,7 +16,7 @@ import { LucideImagePlus, LucideSendHorizontal } from '@lucide/angular';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { LIMITS } from '../../../core/limits';
 import { Button } from '../../../shared/button/button';
-import { CharacterCount } from '../../../shared/character-count/character-count';
+import { CharacterCounter } from '../../../shared/character-counter/character-counter';
 import { IconButton } from '../../../shared/icon-button/icon-button';
 import { PhotoPicker } from '../../../shared/photos/photo-picker/photo-picker';
 import { PhotoRules } from '../../../shared/photos/photo-rules';
@@ -39,7 +39,7 @@ import { NewMessage } from '../new-message';
   imports: [
     ReactiveFormsModule,
     Button,
-    CharacterCount,
+    CharacterCounter,
     IconButton,
     PhotoPicker,
     TextInput,

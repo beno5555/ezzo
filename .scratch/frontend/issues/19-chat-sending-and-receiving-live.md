@@ -34,5 +34,5 @@ Decisions are under "Chat" in `.scratch/frontend/spec.md`. Events and payloads a
 
 - **Left over: the profile's Message button.** The profile page is still a placeholder, so the button waits for ticket 14, which links it to `appAddresses.conversation(username)`, the address "New message" opens.
 - **The list row moves on the server's answer,** not at the moment of sending: the pending message shows in the conversation at once, and the row moves to the top when the server's copy arrives (a refused message never reaches the list).
-- **Added on the way:** sending scrolls the user's own view to the newest message, even from older ones (only arriving messages leave a reader where they are); a refused message waits per conversation until its box is empty; the comment form's character counter became the shared `CharacterCount`, used by the message box too.
-- **The initial bundle is over budget:** 612.70 kB against 600 kB (`master` was already at 600.17 kB). Tickets 36 to 38 cover the first download.
+- **Added on the way:** sending scrolls the user's own view to the newest message, even from older ones (only arriving messages leave a reader where they are); a refused message waits per conversation until its box is empty. The message box shows its count with the shared `CharacterCounter`, placed in its corner as the comment box does.
+- **The initial bundle is over budget:** 616.30 kB against 600 kB, about 12.5 kB of it from this ticket (`master` was already over it). Tickets 36 to 38 cover the first download.

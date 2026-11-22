@@ -10,6 +10,8 @@
 
 Decisions are under "Chat" in `.scratch/frontend/spec.md`. The 20-minute rule and the events are in `docs/backend/signalr.md` and under `MessageController` in `docs/backend/controllers.md`.
 
+**Shared delete fade (owner, 2026-11-22).** A deleted post's card fades out over 200 ms before it leaves the list (`PostEditStore.delete`, `deleteFadeMilliseconds`, the card's `duration-200`), and a toast says it is deleted. Comment deletion (ticket 11) does not fade yet. This is the first ticket after 12 that deletes something in a list, so it extracts the shared piece instead of copying the wait and the opacity classes: one helper or small component for "fade out, then leave", used by the post card, the comment and the message, and gives comments and messages the same fade and toast.
+
 **Blocked by:** 19 (Chat: sending and receiving live), and the frontend setup (27, 28, 29)
 
 **Status:** ready-for-agent

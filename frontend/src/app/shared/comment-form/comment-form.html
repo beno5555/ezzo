@@ -22,14 +22,15 @@
           [id]="fieldId()"
           [placeholder]="contentLabel()"
         ></textarea>
-        <!-- Only from the first character typed: while the box is empty the whole width is the
-             placeholder's, which is long in Georgian. -->
-
+        <!-- Used characters out of the limit, in the corner of the box, from the first character typed. The
+             box then keeps room for it on its right (pe-16), so the text never runs under it; while it is
+             empty the whole width is the placeholder's, which is long in Georgian. -->
         @if (length() > 0) {
-          <app-character-count
-            class="absolute end-3 bottom-2"
+          <app-character-counter
+            class="pointer-events-none absolute end-3 bottom-2 text-xs"
+            aria-hidden="true"
             [length]="length()"
-            [maxLength]="maxLength"
+            [max]="maxLength"
           />
         }
       </div>

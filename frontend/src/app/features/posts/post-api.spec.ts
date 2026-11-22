@@ -92,6 +92,101 @@ describe('PostApi', () => {
     });
   });
 
+  describe('PUT /api/posts/{id}', () => {
+    it('sends the title and the text as JSON and returns the edited post', async () => {
+      const edited: FullPostDisplayDto = { ...post, title: 'Monday at the lake' };
+
+      const pending = postApi.edit(3, { title: 'Monday at the lake', content: 'Cold water.' });
+
+      const request = httpTesting.expectOne(
+        (candidate) => candidate.method === 'PUT' && candidate.url === '/api/posts/3',
+      );
+      expect(request.request.body).toEqual({ title: 'Monday at the lake', content: 'Cold water.' });
+      request.flush({ succeeded: true, message: null, data: edited });
+
+      expect(await pending).toEqual({ succeeded: true, data: edited });
+    });
+
+    it('returns the backend message with status 400 for an edit it refuses', async () => {
+      const pending = postApi.edit(3, { title: 'Only a title', content: '' });
+
+      httpTesting
+        .expectOne('/api/posts/3')
+        .flush(
+          { succeeded: false, message: 'Post Text or at least one Image is required', data: null },
+          { status: 400, statusText: 'Bad Request' },
+        );
+
+      expect(await pending).toEqual({
+        succeeded: false,
+        message: 'Post Text or at least one Image is required',
+        status: 400,
+      });
+    });
+  });
+
+  describe('DELETE /api/posts/{id}', () => {
+    it('deletes the post', async () => {
+      const pending = postApi.delete(3);
+
+      const request = httpTesting.expectOne(
+        (candidate) => candidate.method === 'DELETE' && candidate.url === '/api/posts/3',
+      );
+      request.flush({ succeeded: true, message: 'Post deleted' });
+
+      expect(await pending).toEqual({ succeeded: true, message: 'Post deleted', data: undefined });
+    });
+
+    it('returns the backend message with status 400 when the post is not the callers', async () => {
+      const pending = postApi.delete(3);
+
+      httpTesting
+        .expectOne('/api/posts/3')
+        .flush(
+          { succeeded: false, message: 'Could not delete post', data: null },
+          { status: 400, statusText: 'Bad Request' },
+        );
+
+      expect(await pending).toEqual({
+        succeeded: false,
+        message: 'Could not delete post',
+        status: 400,
+      });
+    });
+  });
+
+  describe('DELETE /api/posts/{postId}/images/{imageId}', () => {
+    it('removes one photo and returns the post without it', async () => {
+      const without: FullPostDisplayDto = { ...post, images: [] };
+
+      const pending = postApi.removeImage(3, 11);
+
+      const request = httpTesting.expectOne(
+        (candidate) => candidate.method === 'DELETE' && candidate.url === '/api/posts/3/images/11',
+      );
+      request.flush({ succeeded: true, message: null, data: without });
+
+      expect(await pending).toEqual({ succeeded: true, data: without });
+    });
+
+    it('returns the backend message with status 400 for the last photo of a post without text', async () => {
+      const pending = postApi.removeImage(3, 11);
+
+      httpTesting
+        .expectOne('/api/posts/3/images/11')
+        .flush(
+          { succeeded: false, message: 'A post must keep its text or a photo', data: null },
+          { status: 400, statusText: 'Bad Request' },
+        );
+
+      expect(await pending).toEqual({
+        succeeded: false,
+        message: 'A post must keep its text or a photo',
+        status: 400,
+      });
+    });
+  });
+
   describe('GET /api/posts/{id}', () => {
     it('returns the post with its counts', async () => {
       const full: FullPostDisplayDto = { ...post };

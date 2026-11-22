@@ -278,6 +278,7 @@ export class MyProfilePage implements OnInit {
 
 - Use typed reactive forms built with `NonNullableFormBuilder`. Never put `ngModel` or a second binding on the same control.
 - Validators take their limits from `LIMITS`.
+- A text box with a length limit also stops taking characters at it and shows the count: give its `<app-form-field>` `[length]` and `[maxLength]` (it draws the shared `CharacterCounter` beside the label) and the control `[attr.maxlength]`. Where a label would not fit, as in the comment box, place `<app-character-counter>` yourself. Never draw a counter of your own.
 - Disable the submit button while the form is invalid, and guard the handler as well.
 - Show a field's error once the field has been touched. After a failed submit, put the server's `fieldErrors` on the matching controls.
 
