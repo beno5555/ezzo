@@ -1,4 +1,4 @@
-import { Component, effect, inject, signal, untracked } from '@angular/core';
+import { Component, DestroyRef, effect, inject, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -11,13 +11,16 @@ import {
   searchQueryParameter,
   searchQueryParameters,
 } from '../../../core/routing/app-addresses';
+import { Debouncer, typingPauseMilliseconds } from '../../../core/timing/debouncer';
 import { Button } from '../../../shared/button/button';
 import { TextInput } from '../../../shared/text-input/text-input';
 import { MinimalUserDto } from '../minimal-user-dto';
 import { UserApi } from '../user-api';
 
 // The search page at /search?q=…. The address holds the query, so the top bar's search box, this
-// page's own form and the browser's Back button all lead to the same search. Its own ticket styles it.
+// page's own form and the browser's Back button all lead to the same search. Typing searches too, once
+// the visitor pauses: the address is replaced, not added to, so Back does not walk through every try.
+// Its own ticket styles it.
 @Component({
   selector: 'app-user-search-page',
   imports: [ReactiveFormsModule, Button, TextInput, LucideSearch, LucideCircleExclamationPoint],
@@ -46,14 +49,29 @@ export class UserSearchPage {
   // Numbers each search, so a slow older response cannot overwrite a newer one.
   private latestSearch = 0;
 
+  // The query this page just put in the address after a pause in typing. The address then changes to it,
+  // and the field must keep what the visitor has typed since, not be reset to the older words.
+  private typedAddressQuery: string | null = null;
+
+  private readonly typingPause = new Debouncer(
+    () => void this.searchTypedWords(),
+    typingPauseMilliseconds,
+  );
+
   constructor() {
+    inject(DestroyRef).onDestroy(() => this.typingPause.cancel());
     effect(() => {
       const query = this.addressQuery() ?? '';
       untracked(() => this.showSearchFor(query));
     });
   }
 
+  searchAfterTyping(): void {
+    this.typingPause.call();
+  }
+
   async submit(): Promise<void> {
+    this.typingPause.cancel();
     if (this.form.invalid) {
       return;
     }
@@ -71,8 +89,30 @@ export class UserSearchPage {
     }
   }
 
+  // Runs when the visitor has stopped typing. Emptying the field clears the search (the form is invalid
+  // when empty, so that case is allowed by name); words that are too long are left alone, as the form
+  // shows; words already in the address are not searched again.
+  private async searchTypedWords(): Promise<void> {
+    const query = this.form.controls.username.value.trim();
+    const isChanged = query !== (this.addressQuery() ?? '');
+    const isCleared = query === '';
+    const isAllowed = isCleared || this.form.valid;
+
+    if (isChanged && isAllowed) {
+      this.typedAddressQuery = query;
+      await this.router.navigate([appAddresses.search], {
+        queryParams: searchQueryParameters(query),
+        replaceUrl: true,
+      });
+    }
+  }
+
   private showSearchFor(query: string): void {
-    this.form.controls.username.setValue(query);
+    const isFromTyping = query === this.typedAddressQuery;
+    this.typedAddressQuery = null;
+    if (!isFromTyping) {
+      this.form.controls.username.setValue(query);
+    }
     const isSearchable = query !== '' && this.form.valid;
     if (isSearchable) {
       void this.search(query); // the page shows its own failure

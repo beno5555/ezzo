@@ -324,7 +324,7 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 ### Friends and search
 
 - **`/friends`** has three tabs backed by the three lists. Removing a friend warns that the messages between the two are deleted.
-- **`/search`** keeps the words in the address, searches 300 ms after the last keystroke, and ignores every response but the latest (ADR 0003). The top-bar box navigates there. Search is open to a guest.
+- **`/search`** keeps the words in the address, searches 500 ms after the last keystroke, and ignores every response but the latest (ADR 0003). The top-bar box navigates there. Search is open to a guest.
 
 ### Chat
 

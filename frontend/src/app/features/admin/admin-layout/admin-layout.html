@@ -1,0 +1,65 @@
+<div class="flex flex-col gap-6 lg:flex-row lg:items-start lg:gap-8">
+  <nav
+    class="flex flex-col gap-2 lg:w-1/4 lg:max-w-56 lg:shrink-0"
+    [attr.aria-label]="text().admin.navigationLabel"
+  >
+    <button
+      appButton
+      class="lg:hidden"
+      look="quiet"
+      type="button"
+      [attr.aria-expanded]="isNavigationOpen()"
+      [attr.aria-controls]="navigationId"
+      (click)="toggleNavigation()"
+    >
+      <svg
+        class="size-5 transition-transform duration-150 motion-reduce:transition-none"
+        [class.rotate-90]="isNavigationOpen()"
+        lucideMenu
+        aria-hidden="true"
+      ></svg>
+      {{ text().admin.navigationButton }}
+    </button>
+
+    <ul
+      class="flex-col gap-1 lg:flex"
+      [id]="navigationId"
+      [class]="isNavigationOpen() ? 'flex' : 'hidden'"
+    >
+      <li>
+        <a appAdminNavLink [routerLink]="[adminAddress, 'users']" (click)="closeNavigation()">
+          <svg class="size-5 shrink-0" lucideUsers aria-hidden="true"></svg>
+          {{ text().pages.adminUsers }}
+        </a>
+      </li>
+      <li>
+        <a appAdminNavLink [routerLink]="[adminAddress, 'reports']" (click)="closeNavigation()">
+          <svg class="size-5 shrink-0" lucideFlag aria-hidden="true"></svg>
+          {{ text().pages.adminReports }}
+        </a>
+      </li>
+      <li>
+        <a appAdminNavLink [routerLink]="[adminAddress, 'moderation']" (click)="closeNavigation()">
+          <svg class="size-5 shrink-0" lucideShieldCheck aria-hidden="true"></svg>
+          {{ text().pages.adminModeration }}
+        </a>
+      </li>
+      <li>
+        <a appAdminNavLink [routerLink]="[adminAddress, 'logs']" (click)="closeNavigation()">
+          <svg class="size-5 shrink-0" lucideScrollText aria-hidden="true"></svg>
+          {{ text().pages.adminLogs }}
+        </a>
+      </li>
+      <li>
+        <a appAdminNavLink [routerLink]="[adminAddress, 'statistics']" (click)="closeNavigation()">
+          <svg class="size-5 shrink-0" lucideChartColumn aria-hidden="true"></svg>
+          {{ text().pages.adminStatistics }}
+        </a>
+      </li>
+    </ul>
+  </nav>
+
+  <div class="min-w-0 flex-1">
+    <router-outlet />
+  </div>
+</div>

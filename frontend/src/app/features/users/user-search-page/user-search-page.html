@@ -12,6 +12,7 @@
         id="username"
         type="search"
         formControlName="username"
+        (input)="searchAfterTyping()"
       />
       <button appButton look="primary" type="submit" [disabled]="form.invalid">
         <svg class="size-5" lucideSearch></svg>
