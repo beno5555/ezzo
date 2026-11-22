@@ -192,7 +192,7 @@ export const english = {
       position: (position: number, total: number) => `${position} / ${total}`,
       previousButton: 'Previous photo',
       nextButton: 'Next photo',
-      // The photo picker (shared/photos/photo-picker), in the composer and in the chat (ticket 19).
+      // The photo picker (shared/photos/photo-picker), in the composer and in the chat's message box.
       addButton: 'Add photos',
       removeButton: (position: number, total: number) => `Remove photo ${position} of ${total}`,
       count: (count: number, max: number) => `${count} of ${max} photos`,
@@ -547,6 +547,29 @@ export const english = {
       ownSender: 'You',
       senderLabel: (sender: string) => `${sender}:`,
       edited: 'Edited',
+      // The accessible label of the clock that stands where the time of a message on its way goes.
+      sending: 'Sending',
+      // Under the user's last message that the friend has read.
+      seen: 'Seen',
+    },
+    // The box under the open conversation where the user writes.
+    messageBox: {
+      label: 'Write a message',
+      contentLabel: 'Message',
+      placeholder: 'Write a message…',
+      sendButton: 'Send',
+    },
+    // The button above the list, and its dialog of friends without a conversation.
+    newMessage: {
+      openButton: 'New message',
+      title: 'New message',
+      loading: 'Loading your friends…',
+      loadingMore: 'Loading more friends…',
+      retryButton: 'Try again',
+      emptyTitle: 'Nobody left to start with',
+      emptyMessage:
+        'You already have a conversation with every friend. Add friends to write to someone new.',
+      listLabel: 'Friends you have not written to yet',
     },
   },
 };

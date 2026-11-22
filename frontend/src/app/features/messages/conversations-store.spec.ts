@@ -1,8 +1,12 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { PageLoadStatus } from '../../core/paging/page-load-status';
+import { SessionStore } from '../../core/session/session-store';
 import { waitForPendingWork } from '../../core/session/testing/wait-for-pending-work';
+import { PreviewAddressMaker } from '../../shared/photos/preview-address-maker';
+import { ToastStore } from '../../shared/toasts/toast-store';
 import { AcceptedFriendshipDto } from '../friendships/accepted-friendship-dto';
 import { DisplayFriendDto } from '../friendships/display-friend-dto';
 import { PresenceStore } from '../friendships/presence-store';
@@ -14,10 +18,13 @@ import {
   conversationListPageSize,
   messageHistoryPageSize,
 } from './conversations-store';
+import { PushMessageDto } from './push-message-dto';
+import { SentMessageDto } from './sent-message-dto';
 import { StandardMessageDto } from './standard-message-dto';
 import { UnreadStore } from './unread-store';
 
 const signedInUserId = 1;
+const signedInUsername = 'me';
 const listAddress = '/api/messages/friends/conversation';
 const unreadAddress = '/api/messages/conversations/unread';
 
@@ -89,15 +96,37 @@ describe('ConversationsStore', () => {
   let store: ConversationsStore;
   let presenceStore: PresenceStore;
   let unreadStore: UnreadStore;
+  let toastStore: ToastStore;
   let httpTesting: HttpTestingController;
+  // Preview addresses named after their file, and a record of those released.
+  let previews: { released: string[] };
 
   beforeEach(() => {
+    previews = { released: [] };
     TestBed.configureTestingModule({
-      providers: [provideHttpClient(), provideHttpClientTesting()],
+      providers: [
+        provideHttpClient(),
+        provideHttpClientTesting(),
+        {
+          provide: SessionStore,
+          useValue: {
+            userId: signal(signedInUserId),
+            user: signal({ id: signedInUserId, username: signedInUsername, roles: [] }),
+          },
+        },
+        {
+          provide: PreviewAddressMaker,
+          useValue: {
+            create: (photo: File) => `blob:${photo.name}`,
+            release: (address: string) => previews.released.push(address),
+          },
+        },
+      ],
     });
     store = TestBed.inject(ConversationsStore);
     presenceStore = TestBed.inject(PresenceStore);
     unreadStore = TestBed.inject(UnreadStore);
+    toastStore = TestBed.inject(ToastStore);
     httpTesting = TestBed.inject(HttpTestingController);
   });
 
@@ -226,6 +255,7 @@ describe('ConversationsStore', () => {
         messages: messages(1, 3, alice),
         historyStatus: PageLoadStatus.Ended,
         historyFailure: null,
+        sendingIds: new Set(),
       });
     });
 
@@ -418,6 +448,340 @@ describe('ConversationsStore', () => {
 
       expect(store.openConversation()?.messages).toEqual(messages(1, 2, alice));
       expect(store.conversations()[0].unreadCount).toBe(0);
+    });
+  });
+
+  describe('sending a message', () => {
+    const lake = new File(['lake'], 'lake.jpg', { type: 'image/jpeg' });
+    const sendAddress = `/api/messages/${bob.id}`;
+
+    function sentCopy(id: number, content: string, images = 0): SentMessageDto {
+      return {
+        id,
+        content,
+        images: Array.from({ length: images }, (_, index) => ({
+          id: 100 + index,
+          address: `/api/images/${id}-${index}.jpg`,
+          orderIndex: index,
+        })),
+        sentAt: '2026-11-22T10:00:00Z',
+      };
+    }
+
+    function ownCopy(sent: SentMessageDto, seenAt: string | null = null): StandardMessageDto {
+      return {
+        ...sent,
+        sender: { id: signedInUserId, username: signedInUsername },
+        receiverId: bob.id,
+        seen: seenAt !== null,
+        seenAt,
+        isEdited: false,
+      };
+    }
+
+    async function openBob(rows: ConversationFriendDto[], history: StandardMessageDto[] = []) {
+      await loadList(rows);
+      const opening = store.open('bob');
+      await answerHistory(bob, history);
+      await answerUnread(0);
+      await opening;
+    }
+
+    it('shows the message at once as sending, with the previews, then the server copy in its place', async () => {
+      await openBob([row(alice), row(bob)], messages(1, 2, bob));
+
+      const sending = store.send({ content: 'Look', photos: [lake] });
+
+      const shown = store.openConversation();
+      const pending = shown?.messages.at(-1);
+      expect(shown?.messages).toHaveLength(3);
+      expect(pending).toMatchObject({
+        content: 'Look',
+        images: [{ address: 'blob:lake.jpg', orderIndex: 0 }],
+        sender: { id: signedInUserId, username: signedInUsername },
+        receiverId: bob.id,
+        seen: false,
+      });
+      expect(pending?.id).toBeLessThan(0);
+      expect(shown?.sendingIds.has(pending?.id ?? 0)).toBe(true);
+
+      httpTesting.expectOne(sendAddress).flush(envelope(sentCopy(40, 'Look', 1)));
+      await sending;
+
+      expect(store.openConversation()?.messages).toEqual([
+        ...messages(1, 2, bob),
+        ownCopy(sentCopy(40, 'Look', 1)),
+      ]);
+      expect(store.openConversation()?.sendingIds.size).toBe(0);
+      expect(previews.released).toEqual(['blob:lake.jpg']);
+    });
+
+    it('moves the conversation to the top of the list with the new last message', async () => {
+      await openBob([row(alice), row(bob)]);
+
+      const sending = store.send({ content: '', photos: [lake] });
+      httpTesting.expectOne(sendAddress).flush(envelope(sentCopy(40, '', 1)));
+      await sending;
+
+      expect(store.conversations()[0]).toEqual({
+        conversationFriend: bob,
+        lastMessageContent: '',
+        lastMessageSentAt: '2026-11-22T10:00:00Z',
+        lastMessageSenderId: signedInUserId,
+        lastMessageImageCount: 1,
+        unreadCount: 0,
+      });
+      expect(store.conversations()[1]).toEqual(row(alice));
+    });
+
+    it('puts a first message’s conversation on top of the list', async () => {
+      await loadList([row(alice)]);
+      const opening = store.open('bob');
+      httpTesting.expectOne('/api/users/bob').flush(envelope(user(bob)));
+      await waitForPendingWork();
+      httpTesting.expectOne('/api/friendships/accepted/4').flush(envelope(friendship(bob)));
+      await waitForPendingWork();
+      await answerHistory(bob, []);
+      await answerUnread(0);
+      await opening;
+
+      const sending = store.send({ content: 'Hello', photos: [] });
+      httpTesting.expectOne(sendAddress).flush(envelope(sentCopy(40, 'Hello')));
+      await sending;
+
+      expect(store.conversations().map((shown) => shown.conversationFriend.id)).toEqual([
+        bob.id,
+        alice.id,
+      ]);
+    });
+
+    it('removes a refused message, says why, and keeps its text and photos for the box', async () => {
+      await openBob([row(bob)], messages(1, 2, bob));
+
+      const sending = store.send({ content: 'Look', photos: [lake] });
+      httpTesting
+        .expectOne(sendAddress)
+        .flush(
+          { succeeded: false, message: 'You can message only your friends', data: null },
+          { status: 400, statusText: 'Bad Request' },
+        );
+      await sending;
+
+      expect(store.openConversation()?.messages).toEqual(messages(1, 2, bob));
+      expect(toastStore.visible().map((toast) => toast.message)).toEqual([
+        'You can message only your friends',
+      ]);
+      expect(store.conversations()).toEqual([row(bob)]);
+      expect(store.returnedMessage()).toEqual({ content: 'Look', photos: [lake] });
+      expect(store.takeReturned()).toEqual({ content: 'Look', photos: [lake] });
+      expect(store.returnedMessage()).toBeNull();
+    });
+
+    it('keeps a refused message for its own conversation only', async () => {
+      await openBob([row(alice), row(bob)]);
+      const sending = store.send({ content: 'Look', photos: [] });
+      const openingAlice = store.open('alice');
+      await answerHistory(alice, []);
+      await answerUnread(0);
+      await openingAlice;
+
+      httpTesting
+        .expectOne(sendAddress)
+        .flush({ succeeded: false, message: 'Refused' }, { status: 400, statusText: '' });
+      await sending;
+
+      expect(store.returnedMessage()).toBeNull();
+      const openingBob = store.open('bob');
+      await answerHistory(bob, []);
+      await answerUnread(0);
+      await openingBob;
+      expect(store.returnedMessage()).toEqual({ content: 'Look', photos: [] });
+    });
+
+    it('shows the server copy as seen when the friend read it before the answer arrived', async () => {
+      await openBob([row(bob)]);
+
+      const sending = store.send({ content: 'Quick', photos: [] });
+      store.markSeen({ seenBy: bob.id, seenAt: '2026-11-22T10:00:05Z' });
+      httpTesting.expectOne(sendAddress).flush(envelope(sentCopy(40, 'Quick')));
+      await sending;
+
+      expect(store.openConversation()?.messages).toEqual([
+        ownCopy(sentCopy(40, 'Quick'), '2026-11-22T10:00:05Z'),
+      ]);
+    });
+  });
+
+  describe('a message that arrives', () => {
+    function push(id: number, sender: DisplayFriendDto, content = `pushed ${id}`): PushMessageDto {
+      return {
+        id,
+        content,
+        images: [],
+        sender: { id: sender.id, username: sender.username },
+        sentAt: '2026-11-22T11:00:00Z',
+      };
+    }
+
+    function asHistory(pushed: PushMessageDto): StandardMessageDto {
+      return {
+        ...pushed,
+        receiverId: signedInUserId,
+        seen: false,
+        seenAt: null,
+        isEdited: false,
+      };
+    }
+
+    it('joins the open conversation, which is marked read again', async () => {
+      await loadList([row(bob), row(alice)]);
+      const opening = store.open('alice');
+      await answerHistory(alice, messages(1, 2, alice));
+      await answerUnread(0);
+      await opening;
+
+      const receiving = store.receive(push(50, alice, 'Are you there?'));
+
+      expect(store.openConversation()?.messages).toEqual([
+        ...messages(1, 2, alice),
+        asHistory(push(50, alice, 'Are you there?')),
+      ]);
+      httpTesting
+        .expectOne(
+          (candidate) =>
+            candidate.method === 'PUT' &&
+            candidate.url === `/api/messages/conversation/${alice.id}/mark-as-read`,
+        )
+        .flush(null, { status: 204, statusText: 'No Content' });
+      await waitForPendingWork();
+      await answerUnread(0);
+      await receiving;
+
+      expect(store.conversations()[0]).toMatchObject({
+        conversationFriend: alice,
+        lastMessageContent: 'Are you there?',
+        lastMessageSenderId: alice.id,
+        unreadCount: 0,
+      });
+    });
+
+    it('moves a closed conversation to the top with a higher count, and reads the unread number again', async () => {
+      await loadList([row(alice), row(bob, 1)]);
+
+      const receiving = store.receive(push(50, bob, 'Ping'));
+      await answerUnread(2);
+      await receiving;
+
+      expect(store.conversations()).toEqual([
+        {
+          conversationFriend: bob,
+          lastMessageContent: 'Ping',
+          lastMessageSentAt: '2026-11-22T11:00:00Z',
+          lastMessageSenderId: bob.id,
+          lastMessageImageCount: 0,
+          unreadCount: 2,
+        },
+        row(alice),
+      ]);
+      expect(unreadStore.count()).toBe(2);
+    });
+
+    it('adds a row on top for a conversation the list does not hold', async () => {
+      const carol: DisplayFriendDto = {
+        id: 5,
+        username: 'carol',
+        lastActiveAt: null,
+        isActive: true,
+      };
+      await loadList([row(alice)]);
+
+      const receiving = store.receive(push(50, carol, 'Hi, it is Carol'));
+      await answerUnread(1);
+      await receiving;
+
+      expect(store.conversations()[0]).toEqual({
+        conversationFriend: carol,
+        lastMessageContent: 'Hi, it is Carol',
+        lastMessageSentAt: '2026-11-22T11:00:00Z',
+        lastMessageSenderId: carol.id,
+        lastMessageImageCount: 0,
+        unreadCount: 1,
+      });
+      expect(store.conversations()).toHaveLength(2);
+    });
+
+    it('does not show a message twice', async () => {
+      await loadList([row(alice)]);
+      const opening = store.open('alice');
+      await answerHistory(alice, messages(1, 2, alice));
+      await answerUnread(0);
+      await opening;
+
+      const receiving = store.receive({ ...push(2, alice), content: 'message 2' });
+      httpTesting
+        .expectOne(`/api/messages/conversation/${alice.id}/mark-as-read`)
+        .flush(null, { status: 204, statusText: 'No Content' });
+      await waitForPendingWork();
+      await answerUnread(0);
+      await receiving;
+
+      expect(store.openConversation()?.messages.map((shown) => shown.id)).toEqual([1, 2]);
+    });
+  });
+
+  describe('seen', () => {
+    function own(id: number, to: DisplayFriendDto): StandardMessageDto {
+      return {
+        ...message(id, alice),
+        sender: { id: signedInUserId, username: signedInUsername },
+        receiverId: to.id,
+        seen: false,
+        seenAt: null,
+      };
+    }
+
+    it('marks the user’s messages to that friend as seen', async () => {
+      await loadList([row(alice)]);
+      const opening = store.open('alice');
+      await answerHistory(alice, [own(1, alice), message(2, alice), own(3, alice)]);
+      await answerUnread(0);
+      await opening;
+
+      store.markSeen({ seenBy: alice.id, seenAt: '2026-11-22T12:00:00Z' });
+
+      expect(store.openConversation()?.messages).toEqual([
+        { ...own(1, alice), seen: true, seenAt: '2026-11-22T12:00:00Z' },
+        message(2, alice),
+        { ...own(3, alice), seen: true, seenAt: '2026-11-22T12:00:00Z' },
+      ]);
+    });
+
+    it('leaves a message sent after the friend read the conversation unseen', async () => {
+      const later = { ...own(2, alice), sentAt: '2026-11-22T12:05:00Z' };
+      await loadList([row(alice)]);
+      const opening = store.open('alice');
+      await answerHistory(alice, [own(1, alice), later]);
+      await answerUnread(0);
+      await opening;
+
+      store.markSeen({ seenBy: alice.id, seenAt: '2026-11-22T12:00:00Z' });
+
+      expect(store.openConversation()?.messages).toEqual([
+        { ...own(1, alice), seen: true, seenAt: '2026-11-22T12:00:00Z' },
+        later,
+      ]);
+    });
+
+    it('changes nothing when another friend read their messages', async () => {
+      await loadList([row(alice)]);
+      const opening = store.open('alice');
+      await answerHistory(alice, [own(1, alice)]);
+      await answerUnread(0);
+      await opening;
+
+      store.markSeen({ seenBy: bob.id, seenAt: '2026-11-22T12:00:00Z' });
+
+      expect(store.openConversation()?.messages).toEqual([own(1, alice)]);
     });
   });
 

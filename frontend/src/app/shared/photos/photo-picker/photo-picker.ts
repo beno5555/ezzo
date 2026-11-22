@@ -21,12 +21,13 @@ import { photoRefusalMessage } from '../photo-refusal-message';
 import { PhotoRules } from '../photo-rules';
 
 // Choose, check, preview and remove photos before they are sent: the post composer with 10 at most, the
-// chat with 5 (ticket 19). The form owns the chosen files through [(photos)], so it can send them, empty
-// the picker after sending, and put a refused post's photos back; the picker follows, making a preview
-// address for each new file and releasing the address of each file that left.
+// chat's message box with 5. The form owns the chosen files through [(photos)], so it can send them, empty
+// the picker after sending, and put a refused post's or message's photos back; the picker follows, making
+// a preview address for each new file and releasing the address of each file that left.
 //   <app-photo-picker [rules]="photoRules" [(photos)]="photos" />
 // A file the checks refuse is not added, and a message under the thumbnails names it and says why, until
-// the next pick or removal.
+// the next pick or removal. A form with no room for the Add photos button ([hasAddButton]="false", the
+// message box) puts its own control in its row and calls openFiles().
 @Component({
   selector: 'app-photo-picker',
   imports: [Button, IconButton, LucideCircleExclamationPoint, LucideImagePlus, LucideX],
@@ -40,14 +41,20 @@ export class PhotoPicker {
   private readonly fileInput = viewChild.required<ElementRef<HTMLInputElement>>('fileInput');
 
   readonly rules = input.required<PhotoRules>();
+  readonly hasAddButton = input(true);
   // In the order the post or message will show them.
   readonly photos = model.required<readonly File[]>();
 
   protected readonly text = inject(LanguageStore).text;
   protected readonly previews = signal<readonly PhotoPreview[]>([]);
   protected readonly refusalMessages = signal<readonly string[]>([]);
-  protected readonly isFull = computed(() => this.photos().length >= this.rules().maxCount);
+  // Read by a form that puts its own add control in its row.
+  readonly isFull = computed(() => this.photos().length >= this.rules().maxCount);
   protected readonly acceptedTypes = computed(() => this.rules().acceptedTypes.join(','));
+  // Whether anything shows without the add button: thumbnails or a refusal.
+  readonly hasContent = computed(
+    () => this.previews().length > 0 || this.refusalMessages().length > 0,
+  );
 
   constructor() {
     effect(() => {
@@ -58,7 +65,7 @@ export class PhotoPicker {
     });
   }
 
-  // The add button: the hidden file input opens the browser's file chooser.
+  // The add button, or the form's own control: the hidden file input opens the browser's file chooser.
   openFiles(): void {
     this.fileInput().nativeElement.click();
   }

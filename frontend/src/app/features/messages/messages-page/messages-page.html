@@ -8,6 +8,10 @@
   >
     <!-- The shell's Messages link already says where the reader is, so only screen readers get the heading. -->
     <h1 id="messages-heading" class="sr-only">{{ text().pages.messages }}</h1>
+    <button appButton look="quiet" class="self-start" type="button" (click)="startConversation()">
+      <svg class="size-5" lucideSquarePen aria-hidden="true"></svg>
+      {{ text().messages.newMessage.openButton }}
+    </button>
     <app-conversation-list class="flex min-h-0 flex-1 flex-col" />
   </section>
 

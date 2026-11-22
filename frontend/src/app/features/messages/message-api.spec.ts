@@ -2,6 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { MessageApi } from './message-api';
+import { SentMessageDto } from './sent-message-dto';
 import { StandardMessageDto } from './standard-message-dto';
 
 describe('MessageApi', () => {
@@ -113,6 +114,77 @@ describe('MessageApi', () => {
         );
 
       expect(await pending).toEqual({ succeeded: false, message: 'Invalid request', status: 400 });
+    });
+  });
+
+  describe('POST /api/messages/{receiverId}', () => {
+    it('sends the text and the photos in their order as one multipart body', async () => {
+      const lake = new File(['lake'], 'lake.jpg', { type: 'image/jpeg' });
+      const map = new File(['map'], 'map.png', { type: 'image/png' });
+      const sent: SentMessageDto = {
+        id: 40,
+        content: 'Look at this',
+        images: [
+          { id: 7, address: '/api/images/lake.jpg', orderIndex: 0 },
+          { id: 8, address: '/api/images/map.png', orderIndex: 1 },
+        ],
+        sentAt: '2026-11-22T10:00:00Z',
+      };
+
+      const pending = messageApi.send(3, { content: 'Look at this', photos: [lake, map] });
+
+      const request = httpTesting.expectOne(
+        (candidate) => candidate.method === 'POST' && candidate.url === '/api/messages/3',
+      );
+      const body = request.request.body as FormData;
+      expect(body).toBeInstanceOf(FormData);
+      expect(body.get('Content')).toBe('Look at this');
+      expect(body.getAll('Images').map((image) => (image as File).name)).toEqual([
+        'lake.jpg',
+        'map.png',
+      ]);
+      request.flush(
+        { succeeded: true, message: 'Message sent', data: sent },
+        { status: 201, statusText: 'Created' },
+      );
+
+      expect(await pending).toEqual({ succeeded: true, message: 'Message sent', data: sent });
+    });
+
+    it('sends no text part for a message with photos only, and returns a refusal', async () => {
+      const lake = new File(['lake'], 'lake.jpg', { type: 'image/jpeg' });
+
+      const pending = messageApi.send(3, { content: '', photos: [lake] });
+
+      const request = httpTesting.expectOne('/api/messages/3');
+      const body = request.request.body as FormData;
+      expect(body.has('Content')).toBe(false);
+      expect(body.getAll('Images')).toHaveLength(1);
+      request.flush(
+        { succeeded: false, message: 'You can message only your friends', data: null },
+        { status: 400, statusText: 'Bad Request' },
+      );
+
+      expect(await pending).toEqual({
+        succeeded: false,
+        message: 'You can message only your friends',
+        status: 400,
+      });
+    });
+  });
+
+  describe('PUT /api/messages/conversation/{otherUserId}/mark-as-read', () => {
+    it('succeeds on the empty answer', async () => {
+      const pending = messageApi.markAsRead(3);
+
+      const request = httpTesting.expectOne(
+        (candidate) =>
+          candidate.method === 'PUT' &&
+          candidate.url === '/api/messages/conversation/3/mark-as-read',
+      );
+      request.flush(null, { status: 204, statusText: 'No Content' });
+
+      expect((await pending).succeeded).toBe(true);
     });
   });
 });

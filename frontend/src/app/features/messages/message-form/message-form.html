@@ -1,0 +1,56 @@
+<form
+  class="flex flex-col border-t border-border p-2 md:px-4 md:py-3"
+  [attr.aria-label]="text().messages.messageBox.label"
+  [formGroup]="form"
+  (ngSubmit)="submit()"
+>
+  <app-photo-picker
+    [class.pb-3]="pickerHasContent()"
+    [rules]="photoRules"
+    [hasAddButton]="false"
+    [(photos)]="photos"
+  />
+
+  <div class="flex items-end gap-2">
+    <button
+      appIconButton
+      type="button"
+      [disabled]="isFull()"
+      [attr.aria-label]="text().shared.photos.addButton"
+      (click)="openPhotos()"
+    >
+      <svg class="size-5" lucideImagePlus aria-hidden="true"></svg>
+    </button>
+    <!-- One row, like the comment form: screen readers read the label and the placeholder shows the same
+         words (owner, 2026-11-22, for the pinned comment form), so the box stays low. It grows with what
+         is typed, up to a few lines. -->
+    <label class="sr-only" for="message-content">{{
+      text().messages.messageBox.contentLabel
+    }}</label>
+    <div class="relative min-w-0 flex-1">
+      <textarea
+        appTextInput
+        class="block max-h-32 min-h-11 w-full field-sizing-content resize-none md:max-h-48"
+        id="message-content"
+        rows="1"
+        autocomplete="off"
+        formControlName="content"
+        [class.pe-20]="length() > 0"
+        [attr.maxlength]="maxLength"
+        [placeholder]="text().messages.messageBox.placeholder"
+      ></textarea>
+      @if (length() > 0) {
+        <app-character-count
+          class="absolute end-3 bottom-2"
+          [length]="length()"
+          [maxLength]="maxLength"
+        />
+      }
+    </div>
+    <!-- An icon alone on a phone, the word from a tablet up. -->
+    <button appButton look="primary" type="submit" [disabled]="!canSend()">
+      <svg class="size-5 md:hidden" lucideSendHorizontal aria-hidden="true"></svg>
+      <span class="sr-only md:not-sr-only">{{ text().messages.messageBox.sendButton }}</span>
+    </button>
+  </div>
+</form>

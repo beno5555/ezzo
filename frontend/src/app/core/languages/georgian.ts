@@ -465,6 +465,25 @@ export const georgian: Dictionary = {
       ownSender: 'თქვენ',
       senderLabel: (sender: string) => `${sender}:`,
       edited: 'შესწორებულია',
+      sending: 'იგზავნება',
+      seen: 'ნანახია',
+    },
+    messageBox: {
+      label: 'შეტყობინების დაწერა',
+      contentLabel: 'შეტყობინება',
+      placeholder: 'დაწერეთ შეტყობინება…',
+      sendButton: 'გაგზავნა',
+    },
+    newMessage: {
+      openButton: 'ახალი შეტყობინება',
+      title: 'ახალი შეტყობინება',
+      loading: 'მეგობრები იტვირთება…',
+      loadingMore: 'კიდევ მეგობრები იტვირთება…',
+      retryButton: 'თავიდან ცდა',
+      emptyTitle: 'ახალი საუბრის დასაწყები არავინ დარჩა',
+      emptyMessage:
+        'ყველა მეგობართან უკვე გაქვთ საუბარი. ახალ ვინმესთვის მისაწერად მეგობრები დაამატეთ.',
+      listLabel: 'მეგობრები, რომლებსაც ჯერ არ მიგიწერიათ',
     },
   },
 };

@@ -1,0 +1,60 @@
+<app-dialog-frame [title]="text().messages.newMessage.title">
+  <!-- Its own scrolling box, so that the heading and the close button stay in view. -->
+  <div #scrollArea class="-mx-2 max-h-96 overflow-y-auto">
+    @if (hasFriends()) {
+      <ul class="flex flex-col gap-1 p-1" [attr.aria-label]="text().messages.newMessage.listLabel">
+        @for (friend of friends.items(); track friend.id) {
+          <li>
+            <button
+              class="flex min-h-14 w-full cursor-pointer items-center gap-3 rounded-md px-3 py-2 text-start text-ink-strong hover:bg-surface-sunken focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus"
+              type="button"
+              (click)="choose(friend)"
+            >
+              <app-avatar [userId]="friend.id" [username]="friend.username" />
+              <span class="flex min-w-0 flex-col gap-0.5">
+                <span class="truncate font-semibold">{{ friend.username }}</span>
+                <app-presence-label [lastActiveAt]="friend.lastActiveAt" />
+              </span>
+            </button>
+          </li>
+        }
+      </ul>
+    }
+
+    @switch (friends.status()) {
+      @case (PageLoadStatus.Idle) {
+        @if (hasFriends()) {
+          <div appScrollSentinel [scrollArea]="scrollArea" (reached)="loadMore()"></div>
+        }
+      }
+      @case (PageLoadStatus.Loading) {
+        <p class="px-4 py-4 text-center text-sm text-ink-muted" role="status">
+          {{
+            hasFriends()
+              ? text().messages.newMessage.loadingMore
+              : text().messages.newMessage.loading
+          }}
+        </p>
+      }
+      @case (PageLoadStatus.Failed) {
+        <app-load-failure
+          class="px-4"
+          [message]="friends.failureMessage() ?? ''"
+          [retryLabel]="text().messages.newMessage.retryButton"
+          (retry)="loadMore()"
+        />
+      }
+      @case (PageLoadStatus.Ended) {
+        @if (!hasFriends()) {
+          <app-empty-state
+            [heading]="text().messages.newMessage.emptyTitle"
+            [message]="text().messages.newMessage.emptyMessage"
+            [headingLevel]="3"
+          >
+            <svg class="size-8 text-ink-muted" lucideUsers aria-hidden="true"></svg>
+          </app-empty-state>
+        }
+      }
+    }
+  </div>
+</app-dialog-frame>

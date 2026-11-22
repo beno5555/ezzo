@@ -23,25 +23,29 @@
     </ul>
   }
 
-  <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
-    <input
-      #fileInput
-      class="hidden"
-      type="file"
-      multiple
-      [accept]="acceptedTypes()"
-      (change)="pick(fileInput)"
-    />
-    <button appButton look="quiet" type="button" [disabled]="isFull()" (click)="openFiles()">
-      <svg class="size-5" lucideImagePlus aria-hidden="true"></svg>
-      {{ text().shared.photos.addButton }}
-    </button>
-    @if (previews().length > 0) {
-      <span class="text-sm text-ink-muted">{{
-        text().shared.photos.count(previews().length, rules().maxCount)
-      }}</span>
-    }
-  </div>
+  <input
+    #fileInput
+    class="hidden"
+    type="file"
+    multiple
+    [accept]="acceptedTypes()"
+    (change)="pick(fileInput)"
+  />
+  @if (hasAddButton() || previews().length > 0) {
+    <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
+      @if (hasAddButton()) {
+        <button appButton look="quiet" type="button" [disabled]="isFull()" (click)="openFiles()">
+          <svg class="size-5" lucideImagePlus aria-hidden="true"></svg>
+          {{ text().shared.photos.addButton }}
+        </button>
+      }
+      @if (previews().length > 0) {
+        <span class="text-sm text-ink-muted">{{
+          text().shared.photos.count(previews().length, rules().maxCount)
+        }}</span>
+      }
+    </div>
+  }
 
   @if (refusalMessages().length > 0) {
     <ul class="flex flex-col gap-1" role="alert">
