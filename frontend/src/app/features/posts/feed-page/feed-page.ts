@@ -1,6 +1,6 @@
 import { Component, DestroyRef, OnInit, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { LucideNewspaper, LucidePlus } from '@lucide/angular';
+import { LucideNewspaper, LucidePlus, LucideSquarePen } from '@lucide/angular';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { LIMITS } from '../../../core/limits';
 import { PageLoadStatus } from '../../../core/paging/page-load-status';
@@ -22,7 +22,16 @@ import { StandardPostDisplayDto } from '../standard-post-display-dto';
 // way to try again, or ended. An empty list shows the same states in place of the posts.
 @Component({
   selector: 'app-feed-page',
-  imports: [Button, LoadFailure, PostCard, RouterLink, ScrollSentinel, LucideNewspaper, LucidePlus],
+  imports: [
+    Button,
+    LoadFailure,
+    PostCard,
+    RouterLink,
+    ScrollSentinel,
+    LucideNewspaper,
+    LucidePlus,
+    LucideSquarePen,
+  ],
   templateUrl: './feed-page.html',
   styleUrl: './feed-page.css',
 })

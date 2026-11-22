@@ -7,14 +7,24 @@
     </h1>
   </div>
 
-  <!-- On a phone it floats above the bottom bar, out of the layout, so it pushes no post down and covers
-       no post's top corner (a post's "…" menu sits there). From a tablet up it spans the heading's row and
-       the list's row, so once the reader scrolls it stays pinned near the top of the screen over the
-       posts, a tap away; at the start it sits beside the heading. -->
+  <!-- On a phone a round pen button floats above the bottom bar, out of the layout, so it pushes no post
+       down and covers no post's top corner (a post's "…" menu sits there). It is a link of its own, not
+       the button below squeezed small, so the two never fight over a class. -->
+  <a
+    class="fixed right-4 bottom-20 z-10 inline-flex size-14 items-center justify-center rounded-full bg-accent text-on-accent shadow-overlay transition-colors hover:bg-accent-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus motion-reduce:transition-none md:hidden"
+    [routerLink]="newPostAddress"
+    [attr.aria-label]="text().posts.feed.writeButton"
+  >
+    <svg class="size-6" lucideSquarePen aria-hidden="true"></svg>
+  </a>
+
+  <!-- From a tablet up the button spans the heading's row and the list's row, so once the reader scrolls
+       it stays pinned near the top of the screen over the posts, a tap away; at the start it sits beside
+       the heading. -->
   <a
     appButton
     look="primary"
-    class="fixed right-4 bottom-20 z-10 shadow-overlay md:sticky md:top-4 md:right-auto md:bottom-auto md:col-start-2 md:row-span-2 md:row-start-1 md:self-start md:shadow-raised"
+    class="shadow-raised max-md:hidden md:sticky md:top-4 md:col-start-2 md:row-span-2 md:row-start-1 md:self-start"
     [routerLink]="newPostAddress"
   >
     <svg class="size-5" lucidePlus aria-hidden="true"></svg>
