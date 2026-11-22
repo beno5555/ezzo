@@ -81,6 +81,7 @@ export const georgian: Dictionary = {
     waitingBadge: (badge: string) => `${badge} მოლოდინში`,
   },
   shared: {
+    ownMark: '(თქვენ)',
     dialog: {
       closeButton: 'დახურვა',
     },
@@ -372,7 +373,6 @@ export const georgian: Dictionary = {
         }),
       uploading: 'იტვირთება…',
       seeMore: 'მეტის ნახვა',
-      ownMark: '(თქვენ)',
     },
     composer: {
       label: 'პოსტის დაწერა',

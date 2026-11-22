@@ -97,6 +97,8 @@ export const english = {
   },
   // The building blocks in shared/ that every page uses.
   shared: {
+    // After the author's name on the reader's own post or comment, among everyone else's.
+    ownMark: '(you)',
     dialog: {
       closeButton: 'Close',
     },
@@ -438,8 +440,6 @@ export const english = {
       uploading: 'Uploading…',
       // Under a long post in a list: it opens the rest of the text in place.
       seeMore: 'See more',
-      // After the author's name on the reader's own post, among everyone else's.
-      ownMark: '(you)',
     },
     // The card on its own page (/posts/new) where a user writes a post (features/posts/post-composer).
     composer: {
