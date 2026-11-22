@@ -1,13 +1,14 @@
+import type { Mock } from 'vitest';
 import { Debouncer } from './debouncer';
 
 describe('Debouncer', () => {
   const wait = 500;
-  let action: ReturnType<typeof vi.fn>;
+  let action: Mock<() => void>;
   let debouncer: Debouncer;
 
   beforeEach(() => {
     vi.useFakeTimers();
-    action = vi.fn();
+    action = vi.fn<() => void>();
     debouncer = new Debouncer(action, wait);
   });
 
