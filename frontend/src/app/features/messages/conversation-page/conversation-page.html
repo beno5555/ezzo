@@ -13,15 +13,23 @@
     </a>
 
     @if (friend(); as shownFriend) {
-      <app-avatar [userId]="shownFriend.id" [username]="shownFriend.username" />
-      <div class="flex min-w-0 flex-col">
-        <h2 id="conversation-heading" class="flex min-w-0">
-          <a appTextLink class="wrap-anywhere" [routerLink]="profileAddress()">{{
-            shownFriend.username
-          }}</a>
-        </h2>
-        <app-presence-label [lastActiveAt]="shownFriend.lastActiveAt" />
-      </div>
+      <!-- The avatar, the name and the presence are one link to the profile, so the name needs no 44 px
+           of its own and the presence sits right under it. -->
+      <a
+        class="group flex min-h-11 min-w-0 items-center gap-3 rounded-md py-1 pe-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+        [routerLink]="profileAddress()"
+      >
+        <app-avatar [userId]="shownFriend.id" [username]="shownFriend.username" />
+        <span class="flex min-w-0 flex-col gap-0.5">
+          <h2
+            id="conversation-heading"
+            class="truncate font-semibold text-ink-strong underline-offset-2 group-hover:underline"
+          >
+            {{ shownFriend.username }}
+          </h2>
+          <app-presence-label [lastActiveAt]="shownFriend.lastActiveAt" />
+        </span>
+      </a>
     } @else {
       <h2 id="conversation-heading" class="min-w-0 truncate font-semibold text-ink-strong">
         {{ username() }}
@@ -127,8 +135,9 @@
               }
 
               @if (hasMessages()) {
+                <!-- A run's messages sit close together; the time under its last one parts it from the next. -->
                 <ol
-                  class="flex flex-col gap-3"
+                  class="flex flex-col gap-1"
                   [attr.aria-label]="text().messages.conversation.historyLabel(username())"
                 >
                   @for (message of shown.messages; track message.id) {
@@ -136,6 +145,7 @@
                       <app-message-item
                         [message]="message"
                         [isOwn]="message.sender.id === signedInUserId()"
+                        [showsTime]="runEnds().has(message.id)"
                       />
                     </li>
                   }

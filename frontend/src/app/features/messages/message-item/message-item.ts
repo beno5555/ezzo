@@ -6,8 +6,9 @@ import { StandardMessageDto } from '../standard-message-dto';
 
 // One message of the open conversation: its text, its photos (a click opens the viewer), its time and
 // whether it was edited. The user's own messages sit on the right and the friend's on the left; a screen
-// reader hears the sender's name before the text instead.
-//   <app-message-item [message]="message" [isOwn]="message.sender.id === signedInUserId()" />
+// reader hears the sender's name before the text instead. showsTime is false inside a run (runEnds): only
+// the run's last message writes its time below; the others show theirs on hover.
+//   <app-message-item [message]="message" [isOwn]="isOwn" [showsTime]="ends.has(message.id)" />
 @Component({
   selector: 'app-message-item',
   imports: [PhotoGrid],
@@ -17,6 +18,7 @@ import { StandardMessageDto } from '../standard-message-dto';
 export class MessageItem {
   readonly message = input.required<StandardMessageDto>();
   readonly isOwn = input.required<boolean>();
+  readonly showsTime = input(true);
 
   protected readonly text = inject(LanguageStore).text;
   protected readonly dateFormatter = inject(DateFormatter);
