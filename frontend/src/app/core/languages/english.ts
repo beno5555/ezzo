@@ -299,9 +299,8 @@ export const english = {
     },
     feed: {
       // The link beside the feed's heading to the composer's page.
-      // The feed's heading and the line under it. The browser tab keeps the page's plain name (pages.feed).
-      heading: "What's new",
-      subheading: 'Fresh posts from your friends and from people you may not know yet.',
+      // The feed's heading, a short invitation in the product's voice (PRODUCT.md). The browser tab keeps the page's plain name (pages.feed).
+      heading: "What we've brought lately",
       writeButton: 'Write a post',
       loading: 'Loading posts…',
       loadingMore: 'Loading more posts…',

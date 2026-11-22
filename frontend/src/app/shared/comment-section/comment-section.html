@@ -44,10 +44,10 @@
      column (the host is display: contents), so the form stays pinned from the first screen on. -->
 @if (isSignedIn()) {
   <div
-    class="sticky bottom-16 rounded-lg border border-border bg-surface-raised p-4 shadow-raised md:bottom-4"
+    class="sticky bottom-16 rounded-lg border border-border bg-surface-raised p-2 shadow-raised md:bottom-4 md:p-3"
   >
     <app-comment-form
-      [rows]="2"
+      [isCompact]="true"
       fieldId="new-comment"
       [label]="text().comments.form.label"
       [contentLabel]="text().comments.form.contentLabel"
@@ -57,7 +57,7 @@
   </div>
 } @else {
   <div
-    class="sticky bottom-0 md:bottom-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border border-border bg-surface-raised p-4 shadow-raised"
+    class="sticky bottom-0 md:bottom-4 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-surface-raised p-2 shadow-raised md:p-3"
   >
     <p class="text-ink-strong">{{ text().comments.guest.message }}</p>
     <a appButton look="primary" [routerLink]="signInAddress" [queryParams]="signInParameters()">

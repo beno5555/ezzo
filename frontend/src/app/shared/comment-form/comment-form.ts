@@ -2,8 +2,11 @@ import { Component, OnInit, computed, inject, input, output } from '@angular/cor
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { map } from 'rxjs';
+import { LanguageStore } from '../../core/languages/language-store';
+import { LucideCircleExclamationPoint } from '@lucide/angular';
 import { LIMITS } from '../../core/limits';
 import { Button } from '../button/button';
+import { fieldErrorMessage } from '../form-field/field-error-message';
 import { FormField } from '../form-field/form-field';
 import { TextInput } from '../text-input/text-input';
 import { canSendComment } from '../../features/comments/can-send-comment';
@@ -12,13 +15,13 @@ import { canSendComment } from '../../features/comments/can-send-comment';
 // comment's text. The page gives the texts (they come from its dictionary) and decides what a send and a
 // dismiss do:
 //   <app-comment-form fieldId="new-comment" [label]="…" [contentLabel]="…" [submitLabel]="…" (send)="…" />
-// With a cancelLabel, a Cancel button shows beside the submit button (the edit form) and emits dismiss.
+// isCompact makes it one row. With a cancelLabel, a Cancel button shows beside the submit button (the edit form) and emits dismiss.
 // The submit button stays disabled until canSendComment holds, and the form empties itself once it has
 // sent. initialContent fills it when it opens (an edit starts from the comment's text); fill() puts a
 // refused comment's text back, and isEmpty tells the page when it may.
 @Component({
   selector: 'app-comment-form',
-  imports: [ReactiveFormsModule, Button, FormField, TextInput],
+  imports: [ReactiveFormsModule, Button, FormField, LucideCircleExclamationPoint, TextInput],
   templateUrl: './comment-form.html',
   styleUrl: './comment-form.css',
 })
@@ -30,8 +33,9 @@ export class CommentForm implements OnInit {
   readonly submitLabel = input.required<string>();
   readonly cancelLabel = input<string | null>(null);
   readonly initialContent = input('');
-  // How tall the text box is. The pinned new-comment form uses fewer rows than an edit.
-  readonly rows = input(3);
+  // One row of text box and button, low enough to stay pinned to the bottom of the screen (the new-comment
+  // form). Without it the form is the roomier one with its label above (an edit in place).
+  readonly isCompact = input(false);
   readonly send = output<string>();
   readonly dismiss = output();
 
@@ -45,6 +49,16 @@ export class CommentForm implements OnInit {
   );
   protected readonly canSend = computed(() => canSendComment(this.written()));
   readonly isEmpty = computed(() => this.written() === '');
+
+  private readonly text = inject(LanguageStore).text;
+  // The compact form has no field around it to show an error, so it shows the one a comment can carry:
+  // being too long, which keeps the submit button disabled.
+  protected readonly errorMessage = computed(() => {
+    this.written();
+    const errors = this.form.controls.content.errors;
+
+    return errors === null ? null : fieldErrorMessage(errors, this.text().shared.formField.errors);
+  });
 
   ngOnInit(): void {
     this.form.setValue({ content: this.initialContent() });
