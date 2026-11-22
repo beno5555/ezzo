@@ -24,6 +24,17 @@ If the work adds a database migration, read it before committing. If it drops or
 
 ## The round report
 
-When working from a ticket, append a round report to it before you commit, under `## Comments` as `**<date>, round 1: implementation (<model>).**`. The owner gives feedback in a fresh `/revise` session with none of this conversation, so the report holds everything needed to judge the work and answer. Cover only what applies: what was built and each departure from the ticket, with the reason; the checks run and not run, and any warning left standing; what was tried in the running app (widths, themes, languages, accounts) and what failed or was not tried; review findings fixed and left alone; open decisions, each with the choice made for now and your recommendation; what waits for another ticket; the screenshots' folder; the branch's state. Point to the ticket or an earlier comment rather than repeat it. Test durations and the changed files go only in the chat report, which covers the rest too.
+When working from a ticket, append a round report to it before you commit, under `## Comments` as `**<date>, round 1: implementation (<model>).**`. The owner gives feedback in a fresh `/revise` session with none of this conversation, so the report holds everything needed to judge the work and answer. Cover only what applies:
+
+- what was built and each departure from the ticket, with the reason
+- the checks run and not run, and any warning left standing
+- what was tried in the running app (widths, themes, languages, accounts) and what failed or was not tried
+- review findings fixed and left alone
+- open decisions, each with the choice made for now and your recommendation
+- what waits for another ticket
+- the screenshots' folder
+- the branch's state
+
+Point to the ticket or an earlier comment rather than repeat it. Test durations and the changed files go only in the chat report, which covers the rest too.
 
 Copy the screenshots you looked at to `.scratch/<feature>/shots/<ticket number>/` in the main checkout. Git ignores it, and it outlives the session and a lane's worktree. From a worktree, the main checkout is `$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")`.
