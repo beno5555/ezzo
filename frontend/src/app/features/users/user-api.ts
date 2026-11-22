@@ -21,6 +21,16 @@ export class UserApi {
     );
   }
 
+  // The username travels as one segment of the address, whatever characters it holds.
+  getByUsername(username: string): Promise<AppResult<StandardUserDto>> {
+    return toAppResult(
+      this.http.get<ApplicationResponse<StandardUserDto>>(
+        `/api/users/${encodeURIComponent(username)}`,
+      ),
+      this.languageStore.text().httpFailures,
+    );
+  }
+
   searchUsers(query: SearchUserQuery): Promise<AppResult<MinimalUserDto[]>> {
     return toAppResult(
       this.http.get<ListResponse<MinimalUserDto>>('/api/users/search', { params: query }),

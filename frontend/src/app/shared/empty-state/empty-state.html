@@ -1,0 +1,8 @@
+<ng-content select="svg" />
+@if (headingLevel() === 2) {
+  <h2 class="font-display text-lg text-ink-strong">{{ heading() }}</h2>
+} @else {
+  <h3 class="font-display text-lg text-ink-strong">{{ heading() }}</h3>
+}
+<p class="text-ink-muted wrap-anywhere">{{ message() }}</p>
+<ng-content />

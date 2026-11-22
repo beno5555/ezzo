@@ -1,8 +1,9 @@
-<app-top-bar />
+<!-- On a phone, one conversation hides both bars; its back arrow leads to the list (isInConversation). -->
+<app-top-bar [class]="inConversation() ? 'hidden md:block' : 'block'" />
 
-<main class="mx-auto w-full max-w-column px-4 py-8">
+<main [class]="mainClass()">
   <router-outlet />
 </main>
 
-<app-bottom-bar />
+<app-bottom-bar [class.hidden]="inConversation()" />
 <app-toast-list />
