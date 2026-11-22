@@ -37,6 +37,8 @@ Two worktree lanes at a time (`docs/agents/worktrees.md`), each taking frontend 
 | 12 | F16, user search | F24, admin: logs and statistics |
 | 13 | F15, the friends page | F21, live toasts |
 | 14 | F17, the settings page | F26, the landing page |
+| 15 | F39, save a photo from the viewer | |
+| 16 | F40, save a message's or a post's photos together | |
 
 Backend lane: n8n 08 and 11 are finished on their worktree branches and parked: the frontend pages come first, so their merge waits until the pages are done (owner, 2026-11-22). A session lists the two branches as parked, not as work to merge. Readiness 07 is left out: it matters only if the demo moves to a host.
 
