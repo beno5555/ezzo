@@ -11,7 +11,7 @@ A ticket built with `/implement` is done, but the owner wants changes. This sess
 
 Fetch the ticket from the issue tracker and state its title. If the reference is ambiguous, ask.
 
-Work on the ticket's branch, never on `master`. If this session is not on it, find where it is checked out (`git worktree list`), tell the owner, and stop.
+Work on the ticket's branch, never on `master`. If a worktree holds it (`git worktree list`), work there: if this session is elsewhere, tell the owner and stop. If no checkout holds it, switch to it. If it is already merged into `master`, ask the owner before starting a new branch from `master` for the revision.
 
 Note the commit you start from (`git rev-parse HEAD`). It is this round's fixed point.
 
@@ -47,9 +47,9 @@ Call the Skill tool with "spec-review" on the changes since this round's fixed p
 
 ## 6. Report and commit
 
-Finish the round's comment in the ticket, under the same rules as the round report in the `implement` skill (`.claude/skills/implement/SKILL.md`): what changed, the checks, the running app, the review, new open decisions, what is left over, the screenshots and the branch. The status stays `done`; tick or untick the boxes to match the work.
+Finish the round's comment in the ticket by the rules of the round report in `.claude/skills/implement/SKILL.md`. The status stays `done`; tick or untick the boxes to match the work.
 
-Commit to the branch when the build and the full test suite pass. If either fails, don't commit: report the failures and stop. Push the branch. Do not merge it: the owner decides when.
+Commit to the branch when the build and the full test suite pass. If either fails, don't commit: report the failures and stop. Push the branch. Do not merge it: the owner decides when. A lane runs its trial merge again ("Finish a lane" in `docs/agents/worktrees.md`).
 
 In the chat, report the same ground, with the test durations and this round's changed files grouped by kind (`git diff --stat <fixed point>`).
 
