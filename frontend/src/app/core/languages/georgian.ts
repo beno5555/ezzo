@@ -45,7 +45,7 @@ export const georgian: Dictionary = {
     friends: 'მეგობრები',
     messages: 'შეტყობინებები',
     adminUsers: 'მომხმარებლები',
-    adminReports: 'საჩივრები',
+    adminReports: 'რეპორტები',
     adminModeration: 'მოდერაციის რიგი',
     adminLogs: 'ჟურნალი',
     adminStatistics: 'სტატისტიკა',
@@ -455,19 +455,19 @@ export const georgian: Dictionary = {
     },
     deleteConfirmation: {
       question: 'წაიშალოს ეს კომენტარი?',
-      detail: 'ამის გაუქმება შეუძლებელია.',
+      detail: 'ამ ოპერაციის გაუქმება შეუძლებელია.',
       confirmButton: 'წაშლა',
     },
   },
   reports: {
     dialog: {
-      postTitle: 'პოსტის გასაჩივრება',
-      commentTitle: 'კომენტარის გასაჩივრება',
+      postTitle: 'პოსტის დარეპორტება',
+      commentTitle: 'კომენტარის დარეპორტება',
       reasonLabel: 'მიზეზი',
       reasonHint: 'მიუწერეთ ადმინისტრატორებს, რა არის მასში არასწორი.',
       submitButton: 'დარეპორტება',
     },
-    sentToast: 'გმადლობთ. თქვენი საჩივარი გაიგზავნა.',
+    sentToast: 'გმადლობთ. თქვენი რეპორტი გაიგზავნა.',
   },
   messages: {
     list: {
