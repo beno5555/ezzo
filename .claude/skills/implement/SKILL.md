@@ -27,13 +27,13 @@ If the work adds a database migration, read it before committing. If it drops or
 When working from a ticket, append a round report to it before you commit, under `## Comments` as `**<date>, round 1: implementation (<model>).**`. The owner gives feedback in a fresh `/revise` session with none of this conversation, so the report holds everything needed to judge the work and answer. Cover only what applies:
 
 - what was built and each departure from the ticket, with the reason
-- the checks run and not run, and any warning left standing
+- the checks run, those not run and why, and any warning left standing
 - what was tried in the running app (widths, themes, languages, accounts) and what failed or was not tried
-- review findings fixed and left alone
+- review findings fixed, and those left alone with why
 - open decisions, each with the choice made for now and your recommendation
-- what waits for another ticket
+- what waits for another ticket, and which
 - the screenshots' folder
-- the branch's state
+- the branch's state: pushed, waiting for the owner's review or merged, and a lane's trial merge result
 
 Point to the ticket or an earlier comment rather than repeat it. Test durations and the changed files go only in the chat report, which covers the rest too.
 
