@@ -17,6 +17,7 @@ const addressTable: Record<string, Access> = {
   'reset-password': 'anyone',
   'reactivate-account': 'anyone',
   'posts/new': 'auth',
+  'posts/:postId/edit': 'auth',
   'posts/:postId': 'anyone',
   'users/:username': 'anyone',
   search: 'anyone',

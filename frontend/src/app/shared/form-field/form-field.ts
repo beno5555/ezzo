@@ -4,6 +4,7 @@ import { AbstractControl } from '@angular/forms';
 import { LucideCircleExclamationPoint } from '@lucide/angular';
 import { switchMap } from 'rxjs';
 import { LanguageStore } from '../../core/languages/language-store';
+import { CharacterCounter } from '../character-counter/character-counter';
 import { fieldErrorMessage } from './field-error-message';
 
 // One field of a form (DESIGN.md, Inputs): the visible label above, the control the caller puts inside,
@@ -15,7 +16,7 @@ import { fieldErrorMessage } from './field-error-message';
 // fieldAction attribute goes at the end of the label's row, such as a "Forgot password?" link.
 @Component({
   selector: 'app-form-field',
-  imports: [LucideCircleExclamationPoint],
+  imports: [CharacterCounter, LucideCircleExclamationPoint],
   templateUrl: './form-field.html',
   styleUrl: './form-field.css',
 })
@@ -27,6 +28,10 @@ export class FormField {
   readonly label = input.required<string>();
   readonly control = input.required<AbstractControl>();
   readonly hint = input<string>();
+  // With a maxLength, the label's row ends with a counter of the used characters, "12/500". The control
+  // inside is given the same limit through its maxlength attribute, so it stops taking characters there.
+  readonly length = input(0);
+  readonly maxLength = input<number>();
 
   // A control's touched and error state are not signals, and this component redraws only when a signal
   // changes, so it follows the control's events and reads the state again after each one.

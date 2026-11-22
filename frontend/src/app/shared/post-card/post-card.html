@@ -1,6 +1,8 @@
 <article
-  class="flex flex-col gap-3 rounded-lg border border-border bg-surface-raised p-4 text-ink-strong"
-  [attr.aria-busy]="isUploading() || null"
+  class="flex flex-col gap-3 rounded-lg transition-opacity duration-200 motion-reduce:transition-none motion-reduce:opacity-100 border border-border bg-surface-raised p-4 text-ink-strong"
+  [class.opacity-0]="isDeleting()"
+  [class.pointer-events-none]="isDeleting()"
+  [attr.aria-busy]="isMarkedUploading() || isDeleting() || null"
 >
   <header class="flex items-center gap-3">
     <app-avatar
@@ -8,7 +10,7 @@
       [username]="post().author.username"
       [isUnavailable]="!isAuthorAvailable()"
     />
-    <div class="flex min-w-0 flex-col">
+    <div class="flex min-w-0 flex-1 flex-col">
       @if (isAuthorAvailable()) {
         <a appTextLink class="self-start wrap-anywhere" [routerLink]="profileAddress()">{{
           post().author.username
@@ -20,6 +22,9 @@
         dateFormatter.time(post().uploadedAt)
       }}</time>
     </div>
+    @if (menuEntries().length > 0) {
+      <app-menu [entries]="menuEntries()" [label]="text().posts.menu.label" />
+    }
   </header>
 
   <h2 class="font-display text-lg wrap-break-word">{{ post().title }}</h2>
@@ -38,7 +43,7 @@
 
   <app-photo-grid [images]="post().images" />
 
-  @if (isUploading()) {
+  @if (isMarkedUploading()) {
     <p class="flex min-h-11 items-center gap-2 text-sm text-ink-muted" role="status">
       <svg class="size-5 shrink-0" lucideCloudUpload aria-hidden="true"></svg>
       {{ text().posts.card.uploading }}

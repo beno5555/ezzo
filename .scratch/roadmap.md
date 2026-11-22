@@ -25,13 +25,13 @@ Dates are the day a step should finish. **Steps 5 to 8 are crucial and late.** T
 
 ### Lanes: which tickets run in parallel
 
-Two worktree lanes at a time (`docs/agents/worktrees.md`), each taking frontend tickets from **different feature areas**, so that the only shared files are the routes and the two dictionaries. A lane that finishes early takes the next ticket in its own column. "F" is a frontend ticket. Rounds 0 to 7 are merged.
+Two worktree lanes at a time (`docs/agents/worktrees.md`), each taking frontend tickets from **different feature areas**, so that the only shared files are the routes and the two dictionaries. A lane that finishes early takes the next ticket in its own column. "F" is a frontend ticket. Rounds 0 to 8 are merged.
 
 | Round | Lane 1 | Lane 2 |
 |---|---|---|
 | 7 | F10, write a post (merged) | F18, chat: list and reading (merged) |
-| 8 | F11, the post page (merged) | F22, admin: layout and users |
-| 9 | F12, edit and delete a post | F19, chat: send and receive live |
+| 8 | F11, the post page (merged) | F22, admin: layout and users (merged) |
+| 9 | F12, edit and delete a post (merged) | F19, chat: send and receive live |
 | 10 | F13, reports from the normal pages | F20, chat: edit, delete, typing |
 | 11 | F14, the profile page | F23, admin: reports and the queue |
 | 12 | F16, user search | F24, admin: logs and statistics |
@@ -47,7 +47,7 @@ Backend lane: n8n 08 and 11 are finished on their worktree branches and parked: 
 2. [x] **Write the tickets.** Of the n8n tickets, 01, 03, 04, 08 and 11 are backend work proven by integration tests; 02, 05, 06, 07, 09, 12 and 14 are workflows, open until the owner has run their checklist; 10 and 13 are visual frontend work.
 3. [x] **The backend gaps** (documented-backend-features), the last of them ticket 04.
 4. [x] **Shell and auth.**
-5. [ ] **Tue 17, late, crucial: feed, posts and comments.** Feed with pagination, create a post with photos, edit and delete, like, comment, edit and delete a comment, report a post or comment. The feed (F09) and writing a post (F10) are merged; F09's `PagedList` (`core/paging/`) is the paging pattern the later lists copy.
+5. [ ] **Tue 17, late, crucial: feed, posts and comments.** Feed with pagination, create a post with photos, edit and delete, like, comment, edit and delete a comment, report a post or comment. F09 to F12 are merged; only reporting (F13) is left. F09's `PagedList` (`core/paging/`) is the paging pattern the later lists copy.
 6. [ ] **Wed 18, late, crucial: profile, friends and search.** Profile page (bio, posts, friends), edit profile, user search, friend requests (send, accept, decline, remove; the three lists), account settings (deactivate, delete, digest opt-out), the guest view.
 7. [ ] **Fri 20, late, crucial: chat and live notifications.** The SignalR service and the central state for the session, conversations, online friends and unread count. Conversation list with last message, conversation with photos, edit and delete, seen, typing, presence and last active. Toasts for a new message, comment, like and a friend coming online.
 8. [ ] **Sat 21, late, crucial: admin panel.** Users (create, edit, deactivate, restore, delete, grant and remove the administrator role), delete any post or comment, logs, statistics, the reports list, the moderation queue.
