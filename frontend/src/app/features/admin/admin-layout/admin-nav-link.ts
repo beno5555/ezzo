@@ -1,5 +1,6 @@
 import { Directive, inject } from '@angular/core';
 import { RouterLinkActive } from '@angular/router';
+import { ActiveBarEdge } from '../../../core/shell/bar-link/active-bar-edge';
 import { markActiveBarLink } from '../../../core/shell/bar-link/active-bar-link';
 
 // A link in the admin panel's navigation: an icon and a word, 44 px high, muted until it is hovered or
@@ -11,13 +12,13 @@ import { markActiveBarLink } from '../../../core/shell/bar-link/active-bar-link'
   hostDirectives: [RouterLinkActive],
   host: {
     class:
-      'flex min-h-11 items-center gap-3 rounded-md px-3 text-ink-muted ' +
+      'relative flex min-h-11 items-center gap-3 rounded-md px-3 text-ink-muted ' +
       'hover:bg-surface-sunken hover:text-ink-strong ' +
       'focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus',
   },
 })
 export class AdminNavLink {
   constructor() {
-    markActiveBarLink(inject(RouterLinkActive, { self: true }));
+    markActiveBarLink(inject(RouterLinkActive, { self: true }), ActiveBarEdge.Start);
   }
 }

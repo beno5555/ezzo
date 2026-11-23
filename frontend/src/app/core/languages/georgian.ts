@@ -4,7 +4,7 @@ import { pluralize } from './pluralize';
 
 export const georgian: Dictionary = {
   app: {
-    name: 'WebCity',
+    name: 'Ezzo',
   },
   languages: {
     ownName: 'ქართული',
@@ -20,7 +20,7 @@ export const georgian: Dictionary = {
     unauthorized: 'გასაგრძელებლად გთხოვთ, შეხვიდეთ სისტემაში.',
     forbidden: 'ამის გაკეთების უფლება არ გაქვთ.',
     notFound: 'ეს ვერ მოიძებნა.',
-    network: 'WebCity-სთან დაკავშირება ვერ მოხერხდა. შეამოწმეთ კავშირი და სცადეთ თავიდან.',
+    network: 'Ezzo-სთან დაკავშირება ვერ მოხერხდა. შეამოწმეთ კავშირი და სცადეთ თავიდან.',
     unexpected: 'რაღაც შეცდომა მოხდა. გთხოვთ, სცადოთ თავიდან.',
   },
   notFound: {
@@ -206,7 +206,6 @@ export const georgian: Dictionary = {
     linksLabel: 'ანგარიშის სხვა გვერდები',
     signIn: {
       title: 'შესვლა',
-      lead: 'კეთილი იყოს თქვენი დაბრუნება.',
       identifierLabel: 'მომხმარებლის სახელი ან ელფოსტა',
       passwordLabel: 'პაროლი',
       forgotPasswordLink: 'დაგავიწყდათ პაროლი?',
@@ -330,7 +329,7 @@ export const georgian: Dictionary = {
         },
         delete: {
           question: (username: string) => `წავშალოთ ${username}?`,
-          detail: 'ანგარიში WebCity-დან ამოიშლება და მისი მონაცემები მალევე წაიშლება.',
+          detail: 'ანგარიში Ezzo-დან ამოიშლება და მისი მონაცემები მალევე წაიშლება.',
           confirmButton: 'წაშლა',
         },
         grantAdministrator: {
@@ -605,7 +604,7 @@ export const georgian: Dictionary = {
       loadingOlder: 'ძველი შეტყობინებები იტვირთება…',
       retryButton: 'თავიდან ცდა',
       notFoundTitle: 'ასეთი მომხმარებელი არ არსებობს',
-      notFoundMessage: (username: string) => `WebCity-ზე ${username} არავის ჰქვია.`,
+      notFoundMessage: (username: string) => `Ezzo-ზე ${username} არავის ჰქვია.`,
       notFriendTitle: 'თქვენ მეგობრები არ ხართ',
       notFriendMessage: (username: string) =>
         `მიწერა მხოლოდ მეგობრებს შეგიძლიათ, ${username} კი თქვენი მეგობარი არ არის.`,

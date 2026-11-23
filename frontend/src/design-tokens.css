@@ -16,42 +16,52 @@
   --color-*: initial;
 
   /* "primary" is the name the DESIGN.md format requires; it is the same colour as accent. Use accent. */
-  --color-primary: #2b59c3;
+  --color-primary: #1d6a8e;
 
-  --color-surface-page: #f4f4f5;
+  --color-surface-page: #ecf1f2;
   --color-surface-raised: #ffffff;
-  --color-surface-sunken: #e9e9ec;
-  --color-ink-strong: #1b1b1f;
-  --color-ink-muted: #5c5c66;
-  --color-border: #d3d3d8;
-  --color-border-strong: #85858f;
-  --color-accent: #2b59c3;
-  --color-accent-strong: #21469b;
+  --color-surface-sunken: #dce5e8;
+  --color-ink-strong: #12202a;
+  --color-ink-muted: #485b63;
+  --color-border: #c9d6da;
+  --color-border-strong: #6a8088;
+  --color-accent: #1d6a8e;
+  --color-accent-strong: #134d68;
   --color-on-accent: #ffffff;
   --color-danger: #b3261e;
-  --color-success: #1b6e45;
+  --color-success: #24561a;
   --color-warning: #8a5a00;
-  --color-focus: #2b59c3;
+  --color-focus: #1d6a8e;
 
   /* Discs of the default profile picture: the same in both themes, always with on-disc letters. */
-  --color-disc-1: #b8431f;
-  --color-disc-2: #a15c07;
-  --color-disc-3: #4a7a12;
-  --color-disc-4: #0b7a5c;
-  --color-disc-5: #0f7391;
-  --color-disc-6: #2557c7;
-  --color-disc-7: #7a34c4;
-  --color-disc-8: #b82462;
-  --color-disc-unavailable: #6b6b75;
+  --color-disc-1: #1f6b62;
+  --color-disc-2: #2f6a47;
+  --color-disc-3: #566a1d;
+  --color-disc-4: #3d5788;
+  --color-disc-5: #4c4f8c;
+  --color-disc-6: #8a4925;
+  --color-disc-7: #69513a;
+  --color-disc-8: #6d3c69;
+  --color-disc-unavailable: #686c6e;
   --color-on-disc: #ffffff;
 
-  /* Type. Both roles are Noto Sans with Noto Sans Georgian in the provisional skin. */
+  /*
+   * Type. Body: Noto Sans, with Noto Sans Georgian for Georgian letters. Display: Bricolage Grotesque,
+   * set narrow through its width axis; it has no Cyrillic or Georgian, so those letters fall to Noto Sans
+   * and to the variable Noto Sans Georgian, whose width axis narrows Georgian headings to match.
+   */
   --font-*: initial;
-  --font-body: 'Noto Sans', 'Noto Sans Georgian', system-ui, sans-serif;
-  --font-display: 'Noto Sans', 'Noto Sans Georgian', system-ui, sans-serif;
+  --font-body: 'Noto Sans', 'Noto Sans Georgian Variable', system-ui, sans-serif;
+  --font-display:
+    'Bricolage Grotesque Variable', 'Noto Sans', 'Noto Sans Georgian Variable', system-ui,
+    sans-serif;
+  --font-display--font-variation-settings: 'wdth' 85;
   --default-font-family: var(--font-body);
 
-  /* The three weights the type sizes use, and the only ones whose font files the app serves. */
+  /*
+   * The three weights the type sizes use. They are the only Noto Sans weights the app serves; the
+   * variable display and Georgian faces cover them from one file each.
+   */
   --font-weight-*: initial;
   --font-weight-normal: 400;
   --font-weight-semibold: 600;
@@ -78,7 +88,7 @@
   --text-2xl--line-height: 1.2;
   --text-2xl--font-weight: 700;
 
-  /* Line heights come with the type sizes, and DESIGN.md sets no letter spacing. */
+  /* Line heights come with the type sizes; there is no letter spacing. */
   --leading-*: initial;
   --tracking-*: initial;
 
@@ -117,30 +127,34 @@
  * ":root" is in the selector so this block outranks the light values whatever their order.
  */
 @layer theme {
-  /* The browser's own controls (scrollbars, a date input's calendar) follow the theme. */
+  /*
+   * The browser's own controls (scrollbars, a date input's calendar) follow the theme, and the
+   * scrollbars take the palette: border-strong on the page.
+   */
   :root {
     color-scheme: light;
+    scrollbar-color: var(--color-border-strong) var(--color-surface-page);
   }
 
   :root[data-theme='dark'] {
     color-scheme: dark;
 
     /* primary is accent, so it takes accent's dark value. */
-    --color-primary: #8fb0ff;
+    --color-primary: #9bd3f2;
 
-    --color-surface-page: #141416;
-    --color-surface-raised: #1e1e21;
-    --color-surface-sunken: #0c0c0e;
-    --color-ink-strong: #f1f1f3;
-    --color-ink-muted: #a4a4ae;
-    --color-border: #38383e;
-    --color-border-strong: #7b7b86;
-    --color-accent: #8fb0ff;
-    --color-accent-strong: #b3c9ff;
-    --color-on-accent: #0d1a3a;
+    --color-surface-page: #0f1a20;
+    --color-surface-raised: #1e2f38;
+    --color-surface-sunken: #060c10;
+    --color-ink-strong: #e5eef1;
+    --color-ink-muted: #9db1b9;
+    --color-border: #33474f;
+    --color-border-strong: #6d8791;
+    --color-accent: #9bd3f2;
+    --color-accent-strong: #c2e4f7;
+    --color-on-accent: #05263a;
     --color-danger: #ff8f85;
-    --color-success: #63d19c;
+    --color-success: #74bd52;
     --color-warning: #efb84f;
-    --color-focus: #8fb0ff;
+    --color-focus: #9bd3f2;
   }
 }

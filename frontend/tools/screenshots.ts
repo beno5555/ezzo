@@ -12,8 +12,10 @@ import { Language, languageStorageKey } from '../src/app/core/languages/language
 import { appAddresses } from '../src/app/core/routing/app-addresses.ts';
 import { Theme, themeStorageKey } from '../src/app/core/themes/theme.ts';
 
-const appOrigin = 'http://localhost:4200';
-const backendOrigin = proxy['/api'].target;
+// A worktree lane that runs its own servers on other ports names them in the environment (not in .env,
+// which is read later): WEBCITY_SCREENSHOTS_APP_ORIGIN and WEBCITY_SCREENSHOTS_BACKEND_ORIGIN.
+const appOrigin = process.env['WEBCITY_SCREENSHOTS_APP_ORIGIN'] ?? 'http://localhost:4200';
+const backendOrigin = process.env['WEBCITY_SCREENSHOTS_BACKEND_ORIGIN'] ?? proxy['/api'].target;
 // The three widths every page is checked at (DESIGN.md, Layout), each with a usual screen height.
 const viewports = [
   { width: 360, height: 780 },

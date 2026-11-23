@@ -10,7 +10,7 @@ import { pluralize } from './pluralize';
 // An entry that needs a number is a function; a plural goes through pluralize.
 export const english = {
   app: {
-    name: 'WebCity',
+    name: 'Ezzo',
   },
   languages: {
     // Each language is named in itself, so the switch reads the same in every language.
@@ -28,7 +28,7 @@ export const english = {
     unauthorized: 'Please sign in to continue.',
     forbidden: 'You are not allowed to do this.',
     notFound: 'This was not found.',
-    network: 'Could not reach WebCity. Check your connection and try again.',
+    network: 'Could not reach Ezzo. Check your connection and try again.',
     unexpected: 'Something went wrong. Please try again.',
   },
   notFound: {
@@ -37,7 +37,7 @@ export const english = {
     homeLink: 'Go to the home page',
   },
   // Each page's name, by its route's title key (app.routes.ts). PageTitleStrategy puts it in the
-  // browser tab as "<page> – WebCity".
+  // browser tab as "<page> – Ezzo".
   pages: {
     home: 'Home',
     feed: 'Feed',
@@ -258,7 +258,6 @@ export const english = {
     linksLabel: 'Other account pages',
     signIn: {
       title: 'Sign in',
-      lead: 'Welcome back.',
       identifierLabel: 'Username or email',
       passwordLabel: 'Password',
       forgotPasswordLink: 'Forgot password?',
@@ -393,7 +392,7 @@ export const english = {
         },
         delete: {
           question: (username: string) => `Delete ${username}?`,
-          detail: 'The account is removed from WebCity, and its data is deleted soon after.',
+          detail: 'The account is removed from Ezzo, and its data is deleted soon after.',
           confirmButton: 'Delete',
         },
         grantAdministrator: {
@@ -707,7 +706,7 @@ export const english = {
       loadingOlder: 'Loading older messages…',
       retryButton: 'Try again',
       notFoundTitle: 'No such user',
-      notFoundMessage: (username: string) => `Nobody on WebCity is called ${username}.`,
+      notFoundMessage: (username: string) => `Nobody on Ezzo is called ${username}.`,
       notFriendTitle: 'You are not friends',
       notFriendMessage: (username: string) =>
         `You can write only to your friends, and ${username} is not one of them.`,
