@@ -97,9 +97,9 @@ export class AdminReportsPage implements OnInit {
   // click; a refusal brings it back with a toast.
   async decide(report: AdminReportDto, decision: ReportDecision): Promise<void> {
     const list = this.list();
-    const isUserHide =
+    const isUserDeactivation =
       decision === ReportDecision.Hide && report.targetType === ReportTargetType.User;
-    const isConfirmed = !isUserHide || (await this.confirmHideUser(report));
+    const isConfirmed = !isUserDeactivation || (await this.confirmDeactivateUser(report));
 
     if (isConfirmed) {
       const failure = await list.settle(
@@ -114,8 +114,8 @@ export class AdminReportsPage implements OnInit {
     }
   }
 
-  private confirmHideUser(report: AdminReportDto): Promise<boolean> {
-    const texts = this.text().admin.reports.confirmHideUser;
+  private confirmDeactivateUser(report: AdminReportDto): Promise<boolean> {
+    const texts = this.text().admin.reports.confirmDeactivateUser;
     const username = report.user?.username ?? '';
 
     return this.confirmationOpener.ask({

@@ -69,8 +69,12 @@
     <div class="flex flex-wrap gap-2">
       @if (canHide()) {
         <button appButton look="quiet" type="button" (click)="requestDecision(ReportDecision.Hide)">
-          <svg class="size-5 shrink-0" lucideEyeOff aria-hidden="true"></svg>
-          {{ text().admin.reports.hideButton }}
+          @if (report().targetType === ReportTargetType.User) {
+            <svg class="size-5 shrink-0" lucideUserX aria-hidden="true"></svg>
+          } @else {
+            <svg class="size-5 shrink-0" lucideEyeOff aria-hidden="true"></svg>
+          }
+          {{ text().admin.reports.hideButton[report().targetType] }}
         </button>
       }
       @if (canReject()) {

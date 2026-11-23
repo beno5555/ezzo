@@ -278,15 +278,18 @@ export const georgian: Dictionary = {
     navigationButton: 'ადმინის მენიუ',
     users: {
       title: 'მომხმარებლები',
-      stateFilterLabel: 'აჩვენე ანგარიშები, რომლებიც არის',
+      stateFilterLabel: 'ანგარიშის მდგომარეობა',
       allStates: 'ყველა',
       states: {
         Active: 'აქტიური',
-        Deactivated: 'გამორთული',
+        Deactivated: 'გაუქმებული',
         SoftDeleted: 'წაშლილი',
       },
       usernameFilterLabel: 'მომხმარებლის სახელი',
       searchButton: 'ძებნა',
+      copyEmail: (email: string) => `დააკოპირე ${email}`,
+      emailCopied: 'ელფოსტა დაკოპირდა.',
+      copyFailed: 'ელფოსტის კოპირება ვერ მოხერხდა.',
       createButton: 'ანგარიშის შექმნა',
       columns: {
         username: 'მომხმარებლის სახელი',
@@ -294,7 +297,7 @@ export const georgian: Dictionary = {
         role: 'როლი',
         state: 'მდგომარეობა',
         joined: 'გაწევრიანდა',
-        deactivated: 'გამოირთო',
+        deactivated: 'გაუქმდა',
         deleted: 'წაიშალა',
         actions: 'მოქმედებები',
       },
@@ -309,7 +312,7 @@ export const georgian: Dictionary = {
       actionsLabel: (username: string) => `მოქმედებები: ${username}`,
       actions: {
         edit: 'პროფილის რედაქტირება',
-        deactivate: 'გამორთვა',
+        deactivate: 'გაუქმება',
         restore: 'აღდგენა',
         delete: 'წაშლა',
         grantAdministrator: 'ადმინისტრატორად დანიშვნა',
@@ -317,10 +320,10 @@ export const georgian: Dictionary = {
       },
       confirmations: {
         deactivate: {
-          question: (username: string) => `გამოვრთოთ ${username}?`,
+          question: (username: string) => `გავაუქმოთ ${username}?`,
           detail:
             'ანგარიშით სარგებლობა შეუძლებელი იქნება, სანამ არ აღადგენთ ან მისი მფლობელი არ გააქტიურებს.',
-          confirmButton: 'გამორთვა',
+          confirmButton: 'გაუქმება',
         },
         restore: {
           question: (username: string) => `აღვადგინოთ ${username}?`,
@@ -364,16 +367,16 @@ export const georgian: Dictionary = {
       title: 'რეპორტები',
       statusTabsLabel: 'რეპორტის სტატუსი',
       targetFilterLabel: 'რას ეხება',
-      allTargets: 'ყველაფერს',
+      allTargets: 'ყველა',
       statuses: {
         Pending: 'მოლოდინში',
         Resolved: 'მოგვარებული',
         Rejected: 'უარყოფილი',
       },
       targets: {
-        Post: 'პოსტი',
-        Comment: 'კომენტარი',
-        User: 'მომხმარებელი',
+        Post: 'პოსტები',
+        Comment: 'კომენტარები',
+        User: 'მომხმარებლები',
       },
       loading: 'რეპორტები იტვირთება…',
       loadingMore: 'კიდევ რეპორტები იტვირთება…',
@@ -394,16 +397,20 @@ export const georgian: Dictionary = {
           Comment: 'ეს კომენტარი აღარ არსებობს. რეპორტის მხოლოდ უარყოფა შეიძლება.',
           User: 'ეს მომხმარებელი აღარ არსებობს. რეპორტის მხოლოდ უარყოფა შეიძლება.',
         },
-        resolvedBy: (username: string, time: string) => `დააკმაყოფილა ${username}, ${time}`,
+        resolvedBy: {
+          Post: (username: string, time: string) => `პოსტი დამალა ${username}, ${time}`,
+          Comment: (username: string, time: string) => `კომენტარი დამალა ${username}, ${time}`,
+          User: (username: string, time: string) => `ანგარიში გააუქმა ${username}, ${time}`,
+        },
         rejectedBy: (username: string, time: string) => `უარყო ${username}, ${time}`,
       },
-      hideButton: 'დამალვა',
+      hideButton: { Post: 'დამალვა', Comment: 'დამალვა', User: 'გაუქმება' },
       rejectButton: 'უარყოფა',
-      confirmHideUser: {
-        question: (username: string) => `დავმალოთ ${username}?`,
+      confirmDeactivateUser: {
+        question: (username: string) => `გავაუქმოთ ${username}?`,
         detail:
-          'ანგარიში გამოირთვება და მისი მფლობელი მიიღებს წერილს. ამ მომხმარებელზე დარჩენილი ყველა განსახილველი რეპორტიც დაიხურება.',
-        confirmButton: 'დამალვა',
+          'ანგარიში გაუქმდება და მისი მფლობელი მიიღებს წერილს. ამ მომხმარებელზე დარჩენილი ყველა განსახილველი რეპორტიც დაიხურება.',
+        confirmButton: 'გაუქმება',
       },
     },
     moderation: {

@@ -15,7 +15,7 @@
       role="group"
       aria-labelledby="target-filter-label"
     >
-      <span id="target-filter-label" class="text-sm font-semibold text-ink-muted">{{
+      <span id="target-filter-label" class="sr-only">{{
         text().admin.reports.targetFilterLabel
       }}</span>
       @for (choice of targetChoices(); track choice.label) {

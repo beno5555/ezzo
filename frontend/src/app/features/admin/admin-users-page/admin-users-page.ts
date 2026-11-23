@@ -1,6 +1,6 @@
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { LucideSearch, LucidePlus, LucideUsers } from '@lucide/angular';
+import { LucideCopy, LucideSearch, LucidePlus, LucideUsers } from '@lucide/angular';
 import { DateFormatter } from '../../../core/languages/date-formatter';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { LIMITS } from '../../../core/limits';
@@ -9,6 +9,8 @@ import { Debouncer, typingPauseMilliseconds } from '../../../core/timing/debounc
 import { Avatar } from '../../../shared/avatar/avatar';
 import { AvatarSize } from '../../../shared/avatar/avatar-size';
 import { Button } from '../../../shared/button/button';
+import { FadeOut } from '../../../shared/fade-out/fade-out';
+import { IconButton } from '../../../shared/icon-button/icon-button';
 import { ConfirmationOpener } from '../../../shared/confirmation/confirmation-opener';
 import { LoadFailure } from '../../../shared/load-failure/load-failure';
 import { Menu } from '../../../shared/menu/menu';
@@ -58,11 +60,14 @@ const rowClasses: Record<AccountState, string> = {
     ReactiveFormsModule,
     Avatar,
     Button,
+    FadeOut,
+    IconButton,
     LoadFailure,
     Menu,
     ScrollSentinel,
     TextInput,
     ToggleButton,
+    LucideCopy,
     LucidePlus,
     LucideSearch,
     LucideUsers,
@@ -153,6 +158,18 @@ export class AdminUsersPage implements OnInit {
     }
   }
 
+  // Puts an email on the clipboard, for the copy button and for a click on the email itself.
+  async copyEmail(email: string): Promise<void> {
+    const texts = this.text().admin.users;
+
+    try {
+      await navigator.clipboard.writeText(email);
+      this.toastStore.show(texts.emailCopied);
+    } catch {
+      this.toastStore.show(texts.copyFailed);
+    }
+  }
+
   rowClass(state: AccountState): string {
     return rowClasses[state];
   }
@@ -205,7 +222,12 @@ export class AdminUsersPage implements OnInit {
       const isConfirmed = await this.confirmationOpener.ask(question);
 
       if (isConfirmed) {
-        await this.accountActions.run(account, action, (shown) => table.replace(shown));
+        await this.accountActions.run(
+          account,
+          action,
+          (shown) => table.show(shown),
+          () => table.settled(account.id),
+        );
       }
     }
   }

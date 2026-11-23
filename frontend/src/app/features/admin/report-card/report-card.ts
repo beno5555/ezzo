@@ -5,6 +5,7 @@ import {
   LucideClock,
   LucideEyeOff,
   LucideFileX,
+  LucideUserX,
 } from '@lucide/angular';
 import { DateFormatter } from '../../../core/languages/date-formatter';
 import { LanguageStore } from '../../../core/languages/language-store';
@@ -45,6 +46,7 @@ const statusTextClasses: Record<ReportStatus, string> = {
     LucideClock,
     LucideEyeOff,
     LucideFileX,
+    LucideUserX,
     PostSnapshot,
     SnapshotAuthor,
     UserSnapshot,
@@ -70,9 +72,9 @@ export class ReportCard {
   protected readonly canReject = computed(() => this.decisions().includes(ReportDecision.Reject));
   protected readonly statusClass = computed(() => statusTextClasses[this.report().status]);
 
-  // "Resolved by …" or "Rejected by …", for a closed report whose reviewer and time are known.
+  // How a closed report was settled, "Post hidden by …", "Account deactivated by …" or "Rejected by …", for a closed report whose reviewer and time are known.
   protected readonly reviewLine = computed(() => {
-    const { status, reviewedBy, reviewedAt } = this.report();
+    const { status, reviewedBy, reviewedAt, targetType } = this.report();
     const texts = this.text().admin.reports.card;
     const isClosed = status !== ReportStatus.Pending;
     const isKnown = reviewedBy !== null && reviewedAt !== null;
@@ -82,7 +84,7 @@ export class ReportCard {
       const time = this.dateFormatter.time(reviewedAt);
       line =
         status === ReportStatus.Resolved
-          ? texts.resolvedBy(reviewedBy.username, time)
+          ? texts.resolvedBy[targetType](reviewedBy.username, time)
           : texts.rejectedBy(reviewedBy.username, time);
     }
 

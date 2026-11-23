@@ -339,7 +339,7 @@ export const english = {
     navigationButton: 'Admin menu',
     users: {
       title: 'Users',
-      stateFilterLabel: 'Show accounts that are',
+      stateFilterLabel: 'Account state',
       allStates: 'All',
       // The names of the account states, by AccountState.
       states: {
@@ -349,6 +349,9 @@ export const english = {
       },
       usernameFilterLabel: 'Username',
       searchButton: 'Search',
+      copyEmail: (email: string) => `Copy ${email}`,
+      emailCopied: 'Email copied.',
+      copyFailed: 'The email could not be copied.',
       createButton: 'Create account',
       columns: {
         username: 'Username',
@@ -428,19 +431,19 @@ export const english = {
     reports: {
       title: 'Reports',
       statusTabsLabel: 'Report status',
-      targetFilterLabel: 'About',
-      allTargets: 'Anything',
+      targetFilterLabel: 'Reported content',
+      allTargets: 'All',
       // The names of the report statuses, by ReportStatus.
       statuses: {
-        Pending: 'Pending',
+        Pending: 'Awaiting review',
         Resolved: 'Resolved',
         Rejected: 'Rejected',
       },
       // The names of what can be reported, by ReportTargetType.
       targets: {
-        Post: 'Post',
-        Comment: 'Comment',
-        User: 'User',
+        Post: 'Posts',
+        Comment: 'Comments',
+        User: 'Users',
       },
       loading: 'Loading reports…',
       loadingMore: 'Loading more reports…',
@@ -463,17 +466,23 @@ export const english = {
           Comment: 'This comment no longer exists. The report can only be rejected.',
           User: 'This user no longer exists. The report can only be rejected.',
         },
-        resolvedBy: (username: string, time: string) => `Resolved by ${username}, ${time}`,
+        // How a Resolved report was settled, by ReportTargetType: Hide is the only way to resolve one.
+        resolvedBy: {
+          Post: (username: string, time: string) => `Post hidden by ${username}, ${time}`,
+          Comment: (username: string, time: string) => `Comment hidden by ${username}, ${time}`,
+          User: (username: string, time: string) => `Account deactivated by ${username}, ${time}`,
+        },
         rejectedBy: (username: string, time: string) => `Rejected by ${username}, ${time}`,
       },
-      hideButton: 'Hide',
+      // The decision that resolves a report, by ReportTargetType: a user is deactivated, not hidden.
+      hideButton: { Post: 'Hide', Comment: 'Hide', User: 'Deactivate' },
       rejectButton: 'Reject',
-      // Asked before Hide on a reported user, which deactivates the account.
-      confirmHideUser: {
-        question: (username: string) => `Hide ${username}?`,
+      // Asked before Deactivate on a reported user.
+      confirmDeactivateUser: {
+        question: (username: string) => `Deactivate ${username}?`,
         detail:
           'The account is deactivated and its owner is emailed. Every other pending report on this user is closed with it.',
-        confirmButton: 'Hide',
+        confirmButton: 'Deactivate',
       },
     },
     moderation: {

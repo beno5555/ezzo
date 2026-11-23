@@ -1,5 +1,5 @@
-/* The admin panel has a second column, so its page is the wide one (DESIGN.md, Layout): the shell's main
-   holds more than the reading column while the admin layout is in it. */
+/* The admin panel has a second column and wide tables, so its page is the admin width (DESIGN.md, Layout):
+   the shell's main holds more than the reading column while the admin layout is in it. */
 main:has(> app-admin-layout) {
-  max-width: var(--container-wide);
+  max-width: var(--container-admin);
 }
