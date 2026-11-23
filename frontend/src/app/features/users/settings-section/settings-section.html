@@ -1,0 +1,9 @@
+<section
+  class="flex flex-col gap-4 rounded-lg border bg-surface-raised p-4 md:p-6"
+  [class.border-border]="!isDanger()"
+  [class.border-danger]="isDanger()"
+  [attr.aria-labelledby]="headingId()"
+>
+  <h2 class="font-display text-xl text-ink-strong" [id]="headingId()">{{ heading() }}</h2>
+  <ng-content />
+</section>

@@ -1,19 +1,19 @@
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { Component, OnInit, inject, signal } from '@angular/core';
-import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { LIMITS } from '../../../core/limits';
 import { Button } from '../../../shared/button/button';
 import { DialogFrame } from '../../../shared/dialog/dialog-frame/dialog-frame';
-import { AppValidators } from '../../../shared/form-field/app-validators';
 import { applyFieldErrors, setServerErrors } from '../../../shared/form-field/apply-field-errors';
 import { FieldRules } from '../../../shared/form-field/field-rules';
 import { FormField } from '../../../shared/form-field/form-field';
 import { FormMessage } from '../../../shared/form-message/form-message';
 import { LoadFailure } from '../../../shared/load-failure/load-failure';
 import { TextInput } from '../../../shared/text-input/text-input';
+import { bioOrNull } from '../../users/bio-or-null';
 import { EditUserDto } from '../../users/edit-user-dto';
-import { toDateInputValue } from '../../users/to-date-input-value';
+import { toProfileFormValue } from '../../users/to-profile-form-value';
 import { UserApi } from '../../users/user-api';
 import { userRefusalField } from '../../users/user-refusal-field';
 import { AdminUserDto } from '../admin-user-dto';
@@ -48,11 +48,8 @@ export class EditProfileDialog implements OnInit {
 
   protected readonly form = inject(NonNullableFormBuilder).group({
     username: ['', FieldRules.username],
-    dateOfBirth: [
-      '',
-      [Validators.required, AppValidators.ageBetween(LIMITS.users.minAge, LIMITS.users.maxAge)],
-    ],
-    bio: ['', [Validators.maxLength(LIMITS.users.bioMaxLength)]],
+    dateOfBirth: ['', FieldRules.dateOfBirth],
+    bio: ['', FieldRules.bio],
   });
   // The profile has been read and the form holds it. The server's text of a failed read is kept to show.
   protected readonly isLoaded = signal(false);
@@ -70,11 +67,7 @@ export class EditProfileDialog implements OnInit {
     const result = await this.userApi.getById(this.account.id);
 
     if (result.succeeded) {
-      this.form.setValue({
-        username: result.data.username,
-        dateOfBirth: toDateInputValue(result.data.dateOfBirth),
-        bio: result.data.bio ?? '',
-      });
+      this.form.setValue(toProfileFormValue(result.data));
       this.isLoaded.set(true);
       return;
     }
@@ -111,11 +104,9 @@ export class EditProfileDialog implements OnInit {
     this.dialogRef.close();
   }
 
-  // An empty bio is sent as none, since the backend refuses an empty one.
   private toEditDto(): EditUserDto {
     const { bio, ...profile } = this.form.getRawValue();
-    const hasBio = bio.trim() !== '';
 
-    return { ...profile, bio: hasBio ? bio : null };
+    return { ...profile, bio: bioOrNull(bio) };
   }
 }

@@ -1,5 +1,10 @@
 import { Injectable, computed, inject } from '@angular/core';
-import { MinuteClock, minuteInMilliseconds } from '../time/minute-clock';
+import {
+  MinuteClock,
+  dayInMilliseconds,
+  hourInMilliseconds,
+  minuteInMilliseconds,
+} from '../time/minute-clock';
 import { LanguageStore } from './language-store';
 
 // The clock time. The dates around it are written from the dictionary (shared.dates), not by Intl:
@@ -7,8 +12,6 @@ import { LanguageStore } from './language-store';
 const clockOptions: Intl.DateTimeFormatOptions = { timeStyle: 'short' };
 
 // How long ago (timeSince, shortTimeSince).
-const hourInMilliseconds = 60 * minuteInMilliseconds;
-const dayInMilliseconds = 24 * hourInMilliseconds;
 const weekInMilliseconds = 7 * dayInMilliseconds;
 
 // The one formatter for times and dates the backend sends (UTC ISO strings, ADR 0005), in the current
@@ -28,6 +31,12 @@ export class DateFormatter {
     const dates = this.languageStore.text().shared.dates;
 
     return dates.dateAndTime(this.dateWithYear(new Date(isoTime)), this.clockTime(isoTime));
+  }
+
+  // The day of a moment with its year, without the clock, such as when an account was created, in the
+  // visitor's own time zone: "Nov 15, 2026".
+  date(isoTime: string): string {
+    return this.dateWithYear(new Date(isoTime));
   }
 
   // A moment shown in a narrow place (a chat row): the clock time when it is today, the day and the

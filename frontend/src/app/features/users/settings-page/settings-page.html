@@ -1,0 +1,29 @@
+<div class="flex flex-col gap-6">
+  <h1 class="font-display text-2xl text-ink-strong">{{ text().users.settings.heading }}</h1>
+
+  @if (profile(); as shown) {
+    <app-profile-settings [profile]="shown" (saved)="keep($event)" />
+
+    <app-settings-section
+      headingId="settings-language"
+      [heading]="text().users.settings.language.heading"
+    >
+      <p class="text-ink-muted">{{ text().users.settings.language.description }}</p>
+      <app-language-switch />
+    </app-settings-section>
+
+    <app-password-settings [email]="shown.email" />
+
+    <app-danger-zone [username]="shown.username" />
+  } @else if (loadFailureMessage(); as message) {
+    <app-load-failure
+      [message]="message"
+      [retryLabel]="text().users.settings.retryButton"
+      (retry)="load()"
+    />
+  } @else {
+    <p class="py-4 text-center text-sm text-ink-muted" role="status">
+      {{ text().users.settings.loading }}
+    </p>
+  }
+</div>

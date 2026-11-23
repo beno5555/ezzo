@@ -30,6 +30,15 @@ export class AccountActivationApi {
     );
   }
 
+  // The signed-in user deactivates their own account. The backend revokes every refresh token, so the
+  // caller signs out afterwards.
+  deactivateOwnAccount(): Promise<AppResult<void>> {
+    return toAppResult(
+      this.http.patch<ApplicationResponse<void>>('/api/accounts/mine/deactivate', null),
+      this.languageStore.text().httpFailures,
+    );
+  }
+
   // The administrator's calls, by account id.
   deactivateAccount(accountId: number): Promise<AppResult<void>> {
     return toAppResult(

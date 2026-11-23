@@ -217,4 +217,74 @@ describe('UserApi', () => {
       expect(await pending).toEqual({ succeeded: false, message: 'User not found', status: 404 });
     });
   });
+
+  describe('GET /api/users/mine', () => {
+    it("returns the signed-in user's own profile", async () => {
+      const profile = {
+        id: 7,
+        username: 'john_doe',
+        email: 'john@example.com',
+        bio: null,
+        roles: ['User'],
+        registeredAt: '2026-01-05T09:30:00Z',
+        dateOfBirth: '2000-04-01T00:00:00Z',
+        usernameLastChangedAt: null,
+      };
+      const pending = userApi.getMine();
+
+      httpTesting
+        .expectOne((candidate) => candidate.method === 'GET' && candidate.url === '/api/users/mine')
+        .flush({ succeeded: true, message: null, data: profile });
+
+      expect(await pending).toEqual({ succeeded: true, data: profile });
+    });
+
+    it('answers a signed-out caller with the sign-in text', async () => {
+      const pending = userApi.getMine();
+
+      httpTesting
+        .expectOne('/api/users/mine')
+        .flush(null, { status: 401, statusText: 'Unauthorized' });
+
+      expect(await pending).toEqual({
+        succeeded: false,
+        message: 'Please sign in to continue.',
+        status: 401,
+      });
+    });
+  });
+
+  describe('PUT /api/users/mine', () => {
+    const profile = { username: 'john_doe', dateOfBirth: '2000-04-01', bio: 'Hello' };
+
+    it('sends the profile and returns the stored one', async () => {
+      const stored = { id: 7, ...profile, usernameLastChangedAt: '2026-11-20T10:00:00Z' };
+      const pending = userApi.editMine(profile);
+
+      const request = httpTesting.expectOne(
+        (candidate) => candidate.method === 'PUT' && candidate.url === '/api/users/mine',
+      );
+      request.flush({ succeeded: true, message: 'Profile updated', data: stored });
+
+      expect(request.request.body).toEqual(profile);
+      expect(await pending).toEqual({ succeeded: true, message: 'Profile updated', data: stored });
+    });
+
+    it('returns the message when the username changed again inside the cooldown', async () => {
+      const pending = userApi.editMine(profile);
+
+      httpTesting
+        .expectOne('/api/users/mine')
+        .flush(
+          { succeeded: false, message: 'Username can be changed again on 2026-12-01' },
+          { status: 400, statusText: 'Bad Request' },
+        );
+
+      expect(await pending).toEqual({
+        succeeded: false,
+        message: 'Username can be changed again on 2026-12-01',
+        status: 400,
+      });
+    });
+  });
 });
