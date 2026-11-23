@@ -1,14 +1,4 @@
 <section class="mx-auto flex w-full max-w-104 flex-col gap-6 md:pt-6">
-  <div class="flex flex-col gap-2">
-    <div class="flex w-fit flex-col gap-2">
-      <p class="font-display text-logo tracking-logo text-accent lowercase" aria-hidden="true">
-        {{ text().app.name }}
-      </p>
-      <app-fretwork class="w-0 min-w-full text-accent" />
-    </div>
-    <p class="font-display text-lg text-ink-strong">{{ text().app.tagline }}</p>
-  </div>
-
   <header class="flex flex-col gap-2">
     <h1 class="font-display text-2xl text-ink-strong">{{ heading() }}</h1>
     @if (lead(); as lead) {

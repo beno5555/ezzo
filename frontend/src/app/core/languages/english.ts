@@ -11,7 +11,6 @@ import { pluralize } from './pluralize';
 export const english = {
   app: {
     name: 'Ezzo',
-    tagline: 'Bring what you made.',
   },
   languages: {
     // Each language is named in itself, so the switch reads the same in every language.
@@ -259,7 +258,6 @@ export const english = {
     linksLabel: 'Other account pages',
     signIn: {
       title: 'Sign in',
-      lead: 'Welcome back.',
       identifierLabel: 'Username or email',
       passwordLabel: 'Password',
       forgotPasswordLink: 'Forgot password?',

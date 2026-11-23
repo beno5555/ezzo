@@ -49,7 +49,7 @@ Two design skills from other authors serve the frontend. Each is a real folder c
 
 **Where it disagrees with `DESIGN.md`** (reported to the owner; the open ones are still to be decided on the merits):
 
-- It calls a neutral shell with one accent colour the category default and asks for a coloured shell with a signature move. Decided in the brand session (owner, 2026-11-23): the Balcony skin tints the shell with its blue and keeps one signature, the fretwork under the wordmark (`DESIGN.md`, Brand).
+- It calls a neutral shell with one accent colour the category default and asks for a coloured shell with a signature move. Decided in the brand session (owner, 2026-11-23): the Balcony skin tints the shell with its blue and keeps its signature in the logo (`DESIGN.md`, Brand).
 - It asks for one designed moment of motion. `DESIGN.md` allows motion only in answer to a user's action, and none on page load. Open.
 - It wants lines of 65 to 75 characters. `DESIGN.md` says under about 80. Open.
 - Cards: not a real disagreement. The skill bans one pattern: a page built from same-size cards of icon, heading and text. It also bans a card inside a card. A post in a card, as `DESIGN.md` has it, is allowed.

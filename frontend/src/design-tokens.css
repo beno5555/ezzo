@@ -87,10 +87,6 @@
   --text-2xl: 1.75rem;
   --text-2xl--line-height: 1.2;
   --text-2xl--font-weight: 700;
-  /* The wordmark where it stands alone (the sign-in pages), never body text or a heading. */
-  --text-logo: 3rem;
-  --text-logo--line-height: 1;
-  --text-logo--font-weight: 700;
 
   /* Line heights come with the type sizes. The one letter spacing is the logo's: tracking-logo. */
   --leading-*: initial;

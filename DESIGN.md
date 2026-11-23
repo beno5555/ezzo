@@ -1,7 +1,7 @@
 ---
 version: alpha
 name: Ezzo (Balcony)
-description: The look of Ezzo, a small social platform: Balcony, the painted wooden balconies of old Tbilisi, a deep balcony blue on cool pale walls, and a carved fretwork beside the wordmark.
+description: The look of Ezzo, a small social platform: Balcony, the painted wooden balconies of old Tbilisi, a deep balcony blue on cool pale walls.
 colors:
   # "primary" is the name the DESIGN.md format requires. It is the same colour as "accent", in both themes.
   primary: "#1d6a8e"
@@ -81,13 +81,6 @@ typography:
     fontSize: 1.75rem
     fontWeight: 700
     lineHeight: 1.2
-  # The wordmark where it stands alone (the sign-in pages); always the display face.
-  text-logo:
-    fontFamily: Bricolage Grotesque, Noto Sans, Noto Sans Georgian, system-ui, sans-serif
-    fontSize: 3rem
-    fontWeight: 700
-    lineHeight: 1
-    letterSpacing: -0.03em
 rounded:
   sm: 4px
   md: 8px
@@ -130,18 +123,14 @@ The same values live in the Tailwind theme block, which is the file the build re
 
 Ezzo (`PRODUCT.md`) is a small social platform: a feed, posts with photos, comments, friends, chat, and an admin panel. Its screens are tools that people use many times a day, so clarity and consistency come before decoration. The code still calls the app WebCity; only what a visitor reads says Ezzo.
 
-**The skin is Balcony** (owner, 2026-11-23): the painted wooden balconies of old Tbilisi, where neighbours lean out and talk across the yard. A deep balcony blue is the one accent, on cool pale walls in the light theme and on a blue-black night in the dark one. The brand shows in three places only, and everything else stays quiet:
+**The skin is Balcony** (owner, 2026-11-23): the painted wooden balconies of old Tbilisi, where neighbours lean out and talk across the yard. A deep balcony blue is the one accent, on cool pale walls in the light theme and on a blue-black night in the dark one. The brand shows in two places only, and everything else stays quiet:
 
-- **the wordmark** "ezzo" (Brand, below);
-- **the fretwork**, the carved valance of the balconies, under the wordmark on the sign-in pages;
+- **the logo** (Brand, below);
 - **the token values** of this file.
 
 ## Brand
 
-- **The wordmark** is the name in lowercase, in the display face, weight 700, `tracking-logo`, in `accent`. In the top bar it is `text-2xl` and links home; on the sign-in pages it stands alone at `text-logo`. It is live text from the dictionary, not a drawing.
-- **The tagline** "Bring what you made." (Georgian: "გაგვიზიარე, რაც შექმენი.") stands under the large wordmark, in the display face, `text-lg`.
-- **The fretwork** (`core/brand/fretwork`) is a row of hanging teeth with drilled holes on a rail, drawn in the colour of its host. It appears only with the large wordmark, as wide as the word, and screen readers skip it. Don't use it as a divider, a border or a pattern anywhere else.
-- **The browser-tab mark** is still to be chosen by the owner.
+- **The logo** is a "zz" mark, still to be chosen by the owner (2026-11-23); the same mark serves the top bar and the browser tab, and the name is not written out on the page. Until then the top bar shows the name in lowercase, in the display face, `text-2xl`, `tracking-logo`, in `accent`.
 
 ## Colors
 
@@ -174,8 +163,8 @@ A colour is named for its job, never for its shade. A component uses the role na
 
 ## Typography
 
-- **Two roles.** The **body** role (`font-body`) is Noto Sans, with the variable Noto Sans Georgian for Georgian letters. The **display** role (`font-display`: headings, the logo, the tagline) is Bricolage Grotesque, set narrow through its width axis. It has no Cyrillic or Georgian, so those letters fall to Noto Sans and to the variable Noto Sans Georgian, whose width axis narrows Georgian headings to match.
-- **Six sizes,** from `text-xs` (12 px) to `text-2xl` (28 px), and `text-logo` (48 px) for the large wordmark alone. Body text is `text-base` (16 px) and is never smaller than `text-sm` (14 px).
+- **Two roles.** The **body** role (`font-body`) is Noto Sans, with the variable Noto Sans Georgian for Georgian letters. The **display** role (`font-display`: headings and the logo) is Bricolage Grotesque, set narrow through its width axis. It has no Cyrillic or Georgian, so those letters fall to Noto Sans and to the variable Noto Sans Georgian, whose width axis narrows Georgian headings to match.
+- **Six sizes,** from `text-xs` (12 px) to `text-2xl` (28 px). Body text is `text-base` (16 px) and is never smaller than `text-sm` (14 px).
 - **Letter spacing** is the logo's alone (`tracking-logo`). Headings keep the face's own spacing, which Georgian needs.
 - **Fonts are served by the app itself.** No font is loaded from another origin.
 - **Do not lean on capital letters.** Georgian has none in everyday writing, so an ALL-CAPS label loses its meaning in the Georgian interface. Use weight and size for emphasis.
@@ -227,4 +216,4 @@ Three radii and "full": `sm` for small controls such as badges and checkboxes, `
 - Do keep text contrast at 4.5 to 1 or more in both themes.
 - Don't use ALL-CAPS labels, italics for meaning, or a monospace face for small labels.
 - Don't add a second accent colour, a gradient or a glow.
-- Don't spread the brand: the fretwork and the large wordmark stay on the sign-in pages.
+- Don't spread the brand: it lives in the logo and the token values.

@@ -1,4 +1,4 @@
-<app-auth-frame [heading]="text().auth.signIn.title" [lead]="text().auth.signIn.lead">
+<app-auth-frame [heading]="text().auth.signIn.title">
   @if (noticeMessage(); as notice) {
     <app-form-message tone="success" [message]="notice" />
   }
