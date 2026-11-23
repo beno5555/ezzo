@@ -14,8 +14,8 @@ import { TextLink } from '../../../shared/text-link/text-link';
 import { AuthApi } from '../auth-api';
 import { AuthFrame } from '../auth-frame/auth-frame';
 import { AuthLink } from '../auth-frame/auth-link';
-import { SignInNotice } from '../sign-in-page/sign-in-notice';
-import { SignInPageState } from '../sign-in-page/sign-in-page-state';
+import { SignInNotice } from '../landing-page/sign-in-notice';
+import { LandingPageState } from '../landing-page/landing-page-state';
 
 // The reset page the reset email links to, with ?token=…. It asks for the new password and, once the
 // backend takes it, sends the user to sign in with it. A token the backend no longer accepts shows the
@@ -66,8 +66,8 @@ export class ResetPasswordPage {
     const result = await this.authApi.resetPassword({ token: this.tokenOrEmpty(), newPassword });
 
     if (result.succeeded) {
-      const state: SignInPageState = { notice: SignInNotice.PasswordReset };
-      await this.router.navigateByUrl(appAddresses.signIn, { state });
+      const state: LandingPageState = { notice: SignInNotice.PasswordReset };
+      await this.router.navigateByUrl(appAddresses.home, { state });
       return;
     }
 

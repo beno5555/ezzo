@@ -1,0 +1,68 @@
+<div class="flex items-start">
+  @for (post of posts(); track post.kind) {
+    <div
+      class="flex min-w-0 max-w-72 flex-1 flex-col gap-3 rounded-lg border border-border bg-surface-raised p-4 text-ink-strong shadow-overlay odd:-rotate-4 even:-ms-8 even:mt-8 even:rotate-3"
+    >
+      <div class="flex items-center gap-3">
+        <app-avatar [userId]="post.authorId" [username]="post.author" />
+        <div class="flex min-w-0 flex-col">
+          <span class="font-semibold text-accent">{{ post.author }}</span>
+          <span class="text-sm text-ink-muted">{{ post.time }}</span>
+        </div>
+      </div>
+      <p class="font-display text-lg">{{ post.title }}</p>
+      @switch (post.kind) {
+        @case ('pots') {
+          <svg
+            class="h-40 w-full rounded-md bg-surface-sunken"
+            viewBox="0 0 320 160"
+            preserveAspectRatio="xMidYMid slice"
+          >
+            <rect class="fill-border" y="128" width="320" height="32" />
+            <path class="fill-disc-6" d="M62 60h36l-5 12c18 12 22 36 5 60H62c-17-24-13-48 5-60z" />
+            <path class="fill-disc-1" d="M128 84h72c0 24-10 48-24 48h-24c-14 0-24-24-24-48z" />
+            <path
+              class="fill-disc-7"
+              d="M240 34h20v34c16 8 20 22 20 34 0 14-6 24-12 30h-36c-6-6-12-16-12-30 0-12 4-26 20-34z"
+            />
+            <g class="fill-none stroke-on-disc" stroke-width="3" stroke-linecap="round">
+              <path d="M58 92q11-8 22 0t22 0" />
+              <path d="M135 100h58" />
+              <path d="M224 98h52M222 108h56" />
+            </g>
+          </svg>
+        }
+        @case ('quilt') {
+          <svg
+            class="h-40 w-full rounded-md bg-surface-sunken"
+            viewBox="0 0 320 160"
+            preserveAspectRatio="xMidYMid slice"
+          >
+            <path
+              class="fill-disc-4"
+              d="M0 0h40l-40 40zM80 0h40l-40 40zM160 0h40l-40 40zM240 0h40l-40 40zM40 40h40l-40 40zM120 40h40l-40 40zM200 40h40l-40 40zM280 40h40l-40 40zM0 80h40l-40 40zM80 80h40l-40 40zM160 80h40l-40 40zM240 80h40l-40 40zM40 120h40l-40 40zM120 120h40l-40 40zM200 120h40l-40 40zM280 120h40l-40 40z"
+            />
+            <path
+              class="fill-disc-6"
+              d="M40 0v40h-40zM120 0v40h-40zM200 0v40h-40zM280 0v40h-40zM80 40v40h-40zM160 40v40h-40zM240 40v40h-40zM320 40v40h-40zM40 80v40h-40zM120 80v40h-40zM200 80v40h-40zM280 80v40h-40zM80 120v40h-40zM160 120v40h-40zM240 120v40h-40zM320 120v40h-40z"
+            />
+            <path
+              class="fill-disc-1"
+              d="M60 0l20 20-20 20-20-20zM140 0l20 20-20 20-20-20zM220 0l20 20-20 20-20-20zM300 0l20 20-20 20-20-20zM20 40l20 20-20 20-20-20zM100 40l20 20-20 20-20-20zM180 40l20 20-20 20-20-20zM260 40l20 20-20 20-20-20zM60 80l20 20-20 20-20-20zM140 80l20 20-20 20-20-20zM220 80l20 20-20 20-20-20zM300 80l20 20-20 20-20-20zM20 120l20 20-20 20-20-20zM100 120l20 20-20 20-20-20zM180 120l20 20-20 20-20-20zM260 120l20 20-20 20-20-20z"
+            />
+          </svg>
+        }
+      }
+      <div class="flex items-center gap-6 text-sm font-semibold text-ink-muted">
+        <span class="flex items-center gap-2">
+          <svg class="size-5" lucideHeart></svg>
+          {{ post.likeCount }}
+        </span>
+        <span class="flex items-center gap-2">
+          <svg class="size-5" lucideMessageCircle></svg>
+          {{ text().posts.card.commentsLink(post.commentCount) }}
+        </span>
+      </div>
+    </div>
+  }
+</div>

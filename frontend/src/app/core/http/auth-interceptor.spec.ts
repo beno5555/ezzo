@@ -129,7 +129,7 @@ describe('authInterceptor', () => {
     expect(await friends).toEqual(['a friend']);
   });
 
-  it('clears the session and goes to sign-in, with the wanted address, when the refresh fails', async () => {
+  it('clears the session and goes to the landing page when the refresh fails', async () => {
     const navigation = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
     const response = firstValueFrom(http.get('/api/posts/feed'));
     const rejection = expect(response).rejects.toMatchObject({ status: 401 });
@@ -143,7 +143,23 @@ describe('authInterceptor', () => {
     expect(sessionStore.isSignedIn()).toBe(false);
     expect(navigation).toHaveBeenCalledTimes(1);
     const target = navigation.mock.calls[0][0] as UrlTree;
-    expect(router.serializeUrl(target)).toBe('/sign-in?returnUrl=%2F');
+    expect(router.serializeUrl(target)).toBe('/');
+  });
+
+  it('passes the wanted address on when the session ends on another page', async () => {
+    const navigation = vi.spyOn(router, 'navigateByUrl').mockResolvedValue(true);
+    vi.spyOn(router, 'url', 'get').mockReturnValue('/friends');
+    const response = firstValueFrom(http.get('/api/friendships/mine'));
+    const rejection = expect(response).rejects.toMatchObject({ status: 401 });
+
+    httpTesting.expectOne('/api/friendships/mine').flush(null, unauthorized);
+    await waitForPendingWork();
+    httpTesting.expectOne('/api/auth/refresh').flush(refreshFailure, unauthorized);
+    await waitForPendingWork();
+
+    await rejection;
+    const target = navigation.mock.calls[0][0] as UrlTree;
+    expect(router.serializeUrl(target)).toBe('/?returnUrl=%2Ffriends');
   });
 
   it('keeps the session and stays on the page when the refresh gets no answer', async () => {

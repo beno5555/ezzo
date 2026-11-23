@@ -36,7 +36,7 @@ Two worktree lanes at a time (`docs/agents/worktrees.md`), each taking frontend 
 | 11 | F14, the profile page | F23, admin: reports and the queue (merged) |
 | 12 | F16, user search | F24, admin: logs and statistics |
 | 13 | F15, the friends page (merged) | F21, live toasts |
-| 14 | F17, the settings page | F26, the landing page |
+| 14 | F17, the settings page | F41, the landing page with sign-in |
 | 15 | F39, save a photo from the viewer | |
 | 16 | F40, save a message's or a post's photos together | |
 
@@ -53,7 +53,7 @@ Backend lane: n8n 08 and 11 are finished on their worktree branches and parked: 
      - The active link in the bars changes from a sunken pill to accent text with a bar along the edge (`active-bar-link.ts`). Every danger button carries a trash icon. Chat bubbles keep the app's look (own on sunken, the other person's on a bordered page surface).
      - Every on-screen "WebCity" becomes Ezzo: the two dictionaries, the browser-tab title and its spec.
      - Then a full screenshot run (360, 768, 1280; both themes; signed out and in; English and Georgian) and Impeccable's `critique` on the real pages. Check by eye: the liked state of a post (filled heart and `aria-pressed`), Georgian and Russian headings, discs beside the accent, dark toasts and menus against the page.
-     - **Applied on `worktree-brand` (2026-11-23)**, all of the above except the tab mark. The wordmark is live text in the display face (`tracking-logo`, `text-logo` on the sign-in pages), not an SVG; the fretwork and tagline stand under it in `auth-frame`. Screenshots and the critique ran. Revised the same day: the logo is the "zz" speech bubble (top bar and tab icon), the name is not written on the page, and the tagline, welcome line and fretwork left sign-in. Next: ticket 41, the landing page merged with sign-in at `/` (the feed at `/` when signed in; punchline "Bring what you made."), and ticket 42, a three-field date of birth (day, month by name, year) replacing the browser date picker in register and both admin dialogs.
+     - **Applied on `worktree-brand` (2026-11-23)**, all of the above except the tab mark. The wordmark is live text in the display face (`tracking-logo`, `text-logo` on the sign-in pages), not an SVG; the fretwork and tagline stand under it in `auth-frame`. Screenshots and the critique ran. Revised the same day: the logo is the "zz" speech bubble (top bar and tab icon), the name is not written on the page, and the tagline, welcome line and fretwork left sign-in. Ticket 41, the landing page merged with sign-in at `/`, waits for the owner on `frontend-41-landing-page`. Next: ticket 42, a three-field date of birth (day, month by name, year) replacing the browser date picker in register and both admin dialogs.
 2. [x] **Write the tickets.** Of the n8n tickets, 01, 03, 04, 08 and 11 are backend work proven by integration tests; 02, 05, 06, 07, 09, 12 and 14 are workflows, open until the owner has run their checklist; 10 and 13 are visual frontend work.
 3. [x] **The backend gaps** (documented-backend-features), the last of them ticket 04.
 4. [x] **Shell and auth.**

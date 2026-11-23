@@ -4,16 +4,16 @@ import { SignInNotice } from './sign-in-notice';
 // username or an email never lands in the history or a shared link:
 // - identifier: filled in, the username after a registration whose sign-in failed
 // - notice: shown at the form's top, after a registration, a reactivation or a password reset
-export type SignInPageState = {
+export type LandingPageState = {
   identifier?: string;
   notice?: SignInNotice;
 };
 
 const notices: readonly unknown[] = Object.values(SignInNotice);
 
-// The navigation's state as SignInPageState; anything else in it, or no state at all, is left out.
-export function toSignInPageState(state: unknown): SignInPageState {
-  const pageState: SignInPageState = {};
+// The navigation's state as LandingPageState; anything else in it, or no state at all, is left out.
+export function toLandingPageState(state: unknown): LandingPageState {
+  const pageState: LandingPageState = {};
 
   if (typeof state === 'object' && state !== null) {
     if ('identifier' in state && typeof state.identifier === 'string') {

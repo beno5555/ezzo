@@ -15,6 +15,6 @@ describe('authGuard', () => {
       '/messages/john_doe?draft=1',
     );
 
-    expect(decision).toBe('/sign-in?returnUrl=%2Fmessages%2Fjohn_doe%3Fdraft%3D1');
+    expect(decision).toBe('/?returnUrl=%2Fmessages%2Fjohn_doe%3Fdraft%3D1');
   });
 });

@@ -9,9 +9,6 @@ type Access = 'anyone' | 'auth' | 'guest' | 'admin';
 
 // The address table in .scratch/frontend/spec.md ("Addresses"), path by path.
 const addressTable: Record<string, Access> = {
-  '': 'anyone',
-  feed: 'auth',
-  'sign-in': 'guest',
   register: 'guest',
   'forgot-password': 'anyone',
   'reset-password': 'anyone',
@@ -51,7 +48,8 @@ function flatten(tree: Route[], parentPath = '', parentGuards: unknown[] = []): 
 }
 
 const flatRoutes = flatten(routes);
-const pages = flatRoutes.filter(({ route }) => route.redirectTo === undefined);
+// The two pages at the home address are chosen by who is signed in: home-routes.spec.ts holds them.
+const pages = flatRoutes.filter(({ path, route }) => path !== '' && route.redirectTo === undefined);
 
 describe('the route table', () => {
   it('has a page for every address in the spec, and no other', () => {

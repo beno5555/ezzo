@@ -36,7 +36,7 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 
 1. As a user, I want to stay signed in when I reload the page or open a new tab, so that I do not sign in again every time.
 2. As a user, I want my session renewed without my noticing when the access token expires, so that an action never fails just because time passed.
-3. As a user, I want to be taken to the sign-in page when my session can no longer be renewed, so that I understand why nothing works.
+3. As a user, I want to be taken to the sign-in form when my session can no longer be renewed, so that I understand why nothing works.
 4. As a user, I want to return to the address I asked for after I sign in, so that a link someone sent me still leads where it should.
 5. As a user with two tabs open, I want both tabs to stay signed in, so that one tab's renewal does not sign the other out.
 6. As a user, I want to sign out from the menu, so that the next person at this computer cannot use my account.
@@ -55,9 +55,9 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 16. As a visitor, I want each field checked as I leave it, with the same limits the server uses, so that I fix mistakes before I submit.
 17. As a visitor, I want the server's complaint about a field shown beside that field, so that I know which one to change.
 18. As a new user, I want to be signed in as soon as I have registered, so that I do not type my password twice.
-19. As a new user whose automatic sign-in failed, I want to land on the sign-in page with my username filled in, so that I can finish by hand.
+19. As a new user whose automatic sign-in failed, I want to land on the sign-in form with my username filled in, so that I can finish by hand.
 20. As a user, I want to sign in with my username or my email, so that I can use whichever I remember.
-21. As a signed-in user, I want the sign-in and register addresses to send me to the feed, so that I do not see forms I do not need.
+21. As a signed-in user, I want the home, sign-in and register addresses to send me to the feed, so that I do not see forms I do not need.
 22. As a user who forgot a password, I want to ask for a reset link by email, so that I can get back in.
 23. As a user, I want the link in the reset email to open a page where I choose a new password, so that I do not copy a code by hand.
 24. As a user, I want to be told when a reset link is no longer valid, so that I ask for a new one.
@@ -250,11 +250,11 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 
 | Address | Page | Access |
 |---|---|---|
-| `/` | Landing page for guests; a signed-in user is sent to `/feed` | anyone |
-| `/feed` | Feed, with a Write a post button | signed in |
+| `/` | A guest: the landing page with the sign-in form. A signed-in user: the feed, with a Write a post button | anyone |
+| `/feed`, `/sign-in` | Former addresses; both lead to `/`, keeping the query | anyone |
 | `/posts/new` | The composer | signed in |
 | `/posts/:postId/edit` | Where an author edits a post | signed in |
-| `/sign-in`, `/register` | Sign in, register | signed out only |
+| `/register` | Register | signed out only |
 | `/forgot-password` | Ask for a reset link | anyone |
 | `/reset-password?token=…` | Choose a new password | anyone |
 | `/reactivate-account` (`?token=…` from the email) | Ask for a link; opened from it, reactivate with one button | anyone |
@@ -289,7 +289,8 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 - **Desktop:** a top bar with the logo, the search box, Feed, Friends (incoming count), Messages (unread count), and a menu under the user's initials: my profile, settings, admin (administrators only), language, sign out.
 - **Phone:** a top bar with the logo and that menu; a bottom bar with Feed, Search, Friends, Messages and Profile, with the same two counts.
 - **Guest:** the logo, the search box, the language switch, Sign in and Register.
-- **Account pages** (sign-in, register, forgotten password, reset, reactivation): the logo only, with no bottom bar, for a guest and a signed-in user alike. They are a short stop, so they leave out search, the menus and the language switch; the language starts from the browser's (owner, 2026-11-19).
+- **The landing page:** the language and theme menu only; the page's wordmark carries the logo (owner, 2026-11-23).
+- **Account pages** (register, forgotten password, reset, reactivation): the logo only, with no bottom bar, for a guest and a signed-in user alike. They are a short stop, so they leave out search, the menus and the language switch; the language starts from the browser's (owner, 2026-11-19).
 - **The incoming-request count** is loaded at sign-in and again on each visit to `/friends`. It is not live in this spec.
 
 ### Auth pages
