@@ -214,7 +214,7 @@ export const georgian: Dictionary = {
       quilt: { author: 'luka_k', time: 'გუშინ', title: 'საბანი, როგორც იქნა, მზადაა' },
     },
     signIn: {
-      punchline: 'გაგვიზიარეთ, რაც შექმენით.',
+      punchline: 'გაგვიზიარე, რაც შექმენი.',
       heading: 'შედით ეზოში',
       formLabel: 'შესვლა',
       identifierLabel: 'მომხმარებლის სახელი ან ელფოსტა',
