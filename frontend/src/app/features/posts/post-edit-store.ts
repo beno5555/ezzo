@@ -18,8 +18,9 @@ import { StandardPostDisplayDto } from './standard-post-display-dto';
 //     leads to the edit page, which opens filled with what the author wrote (takeReturnedEdit). The store
 //     lives as long as the app, so the toasts tell even after the author has left the page. An author's own
 //     posts are not shown in the feed, so no list is told about an edit that is on its way.
-//   - delete: asks first. Once the author confirms, the post's card fades out and every list leaves it
-//     out; a toast says it is deleted. If the server refuses, the post comes back, with a toast.
+//   - delete: asks first. Once the author confirms, the post's card says "Deleting…" until the server
+//     answers. On a yes it fades out, every list leaves it out and a toast says it is deleted; if the
+//     server refuses, the card stays as it was, with a toast.
 // A post with a request on its way ignores another edit or deletion, so the answers never cross.
 @Injectable({ providedIn: 'root' })
 export class PostEditStore {
@@ -45,13 +46,23 @@ export class PostEditStore {
     return this.pending().has(postId);
   }
 
-  // True from the author's confirmation until the card has faded out: the card is fading.
-  isDeleting(postId: number): boolean {
+  // True from the author's confirmation until the server has answered: the card says "Deleting…".
+  isWaitingToDelete(postId: number): boolean {
+    return this.deleteFade.isWaiting(postId);
+  }
+
+  // True from the server's yes until the card has faded out and left.
+  isFadingOut(postId: number): boolean {
     return this.deleteFade.isFading(postId);
   }
 
-  // True from the moment the card has faded out, until the server refuses the deletion. A list leaves
-  // such a post out of what it shows (a post's id is never used again, so it needs no cleaning up).
+  // True while the deletion is under way: the card takes no actions.
+  isDeleting(postId: number): boolean {
+    return this.isWaitingToDelete(postId) || this.isFadingOut(postId);
+  }
+
+  // True once the card has faded out. A list leaves such a post out of what it shows (a post's id is never
+  // used again, so it needs no cleaning up).
   isDeleted(postId: number): boolean {
     return this.deleteFade.isGone(postId);
   }
@@ -112,8 +123,9 @@ export class PostEditStore {
     }
   }
 
-  // Asks first. whenGone runs once the card has faded out, before the server has answered: the post's
-  // own page uses it to lead to the feed.
+  // Asks first. The card then says "Deleting…" until the server answers; on a yes it fades out, whenGone
+  // runs (the post's own page uses it to lead to the feed) and a toast says it is deleted. A refusal leaves
+  // the card as it was, with a toast.
   async delete(
     post: StandardPostDisplayDto,
     whenGone: () => void = () => undefined,
@@ -128,14 +140,12 @@ export class PostEditStore {
       });
 
       if (isConfirmed) {
-        await this.deleteFade.fadeOut(post.id);
-        whenGone();
-        const result = await this.postApi.delete(post.id);
+        const result = await this.deleteFade.delete(post.id, () => this.postApi.delete(post.id));
 
         if (result.succeeded) {
+          whenGone();
           this.toastStore.show(this.text().posts.deletedToast);
         } else {
-          this.deleteFade.bringBack(post.id);
           this.toastStore.show(result.message);
         }
       }

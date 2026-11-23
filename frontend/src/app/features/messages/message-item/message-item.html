@@ -1,9 +1,10 @@
 <div
   class="group flex flex-col gap-1"
   [appFadeOut]="isFading()"
+  [appDeleting]="isWaitingToDelete()"
   [class.items-end]="isOwn()"
   [class.items-start]="!isOwn()"
-  [attr.aria-busy]="isFading() || null"
+  [attr.aria-busy]="isWaitingToDelete() || isFading() || null"
 >
   <div
     class="flex max-w-4/5 items-start gap-1 rounded-lg px-3 py-2 text-ink-strong md:max-w-2/3"
@@ -37,7 +38,9 @@
       />
     }
   </div>
-  @if (hasLineBelow()) {
+  @if (isWaitingToDelete()) {
+    <app-deleting-notice class="px-1" />
+  } @else if (hasLineBelow()) {
     <p class="flex flex-wrap items-center gap-x-1 px-1 text-xs text-ink-muted">
       @if (isSending()) {
         <span

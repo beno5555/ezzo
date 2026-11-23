@@ -9,6 +9,7 @@ import { AvatarSize } from '../avatar/avatar-size';
 import { ContentAction } from '../content-actions/content-action';
 import { contentActionsOffered } from '../content-actions/content-actions-offered';
 import { contentMenuEntries } from '../content-actions/content-menu-entries';
+import { DeletingNotice } from '../deleting-notice/deleting-notice';
 import { FadeOut } from '../fade-out/fade-out';
 import { HiddenBadge } from '../hidden-badge/hidden-badge';
 import { Menu } from '../menu/menu';
@@ -36,7 +37,7 @@ import { ReportTargetType } from '../../features/reports/report-target-type';
 // wrote (CommentThreadStore.takeReturnedEdit).
 @Component({
   selector: 'app-comment-item',
-  imports: [Avatar, CommentForm, FadeOut, HiddenBadge, Menu, RouterLink, TextLink],
+  imports: [Avatar, CommentForm, DeletingNotice, FadeOut, HiddenBadge, Menu, RouterLink, TextLink],
   templateUrl: './comment-item.html',
   styleUrl: './comment-item.css',
 })
@@ -70,7 +71,11 @@ export class CommentItem {
     return userId !== null && this.comment().author.id === userId;
   });
   private readonly isChangeable = computed(
-    () => this.shown().isOnServer && !this.shown().isSending && !this.shown().isFading,
+    () =>
+      this.shown().isOnServer &&
+      !this.shown().isSending &&
+      !this.shown().isWaitingToDelete &&
+      !this.shown().isFading,
   );
   // The comment's moderation state as shown: what an administrator has set here, else its own flag.
   protected readonly isHidden = computed(() =>

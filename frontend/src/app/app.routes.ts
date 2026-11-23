@@ -94,7 +94,13 @@ export const routes: Routes = [
       import('./features/users/user-search-page/user-search-page').then((m) => m.UserSearchPage),
   },
   { ...placeholderPage('settings', 'settings'), canActivate: [authGuard] },
-  { ...placeholderPage('friends', 'friends'), canActivate: [authGuard] },
+  {
+    path: 'friends',
+    title: 'friends',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/friendships/friends-page/friends-page').then((m) => m.FriendsPage),
+  },
   // One layout for both: the list beside the open conversation on a desktop, one of them on a phone.
   // At /messages a desktop shows a hint where the conversation goes, and a phone only the list.
   {

@@ -99,6 +99,8 @@ export const english = {
   shared: {
     // After the author's name on the reader's own post or comment, among everyone else's.
     ownMark: '(you)',
+    // Shown on a post, comment, message or friend while its deletion waits for the server.
+    deleting: 'Deleting…',
     dialog: {
       closeButton: 'Close',
     },
@@ -371,7 +373,6 @@ export const english = {
       loading: 'Loading accounts…',
       loadingMore: 'Loading more accounts…',
       retryButton: 'Try again',
-      end: 'That is every account.',
       emptyTitle: 'No accounts found',
       emptyMessage: 'No account matches these filters.',
       // The name of a row's "…" button.
@@ -540,7 +541,6 @@ export const english = {
         emptyMessage: 'Posts written by this user show up here.',
         emptyOwnMessage: 'Posts you write show up here.',
         retryButton: 'Try again',
-        end: 'No more posts.',
       },
       friends: {
         loading: 'Loading friends…',
@@ -548,7 +548,6 @@ export const english = {
         emptyTitle: 'No friends yet',
         emptyMessage: 'Friends of this user show up here.',
         retryButton: 'Try again',
-        end: 'No more friends.',
       },
     },
   },
@@ -566,6 +565,43 @@ export const english = {
       question: (username: string) => `Remove ${username} from your friends?`,
       detail: 'The messages between you are deleted with the friendship. This cannot be undone.',
       confirmButton: 'Remove',
+    },
+    // The friends page at /friends (features/friendships/friends-page).
+    page: {
+      heading: 'Friends',
+      tabsLabel: 'Friend lists',
+      myFriendsTab: 'My friends',
+      incomingTab: 'Requests',
+      sentTab: 'Sent',
+      retryButton: 'Try again',
+      // The link on each of My friends' rows that opens the conversation.
+      messageButton: 'Message',
+      // Remove's short label on a row, so that it fits beside Message on a phone; screen readers still
+      // hear the full "Remove friend: name".
+      removeButton: 'Remove',
+      // A row's button as screen readers hear it, since "Accept" alone does not say for whom.
+      rowActionLabel: (action: string, username: string) => `${action}: ${username}`,
+      // One group per list, by the tab's name (FriendsTab).
+      lists: {
+        friends: {
+          loading: 'Loading your friends…',
+          loadingMore: 'Loading more friends…',
+          emptyTitle: 'No friends yet',
+          emptyMessage: 'Search for people you know and send them a request.',
+        },
+        incoming: {
+          loading: 'Loading requests…',
+          loadingMore: 'Loading more requests…',
+          emptyTitle: 'No requests waiting',
+          emptyMessage: 'When someone asks to be your friend, the request shows up here.',
+        },
+        sent: {
+          loading: 'Loading sent requests…',
+          loadingMore: 'Loading more requests…',
+          emptyTitle: 'No requests sent',
+          emptyMessage: 'Requests you send wait here until the other person answers.',
+        },
+      },
     },
   },
   posts: {

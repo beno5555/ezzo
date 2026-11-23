@@ -23,6 +23,10 @@ const lookClasses: Record<ButtonLook, string> = {
   [ButtonLook.Danger]:
     'border-danger bg-surface-raised text-danger ' +
     'not-disabled:hover:bg-surface-sunken not-disabled:active:bg-surface-sunken',
+  // No edge, so a column of them stays calm; the trash icon and the colour still mark it.
+  [ButtonLook.DangerText]:
+    'border-transparent bg-transparent text-danger ' +
+    'not-disabled:hover:bg-surface-sunken not-disabled:active:bg-surface-sunken',
 };
 
 // The app's one button look. It sits on a native <button>, so type, disabled, form submission and
@@ -43,5 +47,7 @@ export class Button {
   readonly look = input.required<ButtonLook>();
 
   protected readonly classes = computed(() => `${sharedClasses} ${lookClasses[this.look()]}`);
-  protected readonly isDanger = computed(() => this.look() === ButtonLook.Danger);
+  protected readonly isDanger = computed(
+    () => this.look() === ButtonLook.Danger || this.look() === ButtonLook.DangerText,
+  );
 }

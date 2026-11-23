@@ -160,6 +160,23 @@ describe('PagedList', () => {
     expect(list.items()).toEqual([item(9), item(1), item(2)]);
   });
 
+  it('puts a removed item back at its index, once', async () => {
+    const loader = createLoader();
+    const list = createList(loader);
+    const first = list.loadNext();
+    loader.answer(ok([item(1), item(2), item(3)]));
+    await first;
+
+    list.leave(2);
+    list.insertAt(item(2), 1);
+    list.insertAt(item(2), 0);
+    expect(list.items()).toEqual([item(1), item(2), item(3)]);
+
+    list.leave(3);
+    list.insertAt(item(3), 9);
+    expect(list.items()).toEqual([item(1), item(2), item(3)]);
+  });
+
   it('removes an item by its key', async () => {
     const loader = createLoader();
     const list = createList(loader);
@@ -175,6 +192,26 @@ describe('PagedList', () => {
   });
 
   describe('leave', () => {
+    it('asks for the normal page again when a refused removal puts the item back', async () => {
+      const loader = createLoader();
+      const list = createList(loader);
+
+      const first = list.loadNext();
+      loader.answer(ok([item(1), item(2), item(3)]));
+      await first;
+      list.leave(2);
+      list.insertAt(item(2), 1);
+
+      const second = list.loadNext();
+      loader.answer(ok([item(4), item(5), item(6)]));
+      await second;
+
+      expect(loader.asked).toEqual([
+        { pageNumber: 1, pageSize },
+        { pageNumber: 2, pageSize },
+      ]);
+    });
+
     it('takes the item out of the list', async () => {
       const loader = createLoader();
       const list = createList(loader);

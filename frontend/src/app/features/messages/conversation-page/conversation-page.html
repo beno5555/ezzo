@@ -167,6 +167,7 @@
                         [isOwn]="message.sender.id === signedInUserId()"
                         [showsTime]="mark?.showsTime ?? true"
                         [isSending]="shown.sendingIds.has(message.id)"
+                        [isWaitingToDelete]="shown.waitingIds.has(message.id)"
                         [isFading]="shown.fadingIds.has(message.id)"
                         [isLastSeen]="message.id === lastSeenOwnId()"
                       />

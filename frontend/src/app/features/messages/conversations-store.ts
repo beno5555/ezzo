@@ -119,6 +119,7 @@ export class ConversationsStore {
         friend: this.presenceStore.withPresence(friend),
         messages: [...kept, ...pending],
         sendingIds: new Set([...pending.map((message) => message.id), ...this.savingEditIds()]),
+        waitingIds: this.deleteFade.waitingIds(),
         fadingIds: this.deleteFade.fadingIds(),
       };
     }
@@ -251,8 +252,8 @@ export class ConversationsStore {
     this.currentEditDraft.set(null);
   }
 
-  // Asks first. Once the user confirms, the message fades out and leaves their view before the server has
-  // answered; a refusal brings it back.
+  // Asks first. Once the user confirms, the message says "Deleting…" until the server answers. On a yes it
+  // fades out and leaves their view; a refusal leaves it as it was, with a toast.
   async deleteMessage(message: StandardMessageDto): Promise<void> {
     const isIdle = !this.savingEditIds().has(message.id) && !this.deleteFade.isBusy(message.id);
 
@@ -267,13 +268,13 @@ export class ConversationsStore {
 
       if (isConfirmed) {
         const clearNumber = this.clearNumber;
-        await this.deleteFade.fadeOut(message.id);
-        this.showLastMessageInRow();
-        const result = await this.messageApi.delete(message.id);
+        const result = await this.deleteFade.delete(message.id, () =>
+          this.messageApi.delete(message.id),
+        );
         const isSameSession = clearNumber === this.clearNumber;
 
         if (isSameSession) {
-          this.settleDeleted(message, result);
+          await this.settleDeleted(message, result);
         }
       }
     }
@@ -524,13 +525,20 @@ export class ConversationsStore {
     return (this.opened()?.messages ?? []).filter((message) => !goneIds.has(message.id));
   }
 
-  private settleDeleted(message: StandardMessageDto, result: AppResult<void>): void {
+  // The reader may have opened another conversation while the message said "Deleting…". Then the message is
+  // no longer in the open conversation, whose row is not the one to change, so the list is read again and
+  // the message's own row takes the server's last message.
+  private async settleDeleted(message: StandardMessageDto, result: AppResult<void>): Promise<void> {
     if (result.succeeded) {
-      this.removeFromOpened(message.id);
+      const isStillOpen = this.holdsMessage(message.id);
       this.toastStore.show(this.text().messages.deletedToast);
+
+      if (isStillOpen) {
+        this.removeFromOpened(message.id);
+      } else {
+        await this.refreshListIfLoaded();
+      }
     } else {
-      this.deleteFade.bringBack(message.id);
-      this.showLastMessageInRow();
       this.toastStore.show(result.message);
     }
   }
@@ -645,8 +653,9 @@ function conversationLoading(username: string): OpenConversation {
     messages: [],
     historyStatus: PageLoadStatus.Idle,
     historyFailure: null,
-    // openConversation fills both from the messages on their way and the ones fading out.
+    // openConversation fills these from the messages on their way, being deleted and fading out.
     sendingIds: new Set(),
+    waitingIds: new Set(),
     fadingIds: new Set(),
   };
 }

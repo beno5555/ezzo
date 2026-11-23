@@ -35,7 +35,7 @@ Two worktree lanes at a time (`docs/agents/worktrees.md`), each taking frontend 
 | 10 | F13, reports from the normal pages | F20, chat: edit, delete, typing (merged) |
 | 11 | F14, the profile page | F23, admin: reports and the queue (merged) |
 | 12 | F16, user search | F24, admin: logs and statistics |
-| 13 | F15, the friends page | F21, live toasts |
+| 13 | F15, the friends page (merged) | F21, live toasts |
 | 14 | F17, the settings page | F26, the landing page |
 | 15 | F39, save a photo from the viewer | |
 | 16 | F40, save a message's or a post's photos together | |

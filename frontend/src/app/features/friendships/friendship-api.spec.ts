@@ -205,6 +205,40 @@ describe('FriendshipApi', () => {
     });
   });
 
+  describe.each([
+    { method: 'getFriends', address: '/api/friendships/accepted', status: 'Accepted' },
+    { method: 'getSentRequests', address: '/api/friendships/sent', status: 'Pending' },
+  ] as const)('GET $address', ({ method, address, status }) => {
+    it('sends the page as the query, and returns the rows', async () => {
+      const row: StandardFriendshipDto = {
+        otherUser: { id: 3, username: 'bob' },
+        status,
+        sentAt: '2026-11-18T10:00:00Z',
+        lastUpdatedAt: null,
+        isRequester: true,
+      };
+
+      const pending = friendshipApi[method]({ pageNumber: 2, pageSize: 20 });
+      const request = httpTesting.expectOne(
+        (candidate) => candidate.method === 'GET' && candidate.url === address,
+      );
+      expect(request.request.params.get('pageNumber')).toBe('2');
+      expect(request.request.params.get('pageSize')).toBe('20');
+      request.flush({ succeeded: true, message: null, data: [row], totalCount: 1 });
+
+      expect(await pending).toEqual({ succeeded: true, data: [row] });
+    });
+
+    it('turns a bodiless 401 into a failure', async () => {
+      const pending = friendshipApi[method]({ pageNumber: 1, pageSize: 20 });
+      httpTesting
+        .expectOne(`${address}?pageNumber=1&pageSize=20`)
+        .flush(null, { status: 401, statusText: 'Unauthorized' });
+
+      expect(await pending).toMatchObject({ succeeded: false, status: 401 });
+    });
+  });
+
   describe('GET /api/friendships/user/{userId}', () => {
     it("sends the page as the query and returns that user's friends", async () => {
       const row: StandardFriendshipDto = {

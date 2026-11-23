@@ -80,6 +80,23 @@ export class PagedList<T> {
     }
   }
 
+  // Puts an item back where it was, after a refused removal that had taken it out with leave: at its old
+  // index, or at the end when the list is shorter now. An item the list already holds stays where it is.
+  // The server never lost it, so the next page is asked for from where it was.
+  insertAt(restored: T, index: number): void {
+    const restoredKey = this.options.keyOf(restored);
+    const isShown = this.loaded().some((item) => this.options.keyOf(item) === restoredKey);
+
+    if (!isShown) {
+      this.unseenOffset += 1;
+      this.loaded.update((items) => {
+        const position = Math.min(index, items.length);
+
+        return [...items.slice(0, position), restored, ...items.slice(position)];
+      });
+    }
+  }
+
   // Puts an item the user just made (the server's copy of a new post or a new comment) on top. It shows once: a page that
   // already brought it keeps it where it is, and a later page that holds it does not show it again.
   prepend(added: T): void {
