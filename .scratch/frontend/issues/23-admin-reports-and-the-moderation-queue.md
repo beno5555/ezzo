@@ -136,3 +136,4 @@ Owner's decisions: a long username is cut with an ellipsis and is copyable like 
 - **One shared `CopyableText`** (a text cut with an ellipsis, a click that copies it, and a copy button; 32 px on a desktop, 44 px on a phone) serves the username and the email. Its texts moved to `shared.copy`.
 - Checks: Prettier on my files, lint, the unit suite (86 files, 767 tests, 6.46 s) and the build pass; the users page retaken at all twelve sizes and looked at in both languages at 1280 px and in Georgian at 360 px. Initial bundle 728.32 kB.
 - **Known limit:** in Georgian at 1280 px the email column is at its narrowest, so short emails are also cut ("alice@example..."). Hovering shows the whole address, and the copy button copies it.
+- **Emails (later):** an email is capped like a username (about 16 rem) and cut with an ellipsis; the column still shrinks, so nothing scrolls sideways in Georgian at 1280 px. Looked at 1280 en and ka, light and dark, and 360 en.
