@@ -3,9 +3,9 @@ import { RouterLink } from '@angular/router';
 import { LanguageStore } from '../../languages/language-store';
 import { appAddresses } from '../../routing/app-addresses';
 
-// The wordmark as a link to the home address: the product's name, all lowercase ("ezzo",
-// PRODUCT.md), in the display face and the accent. The name itself comes from the dictionary, where
-// every other text reads it too.
+// The logo as a link to the home address: the "zz" speech-bubble mark (DESIGN.md, Brand), the same
+// drawing as the browser-tab icon (public/favicon.svg). The name is read to screen readers only; it
+// comes from the dictionary.
 @Component({
   selector: 'app-logo',
   imports: [RouterLink],

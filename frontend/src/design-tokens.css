@@ -88,10 +88,9 @@
   --text-2xl--line-height: 1.2;
   --text-2xl--font-weight: 700;
 
-  /* Line heights come with the type sizes. The one letter spacing is the logo's: tracking-logo. */
+  /* Line heights come with the type sizes; there is no letter spacing. */
   --leading-*: initial;
   --tracking-*: initial;
-  --tracking-logo: -0.03em;
 
   /* Radii: rounded-sm, rounded-md, rounded-lg, rounded-full. */
   --radius-*: initial;

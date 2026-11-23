@@ -130,7 +130,7 @@ Ezzo (`PRODUCT.md`) is a small social platform: a feed, posts with photos, comme
 
 ## Brand
 
-- **The logo** is a "zz" mark, still to be chosen by the owner (2026-11-23); the same mark serves the top bar and the browser tab, and the name is not written out on the page. Until then the top bar shows the name in lowercase, in the display face, `text-2xl`, `tracking-logo`, in `accent`.
+- **The logo** is "zz" in `on-accent` strokes inside an `accent` speech bubble (owner, 2026-11-23): neighbours talking across balconies. The same drawing is the top bar's home link and the browser-tab icon (`public/favicon.svg`, which holds the light values, as a file outside the app cannot read tokens). The name is not written on the page; screen readers hear it.
 
 ## Colors
 
@@ -165,7 +165,7 @@ A colour is named for its job, never for its shade. A component uses the role na
 
 - **Two roles.** The **body** role (`font-body`) is Noto Sans, with the variable Noto Sans Georgian for Georgian letters. The **display** role (`font-display`: headings and the logo) is Bricolage Grotesque, set narrow through its width axis. It has no Cyrillic or Georgian, so those letters fall to Noto Sans and to the variable Noto Sans Georgian, whose width axis narrows Georgian headings to match.
 - **Six sizes,** from `text-xs` (12 px) to `text-2xl` (28 px). Body text is `text-base` (16 px) and is never smaller than `text-sm` (14 px).
-- **Letter spacing** is the logo's alone (`tracking-logo`). Headings keep the face's own spacing, which Georgian needs.
+- **No letter spacing.** Headings keep the face's own spacing, which Georgian needs.
 - **Fonts are served by the app itself.** No font is loaded from another origin.
 - **Do not lean on capital letters.** Georgian has none in everyday writing, so an ALL-CAPS label loses its meaning in the Georgian interface. Use weight and size for emphasis.
 - **Lines of text stay under about 80 characters.**
