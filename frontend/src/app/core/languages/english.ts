@@ -420,6 +420,82 @@ export const english = {
         savedToast: (username: string) => `Saved the profile of ${username}.`,
       },
     },
+    // A post, a comment or a user under review, as the reports and the moderation queue show them.
+    snapshots: {
+      // Before the title of the post a reported comment is on.
+      onPost: 'On the post',
+      noBio: 'No bio.',
+    },
+    reports: {
+      title: 'Reports',
+      statusFilterLabel: 'Show reports that are',
+      targetFilterLabel: 'About a',
+      allTargets: 'Anything',
+      // The names of the report statuses, by ReportStatus.
+      statuses: {
+        Pending: 'Pending',
+        Resolved: 'Resolved',
+        Rejected: 'Rejected',
+      },
+      // The names of what can be reported, by ReportTargetType.
+      targets: {
+        Post: 'Post',
+        Comment: 'Comment',
+        User: 'User',
+      },
+      loading: 'Loading reports…',
+      loadingMore: 'Loading more reports…',
+      retryButton: 'Try again',
+      end: 'That is every report.',
+      emptyTitle: 'No reports found',
+      emptyMessage: 'No report matches these filters.',
+      card: {
+        reportedBy: 'Reported by',
+        reason: 'Reason',
+        // The heading of the reported thing, by ReportTargetType.
+        reported: {
+          Post: 'Reported post',
+          Comment: 'Reported comment',
+          User: 'Reported user',
+        },
+        // The mark on a report whose target is gone, by ReportTargetType.
+        targetMissing: {
+          Post: 'This post no longer exists. The report can only be rejected.',
+          Comment: 'This comment no longer exists. The report can only be rejected.',
+          User: 'This user no longer exists. The report can only be rejected.',
+        },
+        resolvedBy: (username: string, time: string) => `Resolved by ${username}, ${time}`,
+        rejectedBy: (username: string, time: string) => `Rejected by ${username}, ${time}`,
+      },
+      hideButton: 'Hide',
+      rejectButton: 'Reject',
+      // Asked before Hide on a reported user, which deactivates the account.
+      confirmHideUser: {
+        question: (username: string) => `Hide ${username}?`,
+        detail:
+          'The account is deactivated and its owner is emailed. Every other pending report on this user is closed with it.',
+        confirmButton: 'Hide',
+      },
+    },
+    moderation: {
+      title: 'Moderation queue',
+      tabsLabel: 'Flagged content',
+      postsTab: 'Posts',
+      commentsTab: 'Comments',
+      loadingPosts: 'Loading flagged posts…',
+      loadingMorePosts: 'Loading more flagged posts…',
+      loadingComments: 'Loading flagged comments…',
+      loadingMoreComments: 'Loading more flagged comments…',
+      retryButton: 'Try again',
+      endPosts: 'That is every flagged post.',
+      endComments: 'That is every flagged comment.',
+      emptyPostsTitle: 'No flagged posts',
+      emptyPostsMessage: 'Nothing is waiting for a decision.',
+      emptyCommentsTitle: 'No flagged comments',
+      emptyCommentsMessage: 'Nothing is waiting for a decision.',
+      hideButton: 'Hide',
+      makeVisibleButton: 'Make visible',
+    },
   },
   users: {
     search: {

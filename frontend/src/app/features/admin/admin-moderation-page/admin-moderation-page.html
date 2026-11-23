@@ -1,0 +1,145 @@
+<div class="flex flex-col gap-6">
+  <h1 class="font-display text-2xl text-ink-strong">{{ text().admin.moderation.title }}</h1>
+
+  <div class="flex flex-col gap-4">
+    <app-tabs
+      [idPrefix]="tabsIdPrefix"
+      [tabs]="tabs()"
+      [label]="text().admin.moderation.tabsLabel"
+      [selected]="selectedTab()"
+      (selectedChange)="chooseTab($event)"
+    />
+
+    <div
+      class="flex max-w-column flex-col gap-4"
+      role="tabpanel"
+      tabindex="0"
+      [id]="panelIdOf(tabsIdPrefix, QueueTab.Posts)"
+      [attr.aria-labelledby]="tabIdOf(tabsIdPrefix, QueueTab.Posts)"
+      [hidden]="selectedTab() !== QueueTab.Posts"
+    >
+      @if (hasPosts()) {
+        <ul class="flex flex-col gap-4">
+          @for (post of posts.rows(); track post.id) {
+            <li>
+              <app-flagged-item
+                [isFading]="posts.isFading(post.id)"
+                (hide)="settlePost(post, ModerationStatus.Hidden)"
+                (makeVisible)="settlePost(post, ModerationStatus.Visible)"
+              >
+                <app-post-snapshot [post]="post" />
+              </app-flagged-item>
+            </li>
+          }
+        </ul>
+      }
+
+      @switch (posts.status()) {
+        @case (PageLoadStatus.Idle) {
+          @if (hasPosts()) {
+            <div appScrollSentinel (reached)="loadMorePosts()"></div>
+          }
+        }
+        @case (PageLoadStatus.Loading) {
+          <p class="py-4 text-center text-sm text-ink-muted" role="status">
+            {{
+              hasPosts()
+                ? text().admin.moderation.loadingMorePosts
+                : text().admin.moderation.loadingPosts
+            }}
+          </p>
+        }
+        @case (PageLoadStatus.Failed) {
+          @if (posts.failureMessage(); as message) {
+            <app-load-failure
+              [message]="message"
+              [retryLabel]="text().admin.moderation.retryButton"
+              (retry)="loadMorePosts()"
+            />
+          }
+        }
+        @case (PageLoadStatus.Ended) {
+          @if (hasPosts()) {
+            <p class="py-4 text-center text-sm text-ink-muted">
+              {{ text().admin.moderation.endPosts }}
+            </p>
+          } @else {
+            <app-empty-state
+              class="rounded-lg border border-border bg-surface-raised"
+              [heading]="text().admin.moderation.emptyPostsTitle"
+              [message]="text().admin.moderation.emptyPostsMessage"
+            >
+              <svg class="size-8 text-ink-muted" lucideShieldCheck aria-hidden="true"></svg>
+            </app-empty-state>
+          }
+        }
+      }
+    </div>
+
+    <div
+      class="flex max-w-column flex-col gap-4"
+      role="tabpanel"
+      tabindex="0"
+      [id]="panelIdOf(tabsIdPrefix, QueueTab.Comments)"
+      [attr.aria-labelledby]="tabIdOf(tabsIdPrefix, QueueTab.Comments)"
+      [hidden]="selectedTab() !== QueueTab.Comments"
+    >
+      @if (hasComments()) {
+        <ul class="flex flex-col gap-4">
+          @for (comment of comments.rows(); track comment.id) {
+            <li>
+              <app-flagged-item
+                [isFading]="comments.isFading(comment.id)"
+                (hide)="settleComment(comment, ModerationStatus.Hidden)"
+                (makeVisible)="settleComment(comment, ModerationStatus.Visible)"
+              >
+                <app-comment-snapshot [comment]="comment" />
+              </app-flagged-item>
+            </li>
+          }
+        </ul>
+      }
+
+      @switch (comments.status()) {
+        @case (PageLoadStatus.Idle) {
+          @if (hasComments()) {
+            <div appScrollSentinel (reached)="loadMoreComments()"></div>
+          }
+        }
+        @case (PageLoadStatus.Loading) {
+          <p class="py-4 text-center text-sm text-ink-muted" role="status">
+            {{
+              hasComments()
+                ? text().admin.moderation.loadingMoreComments
+                : text().admin.moderation.loadingComments
+            }}
+          </p>
+        }
+        @case (PageLoadStatus.Failed) {
+          @if (comments.failureMessage(); as message) {
+            <app-load-failure
+              [message]="message"
+              [retryLabel]="text().admin.moderation.retryButton"
+              (retry)="loadMoreComments()"
+            />
+          }
+        }
+        @case (PageLoadStatus.Ended) {
+          @if (hasComments()) {
+            <p class="py-4 text-center text-sm text-ink-muted">
+              {{ text().admin.moderation.endComments }}
+            </p>
+          } @else {
+            <app-empty-state
+              class="rounded-lg border border-border bg-surface-raised"
+              [heading]="text().admin.moderation.emptyCommentsTitle"
+              [message]="text().admin.moderation.emptyCommentsMessage"
+            >
+              <svg class="size-8 text-ink-muted" lucideMessageCircleDashed aria-hidden="true"></svg>
+            </app-empty-state>
+          }
+        }
+      }
+    </div>
+  </div>
+</div>
