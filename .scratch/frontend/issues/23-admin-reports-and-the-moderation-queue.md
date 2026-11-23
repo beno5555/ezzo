@@ -84,3 +84,12 @@ Decisions are under "Admin panel" in `.scratch/frontend/spec.md`. The backend's 
 **Screenshots:** `.scratch/frontend/shots/23/` in the main checkout: the 24 images of the screenshot command (`admin_reports--signed-in--*`, `admin_moderation--signed-in--*`) and five single shots (`real-*.png`), all from the real backend.
 
 **Branch:** `worktree-admin-queue`, waiting for the owner's review (visual work). A lane writes no review-queue line, and the roadmap row stays unmarked until the merge.
+
+**2026-11-23, round 2: revision (Sonnet 5.5).**
+
+Owner's decisions:
+
+- The departures stay: the confirmation before Hide on a user report, the link from a comment to its post, and the quick-action fade-out.
+- The shared card shell (`flagged-item`, `report-card`) and the two moderation panels stay as two copies now. The session that writes a **third** use extracts the shared piece first and does not copy it a third time. The rule is written into `webcity-conventions` (`references/typescript.md`, Styling), where every frontend session reads it.
+- The first download above 700 kB is not a concern for now: the 1 MB error limit is the real ceiling, and the app is nearing it. Nothing to change in this ticket.
+- The owner reads over remote control and cannot open local files: screenshots are sent into the chat.
