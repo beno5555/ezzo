@@ -46,12 +46,23 @@ Decisions are under "Friends and search" in `.scratch/frontend/spec.md`.
 - Playwright, guest, desktop width: typing "alic" slowly sent one request and added one history entry; reload with `?q=a` showed results and scrolling loaded pages 2 to 13; clicking a result opened `/users/t20_alice`; the top-bar box on a profile page led to `/search?q=ali`.
 - Not tried: clicking through on a phone width (phone width was checked by screenshots only, so the last box is ticked on that basis), a failed page's Try again button in the browser (covered by `PagedList`'s own spec), and a deactivated account's row (the backend search returned `erin_deactivated` with an id, so no null-id row appeared).
 
-**Review.** Standards and spec reviews ran on Opus 5.5 at high effort. Fixed: the avatar of a null-id row now passes `isUnavailable` like the Friends tab; the address-based search rule above; a test for opening the page with words in the address. Left alone:
-- The result row duplicates the Friends tab's row (and the muted-name span exists in four places), against "a look used twice becomes a component in `shared/`". Recommendation: a `shared/user-row` component in its own small ticket, so the Friends tab changes with it.
-- `searchedWords` and `results` are set together; one signal holding both would keep them in step. Optional, left as is.
+**Review.** Standards and spec reviews ran on Opus 5.5 at high effort, one each. The standards review found no hard violation; the spec review found nothing missing apart from one test.
+
+Fixed:
+- The avatar of a null-id row did not pass `isUnavailable` (both reviews found it): it now does, like the Friends tab.
+- Whether to search was judged by the field's validity, so typing past the length limit after the pause showed the prompt while the address held valid words (spec review): it is now judged by the address's words.
+- No test opened the page with words already in the address, which the "reloading" box asks for (spec review): added.
+
+Left alone:
+- **Duplicated row.** The result row copies the Friends tab's row, and its muted-name span is a fourth copy (the others: Friends tab, `comment-item`, `post-card`), against "a look used twice becomes a component in `shared/`" (standards review, judgement call). The `@switch` on the list status is copied too, but about ten templates already have it, so the reviewer called it the established pattern. Recommendation: a `shared/user-row` component in its own small ticket so the Friends tab changes with it. Your memory note "Extract on third use" came up after I had decided this, and I did not weigh it: by that rule the span should be extracted rather than copied again, so decide whether this branch should do it before the merge.
+- **Null-id branch.** The span branch and `user.id ?? 0` for an account without an id cover a case the search never returns (standards review, mild Speculative Generality). Kept, because `MinimalUserDto.id` is `number | null` and the Friends tab handles it the same way.
+- **Two signals set together.** `searchedWords` and `results` always change together; one signal holding both would keep them in step (standards review, optional).
+- **Tests read protected members** (`page['results']()`, `page['loadMore']()`), where the temporary rule says to write no component DOM tests. The spec file already tested the class this way and no DOM is read, so the reviewer did not count it a violation.
+- **Extras the ticket did not ask for** (spec review, called harmless): the "No more users." line, the separate "Loading more" text, the Try again button, `aria-hidden` on icons.
+- **Exactly full last page.** The page asks once more and gets an empty page before showing the end line (spec review, normal for this paging).
 
 **Open decisions.** None blocking.
 
 **Screenshots:** `.scratch/frontend/shots/16/` in the main checkout.
 
-**Branch:** `worktree-f16-search`, pushed for the owner's review (visual work, not merged). The trial merge result is in the chat report.
+**Branch:** `worktree-f16-search`, pushed for the owner's review (visual work, not merged). Trial merge against `origin/master` at `f5c05b1`: clean (exit 0), the branch being a straight descendant of it. The worktree is kept; the owner merges from the main checkout.
