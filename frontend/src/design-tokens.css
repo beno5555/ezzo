@@ -32,6 +32,8 @@
   --color-success: #24561a;
   --color-warning: #8a5a00;
   --color-focus: #1d6a8e;
+  /* The big "ezzo" stamped behind every page. Kept pale so text on the page stays 4.5 to 1 where it overlaps. */
+  --color-stamp: #d7e4e8;
 
   /* Discs of the default profile picture: the same in both themes, always with on-disc letters. */
   --color-disc-1: #1f6b62;
@@ -57,7 +59,7 @@
     sans-serif;
   --font-display--font-variation-settings: 'wdth' 85;
   /*
-   * The wordmark: the landing page's big "ezzo", always those Latin letters, so its face needs
+   * The wordmark: the big "ezzo" of the landing page and of the shell's stamp, always those Latin letters, so its face needs
    * no Cyrillic or Georgian partner. Its weight is set through the axis, as no type size uses 900.
    */
   --font-wordmark: 'Fraunces Variable', serif;
@@ -167,5 +169,6 @@
     --color-success: #74bd52;
     --color-warning: #efb84f;
     --color-focus: #9bd3f2;
+    --color-stamp: #23343d;
   }
 }

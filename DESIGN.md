@@ -22,6 +22,7 @@ colors:
   success: "#24561a"
   warning: "#8a5a00"
   focus: "#1d6a8e"
+  stamp: "#d7e4e8"
 
   # Dark theme: the same roles, marked by the "-dark" suffix
   surface-page-dark: "#0f1a20"
@@ -38,6 +39,7 @@ colors:
   success-dark: "#74bd52"
   warning-dark: "#efb84f"
   focus-dark: "#9bd3f2"
+  stamp-dark: "#23343d"
 
   # Discs of the default profile picture, the same in both themes, always with white letters
   disc-1: "#1f6b62"
@@ -138,6 +140,7 @@ Ezzo (`PRODUCT.md`) is a small social platform: a feed, posts with photos, comme
 
 - **The logo** is "zz" in `on-accent` strokes inside an `accent` speech bubble (owner, 2026-11-23): neighbours talking across balconies. The same drawing is the top bar's home link on every page but the landing page, whose wordmark carries it, and the browser-tab icon (`public/favicon.svg`, which holds the light values, as a file outside the app cannot read tokens).
 - **The wordmark** is the name, "ezzo", drawn large on the landing page in the `wordmark` face (owner, 2026-11-23). Its "zz" is the logo: the letters in `on-accent` inside the logo's `accent` speech bubble, so the top bar there shows no second logo. The "e" and the "o" are outlined in `accent`, with no fill, so the bubble and the letters read as one word. The tagline sits under it, so the two are read together (`PRODUCT.md`). Screen readers skip it; the page's heading and the tab title name the app.
+- **The stamp** is the same name fixed to the window behind every page but the landing page, which draws its own (owner, 2026-11-23): the logo's bubble once per page, never twice. Every letter and the bubble are `stamp`, the "zz" is cut out of the bubble in `surface-page`, and the whole is tilted -9° about its bottom-left corner, which lies outside the window, so the page's cards cover about half of it as they scroll over it. A phone shows less, as the cards fill its width. `stamp` is kept pale so that text on the page, which can lie over it, stays at 4.5 to 1 in both themes.
 
 ## Colors
 
@@ -157,6 +160,7 @@ A colour is named for its job, never for its shade. A component uses the role na
 | `on-accent`                    | Text and icons on the accent.                                                   |
 | `danger`, `success`, `warning` | Destructive actions and errors; confirmations; cautions.                        |
 | `focus`                        | The keyboard focus ring.                                                        |
+| `stamp`                        | The big "ezzo" fixed behind every page but the landing page (Brand).            |
 | `disc-1` to `disc-8`           | The disc of the default profile picture.                                        |
 | `disc-unavailable`             | The disc of an account that is deactivated or deleted.                          |
 | `on-disc`                      | The initials on a disc.                                                         |
@@ -172,7 +176,7 @@ A colour is named for its job, never for its shade. A component uses the role na
 ## Typography
 
 - **Two roles,** and the wordmark below. The **body** role (`font-body`) is Noto Sans, with the variable Noto Sans Georgian for Georgian letters. The **display** role (`font-display`: headings and the logo) is Bricolage Grotesque, set narrow through its width axis. It has no Cyrillic or Georgian, so those letters fall to Noto Sans and to the variable Noto Sans Georgian, whose width axis narrows Georgian headings to match.
-- **The wordmark** (`font-wordmark`) is Fraunces at its heaviest, softest, largest optical size, with its wonky letters (owner, 2026-11-23). It sets only the Latin word "ezzo", so it needs no Cyrillic or Georgian partner; only the landing page loads it.
+- **The wordmark** (`font-wordmark`) is Fraunces at its heaviest, softest, largest optical size, with its wonky letters (owner, 2026-11-23). It sets only the Latin word "ezzo", so it needs no Cyrillic or Georgian partner; the landing page and the stamp use it, so every page loads it.
 - **Six sizes,** from `text-xs` (12 px) to `text-2xl` (28 px), and one more, `text-display` (48 px), for the landing page's tagline on a wide screen; at 28 px it read as a caption under the wordmark (owner, 2026-11-23). Body text is `text-base` (16 px) and is never smaller than `text-sm` (14 px).
 - **No letter spacing.** Headings keep the face's own spacing, which Georgian needs.
 - **Fonts are served by the app itself.** No font is loaded from another origin.

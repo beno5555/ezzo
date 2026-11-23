@@ -31,7 +31,7 @@
 @import '@fontsource-variable/bricolage-grotesque/wdth.css';
 /*
  * The wordmark's face: Fraunces with every axis, for its soft and wonky shapes at the largest optical
- * size. Its face rules load with every page, but a browser fetches the file only where the face is
- * used: the landing page.
+ * size. A browser fetches the file where the face is used: the landing page's name and the shell's
+ * stamp, which is every page.
  */
 @import '@fontsource-variable/fraunces/full.css';

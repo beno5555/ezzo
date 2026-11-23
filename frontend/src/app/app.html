@@ -1,3 +1,8 @@
+<!-- The landing page draws its own big name, so the stamp would show the logo's bubble twice. -->
+@if (!onLandingPage()) {
+  <app-shell-stamp />
+}
+
 <!-- On a phone, one conversation hides both bars; its back arrow leads to the list (isInConversation). -->
 <app-top-bar [class]="inConversation() ? 'hidden md:block' : 'block'" />
 
