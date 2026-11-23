@@ -1,0 +1,96 @@
+<div class="flex flex-col gap-4">
+  @if (hasRows()) {
+    <ul
+      class="divide-y divide-border overflow-hidden rounded-lg border border-border bg-surface-raised"
+    >
+      @for (friendship of list().items(); track keyOf(friendship)) {
+        <li
+          class="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2"
+          [appFadeOut]="isFading(friendship)"
+          [appDeleting]="isWaiting(friendship)"
+          [attr.aria-busy]="isWaiting(friendship) || isFading(friendship) || null"
+        >
+          <app-avatar
+            [userId]="friendship.otherUser.id ?? 0"
+            [username]="friendship.otherUser.username"
+            [isUnavailable]="friendship.otherUser.id === null"
+          />
+          <div class="flex min-w-0 flex-1 basis-32 items-center">
+            @if (friendship.otherUser.id !== null) {
+              <a
+                class="inline-flex min-h-11 min-w-0 cursor-pointer items-center rounded-sm font-semibold text-ink-strong wrap-anywhere hover:underline hover:underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+                [routerLink]="profileAddress(friendship.otherUser.username)"
+                >{{ friendship.otherUser.username }}</a
+              >
+            } @else {
+              <span class="min-w-0 py-3 font-semibold text-ink-muted wrap-anywhere">{{
+                friendship.otherUser.username
+              }}</span>
+            }
+          </div>
+          @if (isWaiting(friendship)) {
+            <!-- As tall as the buttons it stands in for, and on the line they take on a phone, so the list
+                 does not jump when a row starts deleting. -->
+            <app-deleting-notice class="my-1 ml-auto min-h-11 w-full justify-end md:w-auto" />
+          } @else if (friendship.otherUser.id !== null) {
+            <div class="ml-auto flex flex-wrap gap-2 py-1">
+              @if (canMessage()) {
+                <a
+                  appButton
+                  look="quiet"
+                  [routerLink]="conversationAddress(friendship.otherUser.username)"
+                  [attr.aria-label]="messageLabel(friendship.otherUser.username)"
+                >
+                  <svg class="size-5 shrink-0" lucideMessageCircle aria-hidden="true"></svg>
+                  {{ text().friendships.page.messageButton }}
+                </a>
+              }
+              @for (rowAction of actions(); track rowAction) {
+                <button
+                  appButton
+                  type="button"
+                  [look]="lookOf(rowAction)"
+                  [attr.aria-label]="actionLabel(rowAction, friendship.otherUser.username)"
+                  (click)="action.emit({ action: rowAction, friendship })"
+                >
+                  {{ actionText(rowAction) }}
+                </button>
+              }
+            </div>
+          }
+        </li>
+      }
+    </ul>
+  }
+
+  @switch (list().status()) {
+    @case (PageLoadStatus.Idle) {
+      <!-- Also with no rows: the user may have answered every loaded one while more wait on the server. -->
+      <div appScrollSentinel (reached)="more.emit()"></div>
+    }
+    @case (PageLoadStatus.Loading) {
+      <p class="py-4 text-center text-sm text-ink-muted" role="status">
+        {{ hasRows() ? texts().loadingMore : texts().loading }}
+      </p>
+    }
+    @case (PageLoadStatus.Failed) {
+      <app-load-failure
+        [message]="list().failureMessage() ?? ''"
+        [retryLabel]="retryLabel()"
+        (retry)="more.emit()"
+      />
+    }
+    @case (PageLoadStatus.Ended) {
+      @if (!hasRows()) {
+        <app-empty-state
+          class="rounded-lg border border-border bg-surface-raised"
+          [heading]="texts().emptyTitle"
+          [message]="texts().emptyMessage"
+          [headingLevel]="3"
+        >
+          <svg class="size-8 text-ink-muted" lucideUsers aria-hidden="true"></svg>
+        </app-empty-state>
+      }
+    }
+  }
+</div>

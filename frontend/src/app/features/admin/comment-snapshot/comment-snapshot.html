@@ -1,0 +1,9 @@
+<app-snapshot-author [author]="comment().author" [uploadedAt]="comment().uploadedAt" />
+@if (comment().isHidden) {
+  <app-hidden-badge />
+}
+<p class="whitespace-pre-line wrap-break-word">{{ comment().content }}</p>
+<p class="flex flex-wrap items-center gap-x-1.5 text-sm text-ink-muted">
+  {{ text().admin.snapshots.onPost }}
+  <a appTextLink class="wrap-anywhere" [routerLink]="postAddress()">{{ comment().postTitle }}</a>
+</p>

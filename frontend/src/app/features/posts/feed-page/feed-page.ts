@@ -18,7 +18,8 @@ import { StandardPostDisplayDto } from '../standard-post-display-dto';
 // The ranked feed at the home address, for a signed-in user. It loads page after page as the reader
 // scrolls, through a PagedList: the first paged list, whose shape the comments, the profile, the friends lists, the chat
 // and the admin tables copy. The end of the list shows what the list is doing: loading, failed with a
-// way to try again, or ended. An empty list shows the same states in place of the posts.
+// way to try again, or ended. The feed alone says it ended (owner, 2026-11-23): no other list marks its
+// end. An empty list shows the same states in place of the posts.
 @Component({
   selector: 'app-feed-page',
   imports: [

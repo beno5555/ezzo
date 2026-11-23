@@ -130,15 +130,22 @@ export class PostPage {
     }
   }
 
-  // Once the card has faded out, the page leads to the feed, as the post is gone.
+  // Once the server has deleted the post and the card has faded out, the page leads to the feed, unless the
+  // reader has gone elsewhere meanwhile: the wait is as long as the server takes, and a reader who followed
+  // a link is not pulled back.
   async deletePost(post: StandardPostDisplayDto): Promise<void> {
     await this.postEdits.delete(post, () => {
-      // Fire-and-forget on purpose: the store's request must not wait for the navigation.
-      void this.router.navigateByUrl(appAddresses.home);
+      const postAddress = this.router.createUrlTree(appAddresses.post(post.id)).toString();
+      const isStillHere = this.router.url.split(/[?#]/)[0] === postAddress;
+
+      if (isStillHere) {
+        // Fire-and-forget on purpose: the store's toast must not wait for the navigation.
+        void this.router.navigateByUrl(appAddresses.home);
+      }
     });
   }
 
-  // From the comment section: +1 for a comment sent or a deletion refused, -1 for one refused or deleted.
+  // From the comment section: +1 for a comment sent, -1 for one refused or deleted.
   changeCommentCount(change: number): void {
     this.post.update((post) =>
       post === null ? post : { ...post, commentCount: post.commentCount + change },

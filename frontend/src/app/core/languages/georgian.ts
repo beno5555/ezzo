@@ -80,8 +80,15 @@ export const georgian: Dictionary = {
   },
   shared: {
     ownMark: '(თქვენ)',
+    deleting: 'იშლება…',
     dialog: {
       closeButton: 'დახურვა',
+    },
+    // The copyable texts (a username, an email) in the admin panel.
+    copy: {
+      button: (value: string) => `დააკოპირე ${value}`,
+      copied: 'დაკოპირდა.',
+      failed: 'ვერ დაკოპირდა.',
     },
     confirmation: {
       cancelButton: 'გაუქმება',
@@ -281,11 +288,11 @@ export const georgian: Dictionary = {
     navigationButton: 'ადმინის მენიუ',
     users: {
       title: 'მომხმარებლები',
-      stateFilterLabel: 'აჩვენე ანგარიშები, რომლებიც არის',
+      stateFilterLabel: 'ანგარიშის სტატუსი',
       allStates: 'ყველა',
       states: {
         Active: 'აქტიური',
-        Deactivated: 'გამორთული',
+        Deactivated: 'გაუქმებული',
         SoftDeleted: 'წაშლილი',
       },
       usernameFilterLabel: 'მომხმარებლის სახელი',
@@ -295,24 +302,23 @@ export const georgian: Dictionary = {
         username: 'მომხმარებლის სახელი',
         email: 'ელფოსტა',
         role: 'როლი',
-        state: 'მდგომარეობა',
+        state: 'სტატუსი',
         joined: 'გაწევრიანდა',
-        deactivated: 'გამოირთო',
+        deactivated: 'გაუქმდა',
         deleted: 'წაიშალა',
-        actions: 'მოქმედებები',
+        actions: 'ოპერაციები',
       },
       administratorRole: 'ადმინისტრატორი',
       userRole: 'მომხმარებელი',
       loading: 'ანგარიშები იტვირთება…',
       loadingMore: 'სხვა ანგარიშები იტვირთება…',
       retryButton: 'ხელახლა ცდა',
-      end: 'ეს ყველა ანგარიშია.',
       emptyTitle: 'ანგარიშები ვერ მოიძებნა',
       emptyMessage: 'ამ ფილტრებს არც ერთი ანგარიში არ ემთხვევა.',
-      actionsLabel: (username: string) => `მოქმედებები: ${username}`,
+      actionsLabel: (username: string) => `ოპერაციები: ${username}`,
       actions: {
         edit: 'პროფილის რედაქტირება',
-        deactivate: 'გამორთვა',
+        deactivate: 'გაუქმება',
         restore: 'აღდგენა',
         delete: 'წაშლა',
         grantAdministrator: 'ადმინისტრატორად დანიშვნა',
@@ -320,10 +326,10 @@ export const georgian: Dictionary = {
       },
       confirmations: {
         deactivate: {
-          question: (username: string) => `გამოვრთოთ ${username}?`,
+          question: (username: string) => `გავაუქმოთ ${username}?`,
           detail:
             'ანგარიშით სარგებლობა შეუძლებელი იქნება, სანამ არ აღადგენთ ან მისი მფლობელი არ გააქტიურებს.',
-          confirmButton: 'გამორთვა',
+          confirmButton: 'გაუქმება',
         },
         restore: {
           question: (username: string) => `აღვადგინოთ ${username}?`,
@@ -359,6 +365,79 @@ export const georgian: Dictionary = {
         savedToast: (username: string) => `${username}-ის პროფილი შეინახა.`,
       },
     },
+    snapshots: {
+      onPost: 'პოსტზე',
+      noBio: 'ბიოგრაფია არ არის.',
+    },
+    reports: {
+      title: 'რეპორტები',
+      statusTabsLabel: 'რეპორტის სტატუსი',
+      targetFilterLabel: 'რას ეხება',
+      allTargets: 'ყველა',
+      statuses: {
+        Pending: 'მოლოდინში',
+        Resolved: 'მოგვარებული',
+        Rejected: 'უარყოფილი',
+      },
+      targets: {
+        Post: 'პოსტები',
+        Comment: 'კომენტარები',
+        User: 'მომხმარებლები',
+      },
+      loading: 'რეპორტები იტვირთება…',
+      loadingMore: 'კიდევ რეპორტები იტვირთება…',
+      retryButton: 'ხელახლა ცდა',
+      end: 'ეს ყველა რეპორტია.',
+      emptyTitle: 'რეპორტები ვერ მოიძებნა',
+      emptyMessage: 'არც ერთი რეპორტი არ შეესაბამება ამ ფილტრებს.',
+      card: {
+        reportedBy: 'დარეპორტებულია',
+        reason: 'მიზეზი',
+        reported: {
+          Post: 'დარეპორტებული პოსტი',
+          Comment: 'დარეპორტებული კომენტარი',
+          User: 'დარეპორტებული მომხმარებელი',
+        },
+        targetMissing: {
+          Post: 'ეს პოსტი აღარ არსებობს. რეპორტის მხოლოდ უარყოფა შეიძლება.',
+          Comment: 'ეს კომენტარი აღარ არსებობს. რეპორტის მხოლოდ უარყოფა შეიძლება.',
+          User: 'ეს მომხმარებელი აღარ არსებობს. რეპორტის მხოლოდ უარყოფა შეიძლება.',
+        },
+        resolvedBy: {
+          Post: (username: string, time: string) => `პოსტი დამალა ${username}, ${time}`,
+          Comment: (username: string, time: string) => `კომენტარი დამალა ${username}, ${time}`,
+          User: (username: string, time: string) => `ანგარიში გააუქმა ${username}, ${time}`,
+        },
+        rejectedBy: (username: string, time: string) => `უარყო ${username}, ${time}`,
+      },
+      hideButton: { Post: 'დამალვა', Comment: 'დამალვა', User: 'გაუქმება' },
+      rejectButton: 'უარყოფა',
+      confirmDeactivateUser: {
+        question: (username: string) => `გავაუქმოთ ${username}?`,
+        detail:
+          'ანგარიში გაუქმდება და მისი მფლობელი მიიღებს წერილს. ამ მომხმარებელზე დარჩენილი ყველა განსახილველი რეპორტიც დაიხურება.',
+        confirmButton: 'გაუქმება',
+      },
+    },
+    moderation: {
+      title: 'მოდერაციის რიგი',
+      tabsLabel: 'მონიშნული შინაარსი',
+      postsTab: 'პოსტები',
+      commentsTab: 'კომენტარები',
+      loadingPosts: 'მონიშნული პოსტები იტვირთება…',
+      loadingMorePosts: 'კიდევ მონიშნული პოსტები იტვირთება…',
+      loadingComments: 'მონიშნული კომენტარები იტვირთება…',
+      loadingMoreComments: 'კიდევ მონიშნული კომენტარები იტვირთება…',
+      retryButton: 'ხელახლა ცდა',
+      endPosts: 'ეს ყველა მონიშნული პოსტია.',
+      endComments: 'ეს ყველა მონიშნული კომენტარია.',
+      emptyPostsTitle: 'მონიშნული პოსტები არ არის',
+      emptyPostsMessage: 'არაფერი ელოდება გადაწყვეტილებას.',
+      emptyCommentsTitle: 'მონიშნული კომენტარები არ არის',
+      emptyCommentsMessage: 'არაფერი ელოდება გადაწყვეტილებას.',
+      hideButton: 'დამალვა',
+      makeVisibleButton: 'გამოჩენა',
+    },
   },
   users: {
     search: {
@@ -388,7 +467,6 @@ export const georgian: Dictionary = {
         emptyMessage: 'ამ მომხმარებლის დაწერილი პოსტები აქ გამოჩნდება.',
         emptyOwnMessage: 'თქვენი დაწერილი პოსტები აქ გამოჩნდება.',
         retryButton: 'თავიდან ცდა',
-        end: 'მეტი პოსტი არ არის.',
       },
       friends: {
         loading: 'მეგობრები იტვირთება…',
@@ -396,7 +474,6 @@ export const georgian: Dictionary = {
         emptyTitle: 'მეგობრები ჯერ არ არის',
         emptyMessage: 'ამ მომხმარებლის მეგობრები აქ გამოჩნდება.',
         retryButton: 'თავიდან ცდა',
-        end: 'მეტი მეგობარი არ არის.',
       },
     },
   },
@@ -413,6 +490,37 @@ export const georgian: Dictionary = {
       detail:
         'თქვენ შორის მიმოწერა მეგობრობასთან ერთად წაიშლება. ამ ოპერაციის გაუქმება შეუძლებელია.',
       confirmButton: 'წაშლა',
+    },
+    page: {
+      heading: 'მეგობრები',
+      tabsLabel: 'მეგობრების სიები',
+      myFriendsTab: 'მეგობრები',
+      incomingTab: 'შემოსული',
+      sentTab: 'გასული',
+      retryButton: 'თავიდან ცდა',
+      messageButton: 'მიწერა',
+      removeButton: 'წაშლა',
+      rowActionLabel: (action: string, username: string) => `${action}: ${username}`,
+      lists: {
+        friends: {
+          loading: 'მეგობრები იტვირთება…',
+          loadingMore: 'იტვირთება…',
+          emptyTitle: 'მეგობრები ჯერ არ გყავთ',
+          emptyMessage: 'მოძებნეთ ნაცნობები და გაუგზავნეთ მოთხოვნა.',
+        },
+        incoming: {
+          loading: 'მოთხოვნები იტვირთება…',
+          loadingMore: 'იტვირთება…',
+          emptyTitle: 'მოთხოვნები არ გაქვთ',
+          emptyMessage: 'როცა ვინმე მეგობრობას შემოგთავაზებთ, მოთხოვნა აქ გამოჩნდება.',
+        },
+        sent: {
+          loading: 'გაგზავნილი მოთხოვნები იტვირთება…',
+          loadingMore: 'იტვირთება…',
+          emptyTitle: 'მოთხოვნა არ გაგიგზავნიათ',
+          emptyMessage: 'თქვენი მოთხოვნები აქ დარჩება, სანამ მეორე მხარე არ უპასუხებს.',
+        },
+      },
     },
   },
   posts: {

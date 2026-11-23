@@ -20,9 +20,9 @@ import { StandardCommentDto } from './standard-comment-dto';
 //     form (takeReturnedText).
 //   - edit: the new text shows at once with the same mark. A refusal puts the old text back, shows a
 //     toast and keeps the new text for the comment's form (takeReturnedEdit).
-//   - remove: once the user confirms, the comment fades out (DeleteFade, shared with posts and messages),
-//     then leaves the list and the count falls, and a toast says it is deleted. A refusal puts it back in
-//     its place, raises the count again and shows a toast.
+//   - remove: once the user confirms, the comment says "Deleting…" until the server answers (DeleteFade,
+//     shared with posts, messages and friends). On a yes it fades out, leaves the list, the count falls and
+//     a toast says it is deleted. A refusal leaves it in its place, with a toast.
 // A comment already on its way (an edit, a deletion) ignores a second request.
 // onCountChange tells the page how the post's comment count moves, +1 and -1.
 @Injectable()
@@ -56,6 +56,7 @@ export class CommentThreadStore {
   readonly shown = computed<readonly ShownComment[]>(() => {
     const goneIds = this.deleteFade.goneIds();
     const fadingIds = this.deleteFade.fadingIds();
+    const waitingIds = this.deleteFade.waitingIds();
     const editingIds = this.editingIds();
     const onServer = this.list
       .items()
@@ -64,12 +65,14 @@ export class CommentThreadStore {
         comment,
         isSending: editingIds.has(comment.id),
         isOnServer: true,
+        isWaitingToDelete: waitingIds.has(comment.id),
         isFading: fadingIds.has(comment.id),
       }));
     const notYetOnServer = [...this.sending()].reverse().map((comment) => ({
       comment,
       isSending: true,
       isOnServer: false,
+      isWaitingToDelete: false,
       isFading: false,
     }));
 
@@ -132,16 +135,15 @@ export class CommentThreadStore {
       });
 
       if (isConfirmed) {
-        await this.deleteFade.fadeOut(comment.id);
-        this.onCountChange(-1);
-        const result = await this.commentApi.delete(comment.id);
+        const result = await this.deleteFade.delete(comment.id, () =>
+          this.commentApi.delete(comment.id),
+        );
 
         if (result.succeeded) {
-          this.list.remove(comment.id);
+          this.list.leave(comment.id);
+          this.onCountChange(-1);
           this.toastStore.show(this.text().comments.deletedToast);
         } else {
-          this.deleteFade.bringBack(comment.id);
-          this.onCountChange(1);
           this.toastStore.show(result.message);
         }
       }

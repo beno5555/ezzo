@@ -20,6 +20,8 @@ export type OpenConversation = {
   // ones, which come last in messages with negative ids and preview addresses for their photos, and edited
   // ones, which sit in their place in messages with the new text.
   sendingIds: ReadonlySet<number>;
-  // The messages whose deletion was confirmed and that are fading out before they leave.
+  // The messages whose deletion was confirmed and that wait for the server's answer, showing "Deleting…".
+  waitingIds: ReadonlySet<number>;
+  // The messages the server has deleted and that are fading out before they leave.
   fadingIds: ReadonlySet<number>;
 };

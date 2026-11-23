@@ -66,6 +66,27 @@ export class FriendshipApi {
     );
   }
 
+  // The signed-in user's own friends: the accepted friendships.
+  getFriends(query: PageQuery): Promise<AppResult<StandardFriendshipDto[]>> {
+    return toAppResult(
+      this.http.get<ListResponse<StandardFriendshipDto>>('/api/friendships/accepted', {
+        params: query,
+      }),
+      this.languageStore.text().httpFailures,
+    );
+  }
+
+  // Requests the signed-in user sent, which wait for an answer. Cancelling one is remove(), the same call
+  // that removes a friend.
+  getSentRequests(query: PageQuery): Promise<AppResult<StandardFriendshipDto[]>> {
+    return toAppResult(
+      this.http.get<ListResponse<StandardFriendshipDto>>('/api/friendships/sent', {
+        params: query,
+      }),
+      this.languageStore.text().httpFailures,
+    );
+  }
+
   // Any user's friends, for a signed-in caller; 404 for a user who is deactivated or gone. Rows are read
   // for that user, so isRequester is theirs, not the caller's.
   getFriendsOf(userId: number, query: PageQuery): Promise<AppResult<StandardFriendshipDto[]>> {

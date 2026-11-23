@@ -16,6 +16,7 @@ import { Tab } from '../../../shared/tabs/tab';
 import { panelId, tabId } from '../../../shared/tabs/tab-ids';
 import { Tabs } from '../../../shared/tabs/tabs';
 import { FriendshipAction } from '../../friendships/friendship-action';
+import { friendshipActionLooks } from '../../friendships/friendship-action-looks';
 import { RelationshipReadStatus } from '../../friendships/relationship-read-status';
 import { RelationshipStore } from '../../friendships/relationship-store';
 import { canReportUser } from '../../reports/can-report-user';
@@ -25,15 +26,6 @@ import { ProfileFriends } from '../profile-friends/profile-friends';
 import { ProfilePosts } from '../profile-posts/profile-posts';
 import { StandardUserDto } from '../standard-user-dto';
 import { ProfileTab } from './profile-tab';
-
-// Which look each friendship button takes: one primary action on the screen, Remove in danger.
-const actionLooks: Record<FriendshipAction, ButtonLook> = {
-  [FriendshipAction.Add]: ButtonLook.Primary,
-  [FriendshipAction.Accept]: ButtonLook.Primary,
-  [FriendshipAction.Cancel]: ButtonLook.Quiet,
-  [FriendshipAction.Decline]: ButtonLook.Quiet,
-  [FriendshipAction.Remove]: ButtonLook.Danger,
-};
 
 // One user's profile: the header (picture, username, birthday as a day and a month, bio), the buttons for
 // the visitor, and the tabs below. The visitor sees:
@@ -123,7 +115,7 @@ export class ProfileView implements OnInit {
   }
 
   protected lookOf(action: FriendshipAction): ButtonLook {
-    return actionLooks[action];
+    return friendshipActionLooks[action];
   }
 
   async perform(action: FriendshipAction): Promise<void> {

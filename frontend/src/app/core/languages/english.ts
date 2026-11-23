@@ -97,8 +97,16 @@ export const english = {
   shared: {
     // After the author's name on the reader's own post or comment, among everyone else's.
     ownMark: '(you)',
+    // Shown on a post, comment, message or friend while its deletion waits for the server.
+    deleting: 'Deleting…',
     dialog: {
       closeButton: 'Close',
+    },
+    // The copyable texts (a username, an email) in the admin panel.
+    copy: {
+      button: (value: string) => `Copy ${value}`,
+      copied: 'Copied.',
+      failed: 'It could not be copied.',
     },
     confirmation: {
       cancelButton: 'Cancel',
@@ -343,7 +351,7 @@ export const english = {
     navigationButton: 'Admin menu',
     users: {
       title: 'Users',
-      stateFilterLabel: 'Show accounts that are',
+      stateFilterLabel: 'Account state',
       allStates: 'All',
       // The names of the account states, by AccountState.
       states: {
@@ -369,7 +377,6 @@ export const english = {
       loading: 'Loading accounts…',
       loadingMore: 'Loading more accounts…',
       retryButton: 'Try again',
-      end: 'That is every account.',
       emptyTitle: 'No accounts found',
       emptyMessage: 'No account matches these filters.',
       // The name of a row's "…" button.
@@ -423,6 +430,88 @@ export const english = {
         savedToast: (username: string) => `Saved the profile of ${username}.`,
       },
     },
+    // A post, a comment or a user under review, as the reports and the moderation queue show them.
+    snapshots: {
+      // Before the title of the post a reported comment is on.
+      onPost: 'On the post',
+      noBio: 'No bio.',
+    },
+    reports: {
+      title: 'Reports',
+      statusTabsLabel: 'Report status',
+      targetFilterLabel: 'Reported content',
+      allTargets: 'All',
+      // The names of the report statuses, by ReportStatus.
+      statuses: {
+        Pending: 'Awaiting review',
+        Resolved: 'Resolved',
+        Rejected: 'Rejected',
+      },
+      // The names of what can be reported, by ReportTargetType.
+      targets: {
+        Post: 'Posts',
+        Comment: 'Comments',
+        User: 'Users',
+      },
+      loading: 'Loading reports…',
+      loadingMore: 'Loading more reports…',
+      retryButton: 'Try again',
+      end: 'That is every report.',
+      emptyTitle: 'No reports found',
+      emptyMessage: 'No report matches these filters.',
+      card: {
+        reportedBy: 'Reported by',
+        reason: 'Reason',
+        // The heading of the reported thing, by ReportTargetType.
+        reported: {
+          Post: 'Reported post',
+          Comment: 'Reported comment',
+          User: 'Reported user',
+        },
+        // The mark on a report whose target is gone, by ReportTargetType.
+        targetMissing: {
+          Post: 'This post no longer exists. The report can only be rejected.',
+          Comment: 'This comment no longer exists. The report can only be rejected.',
+          User: 'This user no longer exists. The report can only be rejected.',
+        },
+        // How a Resolved report was settled, by ReportTargetType: Hide is the only way to resolve one.
+        resolvedBy: {
+          Post: (username: string, time: string) => `Post hidden by ${username}, ${time}`,
+          Comment: (username: string, time: string) => `Comment hidden by ${username}, ${time}`,
+          User: (username: string, time: string) => `Account deactivated by ${username}, ${time}`,
+        },
+        rejectedBy: (username: string, time: string) => `Rejected by ${username}, ${time}`,
+      },
+      // The decision that resolves a report, by ReportTargetType: a user is deactivated, not hidden.
+      hideButton: { Post: 'Hide', Comment: 'Hide', User: 'Deactivate' },
+      rejectButton: 'Reject',
+      // Asked before Deactivate on a reported user.
+      confirmDeactivateUser: {
+        question: (username: string) => `Deactivate ${username}?`,
+        detail:
+          'The account is deactivated and its owner is emailed. Every other pending report on this user is closed with it.',
+        confirmButton: 'Deactivate',
+      },
+    },
+    moderation: {
+      title: 'Moderation queue',
+      tabsLabel: 'Flagged content',
+      postsTab: 'Posts',
+      commentsTab: 'Comments',
+      loadingPosts: 'Loading flagged posts…',
+      loadingMorePosts: 'Loading more flagged posts…',
+      loadingComments: 'Loading flagged comments…',
+      loadingMoreComments: 'Loading more flagged comments…',
+      retryButton: 'Try again',
+      endPosts: 'That is every flagged post.',
+      endComments: 'That is every flagged comment.',
+      emptyPostsTitle: 'No flagged posts',
+      emptyPostsMessage: 'Nothing is waiting for a decision.',
+      emptyCommentsTitle: 'No flagged comments',
+      emptyCommentsMessage: 'Nothing is waiting for a decision.',
+      hideButton: 'Hide',
+      makeVisibleButton: 'Make visible',
+    },
   },
   users: {
     search: {
@@ -456,7 +545,6 @@ export const english = {
         emptyMessage: 'Posts written by this user show up here.',
         emptyOwnMessage: 'Posts you write show up here.',
         retryButton: 'Try again',
-        end: 'No more posts.',
       },
       friends: {
         loading: 'Loading friends…',
@@ -464,7 +552,6 @@ export const english = {
         emptyTitle: 'No friends yet',
         emptyMessage: 'Friends of this user show up here.',
         retryButton: 'Try again',
-        end: 'No more friends.',
       },
     },
   },
@@ -482,6 +569,43 @@ export const english = {
       question: (username: string) => `Remove ${username} from your friends?`,
       detail: 'The messages between you are deleted with the friendship. This cannot be undone.',
       confirmButton: 'Remove',
+    },
+    // The friends page at /friends (features/friendships/friends-page).
+    page: {
+      heading: 'Friends',
+      tabsLabel: 'Friend lists',
+      myFriendsTab: 'My friends',
+      incomingTab: 'Requests',
+      sentTab: 'Sent',
+      retryButton: 'Try again',
+      // The link on each of My friends' rows that opens the conversation.
+      messageButton: 'Message',
+      // Remove's short label on a row, so that it fits beside Message on a phone; screen readers still
+      // hear the full "Remove friend: name".
+      removeButton: 'Remove',
+      // A row's button as screen readers hear it, since "Accept" alone does not say for whom.
+      rowActionLabel: (action: string, username: string) => `${action}: ${username}`,
+      // One group per list, by the tab's name (FriendsTab).
+      lists: {
+        friends: {
+          loading: 'Loading your friends…',
+          loadingMore: 'Loading more friends…',
+          emptyTitle: 'No friends yet',
+          emptyMessage: 'Search for people you know and send them a request.',
+        },
+        incoming: {
+          loading: 'Loading requests…',
+          loadingMore: 'Loading more requests…',
+          emptyTitle: 'No requests waiting',
+          emptyMessage: 'When someone asks to be your friend, the request shows up here.',
+        },
+        sent: {
+          loading: 'Loading sent requests…',
+          loadingMore: 'Loading more requests…',
+          emptyTitle: 'No requests sent',
+          emptyMessage: 'Requests you send wait here until the other person answers.',
+        },
+      },
     },
   },
   posts: {
