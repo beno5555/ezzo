@@ -42,6 +42,15 @@ public static class FriendshipMapper
         };
     }
 
+    public static RelationshipDto ToRelationship(Friendship friendship, int currentUserId)
+    {
+        return new RelationshipDto
+        {
+            Status      = friendship.FriendshipStatus.ToString(),
+            IsRequester = friendship.RequesterUserId == currentUserId,
+        };
+    }
+
     public static AcceptedFriendshipDto ToAcceptedDisplay(Friendship friendship, User otherUser)
     {
         return new AcceptedFriendshipDto

@@ -58,14 +58,14 @@ describe('UserApi', () => {
       request.flush({
         succeeded: true,
         message: "Search results for 'john.doe':",
-        data: [{ id: 7, username: 'john.doe' }],
+        data: [{ id: 7, username: 'john.doe', relationship: null }],
         totalCount: 1,
       });
 
       expect(await pending).toEqual({
         succeeded: true,
         message: "Search results for 'john.doe':",
-        data: [{ id: 7, username: 'john.doe' }],
+        data: [{ id: 7, username: 'john.doe', relationship: null }],
       });
     });
   });

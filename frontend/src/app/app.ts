@@ -3,6 +3,7 @@ import { RouterOutlet } from '@angular/router';
 import { BottomBar } from './core/shell/bottom-bar/bottom-bar';
 import { isInConversation, isOnChatPage } from './core/shell/is-on-chat-page';
 import { isOnLandingPage } from './core/shell/is-on-landing-page';
+import { ShellStamp } from './core/shell/shell-stamp/shell-stamp';
 import { TopBar } from './core/shell/top-bar/top-bar';
 import { ToastList } from './shared/toasts/toast-list/toast-list';
 
@@ -21,7 +22,7 @@ const conversationMainClass =
 // a signed-in user, and the toasts. The landing page takes the wide column (isOnLandingPage), the chat fills
 // the screen (isOnChatPage), and on a phone one conversation hides both bars (isInConversation).
 @Component({
-  imports: [RouterOutlet, TopBar, BottomBar, ToastList],
+  imports: [RouterOutlet, ShellStamp, TopBar, BottomBar, ToastList],
   selector: 'app-root',
   styleUrl: './app.css',
   templateUrl: './app.html',
@@ -30,7 +31,7 @@ const conversationMainClass =
 export class App {
   protected readonly fillsScreen = isOnChatPage();
   protected readonly inConversation = isInConversation();
-  private readonly onLandingPage = isOnLandingPage();
+  protected readonly onLandingPage = isOnLandingPage();
   protected readonly mainClass = computed(() => {
     let mainClass = columnMainClass;
     if (this.inConversation()) {

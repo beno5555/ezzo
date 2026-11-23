@@ -15,29 +15,74 @@
         (input)="searchAfterTyping()"
       />
       <button appButton look="primary" type="submit" [disabled]="form.invalid">
-        <svg class="size-5" lucideSearch></svg>
+        <svg class="size-5" lucideSearch aria-hidden="true"></svg>
         {{ text().users.search.submitButton }}
       </button>
     </div>
   </form>
 
-  @if (failureMessage(); as message) {
-    <p class="flex items-start gap-2 text-danger" role="alert">
-      <svg class="mt-0.5 size-5 shrink-0" lucideCircleExclamationPoint></svg>
-      {{ message }}
-    </p>
-  }
+  @if (results(); as list) {
+    <section class="flex flex-col gap-4" [attr.aria-label]="text().users.search.resultsLabel">
+      @if (list.items().length > 0) {
+        <ul
+          class="divide-y divide-border overflow-hidden rounded-lg border border-border bg-surface-raised"
+        >
+          @for (user of list.items(); track user.id) {
+            <li
+              appUserRow
+              [userId]="user.id"
+              [username]="user.username"
+              [actions]="searchStore.actionsFor(user)"
+              [isBusy]="searchStore.busyIds().has(user.id)"
+              (action)="perform($event, user)"
+            ></li>
+          }
+        </ul>
+      }
 
-  @if (users().length > 0) {
-    <section class="flex flex-col gap-2">
-      <p class="text-sm text-ink-muted">{{ text().users.search.shown(users().length) }}</p>
-      <ul
-        class="divide-y divide-border overflow-hidden rounded-lg border border-border bg-surface-raised"
-      >
-        @for (user of users(); track user.username) {
-          <li class="px-4 py-3 wrap-break-word">{{ user.username }}</li>
+      @switch (list.status()) {
+        @case (PageLoadStatus.Idle) {
+          @if (list.items().length > 0) {
+            <div appScrollSentinel (reached)="loadMore()"></div>
+          }
         }
-      </ul>
+        @case (PageLoadStatus.Loading) {
+          <p class="py-4 text-center text-sm text-ink-muted" role="status">
+            {{
+              list.items().length > 0
+                ? text().users.search.loadingMore
+                : text().users.search.loading
+            }}
+          </p>
+        }
+        @case (PageLoadStatus.Failed) {
+          <app-load-failure
+            [message]="list.failureMessage() ?? ''"
+            [retryLabel]="text().users.search.retryButton"
+            (retry)="loadMore()"
+          />
+        }
+        @case (PageLoadStatus.Ended) {
+          @if (list.items().length === 0) {
+            <app-empty-state
+              class="rounded-lg border border-border bg-surface-raised"
+              [heading]="text().users.search.emptyTitle"
+              [message]="text().users.search.emptyMessage(searchedWords())"
+              [headingLevel]="2"
+            >
+              <svg class="size-8 text-ink-muted" lucideUserX aria-hidden="true"></svg>
+            </app-empty-state>
+          }
+        }
+      }
     </section>
+  } @else {
+    <app-empty-state
+      class="rounded-lg border border-border bg-surface-raised"
+      [heading]="text().users.search.promptTitle"
+      [message]="text().users.search.promptMessage"
+    >
+      <svg class="size-8 text-ink-muted" lucideSearch aria-hidden="true"></svg>
+    </app-empty-state>
   }
 </div>

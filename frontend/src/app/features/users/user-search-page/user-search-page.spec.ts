@@ -1,16 +1,19 @@
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { MockInstance } from 'vitest';
-import { AppResult } from '../../../core/http/app-result';
+import { AppResult, fail, ok } from '../../../core/http/app-result';
+import { LIMITS } from '../../../core/limits';
+import { PageLoadStatus } from '../../../core/paging/page-load-status';
+import { SessionStore } from '../../../core/session/session-store';
 import { typingPauseMilliseconds } from '../../../core/timing/debouncer';
-import { MinimalUserDto } from '../minimal-user-dto';
+import { SearchUserDto } from '../search-user-dto';
 import { UserApi } from '../user-api';
 import { UserSearchPage } from './user-search-page';
 
 // Class-level tests: the page is created with a stubbed API, and the tests read its navigation, never its
 // DOM (component DOM tests wait until after the release; conventions, Tests and linting).
 describe('UserSearchPage', () => {
-  const found: AppResult<MinimalUserDto[]> = { succeeded: true, data: [] };
+  const found: AppResult<SearchUserDto[]> = { succeeded: true, data: [] };
 
   let userApi: { searchUsers: ReturnType<typeof vi.fn> };
   let navigate: MockInstance<Router['navigate']>;
@@ -120,5 +123,132 @@ describe('UserSearchPage', () => {
     await vi.advanceTimersByTimeAsync(typingPauseMilliseconds);
 
     expect(navigate).not.toHaveBeenCalled();
+  });
+
+  describe('the results', () => {
+    const user = (id: number, username: string): SearchUserDto => ({
+      id,
+      username,
+      relationship: null,
+    });
+
+    // The API answers only when the test says so, one search at a time in the order they were asked for.
+    let answers: ((result: AppResult<SearchUserDto[]>) => void)[];
+
+    beforeEach(() => {
+      answers = [];
+      userApi.searchUsers.mockImplementation(
+        () =>
+          new Promise<AppResult<SearchUserDto[]>>((resolve) => {
+            answers.push(resolve);
+          }),
+      );
+    });
+
+    async function searchFor(page: UserSearchPage, words: string): Promise<void> {
+      type(page, words);
+      await page.submit();
+      TestBed.tick();
+    }
+
+    it('shows nothing, and asks for nothing, while the words are empty', async () => {
+      const page = await openPage();
+
+      await searchFor(page, '');
+
+      expect(page['results']()).toBeNull();
+      expect(userApi.searchUsers).not.toHaveBeenCalled();
+    });
+
+    it('asks for the first page of the words in the address', async () => {
+      const page = await openPage();
+
+      await searchFor(page, 'ali');
+
+      expect(userApi.searchUsers).toHaveBeenCalledWith({
+        username: 'ali',
+        pageNumber: LIMITS.paging.firstPageNumber,
+        pageSize: LIMITS.paging.defaultPageSize,
+      });
+    });
+
+    it('gets a valid token before asking, so an expired one is not read as a guest', async () => {
+      const calls: string[] = [];
+      vi.spyOn(TestBed.inject(SessionStore), 'validAccessToken').mockImplementation(async () => {
+        calls.push('token');
+
+        return null;
+      });
+      userApi.searchUsers.mockImplementation(async () => {
+        calls.push('search');
+
+        return found;
+      });
+      const page = await openPage();
+
+      await searchFor(page, 'ali');
+      await vi.advanceTimersByTimeAsync(0);
+
+      expect(calls).toEqual(['token', 'search']);
+    });
+
+    it('searches the words already in the address when the page opens, as after a reload', async () => {
+      await TestBed.inject(Router).navigateByUrl('/search?q=ali');
+
+      const fixture = TestBed.createComponent(UserSearchPage);
+      await fixture.whenStable();
+
+      expect(userApi.searchUsers).toHaveBeenCalledTimes(1);
+      expect(userApi.searchUsers).toHaveBeenCalledWith(
+        expect.objectContaining({ username: 'ali' }),
+      );
+      expect(fixture.componentInstance['form'].controls.username.value).toBe('ali');
+    });
+
+    it('ignores an older answer that arrives after a newer one', async () => {
+      const page = await openPage();
+      await searchFor(page, 'al');
+      await searchFor(page, 'ali');
+
+      answers[1](ok([user(2, 'ali')]));
+      await vi.advanceTimersByTimeAsync(0);
+      answers[0](ok([user(1, 'alan'), user(3, 'alma')]));
+      await vi.advanceTimersByTimeAsync(0);
+
+      expect(page['results']()?.items()).toEqual([user(2, 'ali')]);
+    });
+
+    it('does not let an older failure replace the newer results', async () => {
+      const page = await openPage();
+      await searchFor(page, 'al');
+      await searchFor(page, 'ali');
+
+      answers[1](ok([user(2, 'ali')]));
+      await vi.advanceTimersByTimeAsync(0);
+      answers[0](fail('The server could not be reached', 0));
+      await vi.advanceTimersByTimeAsync(0);
+
+      expect(page['results']()?.status()).toBe(PageLoadStatus.Ended);
+      expect(page['results']()?.failureMessage()).toBeNull();
+    });
+
+    it('loads the next page of the same words after a full page', async () => {
+      const page = await openPage();
+      await searchFor(page, 'ali');
+      const fullPage = Array.from({ length: LIMITS.paging.defaultPageSize }, (_, index) =>
+        user(index + 1, `ali${index}`),
+      );
+      answers[0](ok(fullPage));
+      await vi.advanceTimersByTimeAsync(0);
+
+      void page['loadMore']();
+      await vi.advanceTimersByTimeAsync(0);
+
+      expect(userApi.searchUsers).toHaveBeenLastCalledWith({
+        username: 'ali',
+        pageNumber: LIMITS.paging.firstPageNumber + 1,
+        pageSize: LIMITS.paging.defaultPageSize,
+      });
+    });
   });
 });
