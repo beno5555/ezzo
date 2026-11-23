@@ -1,6 +1,8 @@
+import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
 import { Router, provideRouter } from '@angular/router';
 import { AppResult, fail, ok } from '../../core/http/app-result';
+import { SessionStore } from '../../core/session/session-store';
 import { ToastStore } from '../../shared/toasts/toast-store';
 import { ModeratedKind } from './moderated-kind';
 import { ModerationApi } from './moderation-api';
@@ -29,15 +31,18 @@ function createModerationApi() {
 }
 
 describe('ModerationStore', () => {
+  const userId = signal(1);
   let store: ModerationStore;
   let toastStore: ToastStore;
   let moderationApi: ReturnType<typeof createModerationApi>;
 
   beforeEach(() => {
+    userId.set(1);
     moderationApi = createModerationApi();
     TestBed.configureTestingModule({
       providers: [
         { provide: ModerationApi, useValue: moderationApi },
+        { provide: SessionStore, useValue: { userId } },
         provideRouter([{ path: 'elsewhere', children: [] }]),
       ],
     });
@@ -163,6 +168,31 @@ describe('ModerationStore', () => {
     expect(store.isHidden(ModeratedKind.Post, 3, false)).toBe(true);
 
     await TestBed.inject(Router).navigateByUrl('/elsewhere');
+
+    expect(store.isHidden(ModeratedKind.Post, 3, false)).toBe(false);
+  });
+
+  it('keeps the answered states on a navigation to the same address, which keeps the page', async () => {
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/elsewhere');
+    const hide = store.setHidden(ModeratedKind.Post, 3, true);
+    moderationApi.answer(ok(undefined));
+    await hide;
+
+    await router.navigateByUrl('/elsewhere', { onSameUrlNavigation: 'reload' });
+
+    expect(store.isHidden(ModeratedKind.Post, 3, false)).toBe(true);
+  });
+
+  it('drops the answered states on the same address when another user signed in', async () => {
+    const router = TestBed.inject(Router);
+    await router.navigateByUrl('/elsewhere');
+    const hide = store.setHidden(ModeratedKind.Post, 3, true);
+    moderationApi.answer(ok(undefined));
+    await hide;
+
+    userId.set(2);
+    await router.navigateByUrl('/elsewhere', { onSameUrlNavigation: 'reload' });
 
     expect(store.isHidden(ModeratedKind.Post, 3, false)).toBe(false);
   });

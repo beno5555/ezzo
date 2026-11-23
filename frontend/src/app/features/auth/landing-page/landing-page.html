@@ -1,9 +1,21 @@
-<app-auth-frame [heading]="text().auth.signIn.title">
+<app-landing-picture class="hidden lg:block" />
+
+<app-auth-frame [heading]="text().auth.signIn.punchline">
+  <div appAuthMark>
+    <app-logo-mark class="size-16" />
+    <span class="sr-only">{{ text().app.name }}</span>
+  </div>
+
   @if (noticeMessage(); as notice) {
     <app-form-message tone="success" [message]="notice" />
   }
 
-  <form class="flex flex-col gap-5" [formGroup]="form" (ngSubmit)="signIn()">
+  <form
+    class="flex flex-col gap-5"
+    [attr.aria-label]="text().auth.signIn.formLabel"
+    [formGroup]="form"
+    (ngSubmit)="signIn()"
+  >
     <app-form-field
       fieldId="uniqueIdentifier"
       [label]="text().auth.signIn.identifierLabel"

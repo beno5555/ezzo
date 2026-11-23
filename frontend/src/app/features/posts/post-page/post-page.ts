@@ -56,7 +56,7 @@ export class PostPage {
 
   protected readonly text = inject(LanguageStore).text;
   protected readonly isSignedIn = this.sessionStore.isSignedIn;
-  protected readonly feedAddress = appAddresses.feed;
+  protected readonly feedAddress = appAddresses.home;
   protected readonly postLikes = inject(PostLikeStore);
   protected readonly PostPageStatus = PostPageStatus;
   protected readonly status = signal<PostPageStatus>(PostPageStatus.Loading);
@@ -134,7 +134,7 @@ export class PostPage {
   async deletePost(post: StandardPostDisplayDto): Promise<void> {
     await this.postEdits.delete(post, () => {
       // Fire-and-forget on purpose: the store's request must not wait for the navigation.
-      void this.router.navigateByUrl(appAddresses.feed);
+      void this.router.navigateByUrl(appAddresses.home);
     });
   }
 

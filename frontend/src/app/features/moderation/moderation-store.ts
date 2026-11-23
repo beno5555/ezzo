@@ -2,6 +2,7 @@ import { Injectable, inject, signal } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NavigationStart, Router } from '@angular/router';
 import { filter } from 'rxjs';
+import { SessionStore } from '../../core/session/session-store';
 import { ToastStore } from '../../shared/toasts/toast-store';
 import { ModerationApi } from './moderation-api';
 import { ModeratedKind } from './moderated-kind';
@@ -15,7 +16,7 @@ import { ModerationStatus } from './moderation-status';
 // An administrator still receives hidden content, so a hidden item stays on the page with its badge and
 // the menu's Make visible. The page's copy of the item keeps the flag it was loaded with, so every card
 // and comment asks isHidden, which gives the state set here and otherwise the item's own flag.
-// The state outlives the page's copy of the item only until the next navigation: that drops every state
+// The state outlives the page's copy of the item only until the next page: that drops every state
 // whose request is answered, because the page the user goes to loads the flag the server holds now, which
 // another administrator or a report's decision may have changed since. An item moderated elsewhere is
 // therefore always right on arrival.
@@ -31,12 +32,26 @@ export class ModerationStore {
   private readonly wishes = new Map<string, boolean>();
 
   constructor() {
-    inject(Router)
-      .events.pipe(
+    const router = inject(Router);
+    const userId = inject(SessionStore).userId;
+    let userIdBefore = userId();
+
+    router.events
+      .pipe(
         filter((event) => event instanceof NavigationStart),
         takeUntilDestroyed(),
       )
-      .subscribe(() => this.dropAnsweredStates());
+      .subscribe((event) => {
+        // A navigation to the same address keeps the page, with the flags it loaded, unless the user
+        // changed: "/" then shows another page.
+        const isOtherAddress = event.url !== router.url;
+        const isOtherUser = userId() !== userIdBefore;
+        userIdBefore = userId();
+
+        if (isOtherAddress || isOtherUser) {
+          this.dropAnsweredStates();
+        }
+      });
   }
 
   // loadedFlag is the flag the item came with from the server.

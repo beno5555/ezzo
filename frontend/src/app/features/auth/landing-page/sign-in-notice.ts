@@ -1,4 +1,4 @@
-// What another page sent the user to sign-in after, shown at the form's top (SignInPageState).
+// What another page sent the user to sign-in after, shown at the form's top (LandingPageState).
 export const SignInNotice = {
   AccountCreated: 'accountCreated',
   AccountReactivated: 'accountReactivated',

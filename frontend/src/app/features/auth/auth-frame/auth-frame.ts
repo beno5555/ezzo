@@ -1,10 +1,10 @@
 import { Component, inject, input } from '@angular/core';
 import { LanguageStore } from '../../../core/languages/language-store';
 
-// The frame the account pages share (sign-in, register, the two password pages, reactivation): the
+// The frame the account pages share (the landing page, register, the two password pages, reactivation): the
 // heading and an optional line under it, the form on a card in a narrow column, and the links to the
 // other pages below. The content goes on the card; each element with the appAuthLink attribute goes in
-// the links below it.
+// the links below it, and one with appAuthMark above the heading (the landing page's logo).
 @Component({
   selector: 'app-auth-frame',
   templateUrl: './auth-frame.html',

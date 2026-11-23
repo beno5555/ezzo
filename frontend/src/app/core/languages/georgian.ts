@@ -29,9 +29,7 @@ export const georgian: Dictionary = {
     homeLink: 'მთავარ გვერდზე დაბრუნება',
   },
   pages: {
-    home: 'მთავარი',
     feed: 'სიახლეები',
-    signIn: 'შესვლა',
     register: 'რეგისტრაცია',
     forgotPassword: 'პაროლის აღდგენა',
     resetPassword: 'ახალი პაროლის არჩევა',
@@ -204,8 +202,13 @@ export const georgian: Dictionary = {
   },
   auth: {
     linksLabel: 'ანგარიშის სხვა გვერდები',
+    landingPicture: {
+      pots: { author: 'nino_clay', time: '2 საათის წინ', title: 'კვირას გამომწვარი სამი ქოთანი' },
+      quilt: { author: 'luka_k', time: 'გუშინ', title: 'საბანი, როგორც იქნა, მზადაა' },
+    },
     signIn: {
-      title: 'შესვლა',
+      punchline: 'გაგვიზიარე, რაც შექმენი.',
+      formLabel: 'შესვლა',
       identifierLabel: 'მომხმარებლის სახელი ან ელფოსტა',
       passwordLabel: 'პაროლი',
       forgotPasswordLink: 'დაგავიწყდათ პაროლი?',

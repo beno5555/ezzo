@@ -5,10 +5,10 @@ import { NavigationEnd, Router, isActive } from '@angular/router';
 import { filter, map, take } from 'rxjs';
 import { appAddresses } from '../routing/app-addresses';
 
-// The account pages: a short stop on the way in, so the shell around them keeps only the logo (owner,
-// 2026-11-19). The language starts from the browser's (LanguageStore), and the other pages keep the switch.
+// The account pages beside the landing page (isOnLandingPage): a short stop on the way in, so the shell
+// around them keeps only the logo (owner, 2026-11-19). The language starts from the browser's
+// (LanguageStore), and the other pages keep the switch.
 const accountPageAddresses: readonly string[] = [
-  appAddresses.signIn,
   appAddresses.register,
   appAddresses.forgotPassword,
   appAddresses.resetPassword,

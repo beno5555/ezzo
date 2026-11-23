@@ -1,8 +1,11 @@
-import { Routes } from '@angular/router';
+import { Route, Routes } from '@angular/router';
 import { adminGuard } from './core/routing/admin-guard';
+import { formerHomePaths } from './core/routing/app-addresses';
 import { authGuard } from './core/routing/auth-guard';
 import { guestGuard } from './core/routing/guest-guard';
+import { landingPageMark } from './core/routing/landing-page-mark';
 import { PageTitleKey } from './core/routing/page-title-key';
+import { signedInMatch } from './core/routing/signed-in-match';
 
 // The address table in .scratch/frontend/spec.md ("Addresses"); app.routes.spec.ts holds this file to it.
 // Every page loads lazily, and its title is a key of the dictionary's pages group (PageTitleStrategy).
@@ -15,21 +18,24 @@ function placeholderPage(path: string, title: PageTitleKey): Routes[number] {
 }
 
 export const routes: Routes = [
-  // The landing page. Ticket 26 sends a signed-in user on to the feed.
-  { ...placeholderPage('', 'home'), pathMatch: 'full' },
+  // The home address: the feed for a signed-in user, the landing page with the sign-in form for a guest.
+  // The landing page has no title, so its tab says only "Ezzo".
   {
-    path: 'feed',
+    path: '',
+    pathMatch: 'full',
     title: 'feed',
-    canActivate: [authGuard],
+    canMatch: [signedInMatch],
     loadComponent: () => import('./features/posts/feed-page/feed-page').then((m) => m.FeedPage),
   },
   {
-    path: 'sign-in',
-    title: 'signIn',
-    canActivate: [guestGuard],
+    path: '',
+    pathMatch: 'full',
+    data: { [landingPageMark]: true },
     loadComponent: () =>
-      import('./features/auth/sign-in-page/sign-in-page').then((m) => m.SignInPage),
+      import('./features/auth/landing-page/landing-page').then((m) => m.LandingPage),
   },
+  // The redirect is relative, because only a relative one keeps the query.
+  ...formerHomePaths.map((path): Route => ({ path, pathMatch: 'full', redirectTo: '' })),
   {
     path: 'register',
     title: 'register',

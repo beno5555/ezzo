@@ -23,7 +23,7 @@ npm test -- --watch=false    # Vitest unit tests, once
 npm run lint                 # ESLint (fails on an un-awaited promise, on `any` and on a style that is not a design token), type check of tools/ and the Vitest config, then the tests of eslint-rules/
 npm run build
 npx prettier --write .       # Prettier owns formatting
-npm run screenshots -- /sign-in [https://example.com] [--signed-in]   # 12 images per app address into screenshots/
+npm run screenshots -- / [https://example.com] [--signed-in]   # 12 images per app address into screenshots/
 ```
 
 **Dev proxy.** `proxy.conf.json` forwards `/api` and `/hubs` (web sockets included) to `https://localhost:7102`, the backend's https port, with certificate checks off for the dev certificate. Start the backend first. Never aim the proxy at the http port: `UseHttpsRedirection` answers it with a redirect to another origin, which breaks the single origin (ADR 0001).

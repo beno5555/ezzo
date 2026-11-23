@@ -11,18 +11,21 @@ import { Button } from '../../../shared/button/button';
 import { applyFieldErrors } from '../../../shared/form-field/apply-field-errors';
 import { FormField } from '../../../shared/form-field/form-field';
 import { FormMessage } from '../../../shared/form-message/form-message';
+import { LogoMark } from '../../../shared/logo-mark/logo-mark';
 import { TextInput } from '../../../shared/text-input/text-input';
 import { TextLink } from '../../../shared/text-link/text-link';
 import { AuthFrame } from '../auth-frame/auth-frame';
 import { AuthLink } from '../auth-frame/auth-link';
-import { toSignInPageState } from './sign-in-page-state';
+import { LandingPicture } from './landing-picture/landing-picture';
+import { toLandingPageState } from './landing-page-state';
 
-// The sign-in page. One field takes a username or an email (LoginDto). On success it returns the user to
-// the address a guard turned them away from. The form is the pattern every later form copies: a typed
+// The landing page: what a guest sees at the home address. On a wide screen a picture of the app stands
+// beside the sign-in form; below that there is only the form. One field takes a username or an email
+// (LoginDto). On success it returns the user to the address a guard turned them away from. The form is the pattern every later form copies: a typed
 // reactive form, validators from LIMITS, errors once a field was touched, the submit button disabled
 // while the form is invalid, the server's field errors on their controls and its message above submit.
 @Component({
-  selector: 'app-sign-in-page',
+  selector: 'app-landing-page',
   imports: [
     ReactiveFormsModule,
     RouterLink,
@@ -31,13 +34,16 @@ import { toSignInPageState } from './sign-in-page-state';
     Button,
     FormField,
     FormMessage,
+    LandingPicture,
+    LogoMark,
     TextInput,
     TextLink,
   ],
-  templateUrl: './sign-in-page.html',
-  styleUrl: './sign-in-page.css',
+  templateUrl: './landing-page.html',
+  styleUrl: './landing-page.css',
+  host: { class: 'grid items-center gap-8 lg:grid-cols-2' },
 })
-export class SignInPage {
+export class LandingPage {
   private readonly sessionStore = inject(SessionStore);
   private readonly router = inject(Router);
 
@@ -48,7 +54,7 @@ export class SignInPage {
   readonly returnUrl = input<string>();
 
   // Read while the navigation that opened this page is still current.
-  private readonly pageState = toSignInPageState(this.router.currentNavigation()?.extras.state);
+  private readonly pageState = toLandingPageState(this.router.currentNavigation()?.extras.state);
 
   protected readonly form = inject(NonNullableFormBuilder).group({
     uniqueIdentifier: [

@@ -15,8 +15,8 @@ import { PostEditStore } from '../post-edit-store';
 import { PostLikeStore } from '../post-like-store';
 import { StandardPostDisplayDto } from '../standard-post-display-dto';
 
-// The ranked feed at /feed, for a signed-in user. It loads page after page as the reader scrolls, through
-// a PagedList: the first paged list, whose shape the comments, the profile, the friends lists, the chat
+// The ranked feed at the home address, for a signed-in user. It loads page after page as the reader
+// scrolls, through a PagedList: the first paged list, whose shape the comments, the profile, the friends lists, the chat
 // and the admin tables copy. The end of the list shows what the list is doing: loading, failed with a
 // way to try again, or ended. An empty list shows the same states in place of the posts.
 @Component({

@@ -130,7 +130,7 @@ Ezzo (`PRODUCT.md`) is a small social platform: a feed, posts with photos, comme
 
 ## Brand
 
-- **The logo** is "zz" in `on-accent` strokes inside an `accent` speech bubble (owner, 2026-11-23): neighbours talking across balconies. The same drawing is the top bar's home link and the browser-tab icon (`public/favicon.svg`, which holds the light values, as a file outside the app cannot read tokens). The name is not written on the page; screen readers hear it.
+- **The logo** is "zz" in `on-accent` strokes inside an `accent` speech bubble (owner, 2026-11-23): neighbours talking across balconies. The same drawing is the top bar's home link, the landing page's mark (where the top bar has none) and the browser-tab icon (`public/favicon.svg`, which holds the light values, as a file outside the app cannot read tokens). The name is not written on the page; screen readers hear it.
 
 ## Colors
 
@@ -159,6 +159,7 @@ A colour is named for its job, never for its shade. A component uses the role na
 - **One accent.** Use it for the single most important action on a screen. Never use colour alone to carry a meaning; pair it with a word or an icon.
 - **Accent and success stay apart.** Both are cool colours, so `success` is a green set clearly away from the blue (a luminance ratio of about 1.4 between them in each theme). A new value keeps that distance.
 - **The discs stay in the palette:** eight muted, deep colours (teal, green, olive, blue, indigo, rust, walnut, plum) that sit beside the accent without competing with it, all dark enough for white initials.
+- **The landing page's picture** is the one drawing in the app: it takes its colours from the disc roles.
 - **Scrollbars** take `border-strong` on `surface-page`.
 
 ## Typography
@@ -175,8 +176,8 @@ A colour is named for its job, never for its shade. A component uses the role na
 - **Fluid by default.** No fixed widths, only maximum widths. Rows wrap. Images shrink with their container.
 - **Phone first.** Write the phone layout, then add what changes on wider screens.
 - **The shell changes at 768 px.** Below it: the phone shell with the bottom bar. From it up: the desktop shell with the top bar. A tablet gets the desktop shell.
-- **A second change at 1024 px** is allowed only on a page with a real second column: chat and the admin panel. One exception: a post's page moves its pinned "Back" button from a bar across the top into the margin left of the column (owner, 2026-11-22).
-- **Content sits in a capped column:** `column` (42rem) for reading pages such as the feed and a post, `wide` (75rem) for chat and the admin panel.
+- **A second change at 1024 px** is allowed only on a page with a real second column: chat, the admin panel and the landing page (its picture). One exception: a post's page moves its pinned "Back" button from a bar across the top into the margin left of the column (owner, 2026-11-22).
+- **Content sits in a capped column:** `column` (42rem) for reading pages such as the feed and a post, `wide` (75rem) for chat, the admin panel and the landing page.
 - **Nothing scrolls sideways** at 360 px. On a phone, the rows of an admin table become stacked cards.
 - **Spacing** uses Tailwind's default scale, in steps of 0.25rem (4 px). Use no value outside the scale.
 - **Touch targets** are at least 44 px high on a phone.

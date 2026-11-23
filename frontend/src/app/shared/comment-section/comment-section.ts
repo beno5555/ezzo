@@ -58,7 +58,7 @@ export class CommentSection implements OnInit {
   protected readonly text = inject(LanguageStore).text;
   protected readonly isSignedIn = inject(SessionStore).isSignedIn;
   protected readonly PageLoadStatus = PageLoadStatus;
-  protected readonly signInAddress = appAddresses.signIn;
+  protected readonly signInAddress = appAddresses.home;
   // Sign-in returns to this post's page.
   protected readonly signInParameters = computed(() => ({
     [returnAddressParameter]: appAddresses.post(this.postId()).join('/'),
