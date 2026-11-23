@@ -102,10 +102,11 @@
   /* Spacing: Tailwind's own scale, in steps of the unit (p-4 is 4 units, 16 px). DESIGN.md "unit". */
   --spacing: 0.25rem;
 
-  /* Content columns: max-w-column for reading pages, max-w-wide for chat and the admin panel. */
+  /* Content columns: max-w-column for reading pages, max-w-wide for chat, max-w-admin for the admin panel. */
   --container-*: initial;
   --container-column: 42rem;
   --container-wide: 75rem;
+  --container-admin: 90rem;
 
   /* The two breakpoints, md: and lg:. Written in rem so they follow the reader's font size. */
   --breakpoint-*: initial;

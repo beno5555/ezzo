@@ -7,7 +7,10 @@ import { SessionStore } from '../../core/session/session-store';
 import { waitForPendingWork } from '../../core/session/testing/wait-for-pending-work';
 import { english } from '../../core/languages/english';
 import { ConfirmationOpener } from '../../shared/confirmation/confirmation-opener';
-import { deleteFadeMilliseconds } from '../../shared/fade-out/delete-fade';
+import {
+  deleteFadeMilliseconds,
+  deleteNoticeMinimumMilliseconds,
+} from '../../shared/fade-out/delete-fade';
 import { PreviewAddressMaker } from '../../shared/photos/preview-address-maker';
 import { ToastStore } from '../../shared/toasts/toast-store';
 import { AcceptedFriendshipDto } from '../friendships/accepted-friendship-dto';
@@ -24,6 +27,8 @@ import { StandardMessageDto } from './standard-message-dto';
 import { TypingStore } from './typing-store';
 import { UnreadStore } from './unread-store';
 
+// How long a deletion takes when the server answers at once: the notice's minimum, then the fade.
+const settleMilliseconds = deleteNoticeMinimumMilliseconds + deleteFadeMilliseconds;
 const signedInUserId = 1;
 const signedInUsername = 'me';
 const listAddress = '/api/messages/friends/conversation';
@@ -265,6 +270,7 @@ describe('ConversationsStore', () => {
         historyStatus: PageLoadStatus.Ended,
         historyFailure: null,
         sendingIds: new Set(),
+        waitingIds: new Set(),
         fadingIds: new Set(),
       });
     });
@@ -1075,52 +1081,95 @@ describe('ConversationsStore', () => {
         expect(store.openConversation()?.fadingIds.size).toBe(0);
       });
 
-      it('fades the message out for 200 ms, then it leaves the view and the row shows the new last message', async () => {
+      it('says "Deleting…" until the server answers, then fades the message out and the row shows the new last message', async () => {
+        const rowBefore = lastOfRow();
         const deleting = store.deleteMessage(mine(2, 'second'));
-        await vi.advanceTimersByTimeAsync(0);
+        await vi.advanceTimersByTimeAsync(deleteNoticeMinimumMilliseconds * 5);
 
         expect(store.openConversation()?.messages).toHaveLength(2);
+        expect(store.openConversation()?.waitingIds.has(2)).toBe(true);
+        expect(store.openConversation()?.fadingIds.size).toBe(0);
+        expect(lastOfRow()).toBe(rowBefore);
+        const request = httpTesting.expectOne(messageAddress(2));
+        expect(request.request.method).toBe('DELETE');
+
+        request.flush(envelope(null));
+        await vi.advanceTimersByTimeAsync(0);
+
+        expect(store.openConversation()?.waitingIds.size).toBe(0);
         expect(store.openConversation()?.fadingIds.has(2)).toBe(true);
-        httpTesting.expectNone(messageAddress(2));
+        expect(store.openConversation()?.messages).toHaveLength(2);
 
         await vi.advanceTimersByTimeAsync(deleteFadeMilliseconds);
+        await deleting;
 
         expect(store.openConversation()?.messages.map((shown) => shown.id)).toEqual([1]);
         expect(store.openConversation()?.fadingIds.size).toBe(0);
         expect(lastOfRow()).toBe('first');
-        const request = httpTesting.expectOne(messageAddress(2));
-        expect(request.request.method).toBe('DELETE');
-        request.flush(envelope(null));
-        await deleting;
-
-        expect(store.openConversation()?.messages.map((shown) => shown.id)).toEqual([1]);
         expect(toastMessages()).toEqual([english.messages.deletedToast]);
       });
 
-      it('brings the message and the row’s last message back, and shows the refusal, when the server refuses', async () => {
+      it('keeps the message and the row’s last message, and shows the refusal, when the server refuses', async () => {
+        const rowBefore = lastOfRow();
         const deleting = store.deleteMessage(mine(2, 'second'));
-        await vi.advanceTimersByTimeAsync(deleteFadeMilliseconds);
+        await vi.advanceTimersByTimeAsync(0);
         httpTesting
           .expectOne(messageAddress(2))
           .flush(
             { succeeded: false, message: 'Delete request declined' },
             { status: 400, statusText: 'Bad Request' },
           );
+        await vi.advanceTimersByTimeAsync(deleteNoticeMinimumMilliseconds);
         await deleting;
 
         expect(store.openConversation()?.messages.map((shown) => shown.id)).toEqual([1, 2]);
-        expect(lastOfRow()).toBe('second');
+        expect(store.openConversation()?.waitingIds.size).toBe(0);
+        expect(store.openConversation()?.fadingIds.size).toBe(0);
+        expect(lastOfRow()).toBe(rowBefore);
         expect(toastMessages()).toEqual(['Delete request declined']);
+      });
+
+      it('reads the list again, so the row of the message’s conversation shows its new last message, when the reader opened another conversation meanwhile', async () => {
+        const deleting = store.deleteMessage(mine(2, 'second'));
+        await vi.advanceTimersByTimeAsync(0);
+        const opening = store.open('bob');
+        await vi.advanceTimersByTimeAsync(0);
+        httpTesting
+          .expectOne(
+            (candidate) =>
+              candidate.url === `/api/messages/conversation/${bob.id}` &&
+              candidate.params.get('pageNumber') === '1',
+          )
+          .flush(listEnvelope([]));
+        await vi.advanceTimersByTimeAsync(0);
+        httpTesting.expectOne(unreadAddress).flush({ unreadCount: 0 });
+        await vi.advanceTimersByTimeAsync(0);
+        await opening;
+        httpTesting.expectOne(messageAddress(2)).flush(envelope(null));
+        await vi.advanceTimersByTimeAsync(settleMilliseconds);
+
+        const refresh = httpTesting.expectOne(
+          (candidate) =>
+            candidate.url === listAddress && candidate.params.get('pageNumber') === '1',
+        );
+        refresh.flush(listEnvelope([{ ...row(alice), lastMessageContent: 'first' }, row(bob)]));
+        await vi.advanceTimersByTimeAsync(0);
+        await deleting;
+
+        expect(conversationListStore.conversations()[0].lastMessageContent).toBe('first');
+        expect(toastMessages()).toEqual([english.messages.deletedToast]);
       });
 
       it('removes the row when the conversation has no message left', async () => {
         const deleting = store.deleteMessage(mine(1, 'first'));
-        await vi.advanceTimersByTimeAsync(deleteFadeMilliseconds);
+        await vi.advanceTimersByTimeAsync(0);
         httpTesting.expectOne(messageAddress(1)).flush(envelope(null));
+        await vi.advanceTimersByTimeAsync(settleMilliseconds);
         await deleting;
         const deletingLast = store.deleteMessage(mine(2, 'second'));
-        await vi.advanceTimersByTimeAsync(deleteFadeMilliseconds);
+        await vi.advanceTimersByTimeAsync(0);
         httpTesting.expectOne(messageAddress(2)).flush(envelope(null));
+        await vi.advanceTimersByTimeAsync(settleMilliseconds);
         await deletingLast;
 
         expect(

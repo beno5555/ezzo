@@ -1,0 +1,9 @@
+<div class="flex items-center gap-3">
+  <app-avatar [userId]="user().id" [username]="user().username" />
+  <span class="font-semibold text-ink-strong wrap-anywhere">{{ user().username }}</span>
+</div>
+@if (user().bio) {
+  <p class="whitespace-pre-line wrap-break-word">{{ user().bio }}</p>
+} @else {
+  <p class="text-ink-muted">{{ text().admin.snapshots.noBio }}</p>
+}

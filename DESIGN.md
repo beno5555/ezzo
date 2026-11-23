@@ -90,6 +90,7 @@ spacing:
   unit: 0.25rem
   column: 42rem
   wide: 75rem
+  admin: 90rem
 components:
   button-primary:
     backgroundColor: "{colors.accent}"
@@ -176,7 +177,7 @@ A colour is named for its job, never for its shade. A component uses the role na
 - **Phone first.** Write the phone layout, then add what changes on wider screens.
 - **The shell changes at 768 px.** Below it: the phone shell with the bottom bar. From it up: the desktop shell with the top bar. A tablet gets the desktop shell.
 - **A second change at 1024 px** is allowed only on a page with a real second column: chat and the admin panel. One exception: a post's page moves its pinned "Back" button from a bar across the top into the margin left of the column (owner, 2026-11-22).
-- **Content sits in a capped column:** `column` (42rem) for reading pages such as the feed and a post, `wide` (75rem) for chat and the admin panel.
+- **Content sits in a capped column:** `column` (42rem) for reading pages such as the feed and a post, `wide` (75rem) for chat, `admin` (90rem) for the admin panel, whose users table needs the room. Inside it the menu stays in view while the page scrolls, and a page that is a list of cards (reports, moderation) keeps its own content in a `column`.
 - **Nothing scrolls sideways** at 360 px. On a phone, the rows of an admin table become stacked cards.
 - **Spacing** uses Tailwind's default scale, in steps of 0.25rem (4 px). Use no value outside the scale.
 - **Touch targets** are at least 44 px high on a phone.
@@ -201,6 +202,7 @@ Three radii and "full": `sm` for small controls such as badges and checkboxes, `
   - **Initials:** a username in two parts (`john.doe`, `john_doe`) gives the first letter of each part; any other username gives its first two letters.
   - **An unavailable account** (deactivated or deleted) gets `disc-unavailable` with no letters.
 - **Buttons.** One primary button per screen, in `accent`. Other buttons are quiet: `surface-raised` with `border-strong`, or text only. A destructive button uses `danger` and carries a trash icon before its text, which the button adds by itself.
+- **A list of people** (the friends page, a profile's Friends tab) is one card of rows. A name is `ink-strong` and semibold and is underlined only under the pointer, since the avatar and the name together read as a link. A button that every row repeats is never `accent` (the message to a friend is quiet), and a destructive one that every row repeats is text only in `danger` with its trash icon, no edge (owner, 2026-11-23: a column of filled blue buttons and red boxes looked heavy). A button that answers the row, such as Accept on a request, stays `accent`.
 - **The current page** in the top bar, the bottom bar and the admin menu: its link turns `accent` and semibold, with a short accent bar along one edge (under it in the top bar, above it in the bottom bar, at its start in the admin menu).
 - **The "Hidden" badge** is an eye-off icon and the word in `warning`, semibold, with no box.
 - **Inputs.** A visible label above every input, never a placeholder in its place. The error text sits beside the field, in `danger`, with an icon.
@@ -211,7 +213,7 @@ Three radii and "full": `sm` for small controls such as badges and checkboxes, `
 
 - Do use a design token for every colour, size, radius and space. Don't write a hex code or a bracketed Tailwind value such as `p-[13px]`.
 - Do let the theme change the values. Don't write a `dark:` class or name a theme in a component.
-- Do move only in answer to a user's action, for at most 200 ms. Don't animate on page load or on scroll, and turn motion off under "reduce motion".
+- Do move only in answer to a user's action, for at most 200 ms. Don't animate on page load or on scroll, and turn motion off under "reduce motion". One exception (owner, 2026-11-23): the spinner of a "Deleting…" notice turns for as long as the server takes to answer, and at least 400 ms. It is the only motion that lasts longer, and it stands still under "reduce motion".
 - Do keep keyboard focus visible on every control, with the `focus` ring.
 - Do keep text contrast at 4.5 to 1 or more in both themes.
 - Don't use ALL-CAPS labels, italics for meaning, or a monospace face for small labels.

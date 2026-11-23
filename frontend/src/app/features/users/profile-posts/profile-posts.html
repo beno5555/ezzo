@@ -40,9 +40,7 @@
       />
     }
     @case (PageLoadStatus.Ended) {
-      @if (hasPosts()) {
-        <p class="py-4 text-center text-sm text-ink-muted">{{ text().users.profile.posts.end }}</p>
-      } @else if (pendingPosts().length === 0) {
+      @if (!hasPosts() && pendingPosts().length === 0) {
         <app-empty-state
           class="rounded-lg border border-border bg-surface-raised"
           [heading]="text().users.profile.posts.emptyTitle"

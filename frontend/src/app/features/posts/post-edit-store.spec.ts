@@ -2,6 +2,10 @@ import { TestBed } from '@angular/core/testing';
 import { AppResult, fail, ok } from '../../core/http/app-result';
 import { english } from '../../core/languages/english';
 import { ConfirmationOpener } from '../../shared/confirmation/confirmation-opener';
+import {
+  deleteFadeMilliseconds,
+  deleteNoticeMinimumMilliseconds,
+} from '../../shared/fade-out/delete-fade';
 import { ToastStore } from '../../shared/toasts/toast-store';
 import { PostApi } from './post-api';
 import { PostEditStore } from './post-edit-store';
@@ -163,17 +167,26 @@ describe('PostEditStore', () => {
       expect(store.isDeleted(post.id)).toBe(false);
     });
 
-    it('fades the card first, then leaves it out of the lists and tells the page', async () => {
+    it('says "Deleting…" until the server answers, then fades the card, leaves it out and tells the page', async () => {
       const whenGone = vi.fn();
 
-      void store.delete(post, whenGone);
-      await vi.advanceTimersByTimeAsync(0);
+      const done = store.delete(post, whenGone);
+      await vi.advanceTimersByTimeAsync(deleteNoticeMinimumMilliseconds * 5);
 
+      expect(store.isWaitingToDelete(post.id)).toBe(true);
       expect(store.isDeleting(post.id)).toBe(true);
       expect(store.isDeleted(post.id)).toBe(false);
       expect(whenGone).not.toHaveBeenCalled();
 
-      await vi.advanceTimersByTimeAsync(200);
+      postApi.answerDelete(ok(undefined));
+      await vi.advanceTimersByTimeAsync(0);
+
+      expect(store.isWaitingToDelete(post.id)).toBe(false);
+      expect(store.isFadingOut(post.id)).toBe(true);
+      expect(whenGone).not.toHaveBeenCalled();
+
+      await vi.advanceTimersByTimeAsync(deleteFadeMilliseconds);
+      await done;
 
       expect(store.isDeleting(post.id)).toBe(false);
       expect(store.isDeleted(post.id)).toBe(true);
@@ -184,22 +197,27 @@ describe('PostEditStore', () => {
     it('says the post is deleted once the server has deleted it', async () => {
       const done = store.delete(post);
 
-      await vi.advanceTimersByTimeAsync(200);
+      await vi.advanceTimersByTimeAsync(0);
       postApi.answerDelete(ok(undefined));
+      await vi.advanceTimersByTimeAsync(deleteNoticeMinimumMilliseconds + deleteFadeMilliseconds);
       await done;
 
       expect(store.isDeleted(post.id)).toBe(true);
       expect(toasts()).toEqual([{ text: english.posts.deletedToast, link: null }]);
     });
 
-    it('brings the post back, with the reason, when the server refuses', async () => {
-      const done = store.delete(post);
+    it('keeps the post, with the reason, when the server refuses', async () => {
+      const whenGone = vi.fn();
+      const done = store.delete(post, whenGone);
 
-      await vi.advanceTimersByTimeAsync(200);
+      await vi.advanceTimersByTimeAsync(0);
       postApi.answerDelete(fail<void>('You cannot delete this post.', 403));
+      await vi.advanceTimersByTimeAsync(deleteNoticeMinimumMilliseconds);
       await done;
 
+      expect(store.isDeleting(post.id)).toBe(false);
       expect(store.isDeleted(post.id)).toBe(false);
+      expect(whenGone).not.toHaveBeenCalled();
       expect(toasts()).toEqual([{ text: 'You cannot delete this post.', link: null }]);
     });
 
@@ -207,7 +225,7 @@ describe('PostEditStore', () => {
       void store.delete(post);
       await vi.advanceTimersByTimeAsync(0);
       void store.delete(post);
-      await vi.advanceTimersByTimeAsync(200);
+      await vi.advanceTimersByTimeAsync(deleteNoticeMinimumMilliseconds);
 
       expect(postApi.deletions).toEqual([post.id]);
     });

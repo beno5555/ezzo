@@ -11,7 +11,7 @@ Claude Code loads this file when you open a file in `frontend/`. The repo's root
 - **Responsive.** Phone first. The only breakpoints are `md:` (768 px, where the shell changes) and `lg:` (1024 px; where it is allowed: `DESIGN.md`, Layout). Maximum widths, never fixed widths. Nothing scrolls sideways at 360 px. Touch targets are at least 44 px high.
 - **Check every page you build at 360, 768 and 1280 px, in both themes,** with the screenshot command (`npm run screenshots`, below), with the backend running when the page shows data. Stop both servers afterwards ("Running the app" in the root `CLAUDE.md`). The dark theme applies while `<html>` carries `data-theme="dark"`.
 - **Impeccable's hook** may report design findings after an edit. Fix the ones that are right. For a finding you judge wrong, show the owner the finding and your reason (for a visual dispute, a screenshot sent into the chat, with the code when it helps), and add an exception (`hooks ignore-value`) only once the owner agrees, whatever the hook's own message says (owner, 2026-11-21; `docs/agents/skills.md`).
-- Buttons are `<button appButton look="primary">` (or `quiet`, `danger`) from `src/app/shared/button/`. Icons come from `@lucide/angular` only.
+- Buttons are `<button appButton look="primary">` (or `quiet`, `danger`, `danger-text`) from `src/app/shared/button/`. Icons come from `@lucide/angular` only.
 
 ## Commands
 
