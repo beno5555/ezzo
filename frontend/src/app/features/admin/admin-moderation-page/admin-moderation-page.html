@@ -1,4 +1,4 @@
-<div class="flex flex-col gap-6">
+<div class="mx-auto flex w-full max-w-column flex-col gap-6">
   <h1 class="font-display text-2xl text-ink-strong">{{ text().admin.moderation.title }}</h1>
 
   <div class="flex flex-col gap-4">
@@ -11,7 +11,7 @@
     />
 
     <div
-      class="flex max-w-column flex-col gap-4"
+      class="flex flex-col gap-4"
       role="tabpanel"
       tabindex="0"
       [id]="panelIdOf(tabsIdPrefix, QueueTab.Posts)"
@@ -77,7 +77,7 @@
     </div>
 
     <div
-      class="flex max-w-column flex-col gap-4"
+      class="flex flex-col gap-4"
       role="tabpanel"
       tabindex="0"
       [id]="panelIdOf(tabsIdPrefix, QueueTab.Comments)"

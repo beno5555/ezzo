@@ -1,90 +1,90 @@
-<div class="flex flex-col gap-6">
+<div class="mx-auto flex w-full max-w-column flex-col gap-6">
   <h1 class="font-display text-2xl text-ink-strong">{{ text().admin.reports.title }}</h1>
 
-  <div class="flex flex-col gap-4 md:flex-row md:flex-wrap md:gap-6">
-    <div class="flex flex-col gap-1" role="group" aria-labelledby="status-filter-label">
-      <span id="status-filter-label" class="text-sm font-semibold text-ink-strong">{{
-        text().admin.reports.statusFilterLabel
-      }}</span>
-      <div class="flex flex-wrap gap-2">
-        @for (choice of statusChoices(); track choice.status) {
-          <button
-            appToggleButton
-            type="button"
-            [pressed]="choice.status === selectedStatus()"
-            (click)="chooseStatus(choice.status)"
-          >
-            {{ choice.label }}
-          </button>
-        }
-      </div>
-    </div>
+  <div class="flex flex-col gap-4">
+    <app-tabs
+      [idPrefix]="tabsIdPrefix"
+      [tabs]="statusTabs()"
+      [label]="text().admin.reports.statusTabsLabel"
+      [selected]="selectedStatus()"
+      (selectedChange)="chooseStatus($event)"
+    />
 
-    <div class="flex flex-col gap-1" role="group" aria-labelledby="target-filter-label">
-      <span id="target-filter-label" class="text-sm font-semibold text-ink-strong">{{
+    <div
+      class="flex flex-wrap items-center gap-2"
+      role="group"
+      aria-labelledby="target-filter-label"
+    >
+      <span id="target-filter-label" class="text-sm font-semibold text-ink-muted">{{
         text().admin.reports.targetFilterLabel
       }}</span>
-      <div class="flex flex-wrap gap-2">
-        @for (choice of targetChoices(); track choice.label) {
-          <button
-            appToggleButton
-            type="button"
-            [pressed]="choice.target === selectedTarget()"
-            (click)="chooseTarget(choice.target)"
-          >
-            {{ choice.label }}
-          </button>
-        }
-      </div>
+      @for (choice of targetChoices(); track choice.label) {
+        <button
+          appToggleButton
+          type="button"
+          [pressed]="choice.target === selectedTarget()"
+          (click)="chooseTarget(choice.target)"
+        >
+          {{ choice.label }}
+        </button>
+      }
     </div>
   </div>
 
-  @if (hasRows()) {
-    <ul class="flex max-w-column flex-col gap-4">
-      @for (report of list().rows(); track report.id) {
-        <li>
-          <app-report-card
-            [report]="report"
-            [isFading]="list().isFading(report.id)"
-            (decide)="decide(report, $event)"
-          />
-        </li>
-      }
-    </ul>
-  }
+  <div
+    class="flex flex-col gap-4"
+    role="tabpanel"
+    tabindex="0"
+    [id]="panelIdOf(tabsIdPrefix, selectedStatus())"
+    [attr.aria-labelledby]="tabIdOf(tabsIdPrefix, selectedStatus())"
+  >
+    @if (hasRows()) {
+      <ul class="flex flex-col gap-4">
+        @for (report of list().rows(); track report.id) {
+          <li>
+            <app-report-card
+              [report]="report"
+              [isFading]="list().isFading(report.id)"
+              (decide)="decide(report, $event)"
+            />
+          </li>
+        }
+      </ul>
+    }
 
-  @switch (list().status()) {
-    @case (PageLoadStatus.Idle) {
-      @if (hasRows()) {
-        <div appScrollSentinel (reached)="loadMore()"></div>
+    @switch (list().status()) {
+      @case (PageLoadStatus.Idle) {
+        @if (hasRows()) {
+          <div appScrollSentinel (reached)="loadMore()"></div>
+        }
+      }
+      @case (PageLoadStatus.Loading) {
+        <p class="py-4 text-center text-sm text-ink-muted" role="status">
+          {{ hasRows() ? text().admin.reports.loadingMore : text().admin.reports.loading }}
+        </p>
+      }
+      @case (PageLoadStatus.Failed) {
+        @if (list().failureMessage(); as message) {
+          <app-load-failure
+            [message]="message"
+            [retryLabel]="text().admin.reports.retryButton"
+            (retry)="loadMore()"
+          />
+        }
+      }
+      @case (PageLoadStatus.Ended) {
+        @if (hasRows()) {
+          <p class="py-4 text-center text-sm text-ink-muted">{{ text().admin.reports.end }}</p>
+        } @else {
+          <app-empty-state
+            class="rounded-lg border border-border bg-surface-raised"
+            [heading]="text().admin.reports.emptyTitle"
+            [message]="text().admin.reports.emptyMessage"
+          >
+            <svg class="size-8 text-ink-muted" lucideFlag aria-hidden="true"></svg>
+          </app-empty-state>
+        }
       }
     }
-    @case (PageLoadStatus.Loading) {
-      <p class="py-4 text-center text-sm text-ink-muted" role="status">
-        {{ hasRows() ? text().admin.reports.loadingMore : text().admin.reports.loading }}
-      </p>
-    }
-    @case (PageLoadStatus.Failed) {
-      @if (list().failureMessage(); as message) {
-        <app-load-failure
-          [message]="message"
-          [retryLabel]="text().admin.reports.retryButton"
-          (retry)="loadMore()"
-        />
-      }
-    }
-    @case (PageLoadStatus.Ended) {
-      @if (hasRows()) {
-        <p class="py-4 text-center text-sm text-ink-muted">{{ text().admin.reports.end }}</p>
-      } @else {
-        <app-empty-state
-          class="rounded-lg border border-border bg-surface-raised"
-          [heading]="text().admin.reports.emptyTitle"
-          [message]="text().admin.reports.emptyMessage"
-        >
-          <svg class="size-8 text-ink-muted" lucideFlag aria-hidden="true"></svg>
-        </app-empty-state>
-      }
-    }
-  }
+  </div>
 </div>

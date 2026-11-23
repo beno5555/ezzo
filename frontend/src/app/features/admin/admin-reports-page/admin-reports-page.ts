@@ -8,6 +8,9 @@ import { EmptyState } from '../../../shared/empty-state/empty-state';
 import { LoadFailure } from '../../../shared/load-failure/load-failure';
 import { ScrollSentinel } from '../../../shared/scroll-sentinel/scroll-sentinel';
 import { ToastStore } from '../../../shared/toasts/toast-store';
+import { Tab } from '../../../shared/tabs/tab';
+import { panelId, tabId } from '../../../shared/tabs/tab-ids';
+import { Tabs } from '../../../shared/tabs/tabs';
 import { ToggleButton } from '../../../shared/toggle-button/toggle-button';
 import { AdminReportDto } from '../../reports/admin-report-dto';
 import { ReportApi } from '../../reports/report-api';
@@ -20,14 +23,14 @@ import { ReportCard } from '../report-card/report-card';
 import { SettlingList } from '../settling-list';
 
 // The admin panel's reports area at /admin/reports: the reports, page after page as the reader scrolls,
-// opening on the pending ones and narrowed by status and by what was reported. Each report shows its
+// opening on the pending ones: the status is a row of tabs, what was reported a row of choices under it. Each report shows its
 // target inline (ReportCard). A decision on a pending report takes it out of the list at once, and Hide
 // takes the other pending reports on the same target with it, as the server closes them together
 // (SettlingList). Hide on a user asks first, because it deactivates the account. A filter change makes a
 // new list, read from its first page.
 @Component({
   selector: 'app-admin-reports-page',
-  imports: [EmptyState, LoadFailure, ReportCard, ScrollSentinel, ToggleButton, LucideFlag],
+  imports: [EmptyState, LoadFailure, ReportCard, ScrollSentinel, Tabs, ToggleButton, LucideFlag],
   templateUrl: './admin-reports-page.html',
   styleUrl: './admin-reports-page.css',
 })
@@ -38,15 +41,18 @@ export class AdminReportsPage implements OnInit {
 
   protected readonly text = inject(LanguageStore).text;
   protected readonly PageLoadStatus = PageLoadStatus;
+  protected readonly tabIdOf = tabId;
+  protected readonly panelIdOf = panelId;
+  protected readonly tabsIdPrefix = 'reports';
 
   // The status filter always has a choice, and opens on the pending reports; the target filter's null
   // shows every kind.
   protected readonly selectedStatus = signal<ReportStatus>(ReportStatus.Pending);
   protected readonly selectedTarget = signal<ReportTargetType | null>(null);
-  protected readonly statusChoices = computed(() => {
+  protected readonly statusTabs = computed<Tab[]>(() => {
     const texts = this.text().admin.reports.statuses;
 
-    return Object.values(ReportStatus).map((status) => ({ status, label: texts[status] }));
+    return Object.values(ReportStatus).map((status) => ({ key: status, label: texts[status] }));
   });
   protected readonly targetChoices = computed(() => {
     const texts = this.text().admin.reports;
@@ -67,9 +73,14 @@ export class AdminReportsPage implements OnInit {
     await this.list().loadNext();
   }
 
-  async chooseStatus(status: ReportStatus): Promise<void> {
-    this.selectedStatus.set(status);
-    await this.reload();
+  // From the tabs, which send the key of the tab they show.
+  async chooseStatus(key: string): Promise<void> {
+    const status = Object.values(ReportStatus).find((choice) => choice === key);
+
+    if (status !== undefined) {
+      this.selectedStatus.set(status);
+      await this.reload();
+    }
   }
 
   async chooseTarget(target: ReportTargetType | null): Promise<void> {

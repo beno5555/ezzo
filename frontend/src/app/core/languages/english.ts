@@ -427,8 +427,8 @@ export const english = {
     },
     reports: {
       title: 'Reports',
-      statusFilterLabel: 'Show reports that are',
-      targetFilterLabel: 'About a',
+      statusTabsLabel: 'Report status',
+      targetFilterLabel: 'About',
       allTargets: 'Anything',
       // The names of the report statuses, by ReportStatus.
       statuses: {

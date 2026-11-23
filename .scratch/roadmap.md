@@ -81,6 +81,7 @@ On the frontend, in this order from the end: the default picture's new look (a r
 
 ## After the deadline
 
+- **Hidden content, and flagging from the menu** (owner, 2026-11-23). An administrator can restore hidden content only through the "…" menu of the item itself, and cannot flag from the menu at all. Backend ticket 14 lists hidden posts and comments; frontend ticket 43 adds a Hidden tab to the moderation page (and extracts the shared panel); frontend ticket 44 adds Flag to the menu. Ticket 43 waits for 14.
 - A few end-to-end test flows (sign in, post, message). They come before component tests.
 - **Stored notifications:** a table, a list with an unread count, a mark-as-read route, and a bell with a badge. Until then a notification reaches only a user who is connected.
 - **Retried events:** an outbox table and a job that resends an event the automation did not receive (n8n ticket 15). Until then an event sent while n8n is down is lost.

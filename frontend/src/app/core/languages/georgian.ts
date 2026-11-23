@@ -362,12 +362,12 @@ export const georgian: Dictionary = {
     },
     reports: {
       title: 'რეპორტები',
-      statusFilterLabel: 'აჩვენე რეპორტები, რომლებიც არის',
+      statusTabsLabel: 'რეპორტის სტატუსი',
       targetFilterLabel: 'რას ეხება',
       allTargets: 'ყველაფერს',
       statuses: {
-        Pending: 'განსახილველი',
-        Resolved: 'დაკმაყოფილებული',
+        Pending: 'მოლოდინში',
+        Resolved: 'მოგვარებული',
         Rejected: 'უარყოფილი',
       },
       targets: {

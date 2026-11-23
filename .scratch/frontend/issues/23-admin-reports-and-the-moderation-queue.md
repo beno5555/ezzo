@@ -104,3 +104,15 @@ Owner's decision: bring the redesigned `master` (the Balcony skin, the Ezzo logo
 - Checks: lint, the unit suite (86 files, 761 tests) and the build pass. Prettier's check lists 15 files from `master`'s merge but none of this ticket's: the Windows checkout converts their line endings, and they are not changed here. The first download is 723.95 kB (budget warning 600 kB, error limit 1 MB), up from 713.81 kB through `master`'s fonts and logo.
 - Not run: the backend integration suite (the merge brought no backend change). No spec-review pass: the round's own change is four files and an icon swap.
 - Servers stopped, ports 4200 and 7102 free.
+
+**2026-11-23, round 4: the reports layout reworked (Sonnet 5.5).**
+
+Owner's decisions: the page looked lopsided and the filters were confusing; rethink the layout and choose the variation I judge best. Also: the "hidden content" ticket is queued for after the deadline, and an administrator should be able to flag from the menu (also queued).
+
+- **One centred column.** The title, the filters and the list share one column of the `column` width, centred in the space beside the admin menu. Before, the title and filters ran the full width while the cards stopped at 42rem and hung to the left, which at 768 px left a strip of empty space on the right. The moderation page has the same column.
+- **Filters in two clear levels.** Status (Pending, Resolved, Rejected) is a row of tabs, the same control as the moderation page's Posts and Comments tabs. What was reported (Anything, Post, Comment, User) is one row of choices under the tabs, with a short label "About" before it. The long labels ("Show reports that are", "About a") are gone; `statusTabsLabel` names the tab row for screen readers.
+- **Shared `Tabs` changed for the phone:** a tab does not shrink or wrap, the row scrolls sideways inside itself instead of widening the page, and a tab is `text-sm` with small padding below 768 px. The first version made the page 523 px wide at 360 px in Georgian.
+- **Two Georgian words changed** so three tabs fit at 360 px: Pending is "მოლოდინში" (was "განსახილველი") and Resolved is "მოგვარებული" (was "დაკმაყოფილებული"). They also appear on each report's status line. **Recommendation:** keep; a Georgian reader should confirm the two words.
+- Checks: lint, the unit suite (86 files, 761 tests) and the build pass. Retaken: the 24 images; looked at 1280 light en, 360 light ka and dark ka. The profile page also uses `Tabs`; its screenshots were not retaken (**not checked**).
+- No behaviour changed.
+- New tickets from this round, all queued after the deadline: backend 14 (list hidden posts and comments), frontend 43 (a Hidden tab, extracting the shared panel) and frontend 44 (an administrator flags from the menu). They are in the roadmap under "After the deadline".
