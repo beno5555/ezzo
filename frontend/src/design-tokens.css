@@ -57,7 +57,7 @@
     sans-serif;
   --font-display--font-variation-settings: 'wdth' 85;
   /*
-   * The wordmark: the landing page's big outlined "ezzo", always those Latin letters, so its face needs
+   * The wordmark: the landing page's big "ezzo", always those Latin letters, so its face needs
    * no Cyrillic or Georgian partner. Its weight is set through the axis, as no type size uses 900.
    */
   --font-wordmark: 'Fraunces Variable', serif;

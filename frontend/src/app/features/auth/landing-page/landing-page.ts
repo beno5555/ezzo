@@ -18,10 +18,10 @@ import { AuthLink } from '../auth-frame/auth-link';
 import { LandingPicture } from './landing-picture/landing-picture';
 import { toLandingPageState } from './landing-page-state';
 
-// The landing page: what a guest sees at the home address. The name, drawn large and outlined, carries
-// the tagline under it (PRODUCT.md); on a wide screen a picture of the app follows them, beside the
-// sign-in form on its lifted card. On a narrower screen the tagline comes first, then the form, then the
-// name. The logo is the top bar's. One field takes a username or an email (LoginDto). On success it
+// The landing page: what a guest sees at the home address. The name, drawn large with the logo's bubble
+// round its "zz", carries the tagline under it (PRODUCT.md); on a wide screen a picture of the app
+// follows them, beside the sign-in form on its lifted card. On a narrower screen the name and the tagline
+// stand above the form. The top bar shows no logo here. One field takes a username or an email (LoginDto). On success it
 // returns the user to the address a guard turned them away from. The form is the pattern every later
 // form copies: a typed reactive form, validators from LIMITS, errors once a field was touched, the
 // submit button disabled while the form is invalid, the server's field errors on their controls and its

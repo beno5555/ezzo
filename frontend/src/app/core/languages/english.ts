@@ -11,8 +11,6 @@ import { pluralize } from './pluralize';
 export const english = {
   app: {
     name: 'Ezzo',
-    // The landing page's big outlined name: always these Latin letters, all lowercase (PRODUCT.md).
-    wordmark: 'ezzo',
   },
   languages: {
     // Each language is named in itself, so the switch reads the same in every language.

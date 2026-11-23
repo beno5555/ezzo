@@ -24,7 +24,7 @@ import { UserMenu } from '../user-menu/user-menu';
 // the search box, Sign in, Register and the language and theme menu, on every width.
 // The search page has its own labelled box, so the bar leaves its box out there, on every width. An
 // account page (register, the password pages and reactivation) keeps only the logo, and the landing page
-// the logo and the language and theme menu.
+// only the language and theme menu, as its big name carries the logo.
 @Component({
   selector: 'app-top-bar',
   imports: [

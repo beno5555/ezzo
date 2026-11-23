@@ -1,6 +1,9 @@
 <header [class]="isOnLandingPage() ? '' : 'border-b border-border bg-surface-raised'">
   <div class="mx-auto flex w-full max-w-wide flex-wrap items-center gap-2 px-4 py-2 md:flex-nowrap">
-    <app-logo class="me-auto md:me-2" />
+    <!-- The landing page draws the logo's bubble into its big name, so a second logo here would repeat it. -->
+    @if (!isOnLandingPage()) {
+      <app-logo class="me-auto md:me-2" />
+    }
 
     @if (isOnLandingPage()) {
       <!-- The landing page carries the sign-in form itself, so the bar adds only the language and theme menu. -->

@@ -136,8 +136,8 @@ Ezzo (`PRODUCT.md`) is a small social platform: a feed, posts with photos, comme
 
 ## Brand
 
-- **The logo** is "zz" in `on-accent` strokes inside an `accent` speech bubble (owner, 2026-11-23): neighbours talking across balconies. The same drawing is the top bar's home link on every page, the landing page included, and the browser-tab icon (`public/favicon.svg`, which holds the light values, as a file outside the app cannot read tokens).
-- **The wordmark** is the name, "ezzo", drawn large on the landing page (owner, 2026-11-23): outlined in `border-strong`, with no fill, in the `wordmark` face. The tagline sits under it, so the two are read together (`PRODUCT.md`). Screen readers skip it; the page's heading and the tab title name the app.
+- **The logo** is "zz" in `on-accent` strokes inside an `accent` speech bubble (owner, 2026-11-23): neighbours talking across balconies. The same drawing is the top bar's home link on every page but the landing page, whose wordmark carries it, and the browser-tab icon (`public/favicon.svg`, which holds the light values, as a file outside the app cannot read tokens).
+- **The wordmark** is the name, "ezzo", drawn large on the landing page in the `wordmark` face (owner, 2026-11-23). Its "zz" is the logo: the letters in `on-accent` inside the logo's `accent` speech bubble, so the top bar there shows no second logo. The "e" and the "o" are outlined in `accent`, with no fill, so the bubble and the letters read as one word. The tagline sits under it, so the two are read together (`PRODUCT.md`). Screen readers skip it; the page's heading and the tab title name the app.
 
 ## Colors
 
@@ -163,7 +163,7 @@ A colour is named for its job, never for its shade. A component uses the role na
 
 - **Two themes, one set of names.** The DESIGN.md format holds one list of colours, so the dark theme's value of a role is the entry with the `-dark` suffix. In the Tailwind theme block there is no suffix: the dark theme gives the same name another value.
 - **Contrast.** Every text colour on every surface is at least 4.5 to 1 in both themes. White on each disc is at least 4.5 to 1. `border-strong` is at least 3 to 1 on every surface. Check new values the same way before they go in.
-- **One accent.** Use it for the single most important action on a screen. One exception: the sheet under the landing page's lifted card (Elevation & Depth). Never use colour alone to carry a meaning; pair it with a word or an icon.
+- **One accent.** Use it for the single most important action on a screen. Two exceptions, both on the landing page: the wordmark (Brand) and the sheet under the lifted card (Elevation & Depth). Never use colour alone to carry a meaning; pair it with a word or an icon.
 - **Accent and success stay apart.** Both are cool colours, so `success` is a green set clearly away from the blue (a luminance ratio of about 1.4 between them in each theme). A new value keeps that distance.
 - **The discs stay in the palette:** eight muted, deep colours (teal, green, olive, blue, indigo, rust, walnut, plum) that sit beside the accent without competing with it, all dark enough for white initials.
 - **The landing page's picture** is the one drawing in the app: it takes its colours from the disc roles. Its two posts are set askew and overlap, like prints laid on a table, with the `overlay` shadow.

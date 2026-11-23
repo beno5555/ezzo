@@ -2,21 +2,28 @@
      picture fill the left column, and the form stands on the right. -->
 <svg
   class="mx-auto w-full max-w-104 lg:col-start-1 lg:row-start-1 lg:mx-0 lg:max-w-108"
-  viewBox="0 -48 192 50"
+  viewBox="0 -57 217 81"
   aria-hidden="true"
 >
-  <!-- Bound, not interpolated: the template's line breaks would add spaces that widen the word. -->
-  <text
-    class="fill-none stroke-border-strong font-wordmark"
-    font-size="100"
-    stroke-width="2"
-    vector-effect="non-scaling-stroke"
-    [textContent]="text().app.wordmark"
-  ></text>
+  <!-- The logo's speech bubble behind "zz": its corners and tail scaled from the logo mark. -->
+  <path
+    class="fill-accent"
+    d="M67 -56h76a16 16 0 0 1 16 16v34a16 16 0 0 1-16 16H83l-16 13v-13a16 16 0 0 1-16-16v-34a16 16 0 0 1 16-16z"
+  />
+  <!-- "e" and "o" outlined in the bubble's accent, so the name and the logo read as one word. Each x is
+       the advance of the letters before it in this face at this size, measured in the running app, plus
+       the room the bubble needs on each side. -->
+  <g class="font-wordmark" font-size="100">
+    <g class="fill-none stroke-accent" stroke-width="1.5">
+      <text>e</text>
+      <text x="164">o</text>
+    </g>
+    <text class="fill-on-accent" x="59">zz</text>
+  </g>
 </svg>
 
 <p
-  class="mx-auto w-full max-w-104 font-display text-2xl text-ink-strong lg:col-start-1 lg:row-start-2 lg:mx-0 lg:max-w-none lg:text-display"
+  class="mx-auto w-full max-w-104 font-display text-2xl text-balance text-ink-strong lg:col-start-1 lg:row-start-2 lg:mx-0 lg:max-w-none lg:text-display"
 >
   {{ text().auth.signIn.punchline }}
 </p>
