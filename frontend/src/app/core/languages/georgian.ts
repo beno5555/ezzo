@@ -107,6 +107,12 @@ export const georgian: Dictionary = {
     },
     toasts: {
       regionLabel: 'შეტყობინებები',
+      live: {
+        message: (name: string, preview: string) => `${name}: ${preview}`,
+        comment: (name: string) => `${name}-მა შენს პოსტზე დააკომენტარა`,
+        like: (name: string) => `${name}-მა შენი პოსტი მოიწონა`,
+        online: (name: string) => `${name} ახლა ონლაინ არის`,
+      },
     },
     presence: {
       online: 'ახლა აქტიურია',

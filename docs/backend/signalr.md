@@ -89,7 +89,7 @@ Policy name: `OriginPolicy` (`CorsExtensions.AddCorsPolicies`), applied globally
 | `StandardMessageDto` | Full conversation history (`GetConversation`) | Id, Content, Images, Sender, ReceiverId, SentAt, Seen, SeenAt, IsEdited |
 | `MessageEditedDto` | Edit push (`MessageEdited`) | Id, Content |
 | `MessageDeletedDto` | Delete push (`MessageDeleted`) | Id |
-| `NotifyCommentDto` | Live comment push (`ReceiveComment`) | Id, AuthorUsername, Content |
+| `NotifyCommentDto` | Live comment push (`ReceiveComment`) | Id, AuthorUsername, Content, PostId |
 | `UserTypingDto` | Typing signal (`UserTyping`) | UserId (the sender) |
 | `PostLikedDto` | Like push (`PostLiked`) | PostId, LikedBy (`MinimalUserDto`: Id, Username), LikeCount (the post's count after the like) |
 

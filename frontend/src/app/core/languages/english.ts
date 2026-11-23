@@ -128,6 +128,13 @@ export const english = {
     },
     toasts: {
       regionLabel: 'Notifications',
+      // The live toasts (core/hub/live-toast-store). preview is the start of a message, or messages.list.photo.
+      live: {
+        message: (name: string, preview: string) => `${name}: ${preview}`,
+        comment: (name: string) => `${name} commented on your post`,
+        like: (name: string) => `${name} liked your post`,
+        online: (name: string) => `${name} is online`,
+      },
     },
     // Whether a friend is online, or when they last were (shared/presence-label, shared/presence-dot).
     // time is DateFormatter.timeSince: "5 minutes ago", "yesterday", "Nov 19".
