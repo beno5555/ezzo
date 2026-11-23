@@ -1,0 +1,28 @@
+<div class="flex flex-col gap-4">
+  <h1 class="font-display text-2xl text-ink-strong">{{ text().friendships.page.heading }}</h1>
+
+  <app-tabs
+    [idPrefix]="tabsIdPrefix"
+    [tabs]="tabs()"
+    [label]="text().friendships.page.tabsLabel"
+    [selected]="selectedTab()"
+    (selectedChange)="select($event)"
+  />
+
+  @for (tab of tabKeys; track tab) {
+    <div
+      role="tabpanel"
+      tabindex="0"
+      [id]="panelIdOf(tabsIdPrefix, tab)"
+      [attr.aria-labelledby]="tabIdOf(tabsIdPrefix, tab)"
+      [hidden]="selectedTab() !== tab"
+    >
+      <app-friend-list
+        [tab]="tab"
+        [list]="store.list(tab)"
+        (action)="perform($event.action, $event.friendship)"
+        (more)="loadMore(tab)"
+      />
+    </div>
+  }
+</div>

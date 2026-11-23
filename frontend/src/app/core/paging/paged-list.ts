@@ -14,6 +14,8 @@ export class PagedList<T> {
   private readonly currentStatus = signal<PageLoadStatus>(PageLoadStatus.Idle);
   private readonly lastFailure = signal<string | null>(null);
   private nextPageNumber: number = LIMITS.paging.firstPageNumber;
+  // How many loaded items were taken out since the last page arrived, which the server's list lost too.
+  private removedSinceLoad = 0;
 
   readonly items = this.loaded.asReadonly();
   readonly status = this.currentStatus.asReadonly();
@@ -31,14 +33,23 @@ export class PagedList<T> {
 
     if (canLoad) {
       this.currentStatus.set(PageLoadStatus.Loading);
+      // Each removal moved the rows behind it up by one on the server, so the next unseen row now sits earlier
+      // than the next page begins. Asking for an earlier page covers it; the rows the page repeats are dropped.
+      const removedBefore = this.removedSinceLoad;
+      const pageNumber = Math.max(
+        LIMITS.paging.firstPageNumber,
+        this.nextPageNumber - Math.ceil(removedBefore / this.options.pageSize),
+      );
       const result = await this.options.loadPage({
-        pageNumber: this.nextPageNumber,
+        pageNumber,
         pageSize: this.options.pageSize,
       });
 
       if (result.succeeded) {
         this.loaded.update((items) => this.withNew(items, result.data));
-        this.nextPageNumber += 1;
+        this.nextPageNumber = pageNumber + 1;
+        // The page was read after the removals it was asked for; one made while it was on its way stays counted.
+        this.removedSinceLoad = Math.max(0, this.removedSinceLoad - removedBefore);
         this.lastFailure.set(null);
         const isLastPage = result.data.length < this.options.pageSize;
         this.currentStatus.set(isLastPage ? PageLoadStatus.Ended : PageLoadStatus.Idle);
@@ -58,9 +69,34 @@ export class PagedList<T> {
     );
   }
 
-  // Takes an item out, such as a deleted comment.
+  // Takes an item out, such as a deleted comment. The server's list is one shorter too, so the next page is
+  // asked for from where the rows behind it now begin (see loadNext).
   remove(removedKey: number | string): void {
-    this.loaded.update((items) => items.filter((item) => this.options.keyOf(item) !== removedKey));
+    const isLoaded = this.loaded().some((item) => this.options.keyOf(item) === removedKey);
+
+    if (isLoaded) {
+      this.removedSinceLoad += 1;
+      this.loaded.update((items) =>
+        items.filter((item) => this.options.keyOf(item) !== removedKey),
+      );
+    }
+  }
+
+  // Puts an item back where it was, after a refused removal: at its old index, or at the end when the list
+  // is shorter now. An item the list already holds stays where it is. The server never lost it, so the next
+  // page is asked for from where it was.
+  insertAt(restored: T, index: number): void {
+    const restoredKey = this.options.keyOf(restored);
+    const isShown = this.loaded().some((item) => this.options.keyOf(item) === restoredKey);
+
+    if (!isShown) {
+      this.removedSinceLoad = Math.max(0, this.removedSinceLoad - 1);
+      this.loaded.update((items) => {
+        const position = Math.min(index, items.length);
+
+        return [...items.slice(0, position), restored, ...items.slice(position)];
+      });
+    }
   }
 
   // Puts an item the user just made (the server's copy of a new post or a new comment) on top. It shows once: a page that

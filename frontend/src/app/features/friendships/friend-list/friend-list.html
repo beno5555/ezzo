@@ -1,0 +1,79 @@
+<div class="flex flex-col gap-4">
+  @if (hasRows()) {
+    <ul
+      class="divide-y divide-border overflow-hidden rounded-lg border border-border bg-surface-raised"
+    >
+      @for (friendship of list().items(); track keyOf(friendship)) {
+        <li class="flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-2">
+          <app-avatar
+            [userId]="friendship.otherUser.id ?? 0"
+            [username]="friendship.otherUser.username"
+            [isUnavailable]="friendship.otherUser.id === null"
+          />
+          <div class="flex min-w-0 flex-1 basis-32 items-center">
+            @if (friendship.otherUser.id !== null) {
+              <a
+                appTextLink
+                class="min-w-0 wrap-anywhere"
+                [routerLink]="profileAddress(friendship.otherUser.username)"
+                >{{ friendship.otherUser.username }}</a
+              >
+            } @else {
+              <span class="min-w-0 py-3 font-semibold text-ink-muted wrap-anywhere">{{
+                friendship.otherUser.username
+              }}</span>
+            }
+          </div>
+          @if (friendship.otherUser.id !== null) {
+            <div class="ml-auto flex flex-wrap gap-2 py-1">
+              @for (rowAction of actions(); track rowAction) {
+                <button
+                  appButton
+                  type="button"
+                  [look]="lookOf(rowAction)"
+                  [attr.aria-label]="actionLabel(rowAction, friendship.otherUser.username)"
+                  (click)="action.emit({ action: rowAction, friendship })"
+                >
+                  {{ text().friendships.actions[rowAction] }}
+                </button>
+              }
+            </div>
+          }
+        </li>
+      }
+    </ul>
+  }
+
+  @switch (list().status()) {
+    @case (PageLoadStatus.Idle) {
+      <!-- Also with no rows: the user may have answered every loaded one while more wait on the server. -->
+      <div appScrollSentinel (reached)="more.emit()"></div>
+    }
+    @case (PageLoadStatus.Loading) {
+      <p class="py-4 text-center text-sm text-ink-muted" role="status">
+        {{ hasRows() ? texts().loadingMore : texts().loading }}
+      </p>
+    }
+    @case (PageLoadStatus.Failed) {
+      <app-load-failure
+        [message]="list().failureMessage() ?? ''"
+        [retryLabel]="text().friendships.page.retryButton"
+        (retry)="more.emit()"
+      />
+    }
+    @case (PageLoadStatus.Ended) {
+      @if (hasRows()) {
+        <p class="py-4 text-center text-sm text-ink-muted">{{ texts().end }}</p>
+      } @else {
+        <app-empty-state
+          class="rounded-lg border border-border bg-surface-raised"
+          [heading]="texts().emptyTitle"
+          [message]="texts().emptyMessage"
+          [headingLevel]="3"
+        >
+          <svg class="size-8 text-ink-muted" lucideUsers aria-hidden="true"></svg>
+        </app-empty-state>
+      }
+    }
+  }
+</div>

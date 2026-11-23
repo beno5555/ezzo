@@ -160,6 +160,83 @@ describe('PagedList', () => {
     expect(list.items()).toEqual([item(9), item(1), item(2)]);
   });
 
+  it('puts a removed item back at its index, once', async () => {
+    const loader = createLoader();
+    const list = createList(loader);
+    const first = list.loadNext();
+    loader.answer(ok([item(1), item(2), item(3)]));
+    await first;
+
+    list.remove(2);
+    list.insertAt(item(2), 1);
+    list.insertAt(item(2), 0);
+    expect(list.items()).toEqual([item(1), item(2), item(3)]);
+
+    list.remove(3);
+    list.insertAt(item(3), 9);
+    expect(list.items()).toEqual([item(1), item(2), item(3)]);
+  });
+
+  describe('after items were removed', () => {
+    // A server whose list shrinks when the test removes an item, as the backend's does.
+    function createServer(ids: number[]) {
+      const asked: number[] = [];
+      const loadPage = async (query: PageQuery) => {
+        asked.push(query.pageNumber);
+        const start = (query.pageNumber - 1) * query.pageSize;
+
+        return ok(ids.slice(start, start + query.pageSize).map(item));
+      };
+
+      return {
+        asked,
+        remove: (id: number) => ids.splice(ids.indexOf(id), 1),
+        list: new PagedList<Item>({ loadPage, pageSize, keyOf: (entry) => entry.id }),
+      };
+    }
+
+    it('asks for an earlier page, so the rows that moved up are not skipped', async () => {
+      const server = createServer([1, 2, 3, 4, 5, 6, 7]);
+      await server.list.loadNext();
+
+      server.remove(1);
+      server.list.remove(1);
+      server.remove(2);
+      server.list.remove(2);
+      await server.list.loadNext();
+      await server.list.loadNext();
+
+      expect(server.asked).toEqual([1, 1, 2]);
+      expect(server.list.items().map((entry) => entry.id)).toEqual([3, 4, 5, 6, 7]);
+      expect(server.list.status()).toBe(PageLoadStatus.Ended);
+    });
+
+    it('keeps asking in order when nothing was removed after the earlier page', async () => {
+      const server = createServer([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
+      await server.list.loadNext();
+      await server.list.loadNext();
+
+      server.remove(2);
+      server.list.remove(2);
+      await server.list.loadNext();
+      await server.list.loadNext();
+
+      expect(server.asked).toEqual([1, 2, 2, 3]);
+      expect(server.list.items().map((entry) => entry.id)).toEqual([1, 3, 4, 5, 6, 7, 8, 9, 10]);
+    });
+
+    it('goes back to the normal page when a refused removal puts the item back', async () => {
+      const server = createServer([1, 2, 3, 4, 5, 6, 7]);
+      await server.list.loadNext();
+
+      server.list.remove(2);
+      server.list.insertAt(item(2), 1);
+      await server.list.loadNext();
+
+      expect(server.asked).toEqual([1, 2]);
+    });
+  });
+
   it('removes an item by its key', async () => {
     const loader = createLoader();
     const list = createList(loader);

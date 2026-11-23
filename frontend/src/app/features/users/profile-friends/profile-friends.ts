@@ -12,6 +12,7 @@ import { LoadFailure } from '../../../shared/load-failure/load-failure';
 import { ScrollSentinel } from '../../../shared/scroll-sentinel/scroll-sentinel';
 import { TextLink } from '../../../shared/text-link/text-link';
 import { FriendshipApi } from '../../friendships/friendship-api';
+import { friendshipKey } from '../../friendships/friendship-key';
 import { StandardFriendshipDto } from '../../friendships/standard-friendship-dto';
 
 // The Friends tab of a profile: the user's accepted friends, loaded page after page, each a link to their
@@ -59,9 +60,7 @@ export class ProfileFriends {
     return new PagedList<StandardFriendshipDto>({
       loadPage: (query) => this.friendshipApi.getFriendsOf(this.userId(), query),
       pageSize: LIMITS.paging.defaultPageSize,
-      // Friends whose accounts are unavailable share a placeholder name, so the name alone is no key.
-      keyOf: (friendship) =>
-        friendship.otherUser.id ?? `${friendship.otherUser.username}-${friendship.sentAt}`,
+      keyOf: friendshipKey,
     });
   }
 }

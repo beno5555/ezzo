@@ -411,6 +411,38 @@ export const georgian: Dictionary = {
         'თქვენ შორის მიმოწერა მეგობრობასთან ერთად წაიშლება. ამ ოპერაციის გაუქმება შეუძლებელია.',
       confirmButton: 'წაშლა',
     },
+    page: {
+      heading: 'მეგობრები',
+      tabsLabel: 'მეგობრების სიები',
+      myFriendsTab: 'მეგობრები',
+      incomingTab: 'შემოსული',
+      sentTab: 'გასული',
+      retryButton: 'თავიდან ცდა',
+      rowActionLabel: (action: string, username: string) => `${action}: ${username}`,
+      lists: {
+        friends: {
+          loading: 'მეგობრები იტვირთება…',
+          loadingMore: 'იტვირთება…',
+          emptyTitle: 'მეგობრები ჯერ არ გყავთ',
+          emptyMessage: 'მოძებნეთ ნაცნობები და გაუგზავნეთ მოთხოვნა.',
+          end: 'მეგობრების სიის ბოლოს მიაღწიეთ.',
+        },
+        incoming: {
+          loading: 'მოთხოვნები იტვირთება…',
+          loadingMore: 'იტვირთება…',
+          emptyTitle: 'მოთხოვნები არ გაქვთ',
+          emptyMessage: 'როცა ვინმე მეგობრობას შემოგთავაზებთ, მოთხოვნა აქ გამოჩნდება.',
+          end: 'მოთხოვნების სიის ბოლოს მიაღწიეთ.',
+        },
+        sent: {
+          loading: 'გაგზავნილი მოთხოვნები იტვირთება…',
+          loadingMore: 'იტვირთება…',
+          emptyTitle: 'მოთხოვნა არ გაგიგზავნიათ',
+          emptyMessage: 'თქვენი მოთხოვნები აქ დარჩება, სანამ მეორე მხარე არ უპასუხებს.',
+          end: 'მოთხოვნების სიის ბოლოს მიაღწიეთ.',
+        },
+      },
+    },
   },
   posts: {
     card: {

@@ -3,7 +3,7 @@ import { Tab } from './tab';
 import { panelId, tabId } from './tab-ids';
 
 const sharedTabClasses =
-  'min-h-11 cursor-pointer border-b-2 px-4 text-base font-semibold transition-colors ' +
+  'min-h-11 cursor-pointer border-b-2 px-3 md:px-4 text-base font-semibold transition-colors ' +
   'motion-reduce:transition-none focus-visible:outline-2 focus-visible:-outline-offset-2 ' +
   'focus-visible:outline-focus';
 const selectedTabClasses = 'border-accent text-accent';

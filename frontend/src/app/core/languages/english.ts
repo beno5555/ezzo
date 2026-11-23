@@ -479,6 +479,41 @@ export const english = {
       detail: 'The messages between you are deleted with the friendship. This cannot be undone.',
       confirmButton: 'Remove',
     },
+    // The friends page at /friends (features/friendships/friends-page).
+    page: {
+      heading: 'Friends',
+      tabsLabel: 'Friend lists',
+      myFriendsTab: 'My friends',
+      incomingTab: 'Requests',
+      sentTab: 'Sent',
+      retryButton: 'Try again',
+      // A row's button as screen readers hear it, since "Accept" alone does not say for whom.
+      rowActionLabel: (action: string, username: string) => `${action}: ${username}`,
+      // One group per list, by the tab's name (FriendsTab).
+      lists: {
+        friends: {
+          loading: 'Loading your friends…',
+          loadingMore: 'Loading more friends…',
+          emptyTitle: 'No friends yet',
+          emptyMessage: 'Search for people you know and send them a request.',
+          end: 'No more friends.',
+        },
+        incoming: {
+          loading: 'Loading requests…',
+          loadingMore: 'Loading more requests…',
+          emptyTitle: 'No requests waiting',
+          emptyMessage: 'When someone asks to be your friend, the request shows up here.',
+          end: 'No more requests.',
+        },
+        sent: {
+          loading: 'Loading sent requests…',
+          loadingMore: 'Loading more requests…',
+          emptyTitle: 'No requests sent',
+          emptyMessage: 'Requests you send wait here until the other person answers.',
+          end: 'No more requests.',
+        },
+      },
+    },
   },
   posts: {
     // The post card (shared/post-card), wherever a post is listed.
