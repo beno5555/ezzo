@@ -24,9 +24,9 @@ export class BackLink {
 
   readonly label = input.required<string>();
 
-  protected readonly feedAddress = appAddresses.home;
+  protected readonly fallbackAddress = appAddresses.home;
 
   protected follow(event: MouseEvent): void {
-    this.history.followBackLink(event, this.feedAddress);
+    this.history.followBackLink(event, this.fallbackAddress);
   }
 }

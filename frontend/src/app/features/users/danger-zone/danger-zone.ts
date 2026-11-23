@@ -16,9 +16,10 @@ import { SettingsSection } from '../settings-section/settings-section';
 // What the confirmation asks, from one of the danger zone's dictionary entries.
 type LeavingTexts = { question: string; detail: string; confirmButton: string };
 
-// The danger zone of the settings page: deactivate and delete the user's own account. Each opens the
-// confirmation that asks for the username to be typed. Once the backend has done it, each ends the same
-// way: the session ends, and the user lands on the sign-in page, whose notice says what happens next (a
+// The danger zone of the settings page: deactivate and delete the user's own account. Each opens a typed
+// confirmation: deactivating asks for the username, which is enough since an email link undoes it;
+// deleting asks for a sentence that holds the username, since the user cannot undo it. Once the backend
+// has done it, each ends the same way: the session ends, and the user lands on the sign-in page, whose notice says what happens next (a
 // deactivated account is reactivated by email; a deleted one is removed after the retention period). A
 // refusal is a toast, since the buttons are not a form.
 @Component({
@@ -37,7 +38,7 @@ export class DangerZone {
 
   protected readonly text = inject(LanguageStore).text;
 
-  // The word to type, the user's current username.
+  // The user's current username, which both confirmations ask for.
   readonly username = input.required<string>();
 
   protected readonly isBusy = signal(false);
@@ -45,14 +46,18 @@ export class DangerZone {
   async deactivate(): Promise<void> {
     await this.leave(
       this.text().users.settings.dangerZone.deactivate,
+      this.username(),
       () => this.activationApi.deactivateOwnAccount(),
       SignInNotice.AccountDeactivated,
     );
   }
 
   async deleteAccount(): Promise<void> {
+    const texts = this.text().users.settings.dangerZone.delete;
+
     await this.leave(
-      this.text().users.settings.dangerZone.delete,
+      texts,
+      texts.typedSentence(this.username()),
       () => this.managementApi.deleteOwnAccount(),
       SignInNotice.AccountDeleted,
     );
@@ -60,6 +65,7 @@ export class DangerZone {
 
   private async leave(
     texts: LeavingTexts,
+    typedWord: string,
     request: () => Promise<AppResult<void>>,
     notice: SignInNotice,
   ): Promise<void> {
@@ -72,7 +78,7 @@ export class DangerZone {
       detail: texts.detail,
       confirmButton: texts.confirmButton,
       isDestructive: true,
-      typedWord: this.username(),
+      typedWord,
     });
     if (!isConfirmed) {
       return;

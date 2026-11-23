@@ -44,9 +44,9 @@ import { TextLink } from '../text-link/text-link';
 // on its way to the server (NewPostStore) is marked as uploading in place of its like and comment
 // controls, which would act on a post the server does not have yet.
 // In a list the text of a long post stops after a few lines, with a See more button that opens the rest in
-// place (it goes nowhere). isFull, for the post's own page, shows all of it. commentsAddress is where the
-// comments button leads: to the post, or with commentsGoBack, which the post's own page sets, back to where the
-// reader came from. The reader's own post says "(you)"
+// place (it goes nowhere). isFull, for the post's own page, shows all of it. The comments button leads to the
+// post, or, with commentsGoBack, which the post's own page sets, back to where the reader came from. The
+// reader's own post says "(you)"
 // after the author's name, among other people's posts; a profile, where every post is one user's, turns
 // that off with [hasOwnMark]="false".
 // The "…" menu's entries come from contentActionsOffered (shared/content-actions): Edit and Delete for the
@@ -144,7 +144,7 @@ export class PostCard {
     appAddresses.profile(this.post().author.username),
   );
   protected readonly postAddress = computed(() => appAddresses.post(this.post().id));
-  protected readonly feedAddress = appAddresses.home;
+  protected readonly fallbackAddress = appAddresses.home;
 
   private readonly content = viewChild<ElementRef<HTMLElement>>('content');
   protected readonly isExpanded = signal(false);
@@ -183,6 +183,6 @@ export class PostCard {
 
   // The comments button of the post's own page.
   goBack(event: MouseEvent): void {
-    this.history.followBackLink(event, this.feedAddress);
+    this.history.followBackLink(event, this.fallbackAddress);
   }
 }

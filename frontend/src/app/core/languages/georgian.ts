@@ -533,6 +533,7 @@ export const georgian: Dictionary = {
           button: 'ანგარიშის წაშლა',
           question: 'წაიშალოს ანგარიში?',
           detail: 'სისტემიდან მაშინვე გახვალთ და ანგარიშის დაბრუნება შეუძლებელი იქნება.',
+          typedSentence: (username: string) => `მე ვარ ${username} და მინდა ჩემი ანგარიშის წაშლა`,
           confirmButton: 'წაშლა',
         },
       },

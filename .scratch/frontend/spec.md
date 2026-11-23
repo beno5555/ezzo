@@ -241,7 +241,7 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
   - **A comment** is in the list at once with "Sending…" under it, and the count rises. An edit shows the same mark.
   - **A message** is in the conversation at once with a clock icon where its time goes, and no text; the icon's accessible label says "Sending". An edit shows the same icon.
   - **A refusal** removes the pending item, or puts an edited one back, and a toast says why. What the user wrote is never lost: a new post's toast leads back to the composer, filled with what the user wrote, a comment or a message goes back into its box with its photos, and an edit's toast leads back to its form, filled with what the user wrote.
-- **Destructive actions ask first.** Deleting a post, a comment or a message, removing a friend, and every destructive admin action open a confirmation dialog. Deactivating and deleting one's own account require typing the username.
+- **Destructive actions ask first.** Deleting a post, a comment or a message, removing a friend, and every destructive admin action open a confirmation dialog. Deactivating one's own account requires typing the username; deleting it requires typing a sentence that holds the username (owner, 2026-11-24), since the user cannot undo a deletion.
 - **Enums travel as text.** Every enum the API sends or accepts is the name of its member as text (`"Pending"`, `"Hidden"`, `"Post"`, `"Active"`); none is a number. Each frontend mirror is an `as const` object whose values are those names. Where the backend reads an enum from a request body it accepts the name only and refuses a number, so the frontend always sends the name.
 - **Two more feature folders.** `admin/` and `reports/` join the list, after the backend's controllers. `PostLikeApi` lives in `posts/`.
 - **The website plays no sound.**
@@ -325,7 +325,7 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 - **Friendship button** follows the relationship the backend reports: add; cancel my request; accept or decline theirs; remove. After a decline, add is offered again.
 - **Message button** for a friend opens `/messages/:username`.
 - **Tabs:** Posts and Friends. A guest sees no Friends tab, because the friends list requires sign-in.
-- **Unavailable accounts:** an author with no id is shown as text without a link. A profile the backend does not find shows the not-found page.
+- **Unavailable accounts:** an author with no id is shown as text without a link. A profile the backend does not find shows the not-found page, except for a name the signed-in user had before renaming themselves in this visit: that address is replaced by their profile under the new name (owner, 2026-11-24).
 
 ### Friends and search
 
@@ -355,7 +355,7 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 
 ### Settings
 
-- **One page, in sections, under a pinned "Back" link** like the post page's (owner, 2026-11-24). Profile: username (with the 20-day limit and the date it was last changed), bio, date of birth, and the account's creation date, read-only. Language. Password: a button that requests a reset email for the user's own address. Danger zone: deactivate and delete, each confirmed by typing the username, each ending in sign-out.
+- **One page, in sections, under a pinned "Back" link** like the post page's (owner, 2026-11-24). Profile: username (with the 20-day limit and the date it was last changed), bio, date of birth, and the account's creation date, read-only. Language. Password: a button that requests a reset email for the user's own address. Danger zone: deactivate (confirmed by typing the username) and delete (confirmed by typing a sentence that holds it), each ending in sign-out.
 - **The email digest toggle is not built here.** It arrives with the n8n spec, which adds the setting to the backend.
 
 ### Admin panel

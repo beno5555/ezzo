@@ -8,7 +8,7 @@ import { ConfirmationQuestion } from './confirmation-question';
 // Asks a question in a dialog with two buttons, and gives the answer to the caller, who awaits it:
 //   const isConfirmed = await this.confirmationOpener.ask({ question, confirmButton, isDestructive: true });
 // Escape and a click outside count as no. With typedWord set, the confirm button works only once that
-// word is typed (deactivating and deleting one's own account, which type the username).
+// word is typed (deactivating one's own account types the username, deleting it a sentence that holds it).
 @Injectable({ providedIn: 'root' })
 export class ConfirmationOpener {
   private readonly dialogOpener = inject(DialogOpener);

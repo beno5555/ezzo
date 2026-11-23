@@ -22,7 +22,8 @@ Decisions are under "Settings" in `.scratch/frontend/spec.md`. The backend's rul
 - [x] A second username change inside 20 days shows the server's refusal beside the field
 - [x] The creation date and the last-changed date are shown through the shared formatter; the date of birth is handled in UTC
 - [x] The password button sends the reset email and says so
-- [x] Deactivate and Delete work only after the username is typed, and each ends signed out with its message
+- [x] Deactivate works only after the username is typed, and Delete only after a sentence that holds it is typed; each ends signed out with its message
+- [x] After a rename, going back to the old profile address leads to the profile under the new name, never to a not-found page
 - [x] The form's limits come from `LIMITS`
 - [x] The `…Api` methods added here are unit-tested against the HTTP testing backend
 - [x] Checked in the running app on a desktop width and on a phone width, in both languages
@@ -79,3 +80,32 @@ Departures and extras: a "saved" toast after saving; a loading and a retry state
 **Screenshots:** `.scratch/frontend/shots/17/` (the settings and post pages, 12 images each, from this round).
 
 **Branch.** `worktree-settings-page`: visual work, so it waits for the owner's review before the merge. Trial merge against `master` (commit 6712717): see the chat report.
+
+**2026-11-24, round 3: revision (Sonnet 5.5).**
+
+**Owner's decisions.**
+- *Rename and Back.* Not acceptable to land on a not-found page after a rename: where the old profile can no longer be shown, the user must be taken to the main page, or to their profile under the new name automatically. Chosen: the second (see Built).
+- *Local date against UTC date, dev configuration:* as in round 2, nothing more.
+- *HTTPS on the frontend dev server:* the owner did not know the answer and asked for it; answered in the chat (a question, no change).
+- The reset email was checked by the owner and arrives.
+- *Harder confirmation.* The owner asked whether deactivation and deletion should ask for more than the username (a typed sentence), and to implement it if it is a good idea.
+- *Guest returning from sign-in:* the leftover `returnUrl` behind the post is accepted.
+- *Router-events subscription, the repeated refusal branch, the second spec review:* the owner asked for each to be explained simply, and for each to be fixed only if it causes a problem.
+
+**Built.**
+- *Rename and Back.* `SessionStore` keeps the lower-case usernames the signed-in user had earlier in this visit (filled when a refresh brings a token for the same user under another name, reset when another user signs in); `currentUsernameOf(name)` answers the current name for one of them. `ProfilePage`, on a 404, asks it: for a former name it replaces the address with the profile under the new name (`replaceUrl`), otherwise it shows the not-found page as before; should the move not happen it shows not-found rather than load for ever. Works for the Back link, the browser's Back and an old link, within the visit; after a reload the memory is gone, so an old address then is a plain not-found page.
+- *Delete asks for a sentence.* Deactivate keeps asking for the username (an email link undoes it). Delete asks for `I am <username> and I want to delete my account` (Georgian: `მე ვარ <username> და მინდა ჩემი ანგარიშის წაშლა`), typed exactly as shown (same matcher, so letter case counts). It is `users.settings.dangerZone.delete.typedSentence` in both dictionaries; the confirmation dialog is unchanged except `autocorrect="off"` on its input (a phone's autocorrect would otherwise rewrite the sentence).
+- *The Back store, rebuilt (found by the spec review of round 2, which the owner's question about "no second spec review" asked for).* `NavigationHistoryStore` compared the router's navigation ids to tell Back from Forward; three cases broke it, each now a failing-then-passing test: after a reload the ids start again at 1 while the old entries keep theirs (Back across the reload could leave the app); a jump over several entries (the browser's long-press history list) counted as one step; a page replaced after going back got a newer id than the entries ahead of it (Forward after the rename redirect misread). It now stamps every entry it shows with its own position (`historyPosition` in the history state), so the pages behind are the position minus the first position shown, and a restored entry tells its own position. Checked in the running app: Back across a reload goes to the feed (fallback) and stays in the app; rename, Back link, browser Back, browser Forward, Back link again all land where they should.
+- *Docs.* `.scratch/frontend/spec.md`: the confirmation line, the Settings line and the not-found line.
+
+**Checks.** Prettier on the touched paths, lint, 894 unit tests (99 files; 9 new), the build: pass; the build keeps its old warning (initial bundle over the 600 kB budget by about 154 kB). No backend change, so the backend suite was not run. Class-level tests only, by the temporary rule until 2026-11-25.
+
+**In the running app** (Playwright, throwaway accounts `round3tester`/`round3second`, backend on https 7102, frontend on 4200): rename, then the settings Back link and the browser's Back both land on the profile under the new name; the delete dialog refuses the username alone and the sentence missing its last character, and accepts the full sentence, in English and Georgian, at 360 and 1280 px (no sideways scroll); a real deletion with the sentence ends signed out on `/` with its notice; the reload and forward scenarios above. Not looked at again: the dark theme of the delete dialog (only the dialog's text changed). The throwaway accounts stay in the development database.
+
+**Review findings.** *Severe, fixed:* the three Back-store cases above (spec review, round 2 code). *Standards, fixed:* two stale comments (post card, confirmation opener), the unnamed condition and the negative-first branches in `SessionStore` and `NavigationHistoryStore` (named, then written positive), a one-letter lambda parameter in a spec, `feedAddress` renamed `fallbackAddress` (it is the fallback of the Back link), the duplicated reasoning comment in `DangerZone`, three over-long or short-wrapped comments, a typo and a hard-coded address in the profile page spec; the spec review's `spec.md` gaps and a comment that overstated when former usernames are dropped. *Left alone, with a reason:* (1) the Back link and the post card's comments button are an `<a [href]>` with a click handler, not `routerLink`: `routerLink` cannot go back in history, and the store's comment says so (the rule in `typescript.md` has no written exception for it; the owner may want one); (2) `typedWord` now holds a sentence too (its comment says so; a rename to `typedText` touches five files for no behaviour); (3) the fallback pair `fallbackAddress` + `followBackLink` exists in two components, which is two copies: a third back-going link must extract it first; (4) if the refresh after a rename fails (no network), the old name is not recorded and Back shows the not-found page; (5) the refusal branch repeated in four forms, as in round 1. The revised store had a second spec review in this round; its fixes are covered above, and it was not reviewed a third time.
+
+**Open decisions.**
+- *Rename after a reload.* The memory of former names lives for the visit; after a reload an old address is a not-found page. Recommendation: leave it (storing names in the browser would outlive the visit and could point a stranger's old link at the user's profile).
+- *`routerLink` exception.* Recommendation: add one line to `typescript.md` naming the two Back controls as the exception.
+
+**Screenshots:** `.scratch/frontend/shots/17/` (`delete-dialog--*`: 360 and 1280 px, light, English and Georgian, empty and typed; eight images).

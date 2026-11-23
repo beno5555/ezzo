@@ -106,13 +106,16 @@ describe('DangerZone', () => {
   });
 
   describe('deleting the account', () => {
-    it('asks for the username to be typed', async () => {
+    it('asks for a sentence holding the username to be typed', async () => {
       const zone = await openZone();
 
       await zone.deleteAccount();
 
       expect(confirmationOpener.ask).toHaveBeenCalledWith(
-        expect.objectContaining({ typedWord: 'john_doe', isDestructive: true }),
+        expect.objectContaining({
+          typedWord: 'I am john_doe and I want to delete my account',
+          isDestructive: true,
+        }),
       );
     });
 

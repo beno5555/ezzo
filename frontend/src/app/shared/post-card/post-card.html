@@ -80,7 +80,7 @@
         <span aria-hidden="true">{{ post().likeCount }}</span>
       </button>
       @if (commentsGoBack()) {
-        <a appActionButton [href]="feedAddress" (click)="goBack($event)">
+        <a appActionButton [href]="fallbackAddress" (click)="goBack($event)">
           <ng-container *ngTemplateOutlet="commentsLabel" />
         </a>
       } @else {

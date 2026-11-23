@@ -2,6 +2,9 @@ import { Location } from '@angular/common';
 import { Injectable, inject } from '@angular/core';
 import { NavigationEnd, NavigationStart, Router } from '@angular/router';
 
+// The key under which every history entry the app shows carries its position.
+const positionKey = 'historyPosition';
+
 // What a "Back" link needs to know: whether the reader reached this page from another page of the app in
 // this visit. If so, Back is the browser's own Back (Location.back), which is always right about where the
 // reader came from: a post opened from a profile goes back to that profile, one opened from the feed to the
@@ -9,32 +12,33 @@ import { NavigationEnd, NavigationStart, Router } from '@angular/router';
 // opened directly (a shared link, a reload) has no page of the app behind it, so its link goes to the
 // fallback its caller names.
 //
-// The router cannot say it: it knows where the reader is, not what is behind. So the store counts the
-// history entries the app has added behind the page shown, from app start (provideAppInitializer):
-// +1 for a navigation that adds an entry, 0 for one that replaces the current entry (the composer giving
-// way to the profile after sending, a redirect), and ±1 for the browser's own Back and Forward, which the
-// router reports as a "popstate" navigation (it marks those as replacing too, so the trigger is read
-// first). The direction comes from the id the router keeps in every history entry: the entry restored has
-// a lower id than the one left when the reader went back. A reload starts the count again from zero, so
-// entries from before it are not counted: the link then goes to its fallback, which is a safe place.
+// The router cannot say it: it knows where the reader is, not what is behind. So the store numbers the
+// history entries it shows, from app start (provideAppInitializer): each entry carries its position in its
+// history state, one more than the entry the reader came from, or the same for a navigation that replaces
+// the current entry (the composer giving way to the profile after sending, a redirect). The browser's own
+// Back and Forward, and a jump over several entries, are a "popstate" navigation (the router marks those
+// as replacing too, so the trigger is read first), and the entry they restore tells its own position.
+// The pages behind are the positions between the first page shown and this one. The numbers are kept in
+// the entries, so they stay true across a reload; the first page after a reload is where the count starts,
+// so entries from before it are not counted: its link then goes to the fallback, which is a safe place.
 @Injectable({ providedIn: 'root' })
 export class NavigationHistoryStore {
   private readonly router = inject(Router);
   private readonly location = inject(Location);
 
-  private pagesBehind = 0;
-  private shownEntryId = 0;
+  private firstPosition = 0;
+  private shownPosition = 0;
   private shownUrl: string | null = null;
   private hasShownAPage = false;
   private isRestoring = false;
-  private restoredEntryId = 0;
+  private restoredPosition: number | null = null;
   private isReplacing = false;
 
   follow(): void {
     this.router.events.subscribe((event) => {
       if (event instanceof NavigationStart) {
         this.isRestoring = event.navigationTrigger === 'popstate';
-        this.restoredEntryId = event.restoredState?.navigationId ?? 0;
+        this.restoredPosition = readPosition(event.restoredState);
         // Opening the address already shown reloads the page in its place (routerConfig).
         this.isReplacing =
           this.router.currentNavigation()?.extras.replaceUrl === true ||
@@ -42,14 +46,14 @@ export class NavigationHistoryStore {
       }
 
       if (event instanceof NavigationEnd) {
-        this.show(event.id);
+        this.show();
         this.shownUrl = event.urlAfterRedirects;
       }
     });
   }
 
   canGoBack(): boolean {
-    return this.pagesBehind > 0;
+    return this.shownPosition > this.firstPosition;
   }
 
   // Back to the page the reader came from, or to the fallback when there is none.
@@ -73,21 +77,41 @@ export class NavigationHistoryStore {
     }
   }
 
-  private show(entryId: number): void {
+  private show(): void {
     if (!this.hasShownAPage) {
-      // The first page of the visit is the entry the browser opened the app with, not one the app added.
+      // The first page of the visit is the entry the browser opened the app with (a reloaded one still
+      // carries its number), not one the app added.
       this.hasShownAPage = true;
-      this.shownEntryId = entryId;
+      this.shownPosition = this.restoredPosition ?? 0;
+      this.firstPosition = this.shownPosition;
     } else if (this.isRestoring) {
-      const wentBack = this.restoredEntryId < this.shownEntryId;
-
-      this.pagesBehind = Math.max(0, this.pagesBehind + (wentBack ? -1 : 1));
-      this.shownEntryId = this.restoredEntryId;
+      // An entry that carries no number was not shown by the app: nothing of the app is behind it.
+      this.shownPosition = this.restoredPosition ?? this.firstPosition;
     } else {
-      if (!this.isReplacing) {
-        this.pagesBehind++;
+      const addsAnEntry = !this.isReplacing;
+
+      if (addsAnEntry) {
+        this.shownPosition++;
       }
-      this.shownEntryId = entryId;
     }
+
+    this.stampShownEntry();
   }
+
+  // The router writes the entry's state itself, so the number is added to it once the navigation is done.
+  private stampShownEntry(): void {
+    const state = this.location.getState();
+    const routerState = typeof state === 'object' && state !== null ? state : {};
+
+    this.location.replaceState(this.location.path(true), '', {
+      ...routerState,
+      [positionKey]: this.shownPosition,
+    });
+  }
+}
+
+function readPosition(state: Record<string, unknown> | null | undefined): number | null {
+  const position = state?.[positionKey];
+
+  return typeof position === 'number' ? position : null;
 }

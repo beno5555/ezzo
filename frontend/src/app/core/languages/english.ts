@@ -616,6 +616,8 @@ export const english = {
           button: 'Delete account',
           question: 'Delete your account?',
           detail: 'You are signed out at once, and the account cannot be brought back.',
+          // The sentence to type to confirm, with the username as it is now.
+          typedSentence: (username: string) => `I am ${username} and I want to delete my account`,
           confirmButton: 'Delete',
         },
       },

@@ -40,7 +40,9 @@ describe('NavigationHistoryStore', () => {
   // Runs a move and waits for the navigation it causes. The browser's own Back and Forward buttons are
   // such moves: the router answers them with a navigation of its own.
   async function movedThrough(move: () => void): Promise<void> {
-    const arrived = firstValueFrom(router.events.pipe(filter((e) => e instanceof NavigationEnd)));
+    const arrived = firstValueFrom(
+      router.events.pipe(filter((event) => event instanceof NavigationEnd)),
+    );
 
     move();
     await arrived;
@@ -100,6 +102,52 @@ describe('NavigationHistoryStore', () => {
     expect(history.canGoBack()).toBe(false);
 
     await movedThrough(() => location.forward());
+    expect(history.canGoBack()).toBe(true);
+  });
+
+  it('does not count the entries from before a reload', async () => {
+    // The entries a visit left behind, as a reloaded page finds them: the numbers it stamped then are
+    // not the router's new ids, which start again at 1.
+    location.go('/posts/5', '', { navigationId: 1, historyPosition: 0 });
+    location.go('/users/ana', '', { navigationId: 1, historyPosition: 1 });
+    await movedThrough(() => router.initialNavigation());
+    await router.navigateByUrl('/search');
+
+    await movedThrough(() => location.back());
+    expect(history.canGoBack()).toBe(false);
+
+    await movedThrough(() => location.back());
+    expect(router.url).toBe('/posts/5');
+    expect(history.canGoBack()).toBe(false);
+  });
+
+  it('follows a jump over several entries', async () => {
+    await openAt('/');
+    await router.navigateByUrl('/users/ana');
+    await router.navigateByUrl('/posts/5');
+    await router.navigateByUrl('/friends');
+
+    await movedThrough(() => location.historyGo(-3));
+    expect(history.canGoBack()).toBe(false);
+
+    await movedThrough(() => location.historyGo(2));
+    expect(router.url).toBe('/posts/5');
+    expect(history.canGoBack()).toBe(true);
+  });
+
+  it('keeps counting through a page replaced after going back', async () => {
+    await openAt('/');
+    await router.navigateByUrl('/settings');
+    await router.navigateByUrl('/users/ana');
+    await movedThrough(() => location.back());
+    await router.navigateByUrl('/users/bob', { replaceUrl: true });
+
+    await movedThrough(() => location.forward());
+    expect(router.url).toBe('/users/ana');
+    expect(history.canGoBack()).toBe(true);
+
+    await movedThrough(() => location.back());
+    expect(router.url).toBe('/users/bob');
     expect(history.canGoBack()).toBe(true);
   });
 
