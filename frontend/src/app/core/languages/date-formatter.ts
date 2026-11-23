@@ -124,6 +124,15 @@ export class DateFormatter {
     );
   }
 
+  // A birthday on a profile, without the year (the age stays private): "March 1". Read in UTC, like
+  // dateOfBirth, so the day is the one the user entered in every time zone.
+  birthday(isoDate: string): string {
+    const date = new Date(isoDate);
+    const dates = this.languageStore.text().shared.dates;
+
+    return dates.dayMonth(date.getUTCDate(), dates.monthsLong[date.getUTCMonth()]);
+  }
+
   // "Nov 19" in the visitor's time zone.
   private dateWithoutYear(moment: Date): string {
     const dates = this.languageStore.text().shared.dates;

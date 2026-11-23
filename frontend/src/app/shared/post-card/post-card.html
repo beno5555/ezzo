@@ -16,7 +16,7 @@
           <a appTextLink class="wrap-anywhere" [routerLink]="profileAddress()">{{
             post().author.username
           }}</a>
-          @if (isOwn()) {
+          @if (isOwn() && hasOwnMark()) {
             <span class="text-sm text-ink-muted">{{ text().shared.ownMark }}</span>
           }
         </span>

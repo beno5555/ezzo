@@ -17,7 +17,7 @@ import { ReportApi } from '../report-api';
 import { ReportTargetType } from '../report-target-type';
 import { ReportDialogData } from './report-dialog-data';
 
-// The dialog where a user reports a post or a comment, with a required reason. Once the server has the
+// The dialog where a user reports a post, a comment or a user, with a required reason. Once the server has the
 // report it shows the toast that says so and closes. The toast comes from here, not from whoever opened the
 // dialog, because Escape, a click outside or Cancel can close the dialog while the request is on its way:
 // the report is still made, and the user must still be told. A report the server refuses (one already
@@ -40,9 +40,13 @@ export class ReportDialog {
   protected readonly maxLength = LIMITS.reports.reasonMaxLength;
   protected readonly title = computed(() => {
     const labels = this.text().reports.dialog;
-    const isPost = this.target.targetType === ReportTargetType.Post;
+    const titles: Record<ReportTargetType, string> = {
+      [ReportTargetType.Post]: labels.postTitle,
+      [ReportTargetType.Comment]: labels.commentTitle,
+      [ReportTargetType.User]: labels.userTitle,
+    };
 
-    return isPost ? labels.postTitle : labels.commentTitle;
+    return titles[this.target.targetType];
   });
 
   protected readonly form = inject(NonNullableFormBuilder).group({

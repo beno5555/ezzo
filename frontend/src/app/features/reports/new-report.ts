@@ -1,6 +1,6 @@
 import { ReportTargetType } from './report-target-type';
 
-// What a user sends to report a post or a comment: CreateReportDto.
+// What a user sends to report a post, a comment or a user: CreateReportDto.
 export type NewReport = {
   targetType: ReportTargetType;
   targetId: number;

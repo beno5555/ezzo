@@ -24,6 +24,17 @@ export class PostApi {
     );
   }
 
+  // One user's posts, newest first, for a guest too. Posts that moderation hid are left out unless the
+  // caller is their author or an administrator.
+  getByUser(userId: number, query: PageQuery): Promise<AppResult<StandardPostDisplayDto[]>> {
+    return toAppResult(
+      this.http.get<ListResponse<StandardPostDisplayDto>>(`/api/posts/user/${userId}`, {
+        params: query,
+      }),
+      this.languageStore.text().httpFailures,
+    );
+  }
+
   // One post, for a guest too. A post that does not exist, or that the caller may not read (hidden), is a
   // 404 with the same message.
   getById(postId: number): Promise<AppResult<FullPostDisplayDto>> {

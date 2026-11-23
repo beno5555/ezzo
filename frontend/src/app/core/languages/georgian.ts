@@ -368,6 +368,50 @@ export const georgian: Dictionary = {
           other: `ნაჩვენებია ${count} მომხმარებელი`,
         }),
     },
+    profile: {
+      loading: 'პროფილი იტვირთება…',
+      retryButton: 'თავიდან ცდა',
+      birthday: (date: string) => `დაბადების დღე: ${date}`,
+      tabsLabel: 'პროფილის განყოფილებები',
+      postsTab: 'პოსტები',
+      friendsTab: 'მეგობრები',
+      settingsLink: 'პროფილის რედაქტირება',
+      messageButton: 'მიწერა',
+      menuLabel: 'მოქმედებები ამ პროფილისთვის',
+      friendshipLoading: 'მეგობრობა მოწმდება…',
+      posts: {
+        loading: 'პოსტები იტვირთება…',
+        loadingMore: 'იტვირთება…',
+        emptyTitle: 'პოსტები ჯერ არ არის',
+        emptyMessage: 'ამ მომხმარებლის დაწერილი პოსტები აქ გამოჩნდება.',
+        emptyOwnMessage: 'თქვენი დაწერილი პოსტები აქ გამოჩნდება.',
+        retryButton: 'თავიდან ცდა',
+        end: 'მეტი პოსტი არ არის.',
+      },
+      friends: {
+        loading: 'მეგობრები იტვირთება…',
+        loadingMore: 'იტვირთება…',
+        emptyTitle: 'მეგობრები ჯერ არ არის',
+        emptyMessage: 'ამ მომხმარებლის მეგობრები აქ გამოჩნდება.',
+        retryButton: 'თავიდან ცდა',
+        end: 'მეტი მეგობარი არ არის.',
+      },
+    },
+  },
+  friendships: {
+    actions: {
+      Add: 'მეგობრად დამატება',
+      Cancel: 'მოთხოვნის გაუქმება',
+      Accept: 'მიღება',
+      Decline: 'უარყოფა',
+      Remove: 'მეგობრებიდან წაშლა',
+    },
+    removeConfirmation: {
+      question: (username: string) => `წაიშალოს ${username} მეგობრებიდან?`,
+      detail:
+        'თქვენ შორის მიმოწერა მეგობრობასთან ერთად წაიშლება. ამ ოპერაციის გაუქმება შეუძლებელია.',
+      confirmButton: 'წაშლა',
+    },
   },
   posts: {
     card: {
@@ -464,6 +508,7 @@ export const georgian: Dictionary = {
     dialog: {
       postTitle: 'პოსტის დარეპორტება',
       commentTitle: 'კომენტარის დარეპორტება',
+      userTitle: 'მომხმარებლის დარეპორტება',
       reasonLabel: 'მიზეზი',
       reasonHint: 'მიუწერეთ ადმინისტრატორებს, რა არის მასში არასწორი.',
       submitButton: 'დარეპორტება',

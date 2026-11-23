@@ -42,7 +42,9 @@ import { TextLink } from '../text-link/text-link';
 // controls, which would act on a post the server does not have yet.
 // In a list the text of a long post stops after a few lines, with a See more button that opens the rest in
 // place (it goes nowhere). isFull, for the post's own page, shows all of it. commentsAddress is where the
-// comments button leads; the post's own page sends it back to the feed.
+// comments button leads; the post's own page sends it back to the feed. The reader's own post says "(you)"
+// after the author's name, among other people's posts; a profile, where every post is one user's, turns
+// that off with [hasOwnMark]="false".
 // The "…" menu's entries come from contentActionsOffered (shared/content-actions): Edit and Delete for the
 // author, Report for another signed-in user, and for an administrator also Delete and Hide or Make
 // visible. Edit leads to the edit page; a deletion goes to the page through postDelete, which hands it to
@@ -74,6 +76,8 @@ export class PostCard {
   readonly isFull = input(false);
   // Null leads to the post's own page.
   readonly commentsAddress = input<string | null>(null);
+  // False on a profile, where every post is that user's and "(you)" after the name would say nothing.
+  readonly hasOwnMark = input(true);
   readonly likeToggle = output();
   readonly postDelete = output();
 

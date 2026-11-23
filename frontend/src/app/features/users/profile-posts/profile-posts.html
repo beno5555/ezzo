@@ -1,0 +1,61 @@
+<div class="flex flex-col gap-6">
+  @if (isListShown()) {
+    <ul class="flex flex-col gap-4">
+      @for (post of pendingPosts(); track post.id) {
+        <li>
+          <app-post-card [post]="post" [isUploading]="true" [hasOwnMark]="false" />
+        </li>
+      }
+      @for (post of shownPosts(); track post.id) {
+        <li>
+          <app-post-card
+            [post]="post"
+            [hasOwnMark]="false"
+            (likeToggle)="toggleLike(post)"
+            (postDelete)="deletePost(post)"
+          />
+        </li>
+      }
+    </ul>
+  }
+
+  @switch (posts.status()) {
+    @case (PageLoadStatus.Idle) {
+      @if (hasPosts()) {
+        <div appScrollSentinel (reached)="loadMore()"></div>
+      }
+    }
+    @case (PageLoadStatus.Loading) {
+      <p class="py-4 text-center text-sm text-ink-muted" role="status">
+        {{
+          hasPosts() ? text().users.profile.posts.loadingMore : text().users.profile.posts.loading
+        }}
+      </p>
+    }
+    @case (PageLoadStatus.Failed) {
+      <app-load-failure
+        [message]="posts.failureMessage() ?? ''"
+        [retryLabel]="text().users.profile.posts.retryButton"
+        (retry)="loadMore()"
+      />
+    }
+    @case (PageLoadStatus.Ended) {
+      @if (hasPosts()) {
+        <p class="py-4 text-center text-sm text-ink-muted">{{ text().users.profile.posts.end }}</p>
+      } @else if (pendingPosts().length === 0) {
+        <app-empty-state
+          class="rounded-lg border border-border bg-surface-raised"
+          [heading]="text().users.profile.posts.emptyTitle"
+          [message]="
+            isOwn()
+              ? text().users.profile.posts.emptyOwnMessage
+              : text().users.profile.posts.emptyMessage
+          "
+          [headingLevel]="3"
+        >
+          <svg class="size-8 text-ink-muted" lucideNewspaper aria-hidden="true"></svg>
+        </app-empty-state>
+      }
+    }
+  }
+</div>

@@ -10,15 +10,15 @@ import { PostApi } from './post-api';
 import { StandardPostDisplayDto } from './standard-post-display-dto';
 
 // Sends the posts the composer writes, so that the user never waits for one ("What a user writes shows
-// at once too" in the spec). The post shows at once on top of the feed as a pending post, with the moment
+// at once too" in the spec). The post shows at once on top of the writer's profile as a pending post, with the moment
 // it was sent as its time and its photos from the browser's previews, and a toast says it is uploading
 // until the server answers. Then the server's copy takes its place and a second toast leads to it; or,
 // on a refusal, the toast says why and leads back to the composer, where what the user wrote waits in
 // takeReturned(). The store lives as long as the app, so an upload finishes, and its toast tells, even
-// after the user leaves the feed. Comments, messages and edits copy this pattern.
+// after the user leaves the profile. Comments, messages and edits copy this pattern.
 // The composer has its own page (/posts/new), so the page that sends a post is not the one that shows
-// it: the feed listens for the server's copies while it is open.
-//   const stopShowing = this.newPosts.onPublished((created) => this.feed.prepend(created));
+// it: the profile listens for the server's copies while it is open.
+//   const stopShowing = this.newPosts.onPublished((created) => this.posts.prepend(created));
 //   inject(DestroyRef).onDestroy(stopShowing);
 @Injectable({ providedIn: 'root' })
 export class NewPostStore {

@@ -38,9 +38,10 @@ public static class FriendshipMapper
             Status =  friendship.FriendshipStatus.ToString(),
             SentAt = friendship.SentAt,
             LastUpdatedAt = friendship.LastUpdatedAt,
+            IsRequester = friendship.RequesterUserId == currentUserId,
         };
     }
-    
+
     public static AcceptedFriendshipDto ToAcceptedDisplay(Friendship friendship, User otherUser)
     {
         return new AcceptedFriendshipDto
