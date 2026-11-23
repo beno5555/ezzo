@@ -311,7 +311,7 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 - **Feed card:** author, time, title, text, photo grid, like button with the count, comment count linking to the post's page, the "…" menu. Comments are not shown or written in the feed.
 - **Likes** change the card at once, as every quick action does ("Across the whole frontend"). There is no list of who liked. The server hears of a click a second after the last click on that post (owner, 2026-11-22): a like taken back inside that second, or an unlike taken back, is never sent, and clicking never waits for an answer.
 - **Photo grid and viewer:** up to four thumbnails with a "+N" on the last when there are more; a click opens a full-screen viewer with previous and next.
-- **Post page:** the post, then its comments by pages, then a comment form for a signed-in user. The form and a "Back" link stay pinned while the reader scrolls (owner, 2026-11-22). The card's comments button goes back to the feed too. The comment box takes no character past the limit (`maxlength`), so a comment cannot be too long to send. In a list a long post's text stops after five lines with a "See more" button that opens the rest in place; the post's own page shows it all. A signed-in user's own comments come first, newest first, then everyone's oldest first; the backend orders them (`docs/backend/controllers.md`), because the list is paged. A new comment appears on top.
+- **Post page:** the post, then its comments by pages, then a comment form for a signed-in user. The form and a "Back" link stay pinned while the reader scrolls (owner, 2026-11-22). The card's comments button goes back too: both go to the page the reader came from, and to the feed when the post was opened directly (owner, 2026-11-24; `NavigationHistoryStore`). The comment box takes no character past the limit (`maxlength`), so a comment cannot be too long to send. In a list a long post's text stops after five lines with a "See more" button that opens the rest in place; the post's own page shows it all. A signed-in user's own comments come first, newest first, then everyone's oldest first; the backend orders them (`docs/backend/controllers.md`), because the list is paged. A new comment appears on top.
 
 ### Actions on content, reports and hidden content
 
@@ -355,7 +355,7 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 
 ### Settings
 
-- **One page, in sections.** Profile: username (with the 20-day limit and the date it was last changed), bio, date of birth, and the account's creation date, read-only. Language. Password: a button that requests a reset email for the user's own address. Danger zone: deactivate and delete, each confirmed by typing the username, each ending in sign-out.
+- **One page, in sections, under a pinned "Back" link** like the post page's (owner, 2026-11-24). Profile: username (with the 20-day limit and the date it was last changed), bio, date of birth, and the account's creation date, read-only. Language. Password: a button that requests a reset email for the user's own address. Danger zone: deactivate and delete, each confirmed by typing the username, each ending in sign-out.
 - **The email digest toggle is not built here.** It arrives with the n8n spec, which adds the setting to the backend.
 
 ### Admin panel

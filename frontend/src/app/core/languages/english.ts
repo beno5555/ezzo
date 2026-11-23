@@ -567,6 +567,8 @@ export const english = {
     // and hints of registration (auth.register).
     settings: {
       heading: 'Settings',
+      // The link above the page that leads back to the page the user came from.
+      backLink: 'Back',
       loading: 'Loading your settings…',
       retryButton: 'Try again',
       profile: {
@@ -715,7 +717,8 @@ export const english = {
     },
     // A post's own page (/posts/:postId, features/posts/post-page).
     page: {
-      // The link above a post and above the composer that leads back to the feed.
+      // The link above a post, which goes back to the page the reader came from, and above the composer,
+      // which leads to the feed.
       backLink: 'Back',
       loading: 'Loading the post…',
       retryButton: 'Try again',

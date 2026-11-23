@@ -79,10 +79,19 @@
         ></svg>
         <span aria-hidden="true">{{ post().likeCount }}</span>
       </button>
-      <a appActionButton [routerLink]="commentsTarget()">
+      @if (commentsGoBack()) {
+        <a appActionButton [href]="feedAddress" (click)="goBack($event)">
+          <ng-container *ngTemplateOutlet="commentsLabel" />
+        </a>
+      } @else {
+        <a appActionButton [routerLink]="postAddress()">
+          <ng-container *ngTemplateOutlet="commentsLabel" />
+        </a>
+      }
+      <ng-template #commentsLabel>
         <svg class="size-5" lucideMessageCircle aria-hidden="true"></svg>
         {{ text().posts.card.commentsLink(post().commentCount) }}
-      </a>
+      </ng-template>
     </footer>
   }
 </article>

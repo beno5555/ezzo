@@ -50,3 +50,32 @@ Departures and extras: a "saved" toast after saving; a loading and a retry state
 **Screenshots:** `.scratch/frontend/shots/17/`.
 
 **Branch.** `worktree-settings-page`: visual work, so it waits for the owner's review before the merge; a lane writes no review-queue line. I left the roadmap's lane table alone for the same reason (the row for round 14 is not marked merged until the merge). Trial merge against `origin/master` (commit 6712717): clean, no conflicts. Pushed.
+
+**2026-11-24, round 2: revision (Sonnet 5.5).**
+
+**Owner's decisions.**
+- *Bug found while reviewing, outside this ticket's scope but fixed here (owner's request).* From a profile, a post's "Back" link and its comments button led to the feed, not back to the profile (the browser's own back arrow was right). Both go back to where the reader came from, with the feed only when the post was opened directly.
+- The settings page gets a back button like the post page's, and its navigation is done properly: the same shared behaviour as the post page, not a second hard-wired link.
+- Dev configuration: the agent adds `http://localhost:4200` and `http://localhost:4300` to `Cors:AllowedOrigins` in `appsettings.Development.json` (owner's permission).
+- Local date against UTC date: keep the shared formatter (the recommendation stands; no objection).
+- Question, not a decision: HTTPS on the frontend dev server. Answered in the chat, nothing changed.
+
+**Built.** One shared mechanism for every "Back": `NavigationHistoryStore` (`core/routing`, started by an app initializer) counts the history entries the app has added behind the page shown (+1 for a navigation that adds one, 0 for a replacing one, a redirect or the same address opened again, ±1 for the browser's own Back and Forward, read from the router's "popstate" trigger and the id in each history entry). `goBack(fallback)` uses the browser's own Back when the count is above zero, and goes to the feed (the fallback) otherwise, so a page opened directly still has somewhere to go. The new shared `BackLink` (`shared/back-link`) is the pinned Back bar and margin link taken out of the post page; the post page and the settings page both use it. The post card's comments button on the post's own page (`commentsGoBack`, replacing the old `commentsAddress` input) goes back the same way. The link keeps the feed as its `href`, so a click with a modifier key or a middle click still opens the feed in the browser's way. Settings got `users.settings.backLink` in both languages. Departure from the first sketch: a first version linked to the previous page's address; the spec review showed it was wrong after the browser's Back and Forward (Angular marks those navigations as replacing), after a replacing navigation onto the page just left, and let two pages lead to each other, so it was replaced by the history-based one above before anything was committed.
+
+**Docs.** `DESIGN.md` Layout: the one 1024 px exception now names "a page with a pinned Back button" (post page, settings page). `.scratch/frontend/spec.md`: the post page line (both buttons go back) and the Settings line (pinned Back). The `posts.page.backLink` comment in `english.ts` no longer says "feed".
+
+**Dev configuration.** `http://localhost:4200` and `http://localhost:4300` added to `Cors:AllowedOrigins` in the owner's `appsettings.Development.json` (a file Git ignores, so it is in no commit). The running backend has to be restarted to pick it up.
+
+**Checks.** Prettier on the touched paths, lint, 885 unit tests (98 files, 10 of them new for the store), the build: pass; the build keeps its old warning (initial bundle over the 600 kB budget by about 153 kB). No backend change, so the backend suite was not run. No component DOM tests, by the temporary rule until 2026-11-25.
+
+**In the running app** (Playwright, throwaway account `backtest1`, my own backend on 7202 and frontend on 4300 because 4200 and 7102 were in use): profile → post → Back and → the comments button both land on the profile; after Back the browser's Back goes to the feed, so no entry was added; through browser Back and Forward the Back link still goes to the profile; settings opened from the profile goes back to the profile; settings and a post opened directly go to the feed. Looked at: the settings page (and the post page) at 360, 768 and 1280 px, light and dark, English and Georgian (24 images, in the shots folder; the Back bar looks as it did on the post page). Not tried: the new-post page and Cancel on the edit page (they keep their own links), a guest.
+
+**Review findings.** *Severe, fixed (spec review of the first version):* browser Back/Forward did not update the previous page; a replacing navigation (saving an edit) made the link lead to the page it was on; Back links added history entries, so two pages could bounce between each other. All three gone with the history-based store, each now covered by a test (back and forward, replace, same address, guard redirect). *Standards, fixed:* the `DESIGN.md` exception, the stale comment and spec line, the service named without a role word (now `NavigationHistoryStore`), the unused `fallback` input (removed), the duplicated address computed on the post page (removed), two comments that wrapped early. *Left alone:* (1) after a rename on the settings page, Back leads to the old profile address, which no longer exists (the browser's own Back does the same; the not-found page shows); (2) a guest who signs in from the like button, or is redirected by a guard, comes back with the sign-in address behind the post, so Back leads to the feed with a leftover `returnUrl` in the address (the feed shows normally); (3) the new-post page keeps its own link to the feed, on purpose ("without writing anything"); (4) the router events subscription has no `filter`/`takeUntilDestroyed`, as it lives as long as the app. The rewrite was not given a second spec review.
+
+**Open decisions.**
+- *HTTPS on the frontend dev server.* Answered in the chat, nothing changed.
+- *Rename and Back.* The profile the reader came from may no longer exist after a rename (point 1 above). Recommendation: leave it; the not-found page is accurate.
+
+**Screenshots:** `.scratch/frontend/shots/17/` (the settings and post pages, 12 images each, from this round).
+
+**Branch.** `worktree-settings-page`: visual work, so it waits for the owner's review before the merge. Trial merge against `master` (commit 6712717): see the chat report.

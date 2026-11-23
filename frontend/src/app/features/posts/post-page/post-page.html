@@ -19,29 +19,17 @@
       <div class="relative flex flex-col gap-6">
         <h1 class="sr-only">{{ text().pages.post }}</h1>
 
+        <!-- A guest has no feed to go back to, so a guest gets no link. -->
         @if (isSignedIn()) {
-          <!-- Pinned while the reader scrolls. On a phone and a tablet it is a slim bar across the top of
-               the column. From 1024 px it hangs in the margin left of the column, outside the post and
-               comment layout, and keeps its place beside the reader. A guest has no feed to go back to,
-               so a guest gets no link. -->
-          <div
-            class="sticky top-0 z-10 -mx-4 -mt-8 border-b border-border bg-surface-page px-4 py-2 lg:absolute lg:inset-y-0 lg:mt-0 lg:right-full lg:mx-0 lg:mr-4 lg:border-0 lg:bg-transparent lg:p-0"
-          >
-            <div class="lg:sticky lg:top-4">
-              <a appButton look="quiet" class="whitespace-nowrap" [routerLink]="feedAddress">
-                <svg class="size-5 shrink-0" lucideArrowLeft aria-hidden="true"></svg>
-                {{ text().posts.page.backLink }}
-              </a>
-            </div>
-          </div>
+          <app-back-link [label]="text().posts.page.backLink" />
         }
 
-        <!-- On its own page the card shows the whole post, and its comments button goes back to the feed
-             like the back button (a guest has no feed, so it keeps the post's own address). -->
+        <!-- On its own page the card shows the whole post, and its comments button goes back like the back
+             link (a guest has nowhere to go back to, so it keeps the post's own address). -->
         <app-post-card
           [post]="shownPost"
           [isFull]="true"
-          [commentsAddress]="isSignedIn() ? feedAddress : null"
+          [commentsGoBack]="isSignedIn()"
           (likeToggle)="toggleLike(shownPost)"
           (postDelete)="deletePost(shownPost)"
         />

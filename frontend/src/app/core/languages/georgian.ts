@@ -487,6 +487,7 @@ export const georgian: Dictionary = {
     },
     settings: {
       heading: 'პარამეტრები',
+      backLink: 'დაბრუნება',
       loading: 'პარამეტრები იტვირთება…',
       retryButton: 'თავიდან ცდა',
       profile: {

@@ -1,3 +1,4 @@
+import { NgTemplateOutlet } from '@angular/common';
 import {
   Component,
   ElementRef,
@@ -14,6 +15,7 @@ import { LucideCloudUpload, LucideHeart, LucideMessageCircle } from '@lucide/ang
 import { DateFormatter } from '../../core/languages/date-formatter';
 import { LanguageStore } from '../../core/languages/language-store';
 import { appAddresses } from '../../core/routing/app-addresses';
+import { NavigationHistoryStore } from '../../core/routing/navigation-history-store';
 import { SessionStore } from '../../core/session/session-store';
 import { ModeratedKind } from '../../features/moderation/moderated-kind';
 import { ModerationStore } from '../../features/moderation/moderation-store';
@@ -43,7 +45,8 @@ import { TextLink } from '../text-link/text-link';
 // controls, which would act on a post the server does not have yet.
 // In a list the text of a long post stops after a few lines, with a See more button that opens the rest in
 // place (it goes nowhere). isFull, for the post's own page, shows all of it. commentsAddress is where the
-// comments button leads; the post's own page sends it back to the feed. The reader's own post says "(you)"
+// comments button leads: to the post, or with commentsGoBack, which the post's own page sets, back to where the
+// reader came from. The reader's own post says "(you)"
 // after the author's name, among other people's posts; a profile, where every post is one user's, turns
 // that off with [hasOwnMark]="false".
 // The "…" menu's entries come from contentActionsOffered (shared/content-actions): Edit and Delete for the
@@ -57,6 +60,7 @@ import { TextLink } from '../text-link/text-link';
 @Component({
   selector: 'app-post-card',
   imports: [
+    NgTemplateOutlet,
     RouterLink,
     ActionButton,
     Avatar,
@@ -77,8 +81,9 @@ export class PostCard {
   readonly post = input.required<StandardPostDisplayDto>();
   readonly isUploading = input(false);
   readonly isFull = input(false);
-  // Null leads to the post's own page.
-  readonly commentsAddress = input<string | null>(null);
+  // True on the post's own page: the comments button goes back to where the reader came from, like the
+  // page's Back link, instead of to the post it is already on.
+  readonly commentsGoBack = input(false);
   // False on a profile, where every post is that user's and "(you)" after the name would say nothing.
   readonly hasOwnMark = input(true);
   readonly likeToggle = output();
@@ -88,6 +93,7 @@ export class PostCard {
   private readonly moderation = inject(ModerationStore);
   private readonly reportOpener = inject(ReportOpener);
   private readonly router = inject(Router);
+  private readonly history = inject(NavigationHistoryStore);
   private readonly sessionStore = inject(SessionStore);
   protected readonly text = inject(LanguageStore).text;
   protected readonly dateFormatter = inject(DateFormatter);
@@ -137,9 +143,8 @@ export class PostCard {
   protected readonly profileAddress = computed(() =>
     appAddresses.profile(this.post().author.username),
   );
-  protected readonly commentsTarget = computed(
-    () => this.commentsAddress() ?? appAddresses.post(this.post().id),
-  );
+  protected readonly postAddress = computed(() => appAddresses.post(this.post().id));
+  protected readonly feedAddress = appAddresses.home;
 
   private readonly content = viewChild<ElementRef<HTMLElement>>('content');
   protected readonly isExpanded = signal(false);
@@ -174,5 +179,10 @@ export class PostCard {
 
   requestDelete(): void {
     this.postDelete.emit();
+  }
+
+  // The comments button of the post's own page.
+  goBack(event: MouseEvent): void {
+    this.history.followBackLink(event, this.feedAddress);
   }
 }
