@@ -49,11 +49,11 @@ Two design skills from other authors serve the frontend. Each is a real folder c
 
 **Where it disagrees with `DESIGN.md`** (reported to the owner; the open ones are still to be decided on the merits):
 
-- It calls a neutral shell with one accent colour the category default and asks for a coloured shell with a signature move. `DESIGN.md` keeps a neutral provisional skin until the name session. Open; it belongs to the brand session.
+- It calls a neutral shell with one accent colour the category default and asks for a coloured shell with a signature move. Decided in the brand session (owner, 2026-11-23): the Balcony skin tints the shell with its blue and keeps one signature, the fretwork under the wordmark (`DESIGN.md`, Brand).
 - It asks for one designed moment of motion. `DESIGN.md` allows motion only in answer to a user's action, and none on page load. Open.
 - It wants lines of 65 to 75 characters. `DESIGN.md` says under about 80. Open.
 - Cards: not a real disagreement. The skill bans one pattern: a page built from same-size cards of icon, heading and text. It also bans a card inside a card. A post in a card, as `DESIGN.md` has it, is allowed.
-- Scrollbars: decided for the skill (owner, 2026-11-21). The browser's own scrollbars stay, coloured from the palette, never replaced by custom ones. `design-tokens.css` already makes them follow the light or dark theme (`color-scheme`). Colouring them from the palette is left for the brand session, which replaces the palette. That session adds the rule to `DESIGN.md`.
+- Scrollbars: decided for the skill (owner, 2026-11-21). The browser's own scrollbars stay, coloured from the palette, never replaced by custom ones. They follow the theme (`color-scheme`) and take the palette (`DESIGN.md`, Colors).
 
 **A file scan is not a page scan.** The skill's README says a source file gets the pattern rules only. Rules that need the rendered page, such as low contrast and tiny text, run only when the detector is pointed at a URL. Our templates take their colours from token classes, so the hook will rarely see a contrast fault in them. On a page's responsive check, with the dev server running, run `.claude/skills/impeccable/scripts/impeccable detect http://localhost:4200/<page>` as well. It opens the installed Chrome or Edge without a window. It has not been tried on a page that needs a sign-in, which it may see as the sign-in page.
 

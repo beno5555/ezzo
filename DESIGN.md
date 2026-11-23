@@ -1,54 +1,54 @@
 ---
 version: alpha
-name: WebCity (provisional skin)
-description: The structure of WebCity's look, with neutral values that stand in until the product's name and brand are chosen.
+name: Ezzo (Balcony)
+description: The look of Ezzo, a small social platform: Balcony, the painted wooden balconies of old Tbilisi, a deep balcony blue on cool pale walls, and a carved fretwork beside the wordmark.
 colors:
   # "primary" is the name the DESIGN.md format requires. It is the same colour as "accent", in both themes.
-  primary: "#2b59c3"
-  primary-dark: "#8fb0ff"
+  primary: "#1d6a8e"
+  primary-dark: "#9bd3f2"
 
   # Light theme
-  surface-page: "#f4f4f5"
+  surface-page: "#ecf1f2"
   surface-raised: "#ffffff"
-  surface-sunken: "#e9e9ec"
-  ink-strong: "#1b1b1f"
-  ink-muted: "#5c5c66"
-  border: "#d3d3d8"
-  border-strong: "#85858f"
-  accent: "#2b59c3"
-  accent-strong: "#21469b"
+  surface-sunken: "#dce5e8"
+  ink-strong: "#12202a"
+  ink-muted: "#485b63"
+  border: "#c9d6da"
+  border-strong: "#6a8088"
+  accent: "#1d6a8e"
+  accent-strong: "#134d68"
   on-accent: "#ffffff"
   danger: "#b3261e"
-  success: "#1b6e45"
+  success: "#24561a"
   warning: "#8a5a00"
-  focus: "#2b59c3"
+  focus: "#1d6a8e"
 
   # Dark theme: the same roles, marked by the "-dark" suffix
-  surface-page-dark: "#141416"
-  surface-raised-dark: "#1e1e21"
-  surface-sunken-dark: "#0c0c0e"
-  ink-strong-dark: "#f1f1f3"
-  ink-muted-dark: "#a4a4ae"
-  border-dark: "#38383e"
-  border-strong-dark: "#7b7b86"
-  accent-dark: "#8fb0ff"
-  accent-strong-dark: "#b3c9ff"
-  on-accent-dark: "#0d1a3a"
+  surface-page-dark: "#0f1a20"
+  surface-raised-dark: "#1e2f38"
+  surface-sunken-dark: "#060c10"
+  ink-strong-dark: "#e5eef1"
+  ink-muted-dark: "#9db1b9"
+  border-dark: "#33474f"
+  border-strong-dark: "#6d8791"
+  accent-dark: "#9bd3f2"
+  accent-strong-dark: "#c2e4f7"
+  on-accent-dark: "#05263a"
   danger-dark: "#ff8f85"
-  success-dark: "#63d19c"
+  success-dark: "#74bd52"
   warning-dark: "#efb84f"
-  focus-dark: "#8fb0ff"
+  focus-dark: "#9bd3f2"
 
   # Discs of the default profile picture, the same in both themes, always with white letters
-  disc-1: "#b8431f"
-  disc-2: "#a15c07"
-  disc-3: "#4a7a12"
-  disc-4: "#0b7a5c"
-  disc-5: "#0f7391"
-  disc-6: "#2557c7"
-  disc-7: "#7a34c4"
-  disc-8: "#b82462"
-  disc-unavailable: "#6b6b75"
+  disc-1: "#1f6b62"
+  disc-2: "#2f6a47"
+  disc-3: "#566a1d"
+  disc-4: "#3d5788"
+  disc-5: "#4c4f8c"
+  disc-6: "#8a4925"
+  disc-7: "#69513a"
+  disc-8: "#6d3c69"
+  disc-unavailable: "#686c6e"
   on-disc: "#ffffff"
 typography:
   text-xs:
@@ -81,6 +81,13 @@ typography:
     fontSize: 1.75rem
     fontWeight: 700
     lineHeight: 1.2
+  # The wordmark where it stands alone (the sign-in pages); always the display face.
+  text-logo:
+    fontFamily: Bricolage Grotesque, Noto Sans, Noto Sans Georgian, system-ui, sans-serif
+    fontSize: 3rem
+    fontWeight: 700
+    lineHeight: 1
+    letterSpacing: -0.03em
 rounded:
   sm: 4px
   md: 8px
@@ -113,7 +120,7 @@ components:
     rounded: "{rounded.full}"
 ---
 
-# WebCity design
+# Ezzo design
 
 This file is the visual brief. Read it before you edit a template or a style in `frontend/`. The rules for writing styles are in the Styling section of the conventions skill's TypeScript reference, and the reason for the toolset is ADR 0007.
 
@@ -121,13 +128,20 @@ The same values live in the Tailwind theme block, which is the file the build re
 
 ## Overview
 
-WebCity is a small social platform: a feed, posts with photos, comments, friends, chat, and an admin panel. Its screens are tools that people use many times a day, so clarity and consistency come before decoration.
+Ezzo (`PRODUCT.md`) is a small social platform: a feed, posts with photos, comments, friends, chat, and an admin panel. Its screens are tools that people use many times a day, so clarity and consistency come before decoration. The code still calls the app WebCity; only what a visitor reads says Ezzo.
 
-**The structure is final. The skin is provisional.**
+**The skin is Balcony** (owner, 2026-11-23): the painted wooden balconies of old Tbilisi, where neighbours lean out and talk across the yard. A deep balcony blue is the one accent, on cool pale walls in the light theme and on a blue-black night in the dark one. The brand shows in three places only, and everything else stays quiet:
 
-- **Final:** the design token names, the two themes, the type sizes, the spacing scale, the radii, the layout rules and the floor for motion and accessibility.
-- **Provisional:** every colour value, both font families and the logo. They are deliberately neutral, so that nobody mistakes them for the finished look. The name is settled (Ezzo, `PRODUCT.md`); the brand session chooses the brand.
-- **Until the brand session, no component carries a brand metaphor.** The brand lives only in design token values and in the logo component. That is what keeps a change of name cheap.
+- **the wordmark** "ezzo" (Brand, below);
+- **the fretwork**, the carved valance of the balconies, under the wordmark on the sign-in pages;
+- **the token values** of this file.
+
+## Brand
+
+- **The wordmark** is the name in lowercase, in the display face, weight 700, `tracking-logo`, in `accent`. In the top bar it is `text-2xl` and links home; on the sign-in pages it stands alone at `text-logo`. It is live text from the dictionary, not a drawing.
+- **The tagline** "Bring what you made." (Georgian: "გაგვიზიარე, რაც შექმენი.") stands under the large wordmark, in the display face, `text-lg`.
+- **The fretwork** (`core/brand/fretwork`) is a row of hanging teeth with drilled holes on a rail, drawn in the colour of its host. It appears only with the large wordmark, as wide as the word, and screen readers skip it. Don't use it as a divider, a border or a pattern anywhere else.
+- **The browser-tab mark** is still to be chosen by the owner.
 
 ## Colors
 
@@ -154,11 +168,15 @@ A colour is named for its job, never for its shade. A component uses the role na
 - **Two themes, one set of names.** The DESIGN.md format holds one list of colours, so the dark theme's value of a role is the entry with the `-dark` suffix. In the Tailwind theme block there is no suffix: the dark theme gives the same name another value.
 - **Contrast.** Every text colour on every surface is at least 4.5 to 1 in both themes. White on each disc is at least 4.5 to 1. `border-strong` is at least 3 to 1 on every surface. Check new values the same way before they go in.
 - **One accent.** Use it for the single most important action on a screen. Never use colour alone to carry a meaning; pair it with a word or an icon.
+- **Accent and success stay apart.** Both are cool colours, so `success` is a green set clearly away from the blue (a luminance ratio of about 1.4 between them in each theme). A new value keeps that distance.
+- **The discs stay in the palette:** eight muted, deep colours (teal, green, olive, blue, indigo, rust, walnut, plum) that sit beside the accent without competing with it, all dark enough for white initials.
+- **Scrollbars** take `border-strong` on `surface-page`.
 
 ## Typography
 
-- **Two roles.** The **body** role uses one family that covers Latin, Cyrillic and Georgian by itself. The **display** role (headings, the logo) may use a Latin-only face with one named Georgian partner in its stack. In the provisional skin both roles are Noto Sans with Noto Sans Georgian.
-- **Six sizes,** from `text-xs` (12 px) to `text-2xl` (28 px). Body text is `text-base` (16 px) and is never smaller than `text-sm` (14 px).
+- **Two roles.** The **body** role (`font-body`) is Noto Sans, with the variable Noto Sans Georgian for Georgian letters. The **display** role (`font-display`: headings, the logo, the tagline) is Bricolage Grotesque, set narrow through its width axis. It has no Cyrillic or Georgian, so those letters fall to Noto Sans and to the variable Noto Sans Georgian, whose width axis narrows Georgian headings to match.
+- **Six sizes,** from `text-xs` (12 px) to `text-2xl` (28 px), and `text-logo` (48 px) for the large wordmark alone. Body text is `text-base` (16 px) and is never smaller than `text-sm` (14 px).
+- **Letter spacing** is the logo's alone (`tracking-logo`). Headings keep the face's own spacing, which Georgian needs.
 - **Fonts are served by the app itself.** No font is loaded from another origin.
 - **Do not lean on capital letters.** Georgian has none in everyday writing, so an ALL-CAPS label loses its meaning in the Georgian interface. Use weight and size for emphasis.
 - **Lines of text stay under about 80 characters.**
@@ -193,7 +211,9 @@ Three radii and "full": `sm` for small controls such as badges and checkboxes, `
   - **Disc colour:** one of `disc-1` to `disc-8`, chosen by the user's id, so it survives a change of username.
   - **Initials:** a username in two parts (`john.doe`, `john_doe`) gives the first letter of each part; any other username gives its first two letters.
   - **An unavailable account** (deactivated or deleted) gets `disc-unavailable` with no letters.
-- **Buttons.** One primary button per screen, in `accent`. Other buttons are quiet: `surface-raised` with `border-strong`, or text only. A destructive button uses `danger`.
+- **Buttons.** One primary button per screen, in `accent`. Other buttons are quiet: `surface-raised` with `border-strong`, or text only. A destructive button uses `danger` and carries a trash icon before its text, which the button adds by itself.
+- **The current page** in the top bar, the bottom bar and the admin menu: its link turns `accent` and semibold, with a short accent bar along one edge (under it in the top bar, above it in the bottom bar, at its start in the admin menu).
+- **The "Hidden" badge** is an eye-off icon and the word in `warning`, semibold, with no box.
 - **Inputs.** A visible label above every input, never a placeholder in its place. The error text sits beside the field, in `danger`, with an icon.
 - **Icons** come from one set, Lucide. An icon that is the only content of a button has an accessible label.
 - **Dialogs, menus and toasts** take their behaviour from Angular CDK and their look from these design tokens.
@@ -207,4 +227,4 @@ Three radii and "full": `sm` for small controls such as badges and checkboxes, `
 - Do keep text contrast at 4.5 to 1 or more in both themes.
 - Don't use ALL-CAPS labels, italics for meaning, or a monospace face for small labels.
 - Don't add a second accent colour, a gradient or a glow.
-- Don't give a component a brand metaphor before the brand session.
+- Don't spread the brand: the fretwork and the large wordmark stay on the sign-in pages.

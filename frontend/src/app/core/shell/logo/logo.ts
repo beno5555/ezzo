@@ -3,8 +3,9 @@ import { RouterLink } from '@angular/router';
 import { LanguageStore } from '../../languages/language-store';
 import { appAddresses } from '../../routing/app-addresses';
 
-// The product's name as a link to the home address. Until the name and the brand are chosen, the brand
-// lives here and in the design token values only (DESIGN.md, Overview), so a new name changes one file.
+// The wordmark as a link to the home address: the product's name, all lowercase ("ezzo",
+// PRODUCT.md), in the display face and the accent. The name itself comes from the dictionary, where
+// every other text reads it too.
 @Component({
   selector: 'app-logo',
   imports: [RouterLink],

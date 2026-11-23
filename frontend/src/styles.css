@@ -20,7 +20,12 @@
 @import '@fontsource/noto-sans/400.css';
 @import '@fontsource/noto-sans/600.css';
 @import '@fontsource/noto-sans/700.css';
-/* Noto Sans covers Latin and Cyrillic; its Georgian partner is needed only for Georgian letters. */
-@import '@fontsource/noto-sans-georgian/georgian-400.css';
-@import '@fontsource/noto-sans-georgian/georgian-600.css';
-@import '@fontsource/noto-sans-georgian/georgian-700.css';
+/*
+ * Noto Sans covers Latin and Cyrillic; its Georgian partner is needed only for Georgian letters. The
+ * partner is the variable font: one file gives every weight, and its width axis lets Georgian headings
+ * match the narrow display face. Each file carries a character range, so a browser downloads only the
+ * ones a page's letters need.
+ */
+@import '@fontsource-variable/noto-sans-georgian/wdth.css';
+/* The display face: Bricolage Grotesque with its weight and width axes (Latin and Latin Extended). */
+@import '@fontsource-variable/bricolage-grotesque/wdth.css';

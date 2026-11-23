@@ -1,0 +1,7 @@
+<svg class="block h-auto w-full" fill="currentColor" [attr.viewBox]="'0 0 ' + width + ' ' + height">
+  <path [attr.d]="teeth" />
+  @for (x of holes; track x) {
+    <circle [attr.cx]="x" [attr.cy]="holeCentreDepth" [attr.r]="holeRadius" />
+  }
+  <rect x="0" [attr.y]="railTop" [attr.width]="width" [attr.height]="railHeight" />
+</svg>

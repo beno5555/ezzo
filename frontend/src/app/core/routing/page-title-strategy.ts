@@ -4,7 +4,7 @@ import { RouterStateSnapshot, TitleStrategy } from '@angular/router';
 import { LanguageStore } from '../languages/language-store';
 import { PageTitleKey, isPageTitleKey } from './page-title-key';
 
-// Names the browser tab "<page> – WebCity" from the route's title, which is a key of the dictionary's
+// Names the browser tab "<page> – Ezzo" from the route's title, which is a key of the dictionary's
 // pages group. It keeps the key, not the text, so a language switch renames the tab in place.
 @Injectable()
 export class PageTitleStrategy extends TitleStrategy {
