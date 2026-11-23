@@ -43,7 +43,7 @@ Decisions are under "Admin panel" in `.scratch/frontend/spec.md`. The backend's 
   - A closed report shows "Resolved/Rejected by X, time". A report whose target is gone shows a per-type "gone" mark and offers Reject only.
   - Backend ticket 12 is done, so Hide and Reject are live (no "Coming soon"). Hide also takes the other pending reports on the same target out of the list.
 - **Moderation:** `app-tabs` with Posts and Comments, each paged from its own queue. Comments are read the first time their tab opens. Hide and Make visible per item; a settled item leaves.
-- **Tests:** `ReportApi.getAll` and `decide` (filters as text, each status and target type, 403, 400 with its message), `AdminApi` queue reads, `PagedList.leave`, `SettlingList`, `reportDecisionsOffered`, `reportsClosedWith`.
+- **Tests:** `ReportApi.getAll` and `decide` (filters as text, each status and target type, 403, 400 with its message), `AdminApi` queue reads, `PagedList.leave`, `SettlingList`, `reportDecisionsOffered`, `reportsClosedWith`, `isUserAvailable`.
 
 **Departures from the ticket.**
 
@@ -55,25 +55,32 @@ Decisions are under "Admin panel" in `.scratch/frontend/spec.md`. The backend's 
 
 **Checks.**
 
-- Prettier (touched folders), lint, build and the full unit suite pass: 85 files, 757 tests.
-- Standing warning: the initial bundle is 713.77 kB against the 600 kB budget (it was over before this ticket).
-- Not run: the real backend. Creating a database for the lane (`CREATE DATABASE WebCityAdminQueue`) was denied, so nothing here talked to the real API.
+- Prettier (`src/app`), lint, build and the full unit suite pass: 86 files, 761 tests.
+- Standing warning: the initial bundle is 713.81 kB against the 600 kB budget (it was over before this ticket).
+- Not run: the backend's integration suite, because nothing in `backend/` changed.
 
-**Tried in the running app (API mocked in the browser through Playwright routes).**
+**Tried in the running app, against the real backend.**
 
-- Reports: Pending default, both filters, Hide closing same-target reports, Reject, a refusal fading back with a toast, page 2 correct after removals, the missing-target mark, the closed-report review line, the user-hide confirmation.
-- Moderation: tabs (arrow keys too), lazy comments, settle and refusal, the empty state.
-- Layout: 360, 768 and 1280 px, both themes, English and Georgian; nothing overflows, targets are at least 44 px.
-- **Not tried:** the real backend, so response shapes come from `docs/backend/controllers.md` and the DTOs, not from observation. **Recommendation:** open both pages once against a seeded backend before the merge.
+- Set-up: the lane's own database `WebCityAdminQueue` on local SQL Server (it is still there; the migrations are applied), the backend on `https://localhost:7102` with email sending switched off for the run (`EmailConfiguration__Enabled=false`, so Hide on a user sent no mail), the Angular dev server on 4200. Data: four throwaway accounts (`qadmin` an administrator, `qalice`, `qbob`, `qcarol`), 30 pending reports (posts, comments, a user, two on one post, two on a deleted post), 11 flagged posts and 12 flagged comments, so every list spans more than one page of 10.
+- Reports:
+  - Pending opens first (`?status=Pending`); each filter goes by name (`targetType=Post`, `status=Resolved`); 30 reports loaded over three scrolls, then the end.
+  - Hide on a post report sent `PUT /api/reports/1 {"decision":"Hide"}` once; the other pending report on the same post left with it, and both show under Resolved with "Resolved by qadmin, time" and the post's Hidden badge. The database agrees (both rows Resolved, reviewer is the admin).
+  - Reject on a comment report: Rejected in the database. A deleted post's report shows "This post no longer exists" with Reject only. A post report shows its two photos.
+  - Hide on a user report opens the confirmation; Cancel sends nothing; Hide deactivates the account (`AccountDeactivatedAt` set) and closes the report.
+  - Refusal: I rejected a report through the API, then clicked Hide on its stale card: the backend answered 400, the card stayed, and the toast said "This report has already been decided".
+- Moderation: the Posts tab loaded 10 then 11; Hide sent `PUT /api/admin/posts/7/moderation {"status":"Hidden"}` and the item left (10 remain). The Comments tab loaded on first open (10, then 12 on scroll); Make visible sent `{"status":"Visible"}` and the item left. After an item leaves, the next read asks for page 1 again and then page 2, with no item skipped or repeated.
+- **A bug the real data found, fixed:** the admin endpoints send a deactivated reporter as `{id: 9, username: "account_deactivated"}`, with an id, while the public endpoints send no id. The card took "has an id" to mean "available" and linked to `/users/account_deactivated`. `isUserAvailable` (new, `features/users/`, with a spec) now also checks the placeholder names, and the reporter is plain text with the grey disc, as on the post card. My first, mocked pass could not show this, because its fixtures had no id.
+- Layout: the screenshot command's full set for both pages (360, 768 and 1280 px, both themes, English and Georgian, 24 images), plus single shots of the open confirmation, the refusal toast, a post report with photos and the 360 px top. Nothing scrolls sideways at 360 px, and every button and tab is at least 44 px high.
+- Not tried: Hide on a user *with email enabled* (a real mail would have gone to a made-up address), and the keyboard-only path through the confirmation.
 
 **Review.**
 
-- Spec axis: one real bug (the paging above, fixed), the missing closing bookkeeping (this note), and the Comments tab re-reading on every switch (fixed: first open only).
+- Spec axis: one real bug (the paging above, fixed), the missing closing bookkeeping (this note), and the Comments tab re-reading on every switch (fixed: first open only). The run against the real backend added the deactivated-reporter bug above.
 - Standards axis, fixed: specs for the two helpers and `SettlingList`; `QueueTab` in its own typed file; `pageParams` shared; `SettlingList` keyed by id; the same-target rule moved out of the page into a tested helper; `hasPosts`/`hasComments` instead of repeated length checks.
 - Left alone: the shared card shell in `flagged-item` and `report-card` (**recommendation:** extract a `shared/` card if a third use appears); the two near-identical moderation panels (a generic panel needs projected templates, which cost more than they save); the `computed` pass-throughs in `SettlingList`.
 
 **Waits for other tickets.** Nothing.
 
-**Screenshots:** `.scratch/frontend/shots/23/` in the main checkout (7 images).
+**Screenshots:** `.scratch/frontend/shots/23/` in the main checkout: the 24 images of the screenshot command (`admin_reports--signed-in--*`, `admin_moderation--signed-in--*`) and five single shots (`real-*.png`), all from the real backend.
 
 **Branch:** `worktree-admin-queue`, waiting for the owner's review (visual work). A lane writes no review-queue line, and the roadmap row stays unmarked until the merge.
