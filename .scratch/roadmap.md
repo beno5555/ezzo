@@ -6,12 +6,6 @@ The order of work toward the full-stack deadline, 2026-11-25. A ticket's own `St
 
 **Scope is fixed.** The documentation sent to the academy (`webcity-documentation.md` at the repo root) is the commitment: everything in it is due on the 25th. The schedule has one buffer day (Tue 24) and no other slack. If a day slips, the items under **Last in line** move, not the pages.
 
-## Open decisions
-
-Settle these before the session that needs them. Each has a going-in recommendation.
-
-1. **Telling the academy about the name.** `webcity-documentation.md`, already sent to the academy, says WebCity; users now see Ezzo (`PRODUCT.md`). Whether to tell the academy is the owner's call.
-
 ## Settled
 
 Each decision is recorded where the work reads it: the name session in `PRODUCT.md` and `GLOSSARY.md`; the n8n session in `.scratch/n8n-automation/spec.md`, ADR 0008 and `GLOSSARY.md`; the design session in ADR 0007, `DESIGN.md`, frontend tickets 27 to 30 and `docs/agents/skills.md`; the frontend spec session in `.scratch/frontend/spec.md`; the backend gaps in `.scratch/documented-backend-features/spec.md`. Kept here only what is recorded nowhere else, or departs from the document:
