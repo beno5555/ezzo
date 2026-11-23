@@ -99,6 +99,18 @@ describe('AccountActionStore', () => {
     expect(toastStore.visible().map((toast) => toast.message)).toEqual(['User not found']);
   });
 
+  it('tells the caller that the server agreed, and not when it refused', async () => {
+    const settled = vi.fn();
+    activationApi.deactivateAccount.mockResolvedValueOnce(ok(undefined));
+    activationApi.deactivateAccount.mockResolvedValueOnce(fail('User not found', 404));
+
+    await store.run(account, AccountRowAction.Deactivate, show, settled);
+    expect(settled).toHaveBeenCalledTimes(1);
+
+    await store.run(account, AccountRowAction.Deactivate, show, settled);
+    expect(settled).toHaveBeenCalledTimes(1);
+  });
+
   it('ignores a second action on an account whose request is on its way', async () => {
     const request = pendingRequest();
     activationApi.deactivateAccount.mockReturnValue(request.promise);

@@ -33,7 +33,7 @@ Two worktree lanes at a time (`docs/agents/worktrees.md`), each taking frontend 
 | 8 | F11, the post page (merged) | F22, admin: layout and users (merged) |
 | 9 | F12, edit and delete a post (merged) | F19, chat: send and receive live (merged) |
 | 10 | F13, reports from the normal pages | F20, chat: edit, delete, typing (merged) |
-| 11 | F14, the profile page | F23, admin: reports and the queue |
+| 11 | F14, the profile page | F23, admin: reports and the queue (merged) |
 | 12 | F16, user search | F24, admin: logs and statistics |
 | 13 | F15, the friends page | F21, live toasts |
 | 14 | F17, the settings page | F26, the landing page |
@@ -60,7 +60,7 @@ Backend lane: n8n 08 and 11 are finished on their worktree branches and parked: 
 5. [ ] **Tue 17, late, crucial: feed, posts and comments.** Feed with pagination, create a post with photos, edit and delete, like, comment, edit and delete a comment, report a post or comment. F09 to F12 are merged; only reporting (F13) is left. F09's `PagedList` (`core/paging/`) is the paging pattern the later lists copy.
 6. [ ] **Wed 18, late, crucial: profile, friends and search.** Profile page (bio, posts, friends), edit profile, user search, friend requests (send, accept, decline, remove; the three lists), account settings (deactivate, delete, digest opt-out), the guest view.
 7. [ ] **Fri 20, late, crucial: chat and live notifications.** The SignalR service and the central state for the session, conversations, online friends and unread count. Conversation list with last message, conversation with photos, edit and delete, seen, typing, presence and last active. Toasts for a new message, comment, like and a friend coming online. F18 to F20 are merged; only the live toasts (F21) are left.
-8. [ ] **Sat 21, late, crucial: admin panel.** Users (create, edit, deactivate, restore, delete, grant and remove the administrator role), delete any post or comment, logs, statistics, the reports list, the moderation queue.
+8. [ ] **Sat 21, late, crucial: admin panel.** Users (create, edit, deactivate, restore, delete, grant and remove the administrator role), delete any post or comment, logs, statistics, the reports list, the moderation queue. F22 and F23 are merged; only logs and statistics (F24) are left.
 9. [ ] **Sun 22 and Mon 23: n8n.**
    - Merged: the backend tickets 01, 03 and 04, and the setup (02).
    - Ticket 02 stays `in-progress` until the owner adds the Telegram bot token and the chat ids and runs the checklist in `n8n/README.md` (the ticket's Comments list the steps). Workflows 05 to 14 copy its setup.
@@ -81,6 +81,7 @@ On the frontend, in this order from the end: the default picture's new look (a r
 
 ## After the deadline
 
+- **Hidden content, and flagging from the menu** (owner, 2026-11-23). An administrator can restore hidden content only through the "…" menu of the item itself, and cannot flag from the menu at all. Backend ticket 14 lists hidden posts and comments; frontend ticket 43 adds a Hidden tab to the moderation page (and extracts the shared panel); frontend ticket 44 adds Flag to the menu. Ticket 43 waits for 14.
 - A few end-to-end test flows (sign in, post, message). They come before component tests.
 - **Stored notifications:** a table, a list with an unread count, a mark-as-read route, and a bell with a badge. Until then a notification reaches only a user who is connected.
 - **Retried events:** an outbox table and a job that resends an event the automation did not receive (n8n ticket 15). Until then an event sent while n8n is down is lost.

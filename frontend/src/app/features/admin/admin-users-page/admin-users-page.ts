@@ -9,7 +9,9 @@ import { Debouncer, typingPauseMilliseconds } from '../../../core/timing/debounc
 import { Avatar } from '../../../shared/avatar/avatar';
 import { AvatarSize } from '../../../shared/avatar/avatar-size';
 import { Button } from '../../../shared/button/button';
+import { FadeOut } from '../../../shared/fade-out/fade-out';
 import { ConfirmationOpener } from '../../../shared/confirmation/confirmation-opener';
+import { CopyableText } from '../../../shared/copyable-text/copyable-text';
 import { LoadFailure } from '../../../shared/load-failure/load-failure';
 import { Menu } from '../../../shared/menu/menu';
 import { MenuEntry } from '../../../shared/menu/menu-entry';
@@ -58,6 +60,8 @@ const rowClasses: Record<AccountState, string> = {
     ReactiveFormsModule,
     Avatar,
     Button,
+    CopyableText,
+    FadeOut,
     LoadFailure,
     Menu,
     ScrollSentinel,
@@ -205,7 +209,12 @@ export class AdminUsersPage implements OnInit {
       const isConfirmed = await this.confirmationOpener.ask(question);
 
       if (isConfirmed) {
-        await this.accountActions.run(account, action, (shown) => table.replace(shown));
+        await this.accountActions.run(
+          account,
+          action,
+          (shown) => table.show(shown),
+          () => table.settled(account.id),
+        );
       }
     }
   }

@@ -13,7 +13,9 @@ export class PagedList<T> {
   private readonly loaded = signal<readonly T[]>([]);
   private readonly currentStatus = signal<PageLoadStatus>(PageLoadStatus.Idle);
   private readonly lastFailure = signal<string | null>(null);
-  private nextPageNumber: number = LIMITS.paging.firstPageNumber;
+  // Where in the server's list the first item not yet seen is: the pages loaded cover everything before it.
+  // It grows a page at a time, and shrinks by one when a loaded item leaves the server's list (see leave).
+  private unseenOffset = 0;
 
   readonly items = this.loaded.asReadonly();
   readonly status = this.currentStatus.asReadonly();
@@ -31,14 +33,16 @@ export class PagedList<T> {
 
     if (canLoad) {
       this.currentStatus.set(PageLoadStatus.Loading);
+      const pageNumber = this.pageToAsk();
       const result = await this.options.loadPage({
-        pageNumber: this.nextPageNumber,
+        pageNumber,
         pageSize: this.options.pageSize,
       });
 
       if (result.succeeded) {
         this.loaded.update((items) => this.withNew(items, result.data));
-        this.nextPageNumber += 1;
+        this.unseenOffset =
+          (pageNumber - LIMITS.paging.firstPageNumber + 1) * this.options.pageSize;
         this.lastFailure.set(null);
         const isLastPage = result.data.length < this.options.pageSize;
         this.currentStatus.set(isLastPage ? PageLoadStatus.Ended : PageLoadStatus.Idle);
@@ -63,6 +67,19 @@ export class PagedList<T> {
     this.loaded.update((items) => items.filter((item) => this.options.keyOf(item) !== removedKey));
   }
 
+  // Takes out an item that has left the server's own list, such as a flagged post an administrator has
+  // settled. Every later item moves up by one on the server, so a page asked for by its number would skip
+  // the items that moved into the pages already loaded: loadNext asks for the page that holds the first
+  // item not yet seen instead, and the repeats that page brings are dropped.
+  leave(leavingKey: number | string): void {
+    const isLoaded = this.loaded().some((item) => this.options.keyOf(item) === leavingKey);
+
+    if (isLoaded) {
+      this.unseenOffset -= 1;
+      this.remove(leavingKey);
+    }
+  }
+
   // Puts an item the user just made (the server's copy of a new post or a new comment) on top. It shows once: a page that
   // already brought it keeps it where it is, and a later page that holds it does not show it again.
   prepend(added: T): void {
@@ -72,6 +89,11 @@ export class PagedList<T> {
 
       return isShown ? items : [added, ...items];
     });
+  }
+
+  // The page that holds the first item not yet seen: the page after the last one loaded, until an item leaves.
+  private pageToAsk(): number {
+    return LIMITS.paging.firstPageNumber + Math.floor(this.unseenOffset / this.options.pageSize);
   }
 
   // A ranked list can move an item onto the next page between two loads, so a page may repeat one.

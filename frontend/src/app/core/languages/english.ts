@@ -102,6 +102,12 @@ export const english = {
     dialog: {
       closeButton: 'Close',
     },
+    // The copyable texts (a username, an email) in the admin panel.
+    copy: {
+      button: (value: string) => `Copy ${value}`,
+      copied: 'Copied.',
+      failed: 'It could not be copied.',
+    },
     confirmation: {
       cancelButton: 'Cancel',
       // Followed by the word to type, in bold.
@@ -339,7 +345,7 @@ export const english = {
     navigationButton: 'Admin menu',
     users: {
       title: 'Users',
-      stateFilterLabel: 'Show accounts that are',
+      stateFilterLabel: 'Account state',
       allStates: 'All',
       // The names of the account states, by AccountState.
       states: {
@@ -418,6 +424,88 @@ export const english = {
         submitButton: 'Save',
         savedToast: (username: string) => `Saved the profile of ${username}.`,
       },
+    },
+    // A post, a comment or a user under review, as the reports and the moderation queue show them.
+    snapshots: {
+      // Before the title of the post a reported comment is on.
+      onPost: 'On the post',
+      noBio: 'No bio.',
+    },
+    reports: {
+      title: 'Reports',
+      statusTabsLabel: 'Report status',
+      targetFilterLabel: 'Reported content',
+      allTargets: 'All',
+      // The names of the report statuses, by ReportStatus.
+      statuses: {
+        Pending: 'Awaiting review',
+        Resolved: 'Resolved',
+        Rejected: 'Rejected',
+      },
+      // The names of what can be reported, by ReportTargetType.
+      targets: {
+        Post: 'Posts',
+        Comment: 'Comments',
+        User: 'Users',
+      },
+      loading: 'Loading reports…',
+      loadingMore: 'Loading more reports…',
+      retryButton: 'Try again',
+      end: 'That is every report.',
+      emptyTitle: 'No reports found',
+      emptyMessage: 'No report matches these filters.',
+      card: {
+        reportedBy: 'Reported by',
+        reason: 'Reason',
+        // The heading of the reported thing, by ReportTargetType.
+        reported: {
+          Post: 'Reported post',
+          Comment: 'Reported comment',
+          User: 'Reported user',
+        },
+        // The mark on a report whose target is gone, by ReportTargetType.
+        targetMissing: {
+          Post: 'This post no longer exists. The report can only be rejected.',
+          Comment: 'This comment no longer exists. The report can only be rejected.',
+          User: 'This user no longer exists. The report can only be rejected.',
+        },
+        // How a Resolved report was settled, by ReportTargetType: Hide is the only way to resolve one.
+        resolvedBy: {
+          Post: (username: string, time: string) => `Post hidden by ${username}, ${time}`,
+          Comment: (username: string, time: string) => `Comment hidden by ${username}, ${time}`,
+          User: (username: string, time: string) => `Account deactivated by ${username}, ${time}`,
+        },
+        rejectedBy: (username: string, time: string) => `Rejected by ${username}, ${time}`,
+      },
+      // The decision that resolves a report, by ReportTargetType: a user is deactivated, not hidden.
+      hideButton: { Post: 'Hide', Comment: 'Hide', User: 'Deactivate' },
+      rejectButton: 'Reject',
+      // Asked before Deactivate on a reported user.
+      confirmDeactivateUser: {
+        question: (username: string) => `Deactivate ${username}?`,
+        detail:
+          'The account is deactivated and its owner is emailed. Every other pending report on this user is closed with it.',
+        confirmButton: 'Deactivate',
+      },
+    },
+    moderation: {
+      title: 'Moderation queue',
+      tabsLabel: 'Flagged content',
+      postsTab: 'Posts',
+      commentsTab: 'Comments',
+      loadingPosts: 'Loading flagged posts…',
+      loadingMorePosts: 'Loading more flagged posts…',
+      loadingComments: 'Loading flagged comments…',
+      loadingMoreComments: 'Loading more flagged comments…',
+      retryButton: 'Try again',
+      endPosts: 'That is every flagged post.',
+      endComments: 'That is every flagged comment.',
+      emptyPostsTitle: 'No flagged posts',
+      emptyPostsMessage: 'Nothing is waiting for a decision.',
+      emptyCommentsTitle: 'No flagged comments',
+      emptyCommentsMessage: 'Nothing is waiting for a decision.',
+      hideButton: 'Hide',
+      makeVisibleButton: 'Make visible',
     },
   },
   users: {
