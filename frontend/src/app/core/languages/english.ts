@@ -424,11 +424,16 @@ export const english = {
     search: {
       label: 'Search users',
       submitButton: 'Search',
-      shown: (count: number) =>
-        pluralize(Language.English, count, {
-          one: `Showing ${count} user`,
-          other: `Showing ${count} users`,
-        }),
+      resultsLabel: 'Search results',
+      // Shown while the field is empty.
+      promptTitle: 'Find people',
+      promptMessage: 'Type a username to see who is on Ezzo.',
+      loading: 'Searching…',
+      loadingMore: 'Loading more users…',
+      emptyTitle: 'No one found',
+      emptyMessage: (words: string) => `No username matches “${words}”. Try other words.`,
+      retryButton: 'Try again',
+      end: 'No more users.',
     },
     // A user's page at /users/:username (features/users/profile-page).
     profile: {

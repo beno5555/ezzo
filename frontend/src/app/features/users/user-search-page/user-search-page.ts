@@ -1,29 +1,49 @@
 import { Component, DestroyRef, effect, inject, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router } from '@angular/router';
-import { LucideCircleExclamationPoint, LucideSearch } from '@lucide/angular';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { LucideSearch, LucideUserX } from '@lucide/angular';
 import { map } from 'rxjs';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { LIMITS } from '../../../core/limits';
+import { PageLoadStatus } from '../../../core/paging/page-load-status';
+import { PagedList } from '../../../core/paging/paged-list';
 import {
   appAddresses,
   searchQueryParameter,
   searchQueryParameters,
 } from '../../../core/routing/app-addresses';
 import { Debouncer, typingPauseMilliseconds } from '../../../core/timing/debouncer';
+import { Avatar } from '../../../shared/avatar/avatar';
 import { Button } from '../../../shared/button/button';
+import { EmptyState } from '../../../shared/empty-state/empty-state';
+import { LoadFailure } from '../../../shared/load-failure/load-failure';
+import { ScrollSentinel } from '../../../shared/scroll-sentinel/scroll-sentinel';
 import { TextInput } from '../../../shared/text-input/text-input';
+import { TextLink } from '../../../shared/text-link/text-link';
 import { MinimalUserDto } from '../minimal-user-dto';
 import { UserApi } from '../user-api';
 
 // The search page at /search?q=…. The address holds the query, so the top bar's search box, this
 // page's own form and the browser's Back button all lead to the same search. Typing searches too, once
 // the visitor pauses: the address is replaced, not added to, so Back does not walk through every try.
-// Its own ticket styles it.
+// Each search has its own PagedList and the page shows only the latest, so a slow answer to older words
+// lands in a list nobody sees any more (ADR 0003). Results load page after page as the visitor scrolls.
 @Component({
   selector: 'app-user-search-page',
-  imports: [ReactiveFormsModule, Button, TextInput, LucideSearch, LucideCircleExclamationPoint],
+  imports: [
+    ReactiveFormsModule,
+    RouterLink,
+    Avatar,
+    Button,
+    EmptyState,
+    LoadFailure,
+    ScrollSentinel,
+    TextInput,
+    TextLink,
+    LucideSearch,
+    LucideUserX,
+  ],
   templateUrl: './user-search-page.html',
   styleUrl: './user-search-page.css',
 })
@@ -40,14 +60,16 @@ export class UserSearchPage {
   );
 
   protected readonly text = inject(LanguageStore).text;
+  protected readonly PageLoadStatus = PageLoadStatus;
+  protected readonly profileAddress = appAddresses.profile;
   protected readonly form = inject(NonNullableFormBuilder).group({
     username: ['', [Validators.required, Validators.maxLength(LIMITS.users.usernameMaxLength)]],
   });
-  protected readonly users = signal<MinimalUserDto[]>([]);
-  protected readonly failureMessage = signal<string | null>(null);
 
-  // Numbers each search, so a slow older response cannot overwrite a newer one.
-  private latestSearch = 0;
+  // The latest search, or null while there are no words to search for (the page then shows its prompt).
+  protected readonly results = signal<PagedList<MinimalUserDto> | null>(null);
+  // The words the results are for, named in the empty state.
+  protected readonly searchedWords = signal('');
 
   // The query this page just put in the address after a pause in typing. The address then changes to it,
   // and the field must keep what the visitor has typed since, not be reset to the older words.
@@ -68,6 +90,11 @@ export class UserSearchPage {
 
   searchAfterTyping(): void {
     this.typingPause.call();
+  }
+
+  // From the scroll sentinel, and from the Try again button after a failed page.
+  async loadMore(): Promise<void> {
+    await this.results()?.loadNext();
   }
 
   async submit(): Promise<void> {
@@ -113,36 +140,25 @@ export class UserSearchPage {
     if (!isFromTyping) {
       this.form.controls.username.setValue(query);
     }
-    const isSearchable = query !== '' && this.form.valid;
+    // Judged by the words in the address, not by the field: the visitor may have typed past the limit since.
+    const isSearchable = query !== '' && query.length <= LIMITS.users.usernameMaxLength;
     if (isSearchable) {
-      void this.search(query); // the page shows its own failure
+      const list = this.createList(query);
+      this.searchedWords.set(query);
+      this.results.set(list);
+      void list.loadNext(); // the list shows its own failure
     } else {
-      this.latestSearch++;
-      this.users.set([]);
-      this.failureMessage.set(null);
+      this.results.set(null);
     }
   }
 
-  private async search(username: string): Promise<void> {
-    const searchNumber = ++this.latestSearch;
-    const result = await this.userApi.searchUsers({
-      username,
-      pageNumber: LIMITS.paging.firstPageNumber,
+  private createList(username: string): PagedList<MinimalUserDto> {
+    return new PagedList<MinimalUserDto>({
+      loadPage: (page) => this.userApi.searchUsers({ username, ...page }),
       pageSize: LIMITS.paging.defaultPageSize,
+      // The search never returns an account without an id (deactivated or deleted), so the name, which
+      // is unique, is only the fallback.
+      keyOf: (user) => user.id ?? user.username,
     });
-
-    const isStale = searchNumber !== this.latestSearch;
-    if (isStale) {
-      return;
-    }
-
-    if (result.succeeded) {
-      this.users.set(result.data);
-      this.failureMessage.set(null);
-      return;
-    }
-
-    this.users.set([]);
-    this.failureMessage.set(result.message);
   }
 }

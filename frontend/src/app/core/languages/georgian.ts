@@ -361,11 +361,16 @@ export const georgian: Dictionary = {
     search: {
       label: 'მომხმარებლების ძებნა',
       submitButton: 'ძებნა',
-      // A Georgian noun stays singular after a number, so `other` covers every count.
-      shown: (count: number) =>
-        pluralize(Language.Georgian, count, {
-          other: `ნაჩვენებია ${count} მომხმარებელი`,
-        }),
+      resultsLabel: 'ძიების შედეგები',
+      promptTitle: 'მოძებნე ადამიანები',
+      promptMessage: 'ჩაწერე მომხმარებლის სახელი და ნახე, ვინ არის Ezzo-ზე.',
+      loading: 'იძებნება…',
+      loadingMore: 'იტვირთება მეტი მომხმარებელი…',
+      emptyTitle: 'ვერავინ მოიძებნა',
+      emptyMessage: (words: string) =>
+        `„${words}“ სახელით მომხმარებელი ვერ მოიძებნა. სცადე სხვა სიტყვები.`,
+      retryButton: 'თავიდან ცდა',
+      end: 'მეტი მომხმარებელი აღარ არის.',
     },
     profile: {
       loading: 'პროფილი იტვირთება…',
