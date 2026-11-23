@@ -431,6 +431,55 @@ export const english = {
           other: `Showing ${count} users`,
         }),
     },
+    // A user's page at /users/:username (features/users/profile-page).
+    profile: {
+      loading: 'Loading the profile…',
+      retryButton: 'Try again',
+      // The birthday as a day and a month, with no year: the age stays private.
+      birthday: (date: string) => `Birthday: ${date}`,
+      tabsLabel: 'Profile sections',
+      postsTab: 'Posts',
+      friendsTab: 'Friends',
+      // On the reader's own profile, where another profile shows the friendship button.
+      settingsLink: 'Edit your profile',
+      messageButton: 'Message',
+      menuLabel: 'Actions for this profile',
+      // The friendship buttons while the relationship is read, and when reading it failed.
+      friendshipLoading: 'Checking your friendship…',
+      posts: {
+        loading: 'Loading posts…',
+        loadingMore: 'Loading more posts…',
+        emptyTitle: 'No posts yet',
+        emptyMessage: 'Posts written by this user show up here.',
+        emptyOwnMessage: 'Posts you write show up here.',
+        retryButton: 'Try again',
+        end: 'No more posts.',
+      },
+      friends: {
+        loading: 'Loading friends…',
+        loadingMore: 'Loading more friends…',
+        emptyTitle: 'No friends yet',
+        emptyMessage: 'Friends of this user show up here.',
+        retryButton: 'Try again',
+        end: 'No more friends.',
+      },
+    },
+  },
+  // The friendship buttons on a profile and what they ask (features/friendships).
+  friendships: {
+    // One button each, by the action's name (FriendshipAction).
+    actions: {
+      Add: 'Add friend',
+      Cancel: 'Cancel request',
+      Accept: 'Accept',
+      Decline: 'Decline',
+      Remove: 'Remove friend',
+    },
+    removeConfirmation: {
+      question: (username: string) => `Remove ${username} from your friends?`,
+      detail: 'The messages between you are deleted with the friendship. This cannot be undone.',
+      confirmButton: 'Remove',
+    },
   },
   posts: {
     // The post card (shared/post-card), wherever a post is listed.
@@ -549,6 +598,7 @@ export const english = {
     dialog: {
       postTitle: 'Report this post',
       commentTitle: 'Report this comment',
+      userTitle: 'Report this user',
       reasonLabel: 'Reason',
       reasonHint: 'Tell the administrators what is wrong with it.',
       submitButton: 'Send report',

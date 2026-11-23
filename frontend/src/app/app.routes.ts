@@ -81,7 +81,12 @@ export const routes: Routes = [
     title: 'post',
     loadComponent: () => import('./features/posts/post-page/post-page').then((m) => m.PostPage),
   },
-  placeholderPage('users/:username', 'profile'),
+  {
+    path: 'users/:username',
+    title: 'profile',
+    loadComponent: () =>
+      import('./features/users/profile-page/profile-page').then((m) => m.ProfilePage),
+  },
   {
     path: 'search',
     title: 'search',

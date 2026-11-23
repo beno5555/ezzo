@@ -35,6 +35,34 @@ describe('PostApi', () => {
     httpTesting.verify();
   });
 
+  describe('GET /api/posts/user/{userId}', () => {
+    it('sends the page as the query and returns that user posts', async () => {
+      const pending = postApi.getByUser(7, { pageNumber: 2, pageSize: 10 });
+
+      const request = httpTesting.expectOne(
+        (candidate) => candidate.method === 'GET' && candidate.url === '/api/posts/user/7',
+      );
+      expect(request.request.params.get('pageNumber')).toBe('2');
+      expect(request.request.params.get('pageSize')).toBe('10');
+      request.flush({ succeeded: true, message: null, data: [post], totalCount: 1 });
+
+      expect(await pending).toEqual({ succeeded: true, data: [post] });
+    });
+
+    it('returns the message when there is no such user', async () => {
+      const pending = postApi.getByUser(99, { pageNumber: 1, pageSize: 10 });
+
+      httpTesting
+        .expectOne('/api/posts/user/99?pageNumber=1&pageSize=10')
+        .flush(
+          { succeeded: false, message: 'User not found' },
+          { status: 404, statusText: 'Not Found' },
+        );
+
+      expect(await pending).toEqual({ succeeded: false, message: 'User not found', status: 404 });
+    });
+  });
+
   describe('POST /api/posts', () => {
     it('sends the title, the text and the photos in their order as one multipart body', async () => {
       const lake = new File(['lake'], 'lake.jpg', { type: 'image/jpeg' });
