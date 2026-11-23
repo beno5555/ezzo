@@ -1,7 +1,8 @@
 <article
   class="flex gap-3"
   [appFadeOut]="shown().isFading"
-  [attr.aria-busy]="shown().isSending || shown().isFading || null"
+  [appDeleting]="shown().isWaitingToDelete"
+  [attr.aria-busy]="shown().isSending || shown().isWaitingToDelete || shown().isFading || null"
 >
   <div class="mt-1">
     <app-avatar
@@ -62,6 +63,9 @@
 
     @if (shown().isSending) {
       <p class="text-sm text-ink-muted" role="status">{{ text().comments.sending }}</p>
+    }
+    @if (shown().isWaitingToDelete) {
+      <app-deleting-notice />
     }
   </div>
 </article>

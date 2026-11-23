@@ -5,6 +5,7 @@ import { PageQuery } from '../../core/http/page-query';
 import { LIMITS } from '../../core/limits';
 import { PagedList } from '../../core/paging/paged-list';
 import { ConfirmationOpener } from '../../shared/confirmation/confirmation-opener';
+import { DeleteFade } from '../../shared/fade-out/delete-fade';
 import { ToastStore } from '../../shared/toasts/toast-store';
 import { FriendshipAction } from './friendship-action';
 import { FriendshipApi } from './friendship-api';
@@ -26,11 +27,13 @@ const sourceTabs: Record<FriendshipAction, FriendsTab | null> = {
 
 // The three lists of the friends page (My friends, Incoming requests, Sent requests) and the actions on
 // their rows. The page provides its own (providers: [FriendsPageStore]), so the lists live and die with it.
-// A list is read the first time its tab opens. An action takes the row out of its list on the click
-// (quick actions in the spec show their result at once; PostLikeStore is the pattern), Accept puts the
-// person on top of My friends, and the server hears of it at the same time. If the server refuses, the row
-// goes back where it was and a toast says why. Remove asks first, naming the loss of the messages, and only
-// a confirmed one changes anything. A second click on a person whose request is on its way is ignored.
+// A list is read the first time its tab opens. Accept, Decline and Cancel take the row out of its list on
+// the click (quick actions in the spec show their result at once; PostLikeStore is the pattern), Accept puts
+// the person on top of My friends, and the server hears of it at the same time. If the server refuses, the
+// row goes back where it was and a toast says why. Remove is a deletion, so it is slower and clearer (owner,
+// 2026-11-23): it asks first, naming the loss of the messages; the row then says "Deleting…" until the
+// server answers, and on a yes fades out and leaves (DeleteFade, as for a post). A refusal leaves the row
+// as it was, with a toast. A second click on a person whose request is on its way is ignored.
 //   protected readonly store = inject(FriendsPageStore);
 //   await this.store.open(FriendsTab.Incoming);
 //   await this.store.perform(FriendshipAction.Accept, friendship);
@@ -50,6 +53,14 @@ export class FriendsPageStore {
   private readonly openedTabs = new Set<FriendsTab>();
   // The people whose action is waiting for a confirmation or for the server.
   private readonly busyKeys = new Set<number | string>();
+  // The friends being removed: "Deleting…" while the server has not answered, then the fade-out. The set of
+  // gone ids is not used: a person who left My friends can come back (a new request, accepted) and be removed
+  // again, so the row leaves the list itself.
+  private readonly deleteFade = new DeleteFade();
+
+  // The ids of the friends whose row says "Deleting…", and of those fading out.
+  readonly waitingIds = this.deleteFade.waitingIds;
+  readonly fadingIds = this.deleteFade.fadingIds;
 
   list(tab: FriendsTab): PagedList<StandardFriendshipDto> {
     return this.lists[tab];
@@ -78,13 +89,30 @@ export class FriendsPageStore {
 
     if (canAct) {
       this.busyKeys.add(key);
-      const isConfirmed =
-        action !== FriendshipAction.Remove || (await this.askToRemove(friendship));
-
-      if (isConfirmed) {
+      if (action === FriendshipAction.Remove) {
+        await this.removeFriend(friendship, personId);
+      } else {
         await this.act(action, friendship, personId, this.lists[sourceTab]);
       }
       this.busyKeys.delete(key);
+    }
+  }
+
+  // Asks first. The row then says "Deleting…" until the server answers; on a yes it fades out and leaves
+  // My friends, on a no it stays, with a toast.
+  private async removeFriend(friendship: StandardFriendshipDto, personId: number): Promise<void> {
+    const isConfirmed = await this.askToRemove(friendship);
+
+    if (isConfirmed) {
+      const result = await this.deleteFade.delete(personId, () =>
+        this.send(FriendshipAction.Remove, personId),
+      );
+
+      if (result.succeeded) {
+        this.lists[FriendsTab.Friends].remove(friendshipKey(friendship));
+      } else {
+        this.toastStore.show(result.message);
+      }
     }
   }
 

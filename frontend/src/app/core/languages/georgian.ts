@@ -82,6 +82,7 @@ export const georgian: Dictionary = {
   },
   shared: {
     ownMark: '(თქვენ)',
+    deleting: 'იშლება…',
     dialog: {
       closeButton: 'დახურვა',
     },
@@ -303,7 +304,6 @@ export const georgian: Dictionary = {
       loading: 'ანგარიშები იტვირთება…',
       loadingMore: 'სხვა ანგარიშები იტვირთება…',
       retryButton: 'ხელახლა ცდა',
-      end: 'ეს ყველა ანგარიშია.',
       emptyTitle: 'ანგარიშები ვერ მოიძებნა',
       emptyMessage: 'ამ ფილტრებს არც ერთი ანგარიში არ ემთხვევა.',
       actionsLabel: (username: string) => `მოქმედებები: ${username}`,
@@ -385,7 +385,6 @@ export const georgian: Dictionary = {
         emptyMessage: 'ამ მომხმარებლის დაწერილი პოსტები აქ გამოჩნდება.',
         emptyOwnMessage: 'თქვენი დაწერილი პოსტები აქ გამოჩნდება.',
         retryButton: 'თავიდან ცდა',
-        end: 'მეტი პოსტი არ არის.',
       },
       friends: {
         loading: 'მეგობრები იტვირთება…',
@@ -393,7 +392,6 @@ export const georgian: Dictionary = {
         emptyTitle: 'მეგობრები ჯერ არ არის',
         emptyMessage: 'ამ მომხმარებლის მეგობრები აქ გამოჩნდება.',
         retryButton: 'თავიდან ცდა',
-        end: 'მეტი მეგობარი არ არის.',
       },
     },
   },
@@ -418,6 +416,8 @@ export const georgian: Dictionary = {
       incomingTab: 'შემოსული',
       sentTab: 'გასული',
       retryButton: 'თავიდან ცდა',
+      messageButton: 'მიწერა',
+      removeButton: 'წაშლა',
       rowActionLabel: (action: string, username: string) => `${action}: ${username}`,
       lists: {
         friends: {
@@ -425,21 +425,18 @@ export const georgian: Dictionary = {
           loadingMore: 'იტვირთება…',
           emptyTitle: 'მეგობრები ჯერ არ გყავთ',
           emptyMessage: 'მოძებნეთ ნაცნობები და გაუგზავნეთ მოთხოვნა.',
-          end: 'მეგობრების სიის ბოლოს მიაღწიეთ.',
         },
         incoming: {
           loading: 'მოთხოვნები იტვირთება…',
           loadingMore: 'იტვირთება…',
           emptyTitle: 'მოთხოვნები არ გაქვთ',
           emptyMessage: 'როცა ვინმე მეგობრობას შემოგთავაზებთ, მოთხოვნა აქ გამოჩნდება.',
-          end: 'მოთხოვნების სიის ბოლოს მიაღწიეთ.',
         },
         sent: {
           loading: 'გაგზავნილი მოთხოვნები იტვირთება…',
           loadingMore: 'იტვირთება…',
           emptyTitle: 'მოთხოვნა არ გაგიგზავნიათ',
           emptyMessage: 'თქვენი მოთხოვნები აქ დარჩება, სანამ მეორე მხარე არ უპასუხებს.',
-          end: 'მოთხოვნების სიის ბოლოს მიაღწიეთ.',
         },
       },
     },

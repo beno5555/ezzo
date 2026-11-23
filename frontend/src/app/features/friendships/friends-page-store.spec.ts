@@ -3,6 +3,10 @@ import { AppResult, fail, ok } from '../../core/http/app-result';
 import { PageQuery } from '../../core/http/page-query';
 import { PageLoadStatus } from '../../core/paging/page-load-status';
 import { ConfirmationOpener } from '../../shared/confirmation/confirmation-opener';
+import {
+  deleteFadeMilliseconds,
+  deleteNoticeMinimumMilliseconds,
+} from '../../shared/fade-out/delete-fade';
 import { ToastStore } from '../../shared/toasts/toast-store';
 import { FriendshipAction } from './friendship-action';
 import { FriendshipApi } from './friendship-api';
@@ -243,26 +247,51 @@ describe('FriendsPageStore', () => {
       expect(friendshipApi.calls).toEqual([]);
     });
 
-    it('takes the friend out once confirmed, before the server answers', async () => {
+    it('says "Deleting…" on the row until the server answers, then fades it out and takes the friend off the list', async () => {
       const removing = store.perform(FriendshipAction.Remove, row(1, 'Accepted'));
-      await vi.waitFor(() => expect(friendshipApi.calls).toEqual(['remove 1']));
+      await vi.advanceTimersByTimeAsync(deleteNoticeMinimumMilliseconds * 5);
 
-      expect(ids(FriendsTab.Friends)).toEqual([2]);
+      expect(friendshipApi.calls).toEqual(['remove 1']);
+      expect(ids(FriendsTab.Friends)).toEqual([1, 2]);
+      expect(store.waitingIds().has(1)).toBe(true);
+      expect(store.fadingIds().has(1)).toBe(false);
+
       friendshipApi.answer(ok(null));
+      await vi.advanceTimersByTimeAsync(0);
+
+      expect(store.waitingIds().has(1)).toBe(false);
+      expect(store.fadingIds().has(1)).toBe(true);
+      expect(ids(FriendsTab.Friends)).toEqual([1, 2]);
+
+      await vi.advanceTimersByTimeAsync(deleteFadeMilliseconds);
       await removing;
 
+      expect(store.fadingIds().has(1)).toBe(false);
       expect(ids(FriendsTab.Friends)).toEqual([2]);
       expect(incomingRequests.refresh).not.toHaveBeenCalled();
     });
 
-    it('puts the friend back and shows the reason when the server refuses', async () => {
+    it('keeps the friend and shows the reason when the server refuses', async () => {
       const removing = store.perform(FriendshipAction.Remove, row(1, 'Accepted'));
-      await vi.waitFor(() => expect(friendshipApi.calls).toEqual(['remove 1']));
+      await vi.advanceTimersByTimeAsync(0);
       friendshipApi.answer(fail('Relationship not found', 404));
+      await vi.advanceTimersByTimeAsync(deleteNoticeMinimumMilliseconds);
       await removing;
 
       expect(ids(FriendsTab.Friends)).toEqual([1, 2]);
+      expect(store.waitingIds().size).toBe(0);
+      expect(store.fadingIds().size).toBe(0);
       expect(toasts()).toEqual(['Relationship not found']);
+    });
+
+    it('ignores a second click on a friend who is being removed', async () => {
+      void store.perform(FriendshipAction.Remove, row(1, 'Accepted'));
+      await vi.advanceTimersByTimeAsync(0);
+      void store.perform(FriendshipAction.Remove, row(1, 'Accepted'));
+      await vi.advanceTimersByTimeAsync(deleteNoticeMinimumMilliseconds);
+
+      expect(askedToRemove).toHaveLength(1);
+      expect(friendshipApi.calls).toEqual(['remove 1']);
     });
   });
 });

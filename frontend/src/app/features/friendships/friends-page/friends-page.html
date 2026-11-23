@@ -18,8 +18,13 @@
       [hidden]="selectedTab() !== tab"
     >
       <app-friend-list
-        [tab]="tab"
         [list]="store.list(tab)"
+        [texts]="text().friendships.page.lists[tab]"
+        [retryLabel]="text().friendships.page.retryButton"
+        [actions]="actionsOfTab[tab]"
+        [canMessage]="tab === FriendsTab.Friends"
+        [waitingIds]="store.waitingIds()"
+        [fadingIds]="store.fadingIds()"
         (action)="perform($event.action, $event.friendship)"
         (more)="loadMore(tab)"
       />

@@ -26,6 +26,7 @@ import { Avatar } from '../avatar/avatar';
 import { ContentAction } from '../content-actions/content-action';
 import { contentActionsOffered } from '../content-actions/content-actions-offered';
 import { contentMenuEntries } from '../content-actions/content-menu-entries';
+import { DeletingNotice } from '../deleting-notice/deleting-notice';
 import { FadeOut } from '../fade-out/fade-out';
 import { HiddenBadge } from '../hidden-badge/hidden-badge';
 import { Menu } from '../menu/menu';
@@ -48,8 +49,9 @@ import { TextLink } from '../text-link/text-link';
 // The "…" menu's entries come from contentActionsOffered (shared/content-actions): Edit and Delete for the
 // author, Report for another signed-in user, and for an administrator also Delete and Hide or Make
 // visible. Edit leads to the edit page; a deletion goes to the page through postDelete, which hands it to
-// PostEditStore, and a card being deleted fades out. Report opens the report dialog; Hide and Make visible
-// go through ModerationStore, which also says whether the post shows the "Hidden" badge. A post on its way
+// PostEditStore, and a card being deleted says "Deleting…" and then fades out. Report opens the report
+// dialog; Hide and Make visible go through ModerationStore, which also says whether the post shows the
+// "Hidden" badge. A post on its way
 // to the server, or whose edit is being saved, has no menu: there is nothing on the server to change yet,
 // and a second change would race the first.
 @Component({
@@ -58,6 +60,7 @@ import { TextLink } from '../text-link/text-link';
     RouterLink,
     ActionButton,
     Avatar,
+    DeletingNotice,
     FadeOut,
     HiddenBadge,
     Menu,
@@ -90,6 +93,10 @@ export class PostCard {
   protected readonly dateFormatter = inject(DateFormatter);
   protected readonly isSaving = computed(() => this.postEdits.isSaving(this.post().id));
   protected readonly isDeleting = computed(() => this.postEdits.isDeleting(this.post().id));
+  protected readonly isWaitingToDelete = computed(() =>
+    this.postEdits.isWaitingToDelete(this.post().id),
+  );
+  protected readonly isFadingOut = computed(() => this.postEdits.isFadingOut(this.post().id));
   protected readonly isMarkedUploading = computed(() => this.isUploading() || this.isSaving());
   protected readonly isOwn = computed(() => {
     const userId = this.sessionStore.userId();

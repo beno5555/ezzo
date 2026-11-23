@@ -3,7 +3,7 @@ import { LanguageStore } from '../../../core/languages/language-store';
 import { Tab } from '../../../shared/tabs/tab';
 import { panelId, tabId } from '../../../shared/tabs/tab-ids';
 import { Tabs } from '../../../shared/tabs/tabs';
-import { FriendList } from '../friend-list/friend-list';
+import { FriendList } from '../../../shared/friend-list/friend-list';
 import { FriendshipAction } from '../friendship-action';
 import { FriendsPageStore } from '../friends-page-store';
 import { FriendsTab } from '../friends-tab';
@@ -13,6 +13,7 @@ import { StandardFriendshipDto } from '../standard-friendship-dto';
 // The friends page at /friends, for a signed-in user: three tabs, each a paged list from the backend (My
 // friends, the requests waiting for the user's answer, the requests the user sent). A tab's list is read
 // the first time the tab opens, and every panel stays mounted, so a switch back keeps the pages loaded.
+// My friends rows also have a Message button that leads to the conversation.
 // The count on the Friends link is read again on each visit, and after an accept or a decline
 // (FriendsPageStore). The count and the incoming list do not update live (spec, "Last in line").
 @Component({
@@ -30,6 +31,13 @@ export class FriendsPage implements OnInit {
   protected readonly tabIdOf = tabId;
   protected readonly panelIdOf = panelId;
   protected readonly tabsIdPrefix = 'friends';
+  protected readonly FriendsTab = FriendsTab;
+  // The buttons each list offers on a row (My friends also has Message, which is a link).
+  protected readonly actionsOfTab: Record<FriendsTab, readonly FriendshipAction[]> = {
+    [FriendsTab.Friends]: [FriendshipAction.Remove],
+    [FriendsTab.Incoming]: [FriendshipAction.Accept, FriendshipAction.Decline],
+    [FriendsTab.Sent]: [FriendshipAction.Cancel],
+  };
   // The tabs in the order they are shown, which is also the order of their panels.
   protected readonly tabKeys: readonly FriendsTab[] = [
     FriendsTab.Friends,

@@ -6,7 +6,10 @@
 - **Incoming requests.** Each row offers Accept and Decline.
 - **Sent requests.** Each row offers Cancel. The backend has no separate cancel: removing the relationship, the same call that removes a friend, deletes a waiting request too.
 - **Each list** loads by pages, and shows an empty state when it has no rows.
-- **After an action** the row leaves its list at once, on the click (Remove: once the warning is confirmed), before the server answers; if the server refuses, the row comes back and a toast says why (quick actions, under "Across the whole frontend" in the spec; `PostLikeStore` is the pattern). Accepting moves the person to My friends.
+- **After Accept, Decline or Cancel** the row leaves its list at once, on the click, before the server answers; if the server refuses, the row comes back and a toast says why (quick actions, under "Across the whole frontend" in the spec; `PostLikeStore` is the pattern). Accepting moves the person to My friends.
+- **After Remove** (once the warning is confirmed) the row says "Deleting…" with a spinner and waits for the server; on a yes it fades out and the next row moves up, on a no the row stays and a toast says why (round 2; "A deletion waits for the server" in the spec).
+- **Every My friends row has a Message button** that leads to the conversation with that person (round 2).
+- **No list shows a "No more …" line** at its end; the lists keep loading as the reader scrolls (round 2).
 - **The count on the Friends link** in the shell is loaded again on each visit to this page and after an accept or a decline.
 
 The count and the incoming list do not update live in this ticket. That is listed under "Last in line" in the spec.
@@ -22,7 +25,10 @@ Decisions are under "Friends and search" in `.scratch/frontend/spec.md`.
 - [x] Each tab shows its list, loads by pages, and shows an empty state
 - [x] Accept moves the request to My friends, and Decline removes it
 - [x] Cancel removes a sent request
-- [x] Remove asks first, naming the loss of the messages, and then removes the friend
+- [x] Remove asks first, naming the loss of the messages, and then removes the friend: "Deleting…", the server's answer, then the row fades out
+- [x] Every My friends row has a Message button
+- [x] The profile's Friends tab shares the friends page's list component
+- [x] No list but the feed shows a "No more …" end message
 - [x] The count on the Friends link falls after an accept or a decline, without a reload
 - [x] Every row links to the person's profile
 - [x] The friendship `…Api` methods used here are unit-tested against the HTTP testing backend
@@ -68,3 +74,42 @@ Decisions are under "Friends and search" in `.scratch/frontend/spec.md`.
 **Screenshots:** `.scratch/frontend/shots/15/` in the main checkout (8 images).
 
 **Branch:** `worktree-f15-friends`, committed and pushed; waits for the owner's review and merge (a visual ticket). The trial merge result is in the chat report.
+
+**2026-11-23, round 2: revision (Sonnet 5.5).** Fixed point: `9c3ba11`.
+
+Owner's decisions:
+- Every row of My friends has a **Message** button (it leads to `/messages/<username>`). It is crucial; its absence is also why the phone layout looked off.
+- A deletion (a friend, and the same for a post, a comment and a message) shows a **"Deleting…" spinner** first and waits for the server's answer. Only then does the row fade out and the next one move up (the `DeleteFade` motion). The spinner stays for a short minimum so a fast answer does not flicker, and as long as the server takes otherwise. A refusal drops the spinner, keeps the row and shows the toast. This replaces "the row leaves on the click" for deletions; Accept, Decline and Cancel stay as the ticket says.
+- A shared list-row component replaces the near-duplicate markup of `friend-list.html` and `profile-friends.html`.
+- The "No more …" end messages go from every list except the feed's.
+- Automatic scroll loading stays on the friends lists for now. Numbered pages with arrows and a total (a backend change) are post-deadline work, a separate ticket that the owner asks for with `/to-tickets`; not part of this one.
+
+**Built.**
+- `DeleteFade.delete(id, request)` (`shared/fade-out`) is the one deletion motion: "Deleting…" (waiting) until the server has answered and 400 ms have passed, then on a yes a 200 ms fade (fading) and gone; on a no everything clears and the item stays. It also clears the waiting state if the request throws. The `FadeOut` directive draws it (`appDeleting` dims, `appFadeOut` fades); `app-deleting-notice` is the spinner and the words (stands still under reduced motion).
+- Used by posts (`PostEditStore`, card and post page), comments (`CommentThreadStore`; the count falls only on a yes), messages (`ConversationsStore`; the conversation's row preview updates only on a yes) and friends (`FriendsPageStore.removeFriend`, after the warning).
+- `FriendList` moved to `shared/friend-list` and serves both the friends page's tabs and the profile's Friends tab (no actions and no Message there, since those are another person's friends). My friends rows have a **Message** button (a primary link to `/messages/<username>`) beside a short **Remove**.
+- Every "No more …" line is gone but the feed's: friends lists, profile posts and friends, admin users.
+- `spec.md` has the new rule ("A deletion waits for the server"); the old "quick actions" and "fades out" lines were corrected.
+
+**Departures from the ticket, and why.**
+- Accept, Decline and Cancel stay optimistic: only Remove (and the other deletions) got the Deleting flow, as decided.
+- The Remove button says "Remove" on a row (the profile's says "Remove friend"); the long label pushed the buttons onto two lines at 360 px. The accessible name still names the person.
+- The notice's minimum is 400 ms (the owner said about 300 to 400).
+- The spinner turns for longer than the 200 ms motion limit in `DESIGN.md` and the conventions' Motion section: the owner asked for a spinner and it is the only motion that long. If you want the limit to say so, it is a one-line addition to `DESIGN.md`; I did not change it.
+- The initial bundle grew about 3 kB (114 kB over its budget, was 111): the shared deletion code sits in the first chunk. The warning is ticket 32's.
+- "No more reports" is not in this branch (the admin-queue lane has it); that lane must drop it too.
+- The post page now leads to the feed after a deletion only if the reader is still on that post (the wait is now as long as the server takes).
+- Not built: numbered pages (post-deadline, a ticket for the owner to ask for with `/to-tickets`).
+
+**Checks.** Prettier check, lint (all 39 rule tests pass), 746 unit tests (83 files, 8.11 s), `npm run build`: all pass; the bundle warning is the one above. The backend is untouched.
+
+**Tried in the running app** (Playwright MCP; own backend on 7202 and dev server on 4300; throwaway accounts): at 360 px My friends rows with Message and Remove on one line; Remove's warning; a delayed DELETE showed the dimmed "Deleting…" row, then the row left; a post's "Deleting…" card at 360 px, gone after the answer; at 1280 px the list and the Deleting row. Not looked at: the dark theme, 768 px, Georgian after this round, a refused deletion in the browser (covered by unit specs), the comment and message "Deleting…" states in the browser.
+
+**Review (spec-review, two Opus 5.5 high agents).** Severe findings: none. Fixed: the post page led the reader to the feed even after they had followed a link elsewhere during the now longer wait; a shared component imported from another feature (moved to `shared/`); the spinner's inline template (now three files); a component DOM test, forbidden until 2026-11-25 (removed); a request that throws left an item on "Deleting…" (now cleared, with a spec); a stale comment about refused comment deletions raising the count, and others about menus and end messages; the spec's old deletion rules. Left alone, judgement calls: the spinner against the motion limit (above); naming drift between `isFadingOut` and `isFading`; `PostEditStore`'s two pass-through getters; `retryLabel` as a separate input; a possible merge of `sourceTabs` and `actionsOfTab` in `FriendsPage`. One known smaller case: if the reader switches conversations while a message says "Deleting…", the first conversation's row may keep the deleted message as its preview until the next load.
+
+**Open decisions.**
+- The spinner against the 200 ms motion limit: chosen for now to keep the spinner turning; recommend adding the exception to `DESIGN.md` (owner decides).
+
+**Screenshots:** `C:\Users\admin\Workspace\Programming\web development\backend\projects\aspnetproject\.scratch\frontend\shots\15\`, the `f15r2-` files (phone: friends with Message, remove warning, deleting, after delete, post deleting; desktop: friends, deleting).
+
+**Branch:** `worktree-f15-friends`, pushed; not merged.
