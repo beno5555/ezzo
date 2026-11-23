@@ -42,7 +42,7 @@ export class CommentForm implements OnInit {
   readonly cancelLabel = input<string | null>(null);
   readonly initialContent = input('');
   // One row of text box and button, low enough to stay pinned to the bottom of the screen (the new-comment
-  // form). Without it the form is the roomier one with its label above (an edit in place).
+  // form). Without it the form is the roomier one with its floating label (an edit in place).
   readonly isCompact = input(false);
   readonly send = output<string>();
   readonly dismiss = output();

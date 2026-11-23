@@ -143,23 +143,23 @@ Ezzo (`PRODUCT.md`) is a small social platform: a feed, posts with photos, comme
 
 A colour is named for its job, never for its shade. A component uses the role name and is then correct in both themes and under any later skin.
 
-| Role | Its job |
-|---|---|
-| `surface-page` | The page background. |
-| `surface-raised` | Cards, dialogs, menus, inputs: anything that sits on the page. |
-| `surface-sunken` | Wells and inactive areas that sit below the page. |
-| `ink-strong` | Main text. |
-| `ink-muted` | Secondary text: times, counts, hints. |
-| `border` | Dividers and the edges of cards. Decorative only. |
-| `border-strong` | The edge of an input or any control whose edge is the only thing that marks it. |
-| `accent` | The main action on a screen, links, the selected item. |
-| `accent-strong` | The accent while hovered or pressed. |
-| `on-accent` | Text and icons on the accent. |
-| `danger`, `success`, `warning` | Destructive actions and errors; confirmations; cautions. |
-| `focus` | The keyboard focus ring. |
-| `disc-1` to `disc-8` | The disc of the default profile picture. |
-| `disc-unavailable` | The disc of an account that is deactivated or deleted. |
-| `on-disc` | The initials on a disc. |
+| Role                           | Its job                                                                         |
+| ------------------------------ | ------------------------------------------------------------------------------- |
+| `surface-page`                 | The page background.                                                            |
+| `surface-raised`               | Cards, dialogs, menus, inputs: anything that sits on the page.                  |
+| `surface-sunken`               | Wells and inactive areas that sit below the page.                               |
+| `ink-strong`                   | Main text.                                                                      |
+| `ink-muted`                    | Secondary text: times, counts, hints.                                           |
+| `border`                       | Dividers and the edges of cards. Decorative only.                               |
+| `border-strong`                | The edge of an input or any control whose edge is the only thing that marks it. |
+| `accent`                       | The main action on a screen, links, the selected item.                          |
+| `accent-strong`                | The accent while hovered or pressed.                                            |
+| `on-accent`                    | Text and icons on the accent.                                                   |
+| `danger`, `success`, `warning` | Destructive actions and errors; confirmations; cautions.                        |
+| `focus`                        | The keyboard focus ring.                                                        |
+| `disc-1` to `disc-8`           | The disc of the default profile picture.                                        |
+| `disc-unavailable`             | The disc of an account that is deactivated or deleted.                          |
+| `on-disc`                      | The initials on a disc.                                                         |
 
 - **Two themes, one set of names.** The DESIGN.md format holds one list of colours, so the dark theme's value of a role is the entry with the `-dark` suffix. In the Tailwind theme block there is no suffix: the dark theme gives the same name another value.
 - **Contrast.** Every text colour on every surface is at least 4.5 to 1 in both themes. White on each disc is at least 4.5 to 1. `border-strong` is at least 3 to 1 on every surface. Check new values the same way before they go in.
@@ -214,7 +214,7 @@ Three radii and "full": `sm` for small controls such as badges and checkboxes, `
 - **A list of people** (the friends page, a profile's Friends tab) is one card of rows. A name is `ink-strong` and semibold and is underlined only under the pointer, since the avatar and the name together read as a link. A button that every row repeats is never `accent` (the message to a friend is quiet), and a destructive one that every row repeats is text only in `danger` with its trash icon, no edge (owner, 2026-11-23: a column of filled blue buttons and red boxes looked heavy). A button that answers the row, such as Accept on a request, stays `accent`.
 - **The current page** in the top bar, the bottom bar and the admin menu: its link turns `accent` and semibold, with a short accent bar along one edge (under it in the top bar, above it in the bottom bar, at its start in the admin menu).
 - **The "Hidden" badge** is an eye-off icon and the word in `warning`, semibold, with no box.
-- **Inputs.** A visible label above every input, never a placeholder in its place. The error text sits beside the field, in `danger`, with an icon.
+- **Inputs.** Every input in a form has a visible label that floats: it rests in the empty box where the text goes, and shrinks up to the box's top once the box is focused or filled (owner, 2026-11-23). The hint and the error text sit under the field, the error in `danger` with an icon; a counter or a "Forgot password?" link ends that row.
 - **Icons** come from one set, Lucide. An icon that is the only content of a button has an accessible label.
 - **Dialogs, menus and toasts** take their behaviour from Angular CDK and their look from these design tokens.
 

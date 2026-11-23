@@ -52,3 +52,4 @@
 - **Open decisions:** the Georgian post texts stay as they were (the owner said to keep the existing posts); new versions can follow if still wanted.
 - **Screenshots:** `.scratch/frontend/shots/41/` in the main checkout (the 24 `home--*` images, and the mocks in `mocks/`).
 - **Branch:** `frontend-41-landing-page`, pushed and waiting for the owner's review; the lane's trial merge against `origin/master` is clean.
+- **After the report (owner, 2026-11-23):** a bigger sign-in card (480 px, more padding), and floating labels in every form field: the label rests in the empty box and shrinks up to its top on focus or once filled, in our shared `form-field` (CSS only; Angular Material held in reserve if this had not worked). Hints, errors, counters and the "Forgot password?" link moved under the box. Checked resting, focused, filled, error, date and textarea, in English and Georgian at 360, 768 and 1280 px.
