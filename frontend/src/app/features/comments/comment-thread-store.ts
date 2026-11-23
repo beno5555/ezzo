@@ -140,7 +140,7 @@ export class CommentThreadStore {
         );
 
         if (result.succeeded) {
-          this.list.remove(comment.id);
+          this.list.leave(comment.id);
           this.onCountChange(-1);
           this.toastStore.show(this.text().comments.deletedToast);
         } else {

@@ -331,7 +331,7 @@ export class MyProfilePage implements OnInit {
 
 **Where styles go**
 
-- Tailwind classes go in the template. A look that is used twice becomes a component in `shared/`.
+- Tailwind classes go in the template. A look that is used twice becomes a component in `shared/`. Two known exceptions stay as two copies until a third use appears: the admin card shell (`features/admin/flagged-item`, `report-card`) and the two moderation panels (`admin-moderation-page`). Whoever needs a third copy of either extracts the shared piece first, in the same change, and never writes the copy.
 - A shared component that dresses a native element takes an attribute selector, so the element keeps its own behaviour: `Button` is `<button appButton look="primary">` (or `quiet`, `danger`, `danger-text`), and also sits on an `<a routerLink>` that is a screen's main action.
 - Never build a class with `@apply`. A component's `.css` file stays nearly empty.
 - Write no global element styles beyond a reset.

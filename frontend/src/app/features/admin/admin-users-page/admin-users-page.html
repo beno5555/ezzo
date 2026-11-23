@@ -9,9 +9,7 @@
 
   <div class="flex flex-col gap-4 md:flex-row md:flex-wrap md:items-end md:gap-6">
     <div class="flex flex-col gap-1" role="group" aria-labelledby="state-filter-label">
-      <span id="state-filter-label" class="text-sm font-semibold text-ink-strong">{{
-        text().admin.users.stateFilterLabel
-      }}</span>
+      <span id="state-filter-label" class="sr-only">{{ text().admin.users.stateFilterLabel }}</span>
       <div class="flex flex-wrap gap-2">
         @for (choice of stateChoices(); track choice.label) {
           <button
@@ -71,10 +69,16 @@
             <th scope="col" class="px-2 py-2 text-start text-sm font-semibold text-ink-muted">
               {{ text().admin.users.columns.joined }}
             </th>
-            <th scope="col" class="px-2 py-2 text-start text-sm font-semibold text-ink-muted">
+            <th
+              scope="col"
+              class="px-2 py-2 text-start text-sm font-semibold text-ink-muted lg:hidden"
+            >
               {{ text().admin.users.columns.deactivated }}
             </th>
-            <th scope="col" class="px-2 py-2 text-start text-sm font-semibold text-ink-muted">
+            <th
+              scope="col"
+              class="px-2 py-2 text-start text-sm font-semibold text-ink-muted lg:hidden"
+            >
               {{ text().admin.users.columns.deleted }}
             </th>
             <th scope="col" class="px-2 py-2 text-start text-sm font-semibold text-ink-muted">
@@ -87,31 +91,36 @@
             <tr
               class="relative flex flex-col gap-2 rounded-lg border border-border p-4 shadow-raised lg:static lg:table-row lg:rounded-none lg:border-0 lg:border-b lg:p-0 lg:shadow-none"
               [class]="rowClass(row.state)"
+              [appFadeOut]="table().isFading(row.id)"
             >
               <td
                 class="flex items-center gap-3 pe-12 lg:table-cell lg:px-2 lg:py-3 lg:align-middle"
               >
-                <span class="flex min-w-0 items-center gap-3">
+                <span class="flex min-w-0 items-center gap-3 lg:max-w-56">
                   <app-avatar
                     [userId]="row.id"
                     [username]="row.username"
                     [isUnavailable]="row.state !== AccountState.Active"
                     [size]="avatarSize"
                   />
-                  <span
-                    class="font-semibold wrap-break-word"
+                  <app-copyable-text
+                    class="font-semibold"
                     [class.text-ink-strong]="row.state === AccountState.Active"
-                    >{{ row.username }}</span
-                  >
+                    [value]="row.username"
+                  />
                 </span>
               </td>
-              <td class="flex flex-wrap gap-x-2 lg:table-cell lg:px-2 lg:py-3 lg:align-middle">
+              <td
+                class="flex flex-wrap gap-x-2 lg:table-cell lg:w-full lg:max-w-0 lg:min-w-36 lg:px-2 lg:py-3 lg:align-middle"
+              >
                 <span class="min-w-24 text-sm text-ink-muted lg:hidden">{{
                   text().admin.users.columns.email
                 }}</span>
-                <span class="wrap-anywhere">{{ row.email }}</span>
+                <app-copyable-text class="flex-1 lg:max-w-64" [value]="row.email" />
               </td>
-              <td class="flex flex-wrap gap-x-2 lg:table-cell lg:px-2 lg:py-3 lg:align-middle">
+              <td
+                class="flex flex-wrap gap-x-2 lg:table-cell lg:px-2 lg:py-3 lg:align-middle lg:whitespace-nowrap"
+              >
                 <span class="min-w-24 text-sm text-ink-muted lg:hidden">{{
                   text().admin.users.columns.role
                 }}</span>
@@ -121,40 +130,54 @@
                     : text().admin.users.userRole
                 }}</span>
               </td>
-              <td class="flex flex-wrap gap-x-2 lg:table-cell lg:px-2 lg:py-3 lg:align-middle">
+              <td
+                class="flex flex-wrap gap-x-2 lg:table-cell lg:px-2 lg:py-3 lg:align-middle lg:whitespace-nowrap"
+              >
                 <span class="min-w-24 text-sm text-ink-muted lg:hidden">{{
                   text().admin.users.columns.state
                 }}</span>
-                <span class="font-semibold" [class]="stateTextClass(row.state)">{{
+                <span class="font-semibold lg:block" [class]="stateTextClass(row.state)">{{
                   text().admin.users.states[row.state]
                 }}</span>
+                @if (row.deactivatedAt !== null) {
+                  <span class="hidden text-sm font-normal lg:block">{{
+                    dates.time(row.deactivatedAt)
+                  }}</span>
+                }
+                @if (row.deletedAt !== null) {
+                  <span class="hidden text-sm font-normal lg:block">{{
+                    dates.time(row.deletedAt)
+                  }}</span>
+                }
               </td>
-              <td class="flex flex-wrap gap-x-2 lg:table-cell lg:px-2 lg:py-3 lg:align-middle">
+              <td
+                class="flex flex-wrap gap-x-2 lg:table-cell lg:px-2 lg:py-3 lg:align-middle lg:whitespace-nowrap"
+              >
                 <span class="min-w-24 text-sm text-ink-muted lg:hidden">{{
                   text().admin.users.columns.joined
                 }}</span>
-                <span class="lg:min-w-28">{{ dates.time(row.registeredAt) }}</span>
+                <span>{{ dates.time(row.registeredAt) }}</span>
               </td>
               <td
-                class="flex-wrap gap-x-2 lg:table-cell lg:px-2 lg:py-3 lg:align-middle"
+                class="flex-wrap gap-x-2 lg:hidden"
                 [class]="row.deactivatedAt === null ? 'hidden' : 'flex'"
               >
                 <span class="min-w-24 text-sm text-ink-muted lg:hidden">{{
                   text().admin.users.columns.deactivated
                 }}</span>
                 @if (row.deactivatedAt !== null) {
-                  <span class="lg:min-w-28">{{ dates.time(row.deactivatedAt) }}</span>
+                  <span>{{ dates.time(row.deactivatedAt) }}</span>
                 }
               </td>
               <td
-                class="flex-wrap gap-x-2 lg:table-cell lg:px-2 lg:py-3 lg:align-middle"
+                class="flex-wrap gap-x-2 lg:hidden"
                 [class]="row.deletedAt === null ? 'hidden' : 'flex'"
               >
                 <span class="min-w-24 text-sm text-ink-muted lg:hidden">{{
                   text().admin.users.columns.deleted
                 }}</span>
                 @if (row.deletedAt !== null) {
-                  <span class="lg:min-w-28">{{ dates.time(row.deletedAt) }}</span>
+                  <span>{{ dates.time(row.deletedAt) }}</span>
                 }
               </td>
               <td

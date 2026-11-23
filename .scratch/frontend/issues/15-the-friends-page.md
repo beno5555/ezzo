@@ -141,4 +141,11 @@ Owner's decisions:
 
 **Screenshots:** `C:\Users\admin\Workspace\Programming\web development\backend\projects\aspnetproject\.scratch\frontend\shots\15\`, the `f15r3-` files (friends at 360 dark English, 360 light Georgian, 768 dark Georgian, 1280 dark and light English; requests 1280 dark).
 
-**Branch:** `worktree-f15-friends`, committed and pushed; not merged. The trial merge result is in the chat report.
+**Trial merge with `master` (9211754).** It conflicted in three files, so `master` is merged into this branch (the merge commit follows the round's commit):
+- `core/paging/paged-list.ts`: the admin lane added `leave` and `unseenOffset` for the same skipped-rows problem as round 1's `removedSinceLoad`. Kept `master`'s; `remove` is plain again, `insertAt` (a refused removal's undo) now adds one back to `unseenOffset`, and this ticket's removals that leave the server's list (`FriendsPageStore` Accept/Decline/Cancel/Remove, `CommentThreadStore` delete) call `leave`. My three paging specs became one `insertAt` spec inside the `leave` group.
+- `shared/tabs/tabs.ts`: took `master`'s tighter padding and `text-sm` on a phone (it solves round 1's three-Georgian-tabs overflow). The friends page's tabs were not looked at again at 360 px after the merge.
+- `typescript.md`: both edited lines kept (the admin exceptions and the `danger-text` look).
+- Beyond git's conflicts: the admin lane calls `DeleteFade.fadeOut` and `bringBack`, which round 2 had removed. They are back (the admin's settling of reports and accounts leaves at once, before the server answers; `delete` uses `fadeOut`), with their three specs.
+- After the merge: Prettier check, lint, 793 unit tests (87 files, 6.13 s) and the build pass; the bundle warning is now 134.92 kB over (ticket 32's). The backend suite was not run: the resolution touched no backend file.
+
+**Branch:** `worktree-f15-friends`, committed and pushed; not merged.

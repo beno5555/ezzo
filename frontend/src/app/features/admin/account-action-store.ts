@@ -11,7 +11,7 @@ import { AdminUserDto } from './admin-user-dto';
 // state on the click, as if the server had agreed (owner, 2026-11-20); if the server refuses, the row is
 // put back as it was and a toast says why. A click on a row whose request is on its way is ignored, so
 // the server never gets two actions for one account at once. PostLikeStore is the pattern.
-//   await this.accountActions.run(row, AccountRowAction.Deactivate, (shown) => table.replace(shown));
+//   await this.accountActions.run(row, AccountRowAction.Deactivate, (shown) => table.show(shown), () => table.settled(row.id));
 @Injectable({ providedIn: 'root' })
 export class AccountActionStore {
   private readonly activationApi = inject(AccountActivationApi);
@@ -26,11 +26,12 @@ export class AccountActionStore {
   }
 
   // show puts a row in the page's table: first the account as the action leaves it, and again the account
-  // as it was when the server refuses.
+  // as it was when the server refuses. settled runs once the server has agreed.
   async run(
     account: AdminUserDto,
     action: AccountRowAction,
     show: (account: AdminUserDto) => void,
+    settled: () => void = () => undefined,
   ): Promise<void> {
     const isIdle = !this.isBusy(account.id);
 
@@ -40,7 +41,9 @@ export class AccountActionStore {
       const result = await this.send(account.id, action);
       this.setPending(account.id, false);
 
-      if (!result.succeeded) {
+      if (result.succeeded) {
+        settled();
+      } else {
         show(account);
         this.toastStore.show(result.message);
       }

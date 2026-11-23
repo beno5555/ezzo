@@ -13,9 +13,9 @@ export class PagedList<T> {
   private readonly loaded = signal<readonly T[]>([]);
   private readonly currentStatus = signal<PageLoadStatus>(PageLoadStatus.Idle);
   private readonly lastFailure = signal<string | null>(null);
-  private nextPageNumber: number = LIMITS.paging.firstPageNumber;
-  // How many loaded items were taken out since the last page arrived, which the server's list lost too.
-  private removedSinceLoad = 0;
+  // Where in the server's list the first item not yet seen is: the pages loaded cover everything before it.
+  // It grows a page at a time, and shrinks by one when a loaded item leaves the server's list (see leave).
+  private unseenOffset = 0;
 
   readonly items = this.loaded.asReadonly();
   readonly status = this.currentStatus.asReadonly();
@@ -33,13 +33,7 @@ export class PagedList<T> {
 
     if (canLoad) {
       this.currentStatus.set(PageLoadStatus.Loading);
-      // Each removal moved the rows behind it up by one on the server, so the next unseen row now sits earlier
-      // than the next page begins. Asking for an earlier page covers it; the rows the page repeats are dropped.
-      const removedBefore = this.removedSinceLoad;
-      const pageNumber = Math.max(
-        LIMITS.paging.firstPageNumber,
-        this.nextPageNumber - Math.ceil(removedBefore / this.options.pageSize),
-      );
+      const pageNumber = this.pageToAsk();
       const result = await this.options.loadPage({
         pageNumber,
         pageSize: this.options.pageSize,
@@ -47,9 +41,8 @@ export class PagedList<T> {
 
       if (result.succeeded) {
         this.loaded.update((items) => this.withNew(items, result.data));
-        this.nextPageNumber = pageNumber + 1;
-        // The page was read after the removals it was asked for; one made while it was on its way stays counted.
-        this.removedSinceLoad = Math.max(0, this.removedSinceLoad - removedBefore);
+        this.unseenOffset =
+          (pageNumber - LIMITS.paging.firstPageNumber + 1) * this.options.pageSize;
         this.lastFailure.set(null);
         const isLastPage = result.data.length < this.options.pageSize;
         this.currentStatus.set(isLastPage ? PageLoadStatus.Ended : PageLoadStatus.Idle);
@@ -69,28 +62,33 @@ export class PagedList<T> {
     );
   }
 
-  // Takes an item out, such as a deleted comment. The server's list is one shorter too, so the next page is
-  // asked for from where the rows behind it now begin (see loadNext).
+  // Takes an item out, such as a deleted comment.
   remove(removedKey: number | string): void {
-    const isLoaded = this.loaded().some((item) => this.options.keyOf(item) === removedKey);
+    this.loaded.update((items) => items.filter((item) => this.options.keyOf(item) !== removedKey));
+  }
+
+  // Takes out an item that has left the server's own list, such as a flagged post an administrator has
+  // settled. Every later item moves up by one on the server, so a page asked for by its number would skip
+  // the items that moved into the pages already loaded: loadNext asks for the page that holds the first
+  // item not yet seen instead, and the repeats that page brings are dropped.
+  leave(leavingKey: number | string): void {
+    const isLoaded = this.loaded().some((item) => this.options.keyOf(item) === leavingKey);
 
     if (isLoaded) {
-      this.removedSinceLoad += 1;
-      this.loaded.update((items) =>
-        items.filter((item) => this.options.keyOf(item) !== removedKey),
-      );
+      this.unseenOffset -= 1;
+      this.remove(leavingKey);
     }
   }
 
-  // Puts an item back where it was, after a refused removal: at its old index, or at the end when the list
-  // is shorter now. An item the list already holds stays where it is. The server never lost it, so the next
-  // page is asked for from where it was.
+  // Puts an item back where it was, after a refused removal that had taken it out with leave: at its old
+  // index, or at the end when the list is shorter now. An item the list already holds stays where it is.
+  // The server never lost it, so the next page is asked for from where it was.
   insertAt(restored: T, index: number): void {
     const restoredKey = this.options.keyOf(restored);
     const isShown = this.loaded().some((item) => this.options.keyOf(item) === restoredKey);
 
     if (!isShown) {
-      this.removedSinceLoad = Math.max(0, this.removedSinceLoad - 1);
+      this.unseenOffset += 1;
       this.loaded.update((items) => {
         const position = Math.min(index, items.length);
 
@@ -108,6 +106,11 @@ export class PagedList<T> {
 
       return isShown ? items : [added, ...items];
     });
+  }
+
+  // The page that holds the first item not yet seen: the page after the last one loaded, until an item leaves.
+  private pageToAsk(): number {
+    return LIMITS.paging.firstPageNumber + Math.floor(this.unseenOffset / this.options.pageSize);
   }
 
   // A ranked list can move an item onto the next page between two loads, so a page may repeat one.

@@ -61,13 +61,25 @@ export class DeleteFade {
     }
 
     if (result.succeeded) {
-      this.fading.update((ids) => new Set(ids).add(id));
-      await pause(deleteFadeMilliseconds);
-      this.gone.update((ids) => new Set(ids).add(id));
-      this.fading.update((ids) => withoutId(ids, id));
+      await this.fadeOut(id);
     }
 
     return result;
+  }
+
+  // Resolves once the item has faded out and left, with no waiting before: for a quick action whose item
+  // leaves at once, before the server answers (the admin's settling of a report or an account). A refusal
+  // is undone with bringBack.
+  async fadeOut(id: number): Promise<void> {
+    this.fading.update((ids) => new Set(ids).add(id));
+    await pause(deleteFadeMilliseconds);
+    this.gone.update((ids) => new Set(ids).add(id));
+    this.fading.update((ids) => withoutId(ids, id));
+  }
+
+  // The server refused what fadeOut started: the item shows again.
+  bringBack(id: number): void {
+    this.gone.update((ids) => withoutId(ids, id));
   }
 }
 

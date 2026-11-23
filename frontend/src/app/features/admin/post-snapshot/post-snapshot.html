@@ -1,0 +1,9 @@
+<app-snapshot-author [author]="post().author" [uploadedAt]="post().uploadedAt" />
+@if (post().isHidden) {
+  <app-hidden-badge />
+}
+<p class="font-display text-lg wrap-break-word">{{ post().title }}</p>
+@if (post().postContent) {
+  <p class="whitespace-pre-line wrap-break-word">{{ post().postContent }}</p>
+}
+<app-photo-grid [images]="post().images" />

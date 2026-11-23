@@ -109,7 +109,7 @@ export class FriendsPageStore {
       );
 
       if (result.succeeded) {
-        this.lists[FriendsTab.Friends].remove(friendshipKey(friendship));
+        this.lists[FriendsTab.Friends].leave(friendshipKey(friendship));
       } else {
         this.toastStore.show(result.message);
       }
@@ -127,7 +127,7 @@ export class FriendsPageStore {
     const friends = this.lists[FriendsTab.Friends];
     const isAccept = action === FriendshipAction.Accept;
 
-    source.remove(key);
+    source.leave(key);
     if (isAccept) {
       friends.prepend({ ...friendship, status: FriendshipStatus.Accepted });
     }

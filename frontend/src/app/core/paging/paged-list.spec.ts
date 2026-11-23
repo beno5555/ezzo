@@ -167,74 +167,14 @@ describe('PagedList', () => {
     loader.answer(ok([item(1), item(2), item(3)]));
     await first;
 
-    list.remove(2);
+    list.leave(2);
     list.insertAt(item(2), 1);
     list.insertAt(item(2), 0);
     expect(list.items()).toEqual([item(1), item(2), item(3)]);
 
-    list.remove(3);
+    list.leave(3);
     list.insertAt(item(3), 9);
     expect(list.items()).toEqual([item(1), item(2), item(3)]);
-  });
-
-  describe('after items were removed', () => {
-    // A server whose list shrinks when the test removes an item, as the backend's does.
-    function createServer(ids: number[]) {
-      const asked: number[] = [];
-      const loadPage = async (query: PageQuery) => {
-        asked.push(query.pageNumber);
-        const start = (query.pageNumber - 1) * query.pageSize;
-
-        return ok(ids.slice(start, start + query.pageSize).map(item));
-      };
-
-      return {
-        asked,
-        remove: (id: number) => ids.splice(ids.indexOf(id), 1),
-        list: new PagedList<Item>({ loadPage, pageSize, keyOf: (entry) => entry.id }),
-      };
-    }
-
-    it('asks for an earlier page, so the rows that moved up are not skipped', async () => {
-      const server = createServer([1, 2, 3, 4, 5, 6, 7]);
-      await server.list.loadNext();
-
-      server.remove(1);
-      server.list.remove(1);
-      server.remove(2);
-      server.list.remove(2);
-      await server.list.loadNext();
-      await server.list.loadNext();
-
-      expect(server.asked).toEqual([1, 1, 2]);
-      expect(server.list.items().map((entry) => entry.id)).toEqual([3, 4, 5, 6, 7]);
-      expect(server.list.status()).toBe(PageLoadStatus.Ended);
-    });
-
-    it('keeps asking in order when nothing was removed after the earlier page', async () => {
-      const server = createServer([1, 2, 3, 4, 5, 6, 7, 8, 9, 10]);
-      await server.list.loadNext();
-      await server.list.loadNext();
-
-      server.remove(2);
-      server.list.remove(2);
-      await server.list.loadNext();
-      await server.list.loadNext();
-
-      expect(server.asked).toEqual([1, 2, 2, 3]);
-      expect(server.list.items().map((entry) => entry.id)).toEqual([1, 3, 4, 5, 6, 7, 8, 9, 10]);
-    });
-
-    it('goes back to the normal page when a refused removal puts the item back', async () => {
-      const server = createServer([1, 2, 3, 4, 5, 6, 7]);
-      await server.list.loadNext();
-
-      server.list.remove(2);
-      server.list.insertAt(item(2), 1);
-      await server.list.loadNext();
-
-      expect(server.asked).toEqual([1, 2]);
-    });
   });
 
   it('removes an item by its key', async () => {
@@ -249,5 +189,126 @@ describe('PagedList', () => {
     list.remove(9);
 
     expect(list.items()).toEqual([item(1)]);
+  });
+
+  describe('leave', () => {
+    it('asks for the normal page again when a refused removal puts the item back', async () => {
+      const loader = createLoader();
+      const list = createList(loader);
+
+      const first = list.loadNext();
+      loader.answer(ok([item(1), item(2), item(3)]));
+      await first;
+      list.leave(2);
+      list.insertAt(item(2), 1);
+
+      const second = list.loadNext();
+      loader.answer(ok([item(4), item(5), item(6)]));
+      await second;
+
+      expect(loader.asked).toEqual([
+        { pageNumber: 1, pageSize },
+        { pageNumber: 2, pageSize },
+      ]);
+    });
+
+    it('takes the item out of the list', async () => {
+      const loader = createLoader();
+      const list = createList(loader);
+
+      const first = list.loadNext();
+      loader.answer(ok([item(1), item(2), item(3)]));
+      await first;
+      list.leave(2);
+
+      expect(list.items()).toEqual([item(1), item(3)]);
+    });
+
+    it('asks again for the page that holds the first item not yet seen, since the later pages moved up', async () => {
+      const loader = createLoader();
+      const list = createList(loader);
+
+      const first = list.loadNext();
+      loader.answer(ok([item(1), item(2), item(3)]));
+      await first;
+      // The server's list is now 3, 4, 5, 6, 7, 8, ...: one item is seen, so the next unseen starts at 4.
+      list.leave(1);
+      list.leave(2);
+
+      const second = list.loadNext();
+      loader.answer(ok([item(3), item(4), item(5)]));
+      await second;
+      const third = list.loadNext();
+      loader.answer(ok([item(6), item(7), item(8)]));
+      await third;
+
+      expect(loader.asked).toEqual([
+        { pageNumber: 1, pageSize },
+        { pageNumber: 1, pageSize },
+        { pageNumber: 2, pageSize },
+      ]);
+      expect(list.items()).toEqual([item(3), item(4), item(5), item(6), item(7), item(8)]);
+    });
+
+    it('keeps asking from the first item not yet seen when items leave a second time', async () => {
+      const loader = createLoader();
+      const list = createList(loader);
+
+      const first = list.loadNext();
+      loader.answer(ok([item(1), item(2), item(3)]));
+      await first;
+      list.leave(1);
+      const second = list.loadNext();
+      loader.answer(ok([item(2), item(3), item(4)]));
+      await second;
+      // Seen on the server now: 2, 3, 4. Two leave, so 4 is the only one seen and 5 is the next unseen.
+      list.leave(2);
+      list.leave(3);
+      const third = list.loadNext();
+      loader.answer(ok([item(4), item(5), item(6)]));
+      await third;
+
+      expect(loader.asked.map((query) => query.pageNumber)).toEqual([1, 1, 1]);
+      expect(list.items()).toEqual([item(4), item(5), item(6)]);
+    });
+
+    it('asks for the first page again when everything seen has left', async () => {
+      const loader = createLoader();
+      const list = createList(loader);
+
+      const first = list.loadNext();
+      loader.answer(ok([item(1), item(2), item(3)]));
+      await first;
+      list.leave(1);
+      list.leave(2);
+      list.leave(3);
+
+      const second = list.loadNext();
+      loader.answer(ok([item(4), item(5), item(6)]));
+      await second;
+
+      expect(loader.asked[1]).toEqual({ pageNumber: 1, pageSize });
+      expect(list.items()).toEqual([item(4), item(5), item(6)]);
+    });
+
+    it('keeps asking for the same page after a failure, with the leaving taken into account', async () => {
+      const loader = createLoader();
+      const list = createList(loader);
+
+      const first = list.loadNext();
+      loader.answer(ok([item(1), item(2), item(3)]));
+      await first;
+      list.leave(1);
+      const failed = list.loadNext();
+      loader.answer(fail('Network down', 0));
+      await failed;
+      const retry = list.loadNext();
+      loader.answer(ok([item(2), item(3), item(4)]));
+      await retry;
+
+      expect(loader.asked[1]).toEqual({ pageNumber: 1, pageSize });
+      expect(loader.asked[2]).toEqual({ pageNumber: 1, pageSize });
+      expect(list.items()).toEqual([item(2), item(3), item(4)]);
+    });
   });
 });

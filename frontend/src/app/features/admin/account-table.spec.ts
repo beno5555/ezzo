@@ -2,6 +2,7 @@ import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
 import { PageLoadStatus } from '../../core/paging/page-load-status';
+import { deleteFadeMilliseconds } from '../../shared/fade-out/delete-fade';
 import { AccountState } from './account-state';
 import { AccountFilter } from './account-filter';
 import { AccountTable } from './account-table';
@@ -130,5 +131,74 @@ describe('AccountTable', () => {
     table.add(account(10, { username: 'john_doe' }));
 
     expect(table.rows().map((row) => row.id)).toEqual([10]);
+  });
+
+  describe('a row whose new state is not the state the table lists', () => {
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
+    it('fades out and leaves on the click', async () => {
+      const table = createTable({ state: AccountState.Active });
+      await loaded(table, [account(1), account(2)]);
+
+      table.show(account(2, { state: AccountState.Deactivated }));
+      expect(table.isFading(2)).toBe(true);
+      expect(table.rows().map((row) => row.id)).toEqual([1, 2]);
+
+      await vi.advanceTimersByTimeAsync(deleteFadeMilliseconds);
+
+      expect(table.isFading(2)).toBe(false);
+      expect(table.rows().map((row) => row.id)).toEqual([1]);
+    });
+
+    it('comes back as it was when the server refuses', async () => {
+      const table = createTable({ state: AccountState.Active });
+      await loaded(table, [account(1), account(2)]);
+
+      table.show(account(2, { state: AccountState.Deactivated }));
+      await vi.advanceTimersByTimeAsync(deleteFadeMilliseconds);
+      table.show(account(2));
+      await vi.advanceTimersByTimeAsync(0);
+
+      expect(table.rows()).toEqual([account(1), account(2)]);
+    });
+
+    it('comes back even when the refusal arrives before the fade has finished', async () => {
+      const table = createTable({ state: AccountState.Active });
+      await loaded(table, [account(1), account(2)]);
+
+      table.show(account(2, { state: AccountState.Deactivated }));
+      table.show(account(2));
+      await vi.advanceTimersByTimeAsync(deleteFadeMilliseconds);
+
+      expect(table.rows()).toEqual([account(1), account(2)]);
+    });
+
+    it('stays gone once the server agrees', async () => {
+      const table = createTable({ state: AccountState.Active });
+      await loaded(table, [account(1), account(2)]);
+
+      table.show(account(2, { state: AccountState.Deactivated }));
+      await vi.advanceTimersByTimeAsync(deleteFadeMilliseconds);
+      table.settled(2);
+
+      expect(table.rows().map((row) => row.id)).toEqual([1]);
+    });
+  });
+
+  it('keeps a row in place when the table lists every state', async () => {
+    const table = createTable();
+    await loaded(table, [account(1), account(2)]);
+
+    const deactivated = account(2, { state: AccountState.Deactivated });
+    table.show(deactivated);
+
+    expect(table.isFading(2)).toBe(false);
+    expect(table.rows()).toEqual([account(1), deactivated]);
   });
 });
