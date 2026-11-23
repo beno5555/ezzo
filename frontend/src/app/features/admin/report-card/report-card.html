@@ -68,12 +68,8 @@
   @if (decisions().length > 0) {
     <div class="flex flex-wrap gap-2">
       @if (canHide()) {
-        <button
-          appButton
-          look="danger"
-          type="button"
-          (click)="requestDecision(ReportDecision.Hide)"
-        >
+        <button appButton look="quiet" type="button" (click)="requestDecision(ReportDecision.Hide)">
+          <svg class="size-5 shrink-0" lucideEyeOff aria-hidden="true"></svg>
           {{ text().admin.reports.hideButton }}
         </button>
       }

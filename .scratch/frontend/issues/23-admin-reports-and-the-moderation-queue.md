@@ -93,3 +93,14 @@ Owner's decisions:
 - The shared card shell (`flagged-item`, `report-card`) and the two moderation panels stay as two copies now. The session that writes a **third** use extracts the shared piece first and does not copy it a third time. The rule is written into `webcity-conventions` (`references/typescript.md`, Styling), where every frontend session reads it.
 - The first download above 700 kB is not a concern for now: the 1 MB error limit is the real ceiling, and the app is nearing it. Nothing to change in this ticket.
 - The owner reads over remote control and cannot open local files: screenshots are sent into the chat.
+
+**2026-11-23, round 3: master merged, new look applied (Sonnet 5.5).**
+
+Owner's decision: bring the redesigned `master` (the Balcony skin, the Ezzo logo, the landing page) into this branch and make the two pages fit it, so the branch merges as one piece.
+
+- `master` merged into the branch (`2e85f23`, no conflicts). The pages use only design tokens, so the new colours, fonts, active-page bar in the admin menu and top bar reached them with no change.
+- **One change the redesign forced.** `Button`'s danger look now adds a trash icon by itself (DESIGN.md, Components). Hide in the moderation queue and on a report would have read as "delete", but it is reversible (Make visible). Hide is now the quiet look with the eye-off icon the Hidden badge uses, and Make visible has the eye icon (`flagged-item`, `report-card`). **Recommendation:** keep; if the owner wants Hide to keep its red look, `Button` needs a way to switch the trash icon off.
+- Retaken: the screenshot command's 24 images for both pages, from the real backend and the lane's database (a new throwaway admin `qshots`, because the old accounts' passwords were not kept). Looked at: 1280 light en (reports), 768 light en (moderation), 360 light ka (reports), 360 dark en (moderation). Nothing scrolls sideways at 360 px; the Georgian text fits.
+- Checks: lint, the unit suite (86 files, 761 tests) and the build pass. Prettier's check lists 15 files from `master`'s merge but none of this ticket's: the Windows checkout converts their line endings, and they are not changed here. The first download is 723.95 kB (budget warning 600 kB, error limit 1 MB), up from 713.81 kB through `master`'s fonts and logo.
+- Not run: the backend integration suite (the merge brought no backend change). No spec-review pass: the round's own change is four files and an icon swap.
+- Servers stopped, ports 4200 and 7102 free.

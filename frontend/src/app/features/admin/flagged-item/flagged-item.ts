@@ -1,4 +1,5 @@
 import { Component, inject, input, output } from '@angular/core';
+import { LucideEye, LucideEyeOff } from '@lucide/angular';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { Button } from '../../../shared/button/button';
 import { FadeOut } from '../../../shared/fade-out/fade-out';
@@ -11,7 +12,7 @@ import { FadeOut } from '../../../shared/fade-out/fade-out';
 //   </app-flagged-item>
 @Component({
   selector: 'app-flagged-item',
-  imports: [Button, FadeOut],
+  imports: [Button, FadeOut, LucideEye, LucideEyeOff],
   templateUrl: './flagged-item.html',
   styleUrl: './flagged-item.css',
   host: { class: 'block' },

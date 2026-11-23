@@ -5,10 +5,12 @@
 >
   <ng-content />
   <div class="flex flex-wrap gap-2">
-    <button appButton look="danger" type="button" (click)="requestHide()">
+    <button appButton look="quiet" type="button" (click)="requestHide()">
+      <svg class="size-5 shrink-0" lucideEyeOff aria-hidden="true"></svg>
       {{ text().admin.moderation.hideButton }}
     </button>
     <button appButton look="quiet" type="button" (click)="requestMakeVisible()">
+      <svg class="size-5 shrink-0" lucideEye aria-hidden="true"></svg>
       {{ text().admin.moderation.makeVisibleButton }}
     </button>
   </div>

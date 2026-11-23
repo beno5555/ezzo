@@ -1,5 +1,11 @@
 import { Component, computed, inject, input, output } from '@angular/core';
-import { LucideCircleCheck, LucideCircleX, LucideClock, LucideFileX } from '@lucide/angular';
+import {
+  LucideCircleCheck,
+  LucideCircleX,
+  LucideClock,
+  LucideEyeOff,
+  LucideFileX,
+} from '@lucide/angular';
 import { DateFormatter } from '../../../core/languages/date-formatter';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { Button } from '../../../shared/button/button';
@@ -37,6 +43,7 @@ const statusTextClasses: Record<ReportStatus, string> = {
     LucideCircleCheck,
     LucideCircleX,
     LucideClock,
+    LucideEyeOff,
     LucideFileX,
     PostSnapshot,
     SnapshotAuthor,
