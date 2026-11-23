@@ -1,7 +1,7 @@
-<div class="flex flex-col gap-6">
+<div class="flex items-start">
   @for (post of posts(); track post.kind) {
     <div
-      class="flex w-full max-w-104 flex-col gap-3 rounded-lg border border-border bg-surface-raised p-4 text-ink-strong shadow-raised odd:self-start even:self-end"
+      class="flex min-w-0 max-w-72 flex-1 flex-col gap-3 rounded-lg border border-border bg-surface-raised p-4 text-ink-strong shadow-overlay odd:-rotate-4 even:-ms-8 even:mt-8 even:rotate-3"
     >
       <div class="flex items-center gap-3">
         <app-avatar [userId]="post.authorId" [username]="post.author" />

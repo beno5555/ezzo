@@ -327,7 +327,6 @@ export class MyProfilePage implements OnInit {
 - The design tokens live in the Tailwind theme block, `frontend/src/design-tokens.css`, which the build reads, and in `DESIGN.md`. Change a design token in both in the same commit. The theme block switches Tailwind's own colours, type sizes, radii, shadows and breakpoints off, so only design token classes exist.
 - Write no literal colour, size or space: no hex code, no colour function such as `rgb(`, no bracketed Tailwind value (`p-[13px]`) and no inline style (`style="..."`, `[style.width.px]`). Under `src/app`, `npm run lint` fails on each of these, on a `dark:` class and on an `@apply`. It does not catch a named colour (`red`) or a `px` length in a component `.css` file, so write neither.
 - Light and dark are two sets of values for the same names. A component never names a theme: write no `dark:` class.
-- Until the product's name is settled, no component carries a brand metaphor. The brand lives in design token values and the logo component.
 
 **Where styles go**
 
@@ -338,7 +337,7 @@ export class MyProfilePage implements OnInit {
 
 **Type**
 
-- Every font role's stack must cover Latin, Cyrillic and Georgian. The body role uses one family that covers all three; the display role may pair a Latin face with one Georgian partner.
+- Every font role's stack must cover Latin, Cyrillic and Georgian, except the wordmark's, which only ever sets the Latin "ezzo" (DESIGN.md, Typography). The body role uses one family that covers all three; the display role may pair a Latin face with one Georgian partner.
 - Do not carry meaning with capital letters. Georgian has none in everyday writing.
 
 **Responsive**

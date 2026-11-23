@@ -56,6 +56,12 @@
     'Bricolage Grotesque Variable', 'Noto Sans', 'Noto Sans Georgian Variable', system-ui,
     sans-serif;
   --font-display--font-variation-settings: 'wdth' 85;
+  /*
+   * The wordmark: the landing page's big outlined "ezzo", always those Latin letters, so its face needs
+   * no Cyrillic or Georgian partner. Its weight is set through the axis, as no type size uses 900.
+   */
+  --font-wordmark: 'Fraunces Variable', serif;
+  --font-wordmark--font-variation-settings: 'wght' 900, 'SOFT' 100, 'WONK' 1, 'opsz' 144;
   --default-font-family: var(--font-body);
 
   /*
@@ -87,6 +93,10 @@
   --text-2xl: 1.75rem;
   --text-2xl--line-height: 1.2;
   --text-2xl--font-weight: 700;
+  /* The landing page's tagline on a wide screen, under the wordmark; nothing else is this large. */
+  --text-display: 3rem;
+  --text-display--line-height: 1.1;
+  --text-display--font-weight: 700;
 
   /* Line heights come with the type sizes; there is no letter spacing. */
   --leading-*: initial;

@@ -1,11 +1,33 @@
-<app-landing-picture class="hidden lg:block" />
+<!-- The name, with the tagline under it, then the form. From 1024 px the name, the tagline and the
+     picture fill the left column, and the form stands on the right. -->
+<svg
+  class="mx-auto w-full max-w-104 lg:col-start-1 lg:row-start-1 lg:mx-0 lg:max-w-108"
+  viewBox="0 -48 192 50"
+  aria-hidden="true"
+>
+  <!-- Bound, not interpolated: the template's line breaks would add spaces that widen the word. -->
+  <text
+    class="fill-none stroke-border-strong font-wordmark"
+    font-size="100"
+    stroke-width="2"
+    vector-effect="non-scaling-stroke"
+    [textContent]="text().app.wordmark"
+  ></text>
+</svg>
 
-<app-auth-frame [heading]="text().auth.signIn.punchline">
-  <div appAuthMark>
-    <app-logo-mark class="size-16" />
-    <span class="sr-only">{{ text().app.name }}</span>
-  </div>
+<p
+  class="mx-auto w-full max-w-104 font-display text-2xl text-ink-strong lg:col-start-1 lg:row-start-2 lg:mx-0 lg:max-w-none lg:text-display"
+>
+  {{ text().auth.signIn.punchline }}
+</p>
 
+<app-landing-picture class="hidden lg:col-start-1 lg:row-start-3 lg:block lg:pt-4" />
+
+<app-auth-frame
+  class="lg:col-start-2 lg:row-span-3 lg:row-start-1"
+  [heading]="text().auth.signIn.heading"
+  [lifted]="true"
+>
   @if (noticeMessage(); as notice) {
     <app-form-message tone="success" [message]="notice" />
   }

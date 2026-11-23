@@ -11,7 +11,6 @@ import { Button } from '../../../shared/button/button';
 import { applyFieldErrors } from '../../../shared/form-field/apply-field-errors';
 import { FormField } from '../../../shared/form-field/form-field';
 import { FormMessage } from '../../../shared/form-message/form-message';
-import { LogoMark } from '../../../shared/logo-mark/logo-mark';
 import { TextInput } from '../../../shared/text-input/text-input';
 import { TextLink } from '../../../shared/text-link/text-link';
 import { AuthFrame } from '../auth-frame/auth-frame';
@@ -19,11 +18,14 @@ import { AuthLink } from '../auth-frame/auth-link';
 import { LandingPicture } from './landing-picture/landing-picture';
 import { toLandingPageState } from './landing-page-state';
 
-// The landing page: what a guest sees at the home address. On a wide screen a picture of the app stands
-// beside the sign-in form; below that there is only the form. One field takes a username or an email
-// (LoginDto). On success it returns the user to the address a guard turned them away from. The form is the pattern every later form copies: a typed
-// reactive form, validators from LIMITS, errors once a field was touched, the submit button disabled
-// while the form is invalid, the server's field errors on their controls and its message above submit.
+// The landing page: what a guest sees at the home address. The name, drawn large and outlined, carries
+// the tagline under it (PRODUCT.md); on a wide screen a picture of the app follows them, beside the
+// sign-in form on its lifted card. On a narrower screen the tagline comes first, then the form, then the
+// name. The logo is the top bar's. One field takes a username or an email (LoginDto). On success it
+// returns the user to the address a guard turned them away from. The form is the pattern every later
+// form copies: a typed reactive form, validators from LIMITS, errors once a field was touched, the
+// submit button disabled while the form is invalid, the server's field errors on their controls and its
+// message above submit.
 @Component({
   selector: 'app-landing-page',
   imports: [
@@ -35,13 +37,12 @@ import { toLandingPageState } from './landing-page-state';
     FormField,
     FormMessage,
     LandingPicture,
-    LogoMark,
     TextInput,
     TextLink,
   ],
   templateUrl: './landing-page.html',
   styleUrl: './landing-page.css',
-  host: { class: 'grid items-center gap-8 lg:grid-cols-2' },
+  host: { class: 'grid items-center gap-6 lg:grid-cols-2 lg:gap-x-12 lg:gap-y-4' },
 })
 export class LandingPage {
   private readonly sessionStore = inject(SessionStore);

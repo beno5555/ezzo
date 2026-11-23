@@ -5,6 +5,7 @@ import { pluralize } from './pluralize';
 export const georgian: Dictionary = {
   app: {
     name: 'Ezzo',
+    wordmark: 'ezzo',
   },
   languages: {
     ownName: 'ქართული',
@@ -215,6 +216,7 @@ export const georgian: Dictionary = {
     },
     signIn: {
       punchline: 'გაგვიზიარე, რაც შექმენი.',
+      heading: 'შედით ეზოში',
       formLabel: 'შესვლა',
       identifierLabel: 'მომხმარებლის სახელი ან ელფოსტა',
       passwordLabel: 'პაროლი',

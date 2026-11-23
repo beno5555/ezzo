@@ -4,8 +4,8 @@ import { LanguageStore } from '../../../../core/languages/language-store';
 import { Avatar } from '../../../../shared/avatar/avatar';
 
 // The picture of the app on the landing page: two made things in the feed, in the shape of the post card
-// (shared/post-card). It is a drawing, not posts: it asks the backend for nothing, its buttons are not
-// buttons, and screen readers skip it.
+// (shared/post-card), set askew and overlapping like two prints laid on a table. It is a drawing, not
+// posts: it asks the backend for nothing, its buttons are not buttons, and screen readers skip it.
 @Component({
   selector: 'app-landing-picture',
   imports: [Avatar, LucideHeart, LucideMessageCircle],

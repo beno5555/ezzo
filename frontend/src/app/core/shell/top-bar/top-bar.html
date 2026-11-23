@@ -1,11 +1,9 @@
 <header [class]="isOnLandingPage() ? '' : 'border-b border-border bg-surface-raised'">
   <div class="mx-auto flex w-full max-w-wide flex-wrap items-center gap-2 px-4 py-2 md:flex-nowrap">
-    @if (!isOnLandingPage()) {
-      <app-logo class="me-auto md:me-2" />
-    }
+    <app-logo class="me-auto md:me-2" />
 
     @if (isOnLandingPage()) {
-      <!-- The landing page shows the logo itself, so the bar is only the language and theme menu. -->
+      <!-- The landing page carries the sign-in form itself, so the bar adds only the language and theme menu. -->
       <app-preferences-menu class="ms-auto" />
     } @else if (isOnAccountPage()) {
       <!-- An account page keeps only the logo: a short stop needs no search, links or menus. -->
