@@ -85,6 +85,12 @@ export const georgian: Dictionary = {
     dialog: {
       closeButton: 'დახურვა',
     },
+    // The copyable texts (a username, an email) in the admin panel.
+    copy: {
+      button: (value: string) => `დააკოპირე ${value}`,
+      copied: 'დაკოპირდა.',
+      failed: 'ვერ დაკოპირდა.',
+    },
     confirmation: {
       cancelButton: 'გაუქმება',
       typedWordPrompt: 'დასადასტურებლად ჩაწერეთ',
@@ -278,7 +284,7 @@ export const georgian: Dictionary = {
     navigationButton: 'ადმინის მენიუ',
     users: {
       title: 'მომხმარებლები',
-      stateFilterLabel: 'ანგარიშის მდგომარეობა',
+      stateFilterLabel: 'ანგარიშის სტატუსი',
       allStates: 'ყველა',
       states: {
         Active: 'აქტიური',
@@ -287,19 +293,16 @@ export const georgian: Dictionary = {
       },
       usernameFilterLabel: 'მომხმარებლის სახელი',
       searchButton: 'ძებნა',
-      copyEmail: (email: string) => `დააკოპირე ${email}`,
-      emailCopied: 'ელფოსტა დაკოპირდა.',
-      copyFailed: 'ელფოსტის კოპირება ვერ მოხერხდა.',
       createButton: 'ანგარიშის შექმნა',
       columns: {
         username: 'მომხმარებლის სახელი',
         email: 'ელფოსტა',
         role: 'როლი',
-        state: 'მდგომარეობა',
+        state: 'სტატუსი',
         joined: 'გაწევრიანდა',
         deactivated: 'გაუქმდა',
         deleted: 'წაიშალა',
-        actions: 'მოქმედებები',
+        actions: 'ოპერაციები',
       },
       administratorRole: 'ადმინისტრატორი',
       userRole: 'მომხმარებელი',
@@ -309,7 +312,7 @@ export const georgian: Dictionary = {
       end: 'ეს ყველა ანგარიშია.',
       emptyTitle: 'ანგარიშები ვერ მოიძებნა',
       emptyMessage: 'ამ ფილტრებს არც ერთი ანგარიში არ ემთხვევა.',
-      actionsLabel: (username: string) => `მოქმედებები: ${username}`,
+      actionsLabel: (username: string) => `ოპერაციები: ${username}`,
       actions: {
         edit: 'პროფილის რედაქტირება',
         deactivate: 'გაუქმება',

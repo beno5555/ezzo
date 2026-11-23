@@ -1,6 +1,6 @@
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { LucideCopy, LucideSearch, LucidePlus, LucideUsers } from '@lucide/angular';
+import { LucideSearch, LucidePlus, LucideUsers } from '@lucide/angular';
 import { DateFormatter } from '../../../core/languages/date-formatter';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { LIMITS } from '../../../core/limits';
@@ -10,8 +10,8 @@ import { Avatar } from '../../../shared/avatar/avatar';
 import { AvatarSize } from '../../../shared/avatar/avatar-size';
 import { Button } from '../../../shared/button/button';
 import { FadeOut } from '../../../shared/fade-out/fade-out';
-import { IconButton } from '../../../shared/icon-button/icon-button';
 import { ConfirmationOpener } from '../../../shared/confirmation/confirmation-opener';
+import { CopyableText } from '../../../shared/copyable-text/copyable-text';
 import { LoadFailure } from '../../../shared/load-failure/load-failure';
 import { Menu } from '../../../shared/menu/menu';
 import { MenuEntry } from '../../../shared/menu/menu-entry';
@@ -60,14 +60,13 @@ const rowClasses: Record<AccountState, string> = {
     ReactiveFormsModule,
     Avatar,
     Button,
+    CopyableText,
     FadeOut,
-    IconButton,
     LoadFailure,
     Menu,
     ScrollSentinel,
     TextInput,
     ToggleButton,
-    LucideCopy,
     LucidePlus,
     LucideSearch,
     LucideUsers,
@@ -155,18 +154,6 @@ export class AdminUsersPage implements OnInit {
     if (created !== undefined) {
       table.add(created);
       this.toastStore.show(this.text().admin.users.createDialog.createdToast(created.username));
-    }
-  }
-
-  // Puts an email on the clipboard, for the copy button and for a click on the email itself.
-  async copyEmail(email: string): Promise<void> {
-    const texts = this.text().admin.users;
-
-    try {
-      await navigator.clipboard.writeText(email);
-      this.toastStore.show(texts.emailCopied);
-    } catch {
-      this.toastStore.show(texts.copyFailed);
     }
   }
 

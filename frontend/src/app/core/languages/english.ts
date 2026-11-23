@@ -102,6 +102,12 @@ export const english = {
     dialog: {
       closeButton: 'Close',
     },
+    // The copyable texts (a username, an email) in the admin panel.
+    copy: {
+      button: (value: string) => `Copy ${value}`,
+      copied: 'Copied.',
+      failed: 'It could not be copied.',
+    },
     confirmation: {
       cancelButton: 'Cancel',
       // Followed by the word to type, in bold.
@@ -349,9 +355,6 @@ export const english = {
       },
       usernameFilterLabel: 'Username',
       searchButton: 'Search',
-      copyEmail: (email: string) => `Copy ${email}`,
-      emailCopied: 'Email copied.',
-      copyFailed: 'The email could not be copied.',
       createButton: 'Create account',
       columns: {
         username: 'Username',

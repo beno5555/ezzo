@@ -96,48 +96,31 @@
               <td
                 class="flex items-center gap-3 pe-12 lg:table-cell lg:px-2 lg:py-3 lg:align-middle"
               >
-                <span class="flex min-w-0 items-center gap-3">
+                <span class="flex min-w-0 items-center gap-3 lg:max-w-56">
                   <app-avatar
                     [userId]="row.id"
                     [username]="row.username"
                     [isUnavailable]="row.state !== AccountState.Active"
                     [size]="avatarSize"
                   />
-                  <span
-                    class="font-semibold wrap-break-word"
+                  <app-copyable-text
+                    class="font-semibold"
                     [class.text-ink-strong]="row.state === AccountState.Active"
-                    >{{ row.username }}</span
-                  >
+                    [value]="row.username"
+                  />
                 </span>
               </td>
               <td
-                class="flex flex-wrap gap-x-2 lg:table-cell lg:w-full lg:max-w-0 lg:min-w-44 lg:px-2 lg:py-3 lg:align-middle"
+                class="flex flex-wrap gap-x-2 lg:table-cell lg:w-full lg:max-w-0 lg:min-w-36 lg:px-2 lg:py-3 lg:align-middle"
               >
                 <span class="min-w-24 text-sm text-ink-muted lg:hidden">{{
                   text().admin.users.columns.email
                 }}</span>
-                <span class="flex min-w-0 flex-1 items-center gap-1">
-                  <button
-                    type="button"
-                    class="min-h-11 min-w-0 cursor-copy truncate text-start hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
-                    tabindex="-1"
-                    aria-hidden="true"
-                    [attr.title]="row.email"
-                    (click)="copyEmail(row.email)"
-                  >
-                    {{ row.email }}
-                  </button>
-                  <button
-                    appIconButton
-                    type="button"
-                    [attr.aria-label]="text().admin.users.copyEmail(row.email)"
-                    (click)="copyEmail(row.email)"
-                  >
-                    <svg class="size-5" lucideCopy aria-hidden="true"></svg>
-                  </button>
-                </span>
+                <app-copyable-text class="flex-1" [value]="row.email" />
               </td>
-              <td class="flex flex-wrap gap-x-2 lg:table-cell lg:px-2 lg:py-3 lg:align-middle">
+              <td
+                class="flex flex-wrap gap-x-2 lg:table-cell lg:px-2 lg:py-3 lg:align-middle lg:whitespace-nowrap"
+              >
                 <span class="min-w-24 text-sm text-ink-muted lg:hidden">{{
                   text().admin.users.columns.role
                 }}</span>
@@ -147,7 +130,9 @@
                     : text().admin.users.userRole
                 }}</span>
               </td>
-              <td class="flex flex-wrap gap-x-2 lg:table-cell lg:px-2 lg:py-3 lg:align-middle">
+              <td
+                class="flex flex-wrap gap-x-2 lg:table-cell lg:px-2 lg:py-3 lg:align-middle lg:whitespace-nowrap"
+              >
                 <span class="min-w-24 text-sm text-ink-muted lg:hidden">{{
                   text().admin.users.columns.state
                 }}</span>
@@ -165,11 +150,13 @@
                   }}</span>
                 }
               </td>
-              <td class="flex flex-wrap gap-x-2 lg:table-cell lg:px-2 lg:py-3 lg:align-middle">
+              <td
+                class="flex flex-wrap gap-x-2 lg:table-cell lg:px-2 lg:py-3 lg:align-middle lg:whitespace-nowrap"
+              >
                 <span class="min-w-24 text-sm text-ink-muted lg:hidden">{{
                   text().admin.users.columns.joined
                 }}</span>
-                <span class="lg:min-w-28">{{ dates.time(row.registeredAt) }}</span>
+                <span>{{ dates.time(row.registeredAt) }}</span>
               </td>
               <td
                 class="flex-wrap gap-x-2 lg:hidden"
@@ -179,7 +166,7 @@
                   text().admin.users.columns.deactivated
                 }}</span>
                 @if (row.deactivatedAt !== null) {
-                  <span class="lg:min-w-28">{{ dates.time(row.deactivatedAt) }}</span>
+                  <span>{{ dates.time(row.deactivatedAt) }}</span>
                 }
               </td>
               <td
@@ -190,7 +177,7 @@
                   text().admin.users.columns.deleted
                 }}</span>
                 @if (row.deletedAt !== null) {
-                  <span class="lg:min-w-28">{{ dates.time(row.deletedAt) }}</span>
+                  <span>{{ dates.time(row.deletedAt) }}</span>
                 }
               </td>
               <td
