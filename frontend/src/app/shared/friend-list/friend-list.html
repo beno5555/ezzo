@@ -18,8 +18,7 @@
           <div class="flex min-w-0 flex-1 basis-32 items-center">
             @if (friendship.otherUser.id !== null) {
               <a
-                appTextLink
-                class="min-w-0 wrap-anywhere"
+                class="inline-flex min-h-11 min-w-0 cursor-pointer items-center rounded-sm font-semibold text-ink-strong wrap-anywhere hover:underline hover:underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
                 [routerLink]="profileAddress(friendship.otherUser.username)"
                 >{{ friendship.otherUser.username }}</a
               >
@@ -38,7 +37,7 @@
               @if (canMessage()) {
                 <a
                   appButton
-                  look="primary"
+                  look="quiet"
                   [routerLink]="conversationAddress(friendship.otherUser.username)"
                   [attr.aria-label]="messageLabel(friendship.otherUser.username)"
                 >

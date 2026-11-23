@@ -201,6 +201,7 @@ Three radii and "full": `sm` for small controls such as badges and checkboxes, `
   - **Initials:** a username in two parts (`john.doe`, `john_doe`) gives the first letter of each part; any other username gives its first two letters.
   - **An unavailable account** (deactivated or deleted) gets `disc-unavailable` with no letters.
 - **Buttons.** One primary button per screen, in `accent`. Other buttons are quiet: `surface-raised` with `border-strong`, or text only. A destructive button uses `danger` and carries a trash icon before its text, which the button adds by itself.
+- **A list of people** (the friends page, a profile's Friends tab) is one card of rows. A name is `ink-strong` and semibold and is underlined only under the pointer, since the avatar and the name together read as a link. A button that every row repeats is never `accent` (the message to a friend is quiet), and a destructive one that every row repeats is text only in `danger` with its trash icon, no edge (owner, 2026-11-23: a column of filled blue buttons and red boxes looked heavy). A button that answers the row, such as Accept on a request, stays `accent`.
 - **The current page** in the top bar, the bottom bar and the admin menu: its link turns `accent` and semibold, with a short accent bar along one edge (under it in the top bar, above it in the bottom bar, at its start in the admin menu).
 - **The "Hidden" badge** is an eye-off icon and the word in `warning`, semibold, with no box.
 - **Inputs.** A visible label above every input, never a placeholder in its place. The error text sits beside the field, in `danger`, with an icon.
@@ -211,7 +212,7 @@ Three radii and "full": `sm` for small controls such as badges and checkboxes, `
 
 - Do use a design token for every colour, size, radius and space. Don't write a hex code or a bracketed Tailwind value such as `p-[13px]`.
 - Do let the theme change the values. Don't write a `dark:` class or name a theme in a component.
-- Do move only in answer to a user's action, for at most 200 ms. Don't animate on page load or on scroll, and turn motion off under "reduce motion".
+- Do move only in answer to a user's action, for at most 200 ms. Don't animate on page load or on scroll, and turn motion off under "reduce motion". One exception (owner, 2026-11-23): the spinner of a "Deleting…" notice turns for as long as the server takes to answer, and at least 400 ms. It is the only motion that lasts longer, and it stands still under "reduce motion".
 - Do keep keyboard focus visible on every control, with the `focus` ring.
 - Do keep text contrast at 4.5 to 1 or more in both themes.
 - Don't use ALL-CAPS labels, italics for meaning, or a monospace face for small labels.

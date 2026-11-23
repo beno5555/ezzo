@@ -7,12 +7,12 @@ import { PagedList } from '../../core/paging/paged-list';
 import { appAddresses } from '../../core/routing/app-addresses';
 import { Avatar } from '../avatar/avatar';
 import { Button } from '../button/button';
+import { ButtonLook } from '../button/button-look';
 import { DeletingNotice } from '../deleting-notice/deleting-notice';
 import { EmptyState } from '../empty-state/empty-state';
 import { FadeOut } from '../fade-out/fade-out';
 import { LoadFailure } from '../load-failure/load-failure';
 import { ScrollSentinel } from '../scroll-sentinel/scroll-sentinel';
-import { TextLink } from '../text-link/text-link';
 import { FriendListTexts } from './friend-list-texts';
 import { FriendshipAction } from '../../features/friendships/friendship-action';
 import { friendshipActionLooks } from '../../features/friendships/friendship-action-looks';
@@ -42,7 +42,6 @@ import { StandardFriendshipDto } from '../../features/friendships/standard-frien
     LoadFailure,
     RouterLink,
     ScrollSentinel,
-    TextLink,
     LucideMessageCircle,
     LucideUsers,
   ],
@@ -67,7 +66,9 @@ export class FriendList {
   protected readonly PageLoadStatus = PageLoadStatus;
   protected readonly profileAddress = appAddresses.profile;
   protected readonly conversationAddress = appAddresses.conversation;
-  protected readonly lookOf = (action: FriendshipAction) => friendshipActionLooks[action];
+  // Remove is on every row, so it has no edge: a column of red boxes would shout (owner, 2026-11-23).
+  protected readonly lookOf = (action: FriendshipAction): ButtonLook =>
+    action === FriendshipAction.Remove ? ButtonLook.DangerText : friendshipActionLooks[action];
   protected readonly keyOf = friendshipKey;
 
   protected readonly hasRows = computed(() => this.list().items().length > 0);

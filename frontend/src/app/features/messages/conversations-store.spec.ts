@@ -1129,6 +1129,37 @@ describe('ConversationsStore', () => {
         expect(toastMessages()).toEqual(['Delete request declined']);
       });
 
+      it('reads the list again, so the row of the message’s conversation shows its new last message, when the reader opened another conversation meanwhile', async () => {
+        const deleting = store.deleteMessage(mine(2, 'second'));
+        await vi.advanceTimersByTimeAsync(0);
+        const opening = store.open('bob');
+        await vi.advanceTimersByTimeAsync(0);
+        httpTesting
+          .expectOne(
+            (candidate) =>
+              candidate.url === `/api/messages/conversation/${bob.id}` &&
+              candidate.params.get('pageNumber') === '1',
+          )
+          .flush(listEnvelope([]));
+        await vi.advanceTimersByTimeAsync(0);
+        httpTesting.expectOne(unreadAddress).flush({ unreadCount: 0 });
+        await vi.advanceTimersByTimeAsync(0);
+        await opening;
+        httpTesting.expectOne(messageAddress(2)).flush(envelope(null));
+        await vi.advanceTimersByTimeAsync(settleMilliseconds);
+
+        const refresh = httpTesting.expectOne(
+          (candidate) =>
+            candidate.url === listAddress && candidate.params.get('pageNumber') === '1',
+        );
+        refresh.flush(listEnvelope([{ ...row(alice), lastMessageContent: 'first' }, row(bob)]));
+        await vi.advanceTimersByTimeAsync(0);
+        await deleting;
+
+        expect(conversationListStore.conversations()[0].lastMessageContent).toBe('first');
+        expect(toastMessages()).toEqual([english.messages.deletedToast]);
+      });
+
       it('removes the row when the conversation has no message left', async () => {
         const deleting = store.deleteMessage(mine(1, 'first'));
         await vi.advanceTimersByTimeAsync(0);

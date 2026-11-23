@@ -274,7 +274,7 @@ export class ConversationsStore {
         const isSameSession = clearNumber === this.clearNumber;
 
         if (isSameSession) {
-          this.settleDeleted(message, result);
+          await this.settleDeleted(message, result);
         }
       }
     }
@@ -525,10 +525,19 @@ export class ConversationsStore {
     return (this.opened()?.messages ?? []).filter((message) => !goneIds.has(message.id));
   }
 
-  private settleDeleted(message: StandardMessageDto, result: AppResult<void>): void {
+  // The reader may have opened another conversation while the message said "Deleting…". Then the message is
+  // no longer in the open conversation, whose row is not the one to change, so the list is read again and
+  // the message's own row takes the server's last message.
+  private async settleDeleted(message: StandardMessageDto, result: AppResult<void>): Promise<void> {
     if (result.succeeded) {
-      this.removeFromOpened(message.id);
+      const isStillOpen = this.holdsMessage(message.id);
       this.toastStore.show(this.text().messages.deletedToast);
+
+      if (isStillOpen) {
+        this.removeFromOpened(message.id);
+      } else {
+        await this.refreshListIfLoaded();
+      }
     } else {
       this.toastStore.show(result.message);
     }

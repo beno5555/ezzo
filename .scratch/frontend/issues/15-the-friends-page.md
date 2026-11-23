@@ -113,3 +113,32 @@ Owner's decisions:
 **Screenshots:** `C:\Users\admin\Workspace\Programming\web development\backend\projects\aspnetproject\.scratch\frontend\shots\15\`, the `f15r2-` files (phone: friends with Message, remove warning, deleting, after delete, post deleting; desktop: friends, deleting).
 
 **Branch:** `worktree-f15-friends`, pushed; not merged.
+
+**2026-11-23, round 3: revision (Sonnet 5.5).** Fixed point: `b019ac3`. (The owner's message said "round 2"; round 2 is the report above, so this is the third round.)
+
+Owner's decisions:
+- The My friends list (screenshot `Screenshot 2026-11-23 180049.png`, dark theme, desktop) "is just fugly"; the owner cannot say why or how to fix it. The fix is left to my judgement, and the owner looks at the result.
+- Add the spinner's exception to the 200 ms motion limit to `DESIGN.md` (the open decision of round 2).
+- Fix the preview of a deleted message: the known case of round 2, a conversation's row keeping a deleted message as its preview after the reader switched conversations during "Deleting…".
+- "For numbered pages" (the start of the owner's message) belongs to the `/to-tickets` run the owner does apart; nothing is built for it here.
+
+**Built.**
+- **The list's look.** My guess at why it looked heavy: a column of identical bright filled buttons (the accent is a pale blue in the dark theme) and a red-edged box on every row, plus an underlined accent name. Now: **Message** is a quiet button (`ButtonLook.Quiet`), **Remove** is the new `ButtonLook.DangerText` (`danger-text`: red text with the trash icon, no edge; hover fills with `surface-sunken`), and the name is `ink-strong`, semibold, underlined only under the pointer. Only `FriendList` uses them (so the profile's Friends tab too, which has no buttons); the profile's own "Remove friend" button keeps the bordered `danger` look. Accept stays `accent` on a request row (looked at: it reads well beside a quiet Decline). `DESIGN.md`, Components, has a "A list of people" bullet with these rules; `frontend/CLAUDE.md` and the conventions' Styling section list the fourth look.
+- **The spinner's exception** is in `DESIGN.md` (Do's and Don'ts: the "Deleting…" spinner turns as long as the server takes, at least 400 ms, still off under reduced motion), with a pointer in the conventions' Motion line.
+- **The deleted message's preview.** `ConversationsStore.settleDeleted` used the *open* conversation to update the row; after the reader switched conversations, that was the wrong one. Now, when the message is no longer in the open conversation, the conversation list's first page is read again (`refreshListIfLoaded`) so the message's own row shows the server's last message. A spec covers it (switching to another conversation while "Deleting…"). The success toast shows before the refresh.
+
+**Departures from the ticket, and why.** The row look is outside the ticket's boxes (the owner asked for it). The `ButtonLook` gained a fourth value, `danger-text`.
+
+**Checks.** Prettier check, lint (39 rule tests), 747 unit tests (83 files, 6.93 s), `npm run build`: all pass; the bundle warning is the same (114.71 kB over, ticket 32's). The backend is untouched.
+
+**Tried in the running app** (own backend on 7202 and dev server on 4300, throwaway proxy copy; the screenshot account, which has 4 friends and 2 requests): My friends at 360, 768 and 1280 px in both themes and both languages (the 12 images; the 1280 dark English and 360 ones looked at, plus 768 dark Georgian), and the Requests tab at 1280 dark. Not looked at: the Sent tab, the profile's Friends tab, the "Deleting…" row after this change, the message preview fix in the browser (covered by a spec only). At 360 px the two buttons sit on a second line under the name, as in round 2 (the name and buttons do not fit one line).
+
+**Review (spec-review, two Opus 5.5 high agents).** Severe findings: none. Fixed: `frontend/CLAUDE.md`, the conventions' button line and the comment in `friendship-action-looks.ts` still named three looks / Remove as `danger`; the success toast waited for the list refresh (now shown first). Left alone, judgement calls: the Remove look is chosen in `FriendList` beside `friendshipActionLooks` (two homes for one decision; a row-context map would join them if a third list appears); the name link hand-writes most of `TextLink`'s classes (used once; `conversation-page.html` has a similar ink-strong name, so a `TextLink` variant is worth it on the third use); `Button.isDanger` lists two looks; the standing tension between "one primary per screen" and Accept on every request row, now written down in `DESIGN.md` (owner decides); the refresh reads page 1 only, so a row further down keeps a deleted preview (the same limit as `markDeleted`), and a failed refresh is silent.
+
+**Open decisions.**
+- Is the quieter row right? Chosen: Message quiet, Remove text-only red, name plain. If it is still not right, tell me what you see: the next candidates are a denser row (smaller buttons on a desktop) or the two buttons behind a "…" menu.
+- Accept stays `accent` on every request row: recommend keeping.
+
+**Screenshots:** `C:\Users\admin\Workspace\Programming\web development\backend\projects\aspnetproject\.scratch\frontend\shots\15\`, the `f15r3-` files (friends at 360 dark English, 360 light Georgian, 768 dark Georgian, 1280 dark and light English; requests 1280 dark).
+
+**Branch:** `worktree-f15-friends`, committed and pushed; not merged. The trial merge result is in the chat report.
