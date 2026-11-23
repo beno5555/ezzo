@@ -12,12 +12,12 @@ The Claude in Chrome extension is the fallback when the server is not available 
 Start the backend and the frontend first ("Running the app"), then, from the repo root:
 
 ```bash
-npm run screenshots --prefix frontend -- /sign-in /admin/users      # as a guest
+npm run screenshots --prefix frontend -- / /register                # as a guest
 npm run screenshots --prefix frontend -- / /admin/users --signed-in # signed in as the development account
 npm run screenshots --prefix frontend -- https://example.com        # an outside address
 ```
 
-- **Git Bash** rewrites an argument that starts with `/` into a Windows path (`C:/Program Files/Git/sign-in`) before npm sees it. Put `MSYS_NO_PATHCONV=1` before the command; the command says so when it gets such a path.
+- **Git Bash** rewrites an argument that starts with `/` into a Windows path (`C:/Program Files/Git/register`) before npm sees it. Put `MSYS_NO_PATHCONV=1` before the command; the command says so when it gets such a path.
 - **Twelve images per app address:** widths 360, 768 and 1280 × themes light and dark × languages English and Georgian. An outside address gets three images, one per width, with no theme or language.
 - **Names** sort by address and show what each image is: `admin_users--signed-in--0768-dark-ka.png`, `www.example.com_about--1280.png`.
 - **The images go to `frontend/screenshots/`,** which Git ignores. Each run adds to the folder and overwrites images of the same name; delete it when it gets in the way. The images the owner should see for a ticket are copied to its shots folder (the round report in `.claude/skills/implement/SKILL.md`).

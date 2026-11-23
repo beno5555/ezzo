@@ -18,8 +18,8 @@ import { AuthApi } from '../auth-api';
 import { AuthFrame } from '../auth-frame/auth-frame';
 import { AuthLink } from '../auth-frame/auth-link';
 import { RegisterDto } from '../register-dto';
-import { SignInNotice } from '../sign-in-page/sign-in-notice';
-import { SignInPageState } from '../sign-in-page/sign-in-page-state';
+import { SignInNotice } from '../landing-page/sign-in-notice';
+import { LandingPageState } from '../landing-page/landing-page-state';
 
 // The register page. The register endpoint hands out no session, so a successful registration signs in
 // with the same credentials and goes on to the feed (spec, Auth pages). If that sign-in fails, the user
@@ -93,12 +93,12 @@ export class RegisterPage {
     const result = await this.sessionStore.signIn({ uniqueIdentifier: username, password });
 
     if (result.succeeded) {
-      await this.router.navigateByUrl(appAddresses.feed);
+      await this.router.navigateByUrl(appAddresses.home);
       return;
     }
 
-    const state: SignInPageState = { identifier: username, notice: SignInNotice.AccountCreated };
-    await this.router.navigateByUrl(appAddresses.signIn, { state });
+    const state: LandingPageState = { identifier: username, notice: SignInNotice.AccountCreated };
+    await this.router.navigateByUrl(appAddresses.home, { state });
   }
 
   // An empty bio is sent as none, since the backend refuses an empty one.

@@ -77,7 +77,7 @@ export class UserSearchPage {
     }
 
     const query = this.form.controls.username.value.trim();
-    // The router ignores a navigation to the address it is already on, so the same query again is searched
+    // A navigation to the address already open keeps the page as it is, so the same query again is searched
     // here: that is how a failed search is tried a second time.
     const isSameQuery = query === (this.addressQuery() ?? '');
     if (isSameQuery) {

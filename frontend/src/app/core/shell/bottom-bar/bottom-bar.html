@@ -9,7 +9,7 @@
          short one; a word that still does not fit is cut with an ellipsis. -->
     <ul class="mx-auto flex h-16 max-w-column">
       <li class="flex min-w-0 flex-auto">
-        <a appBottomBarLink [routerLink]="addresses.feed">
+        <a appBottomBarLink [routerLink]="addresses.home" [routerLinkActiveOptions]="homeLinkMatch">
           <svg class="size-6 shrink-0" lucideHouse aria-hidden="true"></svg>
           <span class="max-w-full truncate">{{ text().shell.bottomBar.feedLink }}</span>
         </a>

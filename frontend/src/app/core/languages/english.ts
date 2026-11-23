@@ -39,9 +39,7 @@ export const english = {
   // Each page's name, by its route's title key (app.routes.ts). PageTitleStrategy puts it in the
   // browser tab as "<page> – Ezzo".
   pages: {
-    home: 'Home',
     feed: 'Feed',
-    signIn: 'Sign in',
     register: 'Register',
     forgotPassword: 'Forgot password',
     resetPassword: 'Choose a new password',
@@ -260,12 +258,19 @@ export const english = {
       },
     },
   },
-  // The account pages: sign-in, register, forgotten password, reset and reactivation.
+  // The account pages: the landing page with sign-in, register, forgotten password, reset and reactivation.
   auth: {
     // The name of the links under each form that lead to the other account pages.
     linksLabel: 'Other account pages',
+    // The picture of the app beside the sign-in form: two posts that are not real.
+    landingPicture: {
+      pots: { author: 'nino_clay', time: '2 hours ago', title: "Three pots from Sunday's kiln" },
+      quilt: { author: 'luka_k', time: 'Yesterday', title: 'The quilt is finished at last' },
+    },
     signIn: {
-      title: 'Sign in',
+      punchline: 'Bring what you made.',
+      heading: 'Sign in to Ezzo',
+      formLabel: 'Sign in',
       identifierLabel: 'Username or email',
       passwordLabel: 'Password',
       forgotPasswordLink: 'Forgot password?',

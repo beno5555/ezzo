@@ -12,10 +12,12 @@ import { UnreadStore } from '../../../features/messages/unread-store';
 import { LanguageStore } from '../../languages/language-store';
 import { appAddresses } from '../../routing/app-addresses';
 import { SessionStore } from '../../session/session-store';
+import { homeLinkMatch } from '../bar-link/home-link-match';
 import { BottomBarLink } from '../bar-link/bottom-bar-link';
 import { CountBadge } from '../count-badge/count-badge';
 import { countBadgeText } from '../count-badge/count-badge-text';
 import { isOnAccountPage } from '../is-on-account-page';
+import { isOnLandingPage } from '../is-on-landing-page';
 
 // The phone's bar along the bottom of the screen, for a signed-in user under 768 px: Feed, Search,
 // Friends, Messages and Profile, with the same two counts as the top bar. It is fixed to the screen, so
@@ -40,14 +42,16 @@ export class BottomBar {
   private readonly unreadCount = inject(UnreadStore).count;
   private readonly user = inject(SessionStore).user;
   private readonly isOnAccountPage = isOnAccountPage();
+  private readonly isOnLandingPage = isOnLandingPage();
 
   protected readonly text = inject(LanguageStore).text;
   // Who the bar is shown for: the signed-in user, or null when it stays hidden (for a guest, and on an
-  // account page for everyone).
+  // account page for everyone). The landing page counts too: it stays for a moment after signing in there.
   protected readonly userToShowBarFor = computed(() =>
-    this.isOnAccountPage() ? null : this.user(),
+    this.isOnAccountPage() || this.isOnLandingPage() ? null : this.user(),
   );
   protected readonly addresses = appAddresses;
+  protected readonly homeLinkMatch = homeLinkMatch;
   protected readonly unreadBadge = computed(() => countBadgeText(this.unreadCount()));
   protected readonly waitingBadge = inject(IncomingRequestsStore).badge;
 }

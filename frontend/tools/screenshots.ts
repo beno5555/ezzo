@@ -1,5 +1,5 @@
 // The screenshot command (docs/agents/screenshots.md). From the repo root:
-//   npm run screenshots --prefix frontend -- / /sign-in               as a guest: 12 images per app address
+//   npm run screenshots --prefix frontend -- / /register              as a guest: 12 images per app address
 //   npm run screenshots --prefix frontend -- /admin/users --signed-in signed in as the development account
 //   npm run screenshots --prefix frontend -- https://example.com      an outside address: 3 images
 // Playwright takes the pictures. This script exists because the app rotates its refresh token on every page
@@ -31,7 +31,7 @@ const refreshPath = '/api/auth/refresh';
 const tooManyRequests = 429;
 const pageTimeoutMs = 30_000;
 const quickTimeoutMs = 5_000;
-const usage = `npm run screenshots -- /sign-in [https://example.com] [${signedInOption}]`;
+const usage = `npm run screenshots -- / [https://example.com] [${signedInOption}]`;
 
 async function main(): Promise<void> {
   const args = process.argv.slice(2);
@@ -135,20 +135,20 @@ async function signIn(page: Page): Promise<void> {
     );
   }
 
-  await page.goto(appOrigin + appAddresses.signIn);
+  await page.goto(appOrigin + appAddresses.home);
   const passwordField = page.locator('input[autocomplete="current-password"]');
   await page.locator('input[autocomplete="username"]').fill(user);
   await passwordField.fill(password);
   await page.locator('form', { has: passwordField }).locator('button[type="submit"]').click();
-  // Either the form navigates away or it shows its failure message; the loser of the race must not reject.
-  const leftSignIn = (url: URL) => url.pathname !== appAddresses.signIn;
+  // Either the feed takes the form's place, at the same address, or the form shows its failure message; the
+  // loser of the race must not reject.
   const alert = page.getByRole('alert');
   await Promise.race([
-    page.waitForURL(leftSignIn).catch(() => null),
+    passwordField.waitFor({ state: 'detached' }).catch(() => null),
     alert.waitFor().catch(() => null),
   ]);
 
-  if (!leftSignIn(new URL(page.url()))) {
+  if ((await passwordField.count()) > 0) {
     const shown = (await alert.textContent({ timeout: 1_000 }).catch(() => null))?.trim();
     throw new Error(
       `The sign-in form refused the development account: ${shown || 'it showed no message'}`,

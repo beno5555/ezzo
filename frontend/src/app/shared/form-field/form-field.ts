@@ -7,13 +7,13 @@ import { LanguageStore } from '../../core/languages/language-store';
 import { CharacterCounter } from '../character-counter/character-counter';
 import { fieldErrorMessage } from './field-error-message';
 
-// One field of a form (DESIGN.md, Inputs): the visible label above, the control the caller puts inside,
+// One field of a form (DESIGN.md, Inputs): the label floating in the box, the control the caller puts inside,
 // an optional hint, and the field's error in danger with an icon, shown once the field was touched.
 //   <app-form-field fieldId="email" [label]="text().auth.emailLabel" [control]="form.controls.email">
 //     <input appTextInput id="email" type="email" formControlName="email" />
 //   </app-form-field>
 // The TextInput inside reads aria-invalid and aria-describedby from here. An element with the
-// fieldAction attribute goes at the end of the label's row, such as a "Forgot password?" link.
+// fieldAction attribute goes at the end of the row under the box, such as a "Forgot password?" link.
 @Component({
   selector: 'app-form-field',
   imports: [CharacterCounter, LucideCircleExclamationPoint],
@@ -28,7 +28,7 @@ export class FormField {
   readonly label = input.required<string>();
   readonly control = input.required<AbstractControl>();
   readonly hint = input<string>();
-  // With a maxLength, the label's row ends with a counter of the used characters, "12/500". The control
+  // With a maxLength, the row under the box ends with a counter of the used characters, "12/500". The control
   // inside is given the same limit through its maxlength attribute, so it stops taking characters there.
   readonly length = input(0);
   readonly maxLength = input<number>();

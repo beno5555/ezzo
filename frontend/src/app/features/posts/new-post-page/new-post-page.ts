@@ -27,13 +27,13 @@ export class NewPostPage {
   private readonly sessionStore = inject(SessionStore);
 
   protected readonly text = inject(LanguageStore).text;
-  protected readonly feedAddress = appAddresses.feed;
+  protected readonly feedAddress = appAddresses.home;
 
   async publish(newPost: NewPost): Promise<void> {
     const username = this.sessionStore.user()?.username;
     // The writer's own profile, where the post shows; the feed if the name is not known.
     const destination =
-      username === undefined ? [appAddresses.feed] : appAddresses.profile(username);
+      username === undefined ? [appAddresses.home] : appAddresses.profile(username);
 
     await this.router.navigate(destination, { replaceUrl: true });
     await this.newPosts.publish(newPost);

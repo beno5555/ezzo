@@ -29,3 +29,9 @@
 @import '@fontsource-variable/noto-sans-georgian/wdth.css';
 /* The display face: Bricolage Grotesque with its weight and width axes (Latin and Latin Extended). */
 @import '@fontsource-variable/bricolage-grotesque/wdth.css';
+/*
+ * The wordmark's face: Fraunces with every axis, for its soft and wonky shapes at the largest optical
+ * size. Its face rules load with every page, but a browser fetches the file only where the face is
+ * used: the landing page.
+ */
+@import '@fontsource-variable/fraunces/full.css';

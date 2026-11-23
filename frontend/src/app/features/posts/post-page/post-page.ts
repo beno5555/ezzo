@@ -56,7 +56,7 @@ export class PostPage {
 
   protected readonly text = inject(LanguageStore).text;
   protected readonly isSignedIn = this.sessionStore.isSignedIn;
-  protected readonly feedAddress = appAddresses.feed;
+  protected readonly feedAddress = appAddresses.home;
   protected readonly postLikes = inject(PostLikeStore);
   protected readonly PostPageStatus = PostPageStatus;
   protected readonly status = signal<PostPageStatus>(PostPageStatus.Loading);
@@ -140,7 +140,7 @@ export class PostPage {
 
       if (isStillHere) {
         // Fire-and-forget on purpose: the store's toast must not wait for the navigation.
-        void this.router.navigateByUrl(appAddresses.feed);
+        void this.router.navigateByUrl(appAddresses.home);
       }
     });
   }
