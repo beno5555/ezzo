@@ -1,4 +1,5 @@
 import { signal } from '@angular/core';
+import { withoutId } from '../../core/collections/without-id';
 
 // How long an item takes to fade out once its deletion has succeeded. FadeOut's duration-200 is the same
 // length: change both together.
@@ -85,11 +86,4 @@ export class DeleteFade {
 
 function pause(milliseconds: number): Promise<void> {
   return new Promise((resolve) => setTimeout(resolve, milliseconds));
-}
-
-function withoutId(ids: ReadonlySet<number>, id: number): ReadonlySet<number> {
-  const rest = new Set(ids);
-  rest.delete(id);
-
-  return rest;
 }

@@ -8,7 +8,7 @@ import { LanguageStore } from '../../core/languages/language-store';
 import { RegisterDto } from '../auth/register-dto';
 import { EditUserDto } from './edit-user-dto';
 import { FullUserDto } from './full-user-dto';
-import { MinimalUserDto } from './minimal-user-dto';
+import { SearchUserDto } from './search-user-dto';
 import { SearchUserQuery } from './search-user-query';
 import { StandardUserDto } from './standard-user-dto';
 
@@ -34,9 +34,9 @@ export class UserApi {
     );
   }
 
-  searchUsers(query: SearchUserQuery): Promise<AppResult<MinimalUserDto[]>> {
+  searchUsers(query: SearchUserQuery): Promise<AppResult<SearchUserDto[]>> {
     return toAppResult(
-      this.http.get<ListResponse<MinimalUserDto>>('/api/users/search', { params: query }),
+      this.http.get<ListResponse<SearchUserDto>>('/api/users/search', { params: query }),
       this.languageStore.text().httpFailures,
     );
   }

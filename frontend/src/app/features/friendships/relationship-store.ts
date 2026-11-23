@@ -1,9 +1,10 @@
 import { HttpStatusCode } from '@angular/common/http';
 import { Injectable, computed, inject, signal } from '@angular/core';
-import { AppResult } from '../../core/http/app-result';
 import { LanguageStore } from '../../core/languages/language-store';
 import { ConfirmationOpener } from '../../shared/confirmation/confirmation-opener';
 import { ToastStore } from '../../shared/toasts/toast-store';
+import { answersRequest } from './answers-request';
+import { askToRemoveFriend } from './ask-to-remove-friend';
 import { FriendshipAction } from './friendship-action';
 import { friendshipActionsOffered, relationshipAfter } from './friendship-actions-offered';
 import { FriendshipApi } from './friendship-api';
@@ -11,6 +12,7 @@ import { FriendshipStatus } from './friendship-status';
 import { IncomingRequestsStore } from './incoming-requests-store';
 import { Relationship } from './relationship';
 import { RelationshipReadStatus } from './relationship-read-status';
+import { sendFriendshipAction } from './send-friendship-action';
 import { StandardUserDto } from '../users/standard-user-dto';
 
 // The signed-in user's relationship with the person whose profile is open, and the friendship actions on it.
@@ -72,14 +74,20 @@ export class RelationshipStore {
     person: Pick<StandardUserDto, 'id' | 'username'>,
   ): Promise<void> {
     if (!this.sending()) {
-      const isConfirmed = action !== FriendshipAction.Remove || (await this.askToRemove(person));
+      const isConfirmed =
+        action !== FriendshipAction.Remove ||
+        (await askToRemoveFriend(
+          this.confirmationOpener,
+          this.text().friendships.removeConfirmation,
+          person.username,
+        ));
 
       if (isConfirmed) {
         const before = this.current();
 
         this.current.set(relationshipAfter(action, before));
         this.sending.set(true);
-        const result = await this.send(action, person.id);
+        const result = await sendFriendshipAction(this.friendshipApi, action, person.id);
         this.sending.set(false);
 
         if (result.succeeded) {
@@ -97,39 +105,13 @@ export class RelationshipStore {
   // and Decline.
   private async afterAccepted(action: FriendshipAction): Promise<void> {
     const changesFriends = action === FriendshipAction.Accept || action === FriendshipAction.Remove;
-    const answersRequest =
-      action === FriendshipAction.Accept || action === FriendshipAction.Decline;
 
     if (changesFriends) {
       this.changes.update((count) => count + 1);
     }
 
-    if (answersRequest) {
+    if (answersRequest(action)) {
       await this.incomingRequests.refresh();
     }
-  }
-
-  private askToRemove(person: Pick<StandardUserDto, 'username'>): Promise<boolean> {
-    const texts = this.text().friendships.removeConfirmation;
-
-    return this.confirmationOpener.ask({
-      question: texts.question(person.username),
-      detail: texts.detail,
-      confirmButton: texts.confirmButton,
-      isDestructive: true,
-    });
-  }
-
-  // Cancel and Remove are the same call: the backend removes a relationship in any state.
-  private send(action: FriendshipAction, personId: number): Promise<AppResult<unknown>> {
-    const calls: Record<FriendshipAction, () => Promise<AppResult<unknown>>> = {
-      [FriendshipAction.Add]: () => this.friendshipApi.sendRequest(personId),
-      [FriendshipAction.Cancel]: () => this.friendshipApi.remove(personId),
-      [FriendshipAction.Accept]: () => this.friendshipApi.accept(personId),
-      [FriendshipAction.Decline]: () => this.friendshipApi.decline(personId),
-      [FriendshipAction.Remove]: () => this.friendshipApi.remove(personId),
-    };
-
-    return calls[action]();
   }
 }

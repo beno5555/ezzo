@@ -522,7 +522,6 @@ export const english = {
       emptyTitle: 'No one found',
       emptyMessage: (words: string) => `No username matches “${words}”. Try other words.`,
       retryButton: 'Try again',
-      end: 'No more users.',
     },
     // A user's page at /users/:username (features/users/profile-page).
     profile: {

@@ -7,12 +7,15 @@ import { PagedList } from '../../core/paging/paged-list';
 import { ConfirmationOpener } from '../../shared/confirmation/confirmation-opener';
 import { DeleteFade } from '../../shared/fade-out/delete-fade';
 import { ToastStore } from '../../shared/toasts/toast-store';
+import { answersRequest } from './answers-request';
+import { askToRemoveFriend } from './ask-to-remove-friend';
 import { FriendshipAction } from './friendship-action';
 import { FriendshipApi } from './friendship-api';
 import { friendshipKey } from './friendship-key';
 import { FriendshipStatus } from './friendship-status';
 import { FriendsTab } from './friends-tab';
 import { IncomingRequestsStore } from './incoming-requests-store';
+import { sendFriendshipAction } from './send-friendship-action';
 import { StandardFriendshipDto } from './standard-friendship-dto';
 
 // The list an action takes a person out of: Accept and Decline answer an incoming request, Cancel
@@ -101,11 +104,15 @@ export class FriendsPageStore {
   // Asks first. The row then says "Deleting…" until the server answers; on a yes it fades out and leaves
   // My friends, on a no it stays, with a toast.
   private async removeFriend(friendship: StandardFriendshipDto, personId: number): Promise<void> {
-    const isConfirmed = await this.askToRemove(friendship);
+    const isConfirmed = await askToRemoveFriend(
+      this.confirmationOpener,
+      this.text().friendships.removeConfirmation,
+      friendship.otherUser.username,
+    );
 
     if (isConfirmed) {
       const result = await this.deleteFade.delete(personId, () =>
-        this.send(FriendshipAction.Remove, personId),
+        sendFriendshipAction(this.friendshipApi, FriendshipAction.Remove, personId),
       );
 
       if (result.succeeded) {
@@ -132,13 +139,10 @@ export class FriendsPageStore {
       friends.prepend({ ...friendship, status: FriendshipStatus.Accepted });
     }
 
-    const result = await this.send(action, personId);
+    const result = await sendFriendshipAction(this.friendshipApi, action, personId);
 
     if (result.succeeded) {
-      const answersRequest =
-        action === FriendshipAction.Accept || action === FriendshipAction.Decline;
-
-      if (answersRequest) {
+      if (answersRequest(action)) {
         await this.incomingRequests.refresh();
       }
     } else {
@@ -148,30 +152,6 @@ export class FriendsPageStore {
       }
       this.toastStore.show(result.message);
     }
-  }
-
-  private askToRemove(friendship: StandardFriendshipDto): Promise<boolean> {
-    const texts = this.text().friendships.removeConfirmation;
-
-    return this.confirmationOpener.ask({
-      question: texts.question(friendship.otherUser.username),
-      detail: texts.detail,
-      confirmButton: texts.confirmButton,
-      isDestructive: true,
-    });
-  }
-
-  // Cancel and Remove are the same call: the backend removes a relationship in any state.
-  private send(action: FriendshipAction, personId: number): Promise<AppResult<unknown>> {
-    const calls: Record<FriendshipAction, () => Promise<AppResult<unknown>>> = {
-      [FriendshipAction.Add]: () => this.friendshipApi.sendRequest(personId),
-      [FriendshipAction.Cancel]: () => this.friendshipApi.remove(personId),
-      [FriendshipAction.Accept]: () => this.friendshipApi.accept(personId),
-      [FriendshipAction.Decline]: () => this.friendshipApi.decline(personId),
-      [FriendshipAction.Remove]: () => this.friendshipApi.remove(personId),
-    };
-
-    return calls[action]();
   }
 
   private createList(

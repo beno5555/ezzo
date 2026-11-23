@@ -66,6 +66,19 @@ public class FriendshipRepository : BaseRepository<Friendship>
             pageNumber, pageSize, ById, ignoreQueryFilters: true);
     }
 
+    /// <summary>
+    /// fetches, in one query, the friendships (in any state) between userId and any of otherUserIds
+    /// </summary>
+    public async Task<List<Friendship>> GetFriendshipsWithAsync(int userId, List<int> otherUserIds)
+    {
+        return await _dbSet
+            .AsNoTracking()
+            .Where(friendship =>
+                (friendship.RequesterUserId == userId && otherUserIds.Contains(friendship.AddresseeUserId)) ||
+                (friendship.AddresseeUserId == userId && otherUserIds.Contains(friendship.RequesterUserId)))
+            .ToListAsync();
+    }
+
     public async Task<List<int>> GetFriendIdsAsync(int userId)
     {
         return await _dbSet

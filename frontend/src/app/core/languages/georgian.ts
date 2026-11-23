@@ -449,7 +449,6 @@ export const georgian: Dictionary = {
       emptyMessage: (words: string) =>
         `„${words}“ სახელით მომხმარებელი ვერ მოიძებნა. სცადე სხვა სიტყვები.`,
       retryButton: 'თავიდან ცდა',
-      end: 'მეტი მომხმარებელი აღარ არის.',
     },
     profile: {
       loading: 'პროფილი იტვირთება…',

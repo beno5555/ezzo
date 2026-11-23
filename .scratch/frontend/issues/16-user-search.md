@@ -5,7 +5,7 @@
 - **The words live in the address,** so a search can be reloaded and shared. The search box in the shell leads here with what was typed.
 - **Results follow the typing,** 500 ms after the last keystroke. The address is updated without adding a history entry for every letter.
 - **Only the latest answer is shown.** A slow answer to older words never replaces a newer one (ADR 0003).
-- **Each result** shows the username and links to the profile.
+- **Each result** shows the username and links to the profile. A signed-in visitor also gets the friendship button for their relationship with that person, as on the friends page: Add friend, Cancel request, Accept and Decline, or Remove. A guest, and the visitor's own row, get none (owner, round 2).
 - **Results load by pages.** Empty words show a prompt, and words with no match show an empty state.
 
 Decisions are under "Friends and search" in `.scratch/frontend/spec.md`.
@@ -22,6 +22,7 @@ Decisions are under "Friends and search" in `.scratch/frontend/spec.md`.
 - [x] The pause is tested with fake timers (already in `user-search-page.spec.ts`)
 - [x] Reloading the page with words in the address shows their results
 - [x] A guest can search and open a profile from the results
+- [x] A signed-in visitor sees the friendship button that matches their relationship on each result (none, request sent, request received, friends), and it works from the search page; a guest and the visitor's own row get no button (round 2; the backend search now returns the relationship)
 - [x] Checked in the running app on a desktop width and on a phone width, as a guest and as a user
 
 ## Comments
@@ -66,3 +67,37 @@ Left alone:
 **Screenshots:** `.scratch/frontend/shots/16/` in the main checkout.
 
 **Branch:** `worktree-f16-search`, pushed for the owner's review (visual work, not merged). Trial merge against `origin/master` at `f5c05b1`: clean (exit 0), the branch being a straight descendant of it. The worktree is kept; the owner merges from the main checkout.
+
+**2026-11-23, round 2: revision (Sonnet 5.5).** Fixed point: `08cb71e`; master merged in first (`1eb68ee`, ticket 15's friends page).
+
+Owner's decisions:
+- Merge `master` into the branch before anything else: ticket 15 (the friends page and its shared `FriendList`) is already there.
+- Each search result gets the friendship button for the relationship, as the friends page has: Add friend when there is none, Cancel request when the visitor sent one, Accept and Decline when one waits for them, Remove for a friend.
+- Extract the user row in this branch (decided after the merge, when the friends page's row could be seen).
+- The relationship reaches the search page through the backend if that is the cleanest way ("if backend addition is the cleanest one, go with that"): the search endpoint returns it.
+- If everything in this round is settled, the ticket is ready to merge.
+
+**Built.**
+- **Backend.** `GET api/users/search` returns `ListResponse<SearchUserDto>` (`Id`, `Username`, `Relationship`); `RelationshipDto` is `Status` plus `IsRequester`. `Relationship` is null for a guest, the caller's own row and a stranger. One query (`FriendshipRepository.GetFriendshipsWithAsync`) reads the friendships of the whole page, so there is no call per row. Documented in `docs/backend/controllers.md`.
+- **Shared row.** `shared/user-row` (`li[appUserRow]`) is the one row of `FriendList` (friends page and profile Friends tab) and of the search page: avatar, profile link, "Deleting…", Message, and the friendship buttons. It takes `isBusy` (buttons disabled while a request is on its way).
+- **Search buttons.** `UserSearchStore` (provided by the page) offers the buttons of `friendshipActionsOffered`, none for a guest or the visitor's own row. A click shows the new relationship at once by replacing the row in its list, sends the request, and puts the row back with a toast if the server refuses. Remove asks first. Accept and Decline refresh the incoming-request count. An older search's list takes late changes too (ADR 0003).
+- **Third-use extractions.** `sendFriendshipAction`, `askToRemoveFriend`, `answersRequest` replace the copies in `RelationshipStore` and `FriendsPageStore`; `core/collections/without-id.ts` replaces the private copy in `delete-fade.ts` and the one the search store would have added.
+- **No end line.** "No more users." and `users.search.end` are gone (list rules).
+
+**Checks.** Frontend: Prettier (`--end-of-line auto`), lint, `npm test` 815 passed, build OK (initial bundle warning 735.92 kB against 600 kB, was 709 kB in round 1). Backend: build, and the full integration suite 898 passed (new: five search-relationship tests in `UserControllerTests`).
+
+**Tried in the running app** (backend 7202, `ng serve` 4300, throwaway accounts `r16_me`, `r16_other`, `r16_pal`, signed in as `r16_me`; the owner's 4200/7102 servers were left alone): own row has no button; Accept turns into Remove; Add friend into Cancel request and back; Remove asks "Remove r16_pal from your friends?", Cancel keeps the friend, confirming gives Add friend; buttons are disabled while the request is on its way; at 360 px the buttons wrap under the name like on the friends page. Screenshots (12 variants each) for guest `/search`, `?q=r16_`, `?q=zzzzqq` and signed-in `?q=r16_`, `?q=t20_`; looked at: signed-in 1280 dark Georgian, 768 light English, guest 360 light English.
+Not tried: a failed request's toast in the browser (covered by `user-search-store.spec.ts`), clicking through on a phone width, an expired token in the browser (covered by a unit test).
+
+**Review.** Standards and spec reviews ran on Opus 5.5 at high effort.
+- **Severe, fixed:** the search endpoint is anonymous, so a visitor whose access token had expired was read as a guest: every `relationship` came back null and friends showed "Add friend". The page now calls `sessionStore.validAccessToken()` (renews a token about to expire) before each search request; unit-tested.
+- **Fixed (tidy-ups):** the "copy a set without an id" block (extracted, above); `UserSearchStore.perform` nested four deep (split into `carryOut`); the test `Search_Anonymous_ReturnsMinimalDtoOnly` renamed `Search_Anonymous_ReturnsOnlyIdAndUsername`; the DTO tier table in `dtos-and-mapping.md` no longer says the Minimal tier is for search.
+- **Left alone:** `RemoveFriendTexts` shares a file with `askToRemoveFriend` (a type bound to one function; judgement call); the "after the server answers" block is in three stores but each undoes differently (borderline); `sendFriendshipAction` could live on `FriendshipApi`, and `UserRow` tests `Remove` twice (judgement calls); `typing-store`, `account-action-store`, `conversations-store`, `comment-thread-store` still have their own set copies (not touched by this ticket).
+
+**Open decisions.**
+- **Remove on the search page shows no "Deleting…".** The friends page shows it because the row leaves the list; on search the row stays and turns into Add friend at once, as on a profile (quick actions show their result at once, spec). Recommendation: keep. If you want "Deleting…" here, say so and I add the notice for Remove only.
+- **Throwaway accounts** `r16_me`, `r16_other`, `r16_pal` and their friendship rows remain in the dev database.
+
+**Screenshots:** `.scratch/frontend/shots/16/` in the main checkout (the round 1 pictures were replaced by this round's).
+
+**Branch:** `worktree-f16-search`, pushed for the owner's review, not merged.

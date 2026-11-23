@@ -4,15 +4,16 @@ import { MockInstance } from 'vitest';
 import { AppResult, fail, ok } from '../../../core/http/app-result';
 import { LIMITS } from '../../../core/limits';
 import { PageLoadStatus } from '../../../core/paging/page-load-status';
+import { SessionStore } from '../../../core/session/session-store';
 import { typingPauseMilliseconds } from '../../../core/timing/debouncer';
-import { MinimalUserDto } from '../minimal-user-dto';
+import { SearchUserDto } from '../search-user-dto';
 import { UserApi } from '../user-api';
 import { UserSearchPage } from './user-search-page';
 
 // Class-level tests: the page is created with a stubbed API, and the tests read its navigation, never its
 // DOM (component DOM tests wait until after the release; conventions, Tests and linting).
 describe('UserSearchPage', () => {
-  const found: AppResult<MinimalUserDto[]> = { succeeded: true, data: [] };
+  const found: AppResult<SearchUserDto[]> = { succeeded: true, data: [] };
 
   let userApi: { searchUsers: ReturnType<typeof vi.fn> };
   let navigate: MockInstance<Router['navigate']>;
@@ -125,16 +126,20 @@ describe('UserSearchPage', () => {
   });
 
   describe('the results', () => {
-    const user = (id: number, username: string): MinimalUserDto => ({ id, username });
+    const user = (id: number, username: string): SearchUserDto => ({
+      id,
+      username,
+      relationship: null,
+    });
 
     // The API answers only when the test says so, one search at a time in the order they were asked for.
-    let answers: ((result: AppResult<MinimalUserDto[]>) => void)[];
+    let answers: ((result: AppResult<SearchUserDto[]>) => void)[];
 
     beforeEach(() => {
       answers = [];
       userApi.searchUsers.mockImplementation(
         () =>
-          new Promise<AppResult<MinimalUserDto[]>>((resolve) => {
+          new Promise<AppResult<SearchUserDto[]>>((resolve) => {
             answers.push(resolve);
           }),
       );
@@ -165,6 +170,26 @@ describe('UserSearchPage', () => {
         pageNumber: LIMITS.paging.firstPageNumber,
         pageSize: LIMITS.paging.defaultPageSize,
       });
+    });
+
+    it('gets a valid token before asking, so an expired one is not read as a guest', async () => {
+      const calls: string[] = [];
+      vi.spyOn(TestBed.inject(SessionStore), 'validAccessToken').mockImplementation(async () => {
+        calls.push('token');
+
+        return null;
+      });
+      userApi.searchUsers.mockImplementation(async () => {
+        calls.push('search');
+
+        return found;
+      });
+      const page = await openPage();
+
+      await searchFor(page, 'ali');
+      await vi.advanceTimersByTimeAsync(0);
+
+      expect(calls).toEqual(['token', 'search']);
     });
 
     it('searches the words already in the address when the page opens, as after a reload', async () => {
@@ -217,6 +242,7 @@ describe('UserSearchPage', () => {
       await vi.advanceTimersByTimeAsync(0);
 
       void page['loadMore']();
+      await vi.advanceTimersByTimeAsync(0);
 
       expect(userApi.searchUsers).toHaveBeenLastCalledWith({
         username: 'ali',

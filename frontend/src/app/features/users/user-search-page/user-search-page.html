@@ -27,26 +27,15 @@
         <ul
           class="divide-y divide-border overflow-hidden rounded-lg border border-border bg-surface-raised"
         >
-          @for (user of list.items(); track user.id ?? user.username) {
-            <li class="flex items-center gap-3 px-4 py-1">
-              <app-avatar
-                [userId]="user.id ?? 0"
-                [username]="user.username"
-                [isUnavailable]="user.id === null"
-              />
-              @if (user.id !== null) {
-                <a
-                  appTextLink
-                  class="min-w-0 wrap-anywhere"
-                  [routerLink]="profileAddress(user.username)"
-                  >{{ user.username }}</a
-                >
-              } @else {
-                <span class="min-w-0 py-3 font-semibold text-ink-muted wrap-anywhere">{{
-                  user.username
-                }}</span>
-              }
-            </li>
+          @for (user of list.items(); track user.id) {
+            <li
+              appUserRow
+              [userId]="user.id"
+              [username]="user.username"
+              [actions]="searchStore.actionsFor(user)"
+              [isBusy]="searchStore.busyIds().has(user.id)"
+              (action)="perform($event, user)"
+            ></li>
           }
         </ul>
       }
@@ -74,11 +63,7 @@
           />
         }
         @case (PageLoadStatus.Ended) {
-          @if (list.items().length > 0) {
-            <p class="py-4 text-center text-sm text-ink-muted">
-              {{ text().users.search.end }}
-            </p>
-          } @else {
+          @if (list.items().length === 0) {
             <app-empty-state
               class="rounded-lg border border-border bg-surface-raised"
               [heading]="text().users.search.emptyTitle"

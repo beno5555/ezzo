@@ -1,7 +1,7 @@
 import { Component, DestroyRef, effect, inject, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { LucideSearch, LucideUserX } from '@lucide/angular';
 import { map } from 'rxjs';
 import { LanguageStore } from '../../../core/languages/language-store';
@@ -13,43 +13,47 @@ import {
   searchQueryParameter,
   searchQueryParameters,
 } from '../../../core/routing/app-addresses';
+import { SessionStore } from '../../../core/session/session-store';
 import { Debouncer, typingPauseMilliseconds } from '../../../core/timing/debouncer';
-import { Avatar } from '../../../shared/avatar/avatar';
 import { Button } from '../../../shared/button/button';
 import { EmptyState } from '../../../shared/empty-state/empty-state';
 import { LoadFailure } from '../../../shared/load-failure/load-failure';
 import { ScrollSentinel } from '../../../shared/scroll-sentinel/scroll-sentinel';
 import { TextInput } from '../../../shared/text-input/text-input';
-import { TextLink } from '../../../shared/text-link/text-link';
-import { MinimalUserDto } from '../minimal-user-dto';
+import { UserRow } from '../../../shared/user-row/user-row';
+import { FriendshipAction } from '../../friendships/friendship-action';
+import { SearchUserDto } from '../search-user-dto';
 import { UserApi } from '../user-api';
+import { UserSearchStore } from '../user-search-store';
 
 // The search page at /search?q=…. The address holds the query, so the top bar's search box, this
 // page's own form and the browser's Back button all lead to the same search. Typing searches too, once
 // the visitor pauses: the address is replaced, not added to, so Back does not walk through every try.
 // Each search has its own PagedList and the page shows only the latest, so a slow answer to older words
 // lands in a list nobody sees any more (ADR 0003). Results load page after page as the visitor scrolls.
+// Each result is a UserRow with the friendship buttons its relationship offers to a signed-in visitor
+// (UserSearchStore); a guest sees the names alone.
 @Component({
   selector: 'app-user-search-page',
   imports: [
     ReactiveFormsModule,
-    RouterLink,
-    Avatar,
     Button,
     EmptyState,
     LoadFailure,
     ScrollSentinel,
     TextInput,
-    TextLink,
+    UserRow,
     LucideSearch,
     LucideUserX,
   ],
+  providers: [UserSearchStore],
   templateUrl: './user-search-page.html',
   styleUrl: './user-search-page.css',
 })
 export class UserSearchPage {
   private readonly userApi = inject(UserApi);
   private readonly router = inject(Router);
+  private readonly sessionStore = inject(SessionStore);
 
   // The query in the address. Read from the route, not bound as an input: an input's name must be a literal,
   // which would repeat searchQueryParameter where nothing checks the two agree.
@@ -61,13 +65,13 @@ export class UserSearchPage {
 
   protected readonly text = inject(LanguageStore).text;
   protected readonly PageLoadStatus = PageLoadStatus;
-  protected readonly profileAddress = appAddresses.profile;
+  protected readonly searchStore = inject(UserSearchStore);
   protected readonly form = inject(NonNullableFormBuilder).group({
     username: ['', [Validators.required, Validators.maxLength(LIMITS.users.usernameMaxLength)]],
   });
 
   // The latest search, or null while there are no words to search for (the page then shows its prompt).
-  protected readonly results = signal<PagedList<MinimalUserDto> | null>(null);
+  protected readonly results = signal<PagedList<SearchUserDto> | null>(null);
   // The words the results are for, named in the empty state.
   protected readonly searchedWords = signal('');
 
@@ -95,6 +99,15 @@ export class UserSearchPage {
   // From the scroll sentinel, and from the Try again button after a failed page.
   async loadMore(): Promise<void> {
     await this.results()?.loadNext();
+  }
+
+  // A click on a row's friendship button: the change is made on the list the page shows now.
+  async perform(action: FriendshipAction, user: SearchUserDto): Promise<void> {
+    const list = this.results();
+
+    if (list !== null) {
+      await this.searchStore.perform(action, user, list);
+    }
   }
 
   async submit(): Promise<void> {
@@ -152,13 +165,17 @@ export class UserSearchPage {
     }
   }
 
-  private createList(username: string): PagedList<MinimalUserDto> {
-    return new PagedList<MinimalUserDto>({
-      loadPage: (page) => this.userApi.searchUsers({ username, ...page }),
+  private createList(username: string): PagedList<SearchUserDto> {
+    return new PagedList<SearchUserDto>({
+      loadPage: async (page) => {
+        // The search answers a guest too, so an expired token would not be refused but read as no one: the
+        // relationships come back empty. A token that is about to expire is renewed first.
+        await this.sessionStore.validAccessToken();
+
+        return this.userApi.searchUsers({ username, ...page });
+      },
       pageSize: LIMITS.paging.defaultPageSize,
-      // The search never returns an account without an id (deactivated or deleted), so the name, which
-      // is unique, is only the fallback.
-      keyOf: (user) => user.id ?? user.username,
+      keyOf: (user) => user.id,
     });
   }
 }

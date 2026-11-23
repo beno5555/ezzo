@@ -249,7 +249,7 @@ Route: `api/users`. Inherits `BaseController`. `[Authorize]` at controller level
 | GET    | `api/users/{id:int}`   | Anonymous       | Single user by id, `StandardUserDto`                                                             |
 | GET    | `api/users/{username}` | Anonymous       | Single user by username, `StandardUserDto` (route-constraint-disambiguated from the id overload) |
 | GET    | `api/users/mine`       | Required        | Caller's own full profile, `FullUserDto` (includes email + roles)                                |
-| GET    | `api/users/search`     | Anonymous       | Username-substring search, `SearchUserQuery`, `ListResponse<MinimalUserDto>`                     |
+| GET    | `api/users/search`     | Anonymous       | Username-substring search, `SearchUserQuery`, `ListResponse<SearchUserDto>`; a signed-in caller also gets their friendship with each result (`SearchUserDto`, under DTO tiers) |
 | PUT    | `api/users/mine`       | Required        | Edit own profile (username, DOB, bio)                                                            |
 | PUT    | `api/users/{id:int}`   | `Administrator` | Edit another user's profile                                                                      |
 
@@ -258,7 +258,8 @@ Route: `api/users`. Inherits `BaseController`. `[Authorize]` at controller level
 **DTO tiers**, shape-by-audience:
 - `FullUserDto` — Id, Username, Email, Bio, `Roles` (list of role names), RegisteredAt, DateOfBirth, `UsernameLastChangedAt` (null when the username was never changed). Only returned for the caller's own profile or a freshly-registered account.
 - `StandardUserDto` — Id, Username, Bio, DateOfBirth (no email, no roles, **no joined date**). Public single-fetch, by id and by username. The joined date is private: only the user (in `FullUserDto`) and administrators (`AdminUserDto.RegisteredAt`) see it.
-- `MinimalUserDto` — nullable Id + Username. List/search results.
+- `MinimalUserDto` — nullable Id + Username. Lists of people (likers, friends).
+- `SearchUserDto` — Id (never null: the search skips deactivated and deleted accounts), Username, and `Relationship` (`RelationshipDto`: `Status`, and `IsRequester`, true when the caller sent the request). `Relationship` is null for a guest, for the caller's own row, and for a user the caller has no friendship with. One query reads the friendships of the whole page (`FriendshipRepository.GetFriendshipsWithAsync`), so the search page can show the right friendship button on each row without a call per row. A declined request is reported as `Declined`, as `GET api/friendships/{id}` does.
 
 **Username change cooldown.** `User.UsernameLastChangedAt` (nullable, null = never changed), returned to its owner in `FullUserDto.UsernameLastChangedAt` so the settings page can show when the username can change again. `EditUserProfileAsync` only blocks the edit if the username itself changed and the cooldown (`Constants.UsernameChangeCooldownDays`, 20 days) hasn't elapsed; a bio/DOB-only edit never touches this field or the cooldown. Collapses into the same mixed-meaning `BadRequest` bucket ("not found" vs. "cooldown active" aren't told apart at the HTTP layer).
 
