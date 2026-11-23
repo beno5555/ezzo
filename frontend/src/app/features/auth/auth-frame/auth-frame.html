@@ -3,7 +3,10 @@
   <h1 class="font-display text-2xl text-ink-strong">{{ heading() }}</h1>
 </ng-template>
 
-<section class="mx-auto flex w-full max-w-104 flex-col gap-6 md:pt-6">
+<section
+  class="mx-auto flex w-full flex-col gap-6 md:pt-6"
+  [class]="lifted() ? 'max-w-120' : 'max-w-104'"
+>
   @if (!lifted()) {
     <header class="flex flex-col gap-2">
       <ng-container [ngTemplateOutlet]="title" />
@@ -23,7 +26,8 @@
     }
 
     <div
-      class="relative flex flex-col gap-5 rounded-lg border border-border bg-surface-raised p-4 md:p-6"
+      class="relative flex flex-col gap-5 rounded-lg border border-border bg-surface-raised"
+      [class]="lifted() ? 'p-5 md:p-8' : 'p-4 md:p-6'"
       [class.shadow-overlay]="lifted()"
       [class.shadow-raised]="!lifted()"
     >
