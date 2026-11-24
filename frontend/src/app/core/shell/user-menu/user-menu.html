@@ -1,11 +1,6 @@
 @if (user(); as signedInUser) {
   <app-shell-popover #menu [label]="text().shell.userMenuLabel">
-    <app-avatar
-      appPopoverTrigger
-      [userId]="signedInUser.id"
-      [username]="signedInUser.username"
-      [size]="avatarSize"
-    />
+    <app-avatar appPopoverTrigger [userId]="signedInUser.id" [size]="avatarSize" />
 
     <p class="px-3 pt-2 pb-1 text-sm text-ink-muted wrap-break-word">
       {{ text().shell.signedInAs }}

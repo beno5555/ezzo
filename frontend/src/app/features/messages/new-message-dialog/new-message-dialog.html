@@ -10,7 +10,7 @@
               type="button"
               (click)="choose(friend)"
             >
-              <app-avatar [userId]="friend.id" [username]="friend.username" />
+              <app-avatar [userId]="friend.id" />
               <span class="flex min-w-0 flex-col gap-0.5">
                 <span class="truncate font-semibold">{{ friend.username }}</span>
                 <app-presence-label [lastActiveAt]="friend.lastActiveAt" />

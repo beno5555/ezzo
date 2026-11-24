@@ -35,7 +35,7 @@
   /* The big "ezzo" stamped behind every page. Kept pale so text on the page stays 4.5 to 1 where it overlaps. */
   --color-stamp: #d7e4e8;
 
-  /* Discs of the default profile picture: the same in both themes, always with on-disc letters. */
+  /* Rings of the default profile picture: the same in both themes (also the discs of the landing page's drawing, with on-disc lines). */
   --color-disc-1: #1f6b62;
   --color-disc-2: #2f6a47;
   --color-disc-3: #566a1d;

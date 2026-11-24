@@ -4,7 +4,7 @@
          narrow column beside the large picture; from md: up it sits beside it. -->
     <div class="flex flex-wrap items-start gap-x-4 gap-y-3 md:flex-nowrap">
       <span class="relative flex shrink-0">
-        <app-avatar [userId]="user().id" [username]="user().username" [size]="AvatarSize.Large" />
+        <app-avatar [userId]="user().id" [size]="AvatarSize.Large" />
         @if (presence.dot(); as dot) {
           <app-presence-dot
             class="absolute end-1.5 bottom-1.5"

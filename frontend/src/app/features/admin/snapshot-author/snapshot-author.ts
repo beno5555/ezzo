@@ -24,7 +24,7 @@ export class SnapshotAuthor {
   readonly uploadedAt = input.required<string>();
 
   protected readonly isAvailable = computed(() => isUserAvailable(this.author()));
-  // The avatar picks its disc by id; an unavailable author gets the grey disc, whatever the id.
+  // The avatar picks its ring by id; an unavailable author gets the grey ring, whatever the id.
   protected readonly avatarId = computed(() => this.author().id ?? 0);
   protected readonly profileAddress = computed(() => appAddresses.profile(this.author().username));
 }
