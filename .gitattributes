@@ -8,3 +8,6 @@ frontend/** text=auto eol=lf
 # and sh misreads a script with CRLF ones.
 *.cmd text eol=crlf
 .claude/skills/impeccable/scripts/impeccable text eol=lf
+
+# Exclude the third-party Impeccable bundle from GitHub language statistics.
+.claude/skills/impeccable/** linguist-vendored
