@@ -35,7 +35,7 @@
   /* The big "ezzo" stamped behind every page. Kept pale so text on the page stays 4.5 to 1 where it overlaps. */
   --color-stamp: #d7e4e8;
 
-  /* Rings of the default profile picture: the same in both themes (also the discs of the landing page's drawing, with on-disc lines). */
+  /* Discs of the landing page's drawing: the same in both themes, always with on-disc lines. */
   --color-disc-1: #1f6b62;
   --color-disc-2: #2f6a47;
   --color-disc-3: #566a1d;
@@ -44,8 +44,18 @@
   --color-disc-6: #8a4925;
   --color-disc-7: #69513a;
   --color-disc-8: #6d3c69;
-  --color-disc-unavailable: #686c6e;
   --color-on-disc: #ffffff;
+
+  /* Rings of the default profile picture: the same hues as the discs, lighter in the dark theme. */
+  --color-avatar-1: #1f6b62;
+  --color-avatar-2: #2f6a47;
+  --color-avatar-3: #566a1d;
+  --color-avatar-4: #3d5788;
+  --color-avatar-5: #4c4f8c;
+  --color-avatar-6: #8a4925;
+  --color-avatar-7: #69513a;
+  --color-avatar-8: #6d3c69;
+  --color-avatar-unavailable: #686c6e;
 
   /*
    * Type. Body: Noto Sans, with Noto Sans Georgian for Georgian letters. Display: Bricolage Grotesque,
@@ -192,5 +202,15 @@
     --color-warning: #efb84f;
     --color-focus: #9bd3f2;
     --color-stamp: #23343d;
+
+    --color-avatar-1: #288b7f;
+    --color-avatar-2: #3e8c5d;
+    --color-avatar-3: #6d8625;
+    --color-avatar-4: #5d7cb7;
+    --color-avatar-5: #7477b3;
+    --color-avatar-6: #be6533;
+    --color-avatar-7: #997654;
+    --color-avatar-8: #aa65a4;
+    --color-avatar-unavailable: #787d7f;
   }
 }

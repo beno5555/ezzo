@@ -18,10 +18,10 @@
 
 **Difficulty:** easy: one component, its unit-tested helper (`default-picture.ts`) and two documents.
 
-- [x] The ring's colour follows the user's id, from the eight `disc-*` tokens
+- [x] The ring's colour follows the user's id, from the eight `avatar-*` tokens (the ticket said `disc-*`; round 2 gave the ring its own tokens)
 - [x] The inside is the same faceless silhouette for every user, with no initials
 - [x] An unavailable account shows a grey ring around the silhouette
-- [ ] The ring and the silhouette are visible against the page in both themes, at every avatar size (not met in full: the rings are faint in the dark theme, see the round report)
+- [x] The ring and the silhouette are visible against the page in both themes, at every avatar size (the dark rings were faint in round 1; round 2 lightened them to 3.3 to 1 or more; the large size was not looked at in the running app)
 - [x] `DESIGN.md` describes the new default picture
 - [x] Checked with the screenshot command at 360, 768 and 1280 px in both themes, on a page that shows several users
 
@@ -39,3 +39,9 @@
 - **Review.** Findings applied, except two judgement calls left alone: ring width and colour sit in `avatar.ts` and `default-picture.ts` (the width depends on the avatar size, the colour on the id), and the file name `default-picture.ts` stays. A ring entry in the `profile-picture-default` front matter was skipped because the format's keys do not cover a ring.
 - **Screenshots.** `.scratch/frontend/shots/31/` in the main checkout (home, friends, messages in English, all widths and themes, plus the guest landing page).
 - **Branch.** `worktree-f31-silhouette`: visual work waiting for the owner's review, not merged, not pushed.
+
+**2026-11-24, round 2: owner's feedback (Sonnet 5.5).**
+
+- **Owner approved the open decision:** the ring gets its own tokens. Built: `avatar-1` to `avatar-8` and `avatar-unavailable` in `design-tokens.css` and in `DESIGN.md` (front matter with `-dark` entries, token table, contrast note, Components). The light values are the old disc values. The dark values are the same hues, lightened until each is at least 3.3 to 1 on `surface-raised` (4.2 to 1 or more on `surface-page`): `#288b7f #3e8c5d #6d8625 #5d7cb7 #7477b3 #be6533 #997654 #aa65a4`, grey `#787d7f`. `disc-unavailable` is gone (it had no other user); `disc-1` to `disc-8` and `on-disc` stay for the landing drawing. `ringClass` returns `border-avatar-*`; its spec follows. Checks: tests (973), lint, build and Prettier pass.
+- **Checked in the running app:** the guest landing page at 1280 px in both themes (computed ring colours match the tokens: `#5d7cb7` and `#288b7f` in dark, `#3d5788` and `#1f6b62` in light). Not re-checked: the signed-in pages, because ports 4200 and 7102 were held by servers I did not start (another session's), so I served the frontend on port 4300 and did not touch them.
+- **Icon question.** The silhouette is lucide's `UserRound` (the icon the user menu already uses for Profile), filled, because the ticket asked for `@lucide/angular` first. The owner asked for other versions: `.scratch/frontend/mocks/31-silhouettes.html` shows five (A, the built one; B lucide `User`; C outline; D a hand-drawn classic where the shoulders fill the disc; E smaller), in both themes with the new rings. **Open decision:** A stays until the owner picks; changing it is one template line (B, C, E) or an inline SVG in `avatar.html` (D, which breaks the ticket's "icon from lucide if one fits" preference).

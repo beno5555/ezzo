@@ -1,16 +1,16 @@
-// The eight disc design tokens as ring classes, written out whole so that Tailwind finds each class in
+// The eight avatar design tokens as ring classes, written out whole so that Tailwind finds each class in
 // this file.
 const ringClasses = [
-  'border-disc-1',
-  'border-disc-2',
-  'border-disc-3',
-  'border-disc-4',
-  'border-disc-5',
-  'border-disc-6',
-  'border-disc-7',
-  'border-disc-8',
+  'border-avatar-1',
+  'border-avatar-2',
+  'border-avatar-3',
+  'border-avatar-4',
+  'border-avatar-5',
+  'border-avatar-6',
+  'border-avatar-7',
+  'border-avatar-8',
 ] as const;
-const unavailableRingClass = 'border-disc-unavailable';
+const unavailableRingClass = 'border-avatar-unavailable';
 
 // The ring of the default profile picture (DESIGN.md, Components): the colour of its outline. The inside
 // is the same faceless silhouette for everyone. The colour follows the id, not the username, so it
