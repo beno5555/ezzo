@@ -17,7 +17,7 @@ The documentation sent to the academy (`webcity-documentation.md`) promises six 
 
 Add the **automation**: n8n, running in Docker beside the backend, with six workflows. The backend tells the automation what happened, as signed events. The automation acts through a small set of endpoints that only it can call, and through Telegram, email and OpenAI.
 
-- **AI moderation.** New and edited posts and comments, and the photos of a new post, are checked by OpenAI's moderation endpoint. Doubtful content becomes Flagged, clearly violating content becomes Hidden, and administrators get an alert either way.
+- **AI moderation.** New and edited posts and comments, and the photos of a new post, are checked by OpenAI's moderation endpoint, and what it catches is read again in context by a chat model, the AI judge. Doubtful content becomes Flagged, clearly violating content becomes Hidden, and administrators get an alert either way.
 - **Report handling.** Every new report raises an alert. A post or comment with five pending reports within 24 hours is hidden until an administrator decides.
 - **Welcome email.** A new account gets a welcome email.
 - **Weekly digest.** Once a week a user gets an email with their unread conversations, their pending friend requests and popular posts by their friends. A switch on the settings page turns it off.
@@ -219,6 +219,7 @@ The six emails the backend already sends (about passwords, reactivation and deac
 - **Welcome email** (`account-created`): one email from an HTML template.
 - **AI moderation** (`post-created`, `post-edited`, `comment-created`, `comment-edited`): the text goes to OpenAI's moderation endpoint in one call, and each photo in a call of its own, downloaded from the backend and sent as base64. The highest result decides.
   - Marked as violating by OpenAI: set Flagged. Any category score of 0.9 or more: set Hidden.
+  - **The AI judge** (added in ticket 06's revision, 2026-11-24): the classifier flagged negations and "`<country>` is bad". Content it flags or hides goes, with its photos and categories, to a chat model, which answers clean, doubtful or violating. The judge may confirm the classifier's outcome or lower it one step, never raise it. When its call fails (no credits left, any error), the classifier's outcome stands.
   - An edit cannot add photos, so an edit is checked on its text alone.
   - Content that arrives already Hidden is not checked.
   - Flagged or Hidden: an alert to the administrators' chat and an email to the administrator address, with the content, its author, the outcome and the categories.
