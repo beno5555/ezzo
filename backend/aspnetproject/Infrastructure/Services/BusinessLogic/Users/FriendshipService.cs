@@ -207,7 +207,7 @@ public class FriendshipService : BaseService
         return response;
     }
     
-    // The User query filter can leave the friend navigation empty, so look up the same account without the filter.
+    // The User query filter can hide a friend while the friendship's foreign key still references that account.
     private async Task<User?> ResolveOtherUserAsync(Friendship friendship, int otherUserId)
     {
         var otherUser = friendship.RequesterUserId == otherUserId

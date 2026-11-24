@@ -64,7 +64,7 @@ public class MessageRepository : BaseEntityRepository<Message>
         await DeleteWhereAsync(InConversation(userA, userB));
     }
 
-    // The read update covers the whole conversation even when the caller fetched one page.
+    // Marks incoming messages as read across all pages, even when the caller fetched just one.
     // Reopening a conversation with no unread messages sends no MessageSeen event.
     public async Task<(bool marked, DateTime seenAt)> MarkConversationAsReadAsync(int readerId, int otherUserId)
     {
