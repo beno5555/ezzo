@@ -41,7 +41,7 @@
       "credentials": {
         "crypto": {
           "id": "wcSigningSecret1",
-          "name": "WebCity event signing secret"
+          "name": "Ezzo event signing secret"
         }
       }
     },
@@ -144,7 +144,7 @@
       "credentials": {
         "telegramApi": {
           "id": "wcTelegramBot001",
-          "name": "WebCity Telegram bot"
+          "name": "Ezzo Telegram bot"
         }
       }
     }

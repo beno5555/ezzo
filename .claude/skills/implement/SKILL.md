@@ -34,6 +34,7 @@ When working from a ticket, append a round report to it before you commit, under
 - what waits for another ticket, and which
 - the screenshots' folder
 - the branch's state: pushed, waiting for the owner's review or merged, and a lane's trial merge result
+- **for a workflow ticket (n8n),** a block headed `For the owner`: the exact commands to run from the repo root, what each should show, and the credential or `.env` values to fill in first, by name and never by value. Say which boxes the session proved against the real n8n and which only the owner's run can prove. The status stays `in-progress` until the owner has run the checklist, because no test catches a broken workflow; tick only the boxes the session proved. The build and the full test suite are not needed when no backend file changed
 
 Point to the ticket or an earlier comment rather than repeat it. Test durations and the changed files go only in the chat report, which covers the rest too.
 

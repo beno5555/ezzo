@@ -1,7 +1,7 @@
-# WebCity's automation: n8n with the workflows in ./workflows, imported and published on every start.
+# Ezzo's automation: n8n with the workflows in ./workflows, imported and published on every start.
 # Start from the repo root:  docker compose -f n8n/compose.yaml up -d      (n8n/README.md)
 
-name: webcity-n8n
+name: ezzo-n8n
 
 x-n8n: &n8n
   image: docker.n8n.io/n8nio/n8n:2.47.7 # pinned: 3.0 is a one-way upgrade (spec, n8n setup)
@@ -46,7 +46,7 @@ services:
       - n8n_data:/home/node/.n8n
       - type: bind
         source: ./tools
-        target: /opt/webcity-tools # export-workflow.ps1 runs clean-workflow.js from here
+        target: /opt/ezzo-tools # export-workflow.ps1 runs clean-workflow.js from here
         read_only: true
     depends_on:
       n8n-import:

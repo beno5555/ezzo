@@ -80,6 +80,19 @@ Then one Telegram message to the developers' chat (`TELEGRAM_DEVELOPERS_CHAT_ID`
 - [ ] `pwsh -File n8n/send-test-exception.ps1` prints `n8n answered 200`, and the message shows `_`, `*`, `<b>`, `&` and the backticks as plain text, with nothing missing.
 - [ ] `pwsh -File n8n/send-test-exception.ps1 -Signature Wrong` and `pwsh -File n8n/send-test-exception.ps1 -Signature None` each print `n8n answered 401`, and no message arrives.
 
+### Welcome email (`workflows/welcome-email.json`, id `wcWelcomeEmail01`)
+
+`POST /webhook/account-created`, sent by the backend when a registration succeeds or an administrator creates an account. It starts with the same signature check as the exception alerts (raw body, Crypto node, comparison, `401` or `200` before any work). Then one HTML email goes to the new account's address: a greeting with the username, two sentences on what the product is for, and a link to `WEBCITY_FRONTEND_URL`. The text and the layout are in the Code node `Write the email`, so changing the wording means editing that node and exporting the workflow (`export-workflow.ps1 -Id wcWelcomeEmail01`), not rebuilding the backend. The product's name (`WEBCITY_PRODUCT_NAME`), the link's address and the sender (`WEBCITY_SENDER_NAME`, `WEBCITY_SENDER_EMAIL`) come from `.env`; the username is escaped, and n8n's attribution line is off. The SMTP account is the `Ezzo SMTP` entry in `credentials.json`: fill in the same account the backend uses (`EmailConfiguration`) before this workflow can send.
+
+**Checklist.** Fill in the SMTP entry of `n8n/credentials.json` and the sender values in `n8n/.env`, run `docker compose -f n8n/compose.yaml up -d`, and run the backend and the frontend (`npm start` in `frontend/`).
+
+- [ ] Register a new account in the running app with an address you can read. The welcome email arrives with the username, the product's name and a link that opens the app.
+- [ ] Create an account as an administrator (the admin panel's create-user form). The new address gets the same email.
+- [ ] Change `WEBCITY_PRODUCT_NAME` in `n8n/.env`, run `docker compose -f n8n/compose.yaml up -d`, and register again: the email carries the new name, and no workflow file changed.
+- [ ] The email has no "sent automatically with n8n" line.
+- [ ] Stop n8n (`docker compose -f n8n/compose.yaml stop`) and register: the registration still succeeds (the welcome email is lost, and a `Log` row records it).
+- [ ] A post with a wrong signature gets `401` and sends no email: change `$eventName` in a copy of `send-test-exception.ps1` to `account-created`, or send any body to `http://127.0.0.1:5678/webhook/account-created` with an `X-WebCity-Signature` of 64 zeros.
+
 ## What was checked against the real n8n
 
 The spec's n8n facts came from the documentation and source at `2.47.7`. Ticket 02 ran them on this machine (2026-11-21); its Comments hold the details.

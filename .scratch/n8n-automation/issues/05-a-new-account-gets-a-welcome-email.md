@@ -15,18 +15,18 @@ Decisions are under "The six workflows" in `.scratch/n8n-automation/spec.md`.
 
 **Blocked by:** 02 (n8n starts from the repository and sends that failure to Telegram), 04 (The backend tells the automation about new accounts, content and reports)
 
-**Status:** ready-for-agent
+**Status:** in-progress
 
 **Difficulty:** routine (Opus 5.5 medium): it copies ticket 02's webhook pattern, but no test catches a broken workflow; it is proven only by running it.
 
 - [ ] Registering in the running app delivers the welcome email to that address, with the username, the product's name and a working link
 - [ ] An account created by an administrator gets the same email
 - [ ] Changing the product's name in `.env` and restarting n8n changes the email, with no change to a workflow file
-- [ ] A post to the webhook with a wrong signature gets `401` and sends nothing
+- [x] A post to the webhook with a wrong signature gets `401` and sends nothing
 - [ ] With n8n stopped, registration still succeeds
 - [ ] The email carries no n8n attribution line
-- [ ] The workflow file is committed with a fixed id and no pinned data, and a clean start imports and publishes it beside the first one
-- [ ] The README's checklist for this workflow is written
+- [x] The workflow file is committed with a fixed id and no pinned data, and a clean start imports and publishes it beside the first one
+- [x] The README's checklist for this workflow is written
 - [ ] The owner ran the checklist on their machine
 
 ## Known limits from ticket 01
@@ -36,3 +36,7 @@ Ticket 01 built the backend's sending side (`EventPublisher`, `docs/backend/auto
 - **A lost event is a lost welcome email.** Someone who registers while n8n is down gets no welcome, and nothing resends it. The only trace is the backend's `Log` row (action `EventPublisher.PublishAsync`, details naming `account-created`, not the user).
 - **Answer first.** The backend waits up to 3 seconds for n8n's answer inside the registration request. Respond to Webhook runs straight after the signature check, before the email is sent.
 - **Check the signature on the raw body**, as ticket 02 does; parsed and rewritten JSON never matches.
+
+## Comments
+
+- **2026-11-24, built, waiting for the owner's run (Claude).** `n8n/workflows/welcome-email.json` (id `wcWelcomeEmail01`): the ticket 02 signature check, then a Code node that writes the HTML from `$env` (product name, frontend address, sender) with the username escaped, then an Email Send node on the `Ezzo SMTP` credential with the attribution line off. Run against the real n8n: the import log publishes both workflows beside each other; a wrong and a missing signature answer `401`; a right one answers `200` and the run reaches the SMTP node, which fails on the placeholder host (`ENOTFOUND smtp.example.com`), so the Code node ran. No mail was sent: the SMTP entry in `credentials.json` is still a placeholder, which is why the delivery, the second-account, the product-name and the n8n-stopped boxes stay open for the owner's checklist (`n8n/README.md`). The ticket also cannot be closed before 02, which it is blocked by.
