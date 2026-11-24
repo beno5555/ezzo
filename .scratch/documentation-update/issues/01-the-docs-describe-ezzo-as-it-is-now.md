@@ -32,7 +32,7 @@ The work continues on the branch that already holds the C4 update, `claude/vibra
 - [x] The C4 document and its diagrams say Ezzo; the changed diagrams and the PDF are rebuilt and the PDF is checked by eye
 - [x] The roadmap's step 10 points to this ticket instead of monorepo ticket 04, and "After the deadline" lists the deferred rename
 - [x] Monorepo ticket 04's status says it is superseded by this ticket
-- [ ] After the merge and push, and with the owner's go-ahead, the GitHub repository is `ezzo` and `origin` points to it
+- [x] After the merge and push, and with the owner's go-ahead, the GitHub repository is `ezzo` and `origin` points to it
 
 ## Comments
 
@@ -74,4 +74,4 @@ The work continues on the branch that already holds the C4 update, `claude/vibra
   - The former-name sentence is not marked **Temporary**: the former name stays true after the deferred rename, and only the list will shrink.
   - The root README's feature list overlaps the API's feature list in `backend/README.md`. One is for users, the other for API consumers.
 - **For the owner.** Your gitignored `appsettings.json` and `appsettings.Testing.json` set `EmailConfiguration:SenderName` to WebCity, so users see that name on the emails. The ticket does not change local settings.
-- **Branch.** Merged into `master` with `--no-ff` and pushed. The last box (the GitHub rename) waits for the owner's go-ahead.
+- **Branch.** Merged into `master` with `--no-ff` and pushed. With the owner's go-ahead the repository is renamed to `beno5555/ezzo` and `origin` is `git@github.com:beno5555/ezzo.git`. The owner deferred renaming the local root folder until after the deadline (roadmap).
