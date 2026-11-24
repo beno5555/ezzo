@@ -16,6 +16,8 @@ export const LIMITS = {
     bioMaxLength: 300,
     minAge: 13,
     maxAge: 100,
+    // Constants.UsernameChangeCooldownDays: a username can change once in this many days.
+    usernameChangeCooldownDays: 20,
     usernamePattern: /^(?=.*[a-zA-Z])[a-zA-Z0-9_-]+$/,
     emailPattern: /^[^@\s]+@[^@\s]+\.[^@\s]+$/,
   },

@@ -41,6 +41,24 @@ export class UserApi {
     );
   }
 
+  // The signed-in user's own profile, with the email, the joined date and the time the username was last
+  // changed, which no public read carries.
+  getMine(): Promise<AppResult<FullUserDto>> {
+    return toAppResult(
+      this.http.get<ApplicationResponse<FullUserDto>>('/api/users/mine'),
+      this.languageStore.text().httpFailures,
+    );
+  }
+
+  // The signed-in user edits their own profile. A username changed inside the cooldown is refused with a
+  // plain message (user-refusal-field.ts); the answer holds the username as stored, in lower case.
+  editMine(profile: EditUserDto): Promise<AppResult<FullUserDto>> {
+    return toAppResult(
+      this.http.put<ApplicationResponse<FullUserDto>>('/api/users/mine', profile),
+      this.languageStore.text().httpFailures,
+    );
+  }
+
   // An administrator creates an account with the fields of registration. The new account is not
   // signed in, and answers with its full shape.
   create(registration: RegisterDto): Promise<AppResult<FullUserDto>> {

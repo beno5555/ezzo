@@ -228,6 +228,10 @@ export const georgian: Dictionary = {
       notices: {
         accountCreated: 'ანგარიში შეიქმნა. გასაგრძელებლად შედით.',
         accountReactivated: 'თქვენი ანგარიში ისევ აქტიურია. გასაგრძელებლად შედით.',
+        accountDeactivated:
+          'თქვენი ანგარიში დეაქტივირებულია. დასაბრუნებლად ფორმის ქვემოთ მოცემული ბმულით მოითხოვეთ გააქტიურების ბმული ელფოსტაზე.',
+        accountDeleted:
+          'თქვენი ანგარიში წაშლილია. მისი მონაცემები სამუდამოდ ამოიშლება შენახვის ვადის გასვლის შემდეგ.',
         passwordReset: 'პაროლი შეიცვალა. შედით ახალი პაროლით.',
       },
     },
@@ -479,6 +483,59 @@ export const georgian: Dictionary = {
         emptyTitle: 'მეგობრები ჯერ არ არის',
         emptyMessage: 'ამ მომხმარებლის მეგობრები აქ გამოჩნდება.',
         retryButton: 'თავიდან ცდა',
+      },
+    },
+    settings: {
+      heading: 'პარამეტრები',
+      backLink: 'დაბრუნება',
+      loading: 'პარამეტრები იტვირთება…',
+      retryButton: 'თავიდან ცდა',
+      profile: {
+        heading: 'პროფილი',
+        usernameRule: (days: number) =>
+          pluralize(Language.Georgian, days, {
+            other: `მომხმარებლის სახელის შეცვლა შეიძლება ${days} დღეში ერთხელ.`,
+          }),
+        usernameNeverChanged: 'ჯერ არ შეგიცვლიათ.',
+        usernameLastChanged: (date: string) => `ბოლოს შეცვალეთ: ${date}.`,
+        usernameChangeableFrom: (date: string) => `ხელახლა შეგიძლიათ შეცვალოთ: ${date}.`,
+        usernameChangeableNow: 'ახლა შეგიძლიათ შეცვალოთ.',
+        created: (date: string) => `თქვენი ანგარიში შეიქმნა: ${date}.`,
+        submitButton: 'ცვლილებების შენახვა',
+        savedToast: 'თქვენი პროფილი შენახულია.',
+      },
+      language: {
+        heading: 'ენა',
+        description: 'აირჩიეთ ინტერფეისის ენა.',
+      },
+      password: {
+        heading: 'პაროლი',
+        description: 'გამოგიგზავნით ბმულს ახალი პაროლის ასარჩევად.',
+        requestButton: 'გამომიგზავნეთ ბმული',
+        sent: (email: string) =>
+          `წერილი გზაშია მისამართზე ${email}. გახსენით მისი ბმული და აირჩიეთ ახალი პაროლი.`,
+      },
+      dangerZone: {
+        heading: 'საშიში ზონა',
+        deactivate: {
+          heading: 'ანგარიშის დეაქტივაცია',
+          description:
+            'სისტემიდან გახვალთ და თქვენი ანგარიში დაიმალება. ნებისმიერ დროს შეგიძლიათ მისი გააქტიურება ელფოსტით გამოგზავნილი ბმულით.',
+          button: 'ანგარიშის დეაქტივაცია',
+          question: 'დეაქტივირდეს ანგარიში?',
+          detail: 'სისტემიდან მაშინვე გახვალთ. ანგარიშს ელფოსტით გამოგზავნილი ბმული დააბრუნებს.',
+          confirmButton: 'დეაქტივაცია',
+        },
+        delete: {
+          heading: 'ანგარიშის წაშლა',
+          description:
+            'სისტემიდან გახვალთ და თქვენი ანგარიში წაიშლება. მისი მონაცემები სამუდამოდ ამოიშლება შენახვის ვადის გასვლის შემდეგ.',
+          button: 'ანგარიშის წაშლა',
+          question: 'წაიშალოს ანგარიში?',
+          detail: 'სისტემიდან მაშინვე გახვალთ და ანგარიშის დაბრუნება შეუძლებელი იქნება.',
+          typedSentence: (username: string) => `მე ვარ ${username} და მინდა ჩემი ანგარიშის წაშლა`,
+          confirmButton: 'წაშლა',
+        },
       },
     },
   },

@@ -122,4 +122,31 @@ describe('AccountActivationApi', () => {
       expect(await pending).toEqual({ succeeded: false, message: 'User not found', status: 400 });
     });
   });
+
+  describe('PATCH /api/accounts/mine/deactivate', () => {
+    it("deactivates the signed-in user's own account", async () => {
+      const pending = activationApi.deactivateOwnAccount();
+
+      const request = httpTesting.expectOne(
+        (candidate) =>
+          candidate.method === 'PATCH' && candidate.url === '/api/accounts/mine/deactivate',
+      );
+      request.flush({ succeeded: true, message: 'Account deactivated' });
+
+      expect((await pending).succeeded).toBe(true);
+    });
+
+    it('returns the message when the account cannot be deactivated', async () => {
+      const pending = activationApi.deactivateOwnAccount();
+
+      httpTesting
+        .expectOne('/api/accounts/mine/deactivate')
+        .flush(
+          { succeeded: false, message: 'User not found' },
+          { status: 400, statusText: 'Bad Request' },
+        );
+
+      expect(await pending).toEqual({ succeeded: false, message: 'User not found', status: 400 });
+    });
+  });
 });

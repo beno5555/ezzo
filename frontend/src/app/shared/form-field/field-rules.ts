@@ -22,4 +22,9 @@ export const FieldRules = {
     Validators.minLength(LIMITS.users.passwordMinLength),
     Validators.maxLength(LIMITS.users.passwordMaxLength),
   ],
+  dateOfBirth: [
+    Validators.required,
+    AppValidators.ageBetween(LIMITS.users.minAge, LIMITS.users.maxAge),
+  ],
+  bio: [Validators.maxLength(LIMITS.users.bioMaxLength)],
 } satisfies Record<string, ValidatorFn[]>;

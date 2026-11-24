@@ -107,4 +107,30 @@ describe('AccountManagementApi', () => {
       expect(await pending).toEqual({ succeeded: false, message: 'User not found', status: 400 });
     });
   });
+
+  describe('DELETE /api/accounts/mine', () => {
+    it("deletes the signed-in user's own account", async () => {
+      const pending = managementApi.deleteOwnAccount();
+
+      const request = httpTesting.expectOne(
+        (candidate) => candidate.method === 'DELETE' && candidate.url === '/api/accounts/mine',
+      );
+      request.flush({ succeeded: true, message: 'Account deleted' });
+
+      expect((await pending).succeeded).toBe(true);
+    });
+
+    it('returns the message when the account is already deleted', async () => {
+      const pending = managementApi.deleteOwnAccount();
+
+      httpTesting
+        .expectOne('/api/accounts/mine')
+        .flush(
+          { succeeded: false, message: 'User not found' },
+          { status: 400, statusText: 'Bad Request' },
+        );
+
+      expect(await pending).toEqual({ succeeded: false, message: 'User not found', status: 400 });
+    });
+  });
 });

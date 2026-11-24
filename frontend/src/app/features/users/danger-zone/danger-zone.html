@@ -1,0 +1,39 @@
+<app-settings-section
+  headingId="settings-danger-zone"
+  [heading]="text().users.settings.dangerZone.heading"
+  [isDanger]="true"
+>
+  <div class="flex flex-col gap-3">
+    <h3 class="text-lg text-ink-strong">
+      {{ text().users.settings.dangerZone.deactivate.heading }}
+    </h3>
+    <p class="text-ink-muted">{{ text().users.settings.dangerZone.deactivate.description }}</p>
+    <button
+      appButton
+      look="danger"
+      type="button"
+      class="md:self-start"
+      [disabled]="isBusy()"
+      (click)="deactivate()"
+    >
+      {{ text().users.settings.dangerZone.deactivate.button }}
+    </button>
+  </div>
+
+  <div class="flex flex-col gap-3 border-t border-border pt-4">
+    <h3 class="text-lg text-ink-strong">
+      {{ text().users.settings.dangerZone.delete.heading }}
+    </h3>
+    <p class="text-ink-muted">{{ text().users.settings.dangerZone.delete.description }}</p>
+    <button
+      appButton
+      look="danger"
+      type="button"
+      class="md:self-start"
+      [disabled]="isBusy()"
+      (click)="deleteAccount()"
+    >
+      {{ text().users.settings.dangerZone.delete.button }}
+    </button>
+  </div>
+</app-settings-section>

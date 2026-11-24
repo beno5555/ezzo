@@ -33,6 +33,15 @@ export class AccountManagementApi {
     );
   }
 
+  // The signed-in user deletes their own account (soft: the cleanup job removes the data after the
+  // retention period). The caller signs out afterwards.
+  deleteOwnAccount(): Promise<AppResult<void>> {
+    return toAppResult(
+      this.http.delete<ApplicationResponse<void>>('/api/accounts/mine'),
+      this.languageStore.text().httpFailures,
+    );
+  }
+
   deleteAccount(accountId: number): Promise<AppResult<void>> {
     return toAppResult(
       this.http.delete<ApplicationResponse<void>>(`/api/accounts/${accountId}`),

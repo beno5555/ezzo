@@ -1,5 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
-import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { LIMITS } from '../../../core/limits';
@@ -7,12 +7,12 @@ import { appAddresses } from '../../../core/routing/app-addresses';
 import { SessionStore } from '../../../core/session/session-store';
 import { FieldRules } from '../../../shared/form-field/field-rules';
 import { Button } from '../../../shared/button/button';
-import { AppValidators } from '../../../shared/form-field/app-validators';
 import { applyFieldErrors, setServerErrors } from '../../../shared/form-field/apply-field-errors';
 import { FormField } from '../../../shared/form-field/form-field';
 import { FormMessage } from '../../../shared/form-message/form-message';
 import { TextInput } from '../../../shared/text-input/text-input';
 import { TextLink } from '../../../shared/text-link/text-link';
+import { bioOrNull } from '../../users/bio-or-null';
 import { userRefusalField } from '../../users/user-refusal-field';
 import { AuthApi } from '../auth-api';
 import { AuthFrame } from '../auth-frame/auth-frame';
@@ -53,11 +53,8 @@ export class RegisterPage {
     username: ['', FieldRules.username],
     email: ['', FieldRules.email],
     password: ['', FieldRules.password],
-    dateOfBirth: [
-      '',
-      [Validators.required, AppValidators.ageBetween(LIMITS.users.minAge, LIMITS.users.maxAge)],
-    ],
-    bio: ['', [Validators.maxLength(LIMITS.users.bioMaxLength)]],
+    dateOfBirth: ['', FieldRules.dateOfBirth],
+    bio: ['', FieldRules.bio],
   });
   protected readonly isSubmitting = signal(false);
   protected readonly failureMessage = signal<string | null>(null);
@@ -101,10 +98,9 @@ export class RegisterPage {
     await this.router.navigateByUrl(appAddresses.home, { state });
   }
 
-  // An empty bio is sent as none, since the backend refuses an empty one.
   private toRegisterDto(): RegisterDto {
     const { bio, ...account } = this.form.getRawValue();
-    const hasBio = bio.trim() !== '';
-    return { ...account, bio: hasBio ? bio : null };
+
+    return { ...account, bio: bioOrNull(bio) };
   }
 }
