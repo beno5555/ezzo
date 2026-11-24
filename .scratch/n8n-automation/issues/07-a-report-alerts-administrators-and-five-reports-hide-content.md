@@ -98,3 +98,4 @@ Ticket 01 built the backend's sending side (`EventPublisher`, `docs/backend/auto
   - **Spec review:** not run. Nothing changed since this round's starting commit except this ticket, so there was no code or doc to review.
   - **Checks:** no backend or frontend file changed, so the build and the test suite were not run (step 5 of "How to work this ticket").
   - **For the owner:** open the administrators' Telegram chat. It should hold 15 messages from this run, 24 to 38: 13 "new report" alerts and 2 "hidden by reports" messages (posts #1563 and #1564). `webcity280@gmail.com` should hold two "hidden by reports" emails and six welcome emails for the test accounts.
+  - **The owner's look (2026-11-24):** the Telegram chat and the Gmail inbox hold the messages and emails listed above.
