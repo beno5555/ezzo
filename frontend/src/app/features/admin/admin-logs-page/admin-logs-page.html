@@ -1,0 +1,273 @@
+<div class="flex flex-col gap-6">
+  <h1 class="font-display text-2xl text-ink-strong">{{ text().admin.logs.title }}</h1>
+
+  <form
+    class="flex flex-col gap-4"
+    role="search"
+    [attr.aria-label]="text().admin.logs.filtersLabel"
+    [formGroup]="form"
+    (ngSubmit)="search()"
+  >
+    <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+      <app-form-field
+        fieldId="log-user-id"
+        [label]="text().admin.logs.userIdLabel"
+        [control]="form.controls.userId"
+      >
+        <input
+          appTextInput
+          id="log-user-id"
+          type="number"
+          inputmode="numeric"
+          min="1"
+          step="1"
+          formControlName="userId"
+        />
+      </app-form-field>
+      <app-form-field
+        fieldId="log-action"
+        [label]="text().admin.logs.actionLabel"
+        [control]="form.controls.action"
+      >
+        <input
+          appTextInput
+          id="log-action"
+          type="text"
+          autocomplete="off"
+          spellcheck="false"
+          [maxlength]="actionMaxLength"
+          formControlName="action"
+        />
+      </app-form-field>
+      <app-form-field
+        fieldId="log-entity-name"
+        [label]="text().admin.logs.entityNameLabel"
+        [control]="form.controls.entityName"
+      >
+        <input
+          appTextInput
+          id="log-entity-name"
+          type="text"
+          autocomplete="off"
+          spellcheck="false"
+          [maxlength]="entityNameMaxLength"
+          formControlName="entityName"
+        />
+      </app-form-field>
+      <app-form-field
+        fieldId="log-entity-id"
+        [label]="text().admin.logs.entityIdLabel"
+        [control]="form.controls.entityId"
+      >
+        <input
+          appTextInput
+          id="log-entity-id"
+          type="number"
+          inputmode="numeric"
+          min="1"
+          step="1"
+          formControlName="entityId"
+        />
+      </app-form-field>
+    </div>
+
+    <div class="flex flex-col gap-4 md:flex-row md:flex-wrap md:gap-8">
+      <div class="flex flex-col gap-1" role="group" aria-labelledby="log-outcome-label">
+        <span id="log-outcome-label" class="text-sm font-semibold text-ink-strong">{{
+          text().admin.logs.outcomeLabel
+        }}</span>
+        <div class="flex flex-wrap gap-2">
+          @for (choice of outcomeChoices(); track choice.label) {
+            <button
+              appToggleButton
+              type="button"
+              [pressed]="choice.succeeded === selectedOutcome()"
+              (click)="chooseOutcome(choice.succeeded)"
+            >
+              {{ choice.label }}
+            </button>
+          }
+        </div>
+      </div>
+
+      <div class="flex flex-col gap-1" role="group" aria-labelledby="log-request-label">
+        <span id="log-request-label" class="text-sm font-semibold text-ink-strong">{{
+          text().admin.logs.requestLabel
+        }}</span>
+        <div class="flex flex-wrap gap-2">
+          @for (choice of requestChoices(); track choice.label) {
+            <button
+              appToggleButton
+              type="button"
+              [pressed]="choice.authorizedRequest === selectedRequest()"
+              (click)="chooseRequest(choice.authorizedRequest)"
+            >
+              {{ choice.label }}
+            </button>
+          }
+        </div>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-1">
+      <div class="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+        <app-form-field
+          fieldId="log-from"
+          [label]="text().admin.logs.fromLabel"
+          [control]="form.controls.from"
+        >
+          <input appTextInput id="log-from" type="datetime-local" formControlName="from" />
+        </app-form-field>
+        <app-form-field
+          fieldId="log-to"
+          [label]="text().admin.logs.toLabel"
+          [control]="form.controls.to"
+        >
+          <input appTextInput id="log-to" type="datetime-local" formControlName="to" />
+        </app-form-field>
+      </div>
+      <p class="text-sm text-ink-muted">{{ text().admin.logs.periodHint(timeZone) }}</p>
+    </div>
+
+    @if (table()?.refusal(); as refusal) {
+      <app-form-message tone="danger" [message]="refusal" />
+    }
+
+    <div class="flex flex-wrap gap-2">
+      <button appButton look="primary" type="submit" [disabled]="form.invalid">
+        <svg class="size-5" lucideSearch aria-hidden="true"></svg>
+        {{ text().admin.logs.searchButton }}
+      </button>
+      <button appButton look="quiet" type="button" (click)="clear()">
+        {{ text().admin.logs.clearButton }}
+      </button>
+    </div>
+  </form>
+
+  @if (table(); as table) {
+    @if (table.rows().length > 0) {
+      <div class="lg:overflow-x-auto">
+        <table class="block w-full text-start lg:table lg:text-sm">
+          <thead class="sr-only lg:not-sr-only lg:table-header-group">
+            <tr class="lg:table-row">
+              @for (name of columnNames; track name) {
+                <th scope="col" class="px-2 py-2 text-start text-sm font-semibold text-ink-muted">
+                  {{ text().admin.logs.columns[name] }}
+                </th>
+              }
+            </tr>
+          </thead>
+          <tbody class="flex flex-col gap-3 lg:table-row-group">
+            @for (row of table.rows(); track row.id) {
+              <tr
+                class="flex flex-col gap-2 rounded-lg border border-border bg-surface-raised p-4 shadow-raised lg:table-row lg:rounded-none lg:border-0 lg:border-b lg:bg-transparent lg:p-0 lg:shadow-none"
+              >
+                <td
+                  class="flex flex-wrap gap-x-2 lg:table-cell lg:px-2 lg:py-3 lg:whitespace-nowrap"
+                >
+                  <span class="min-w-24 text-sm text-ink-muted lg:hidden">{{
+                    text().admin.logs.columns.time
+                  }}</span>
+                  <span>{{ dates.time(row.createdAt) }}</span>
+                </td>
+                <td class="flex flex-wrap gap-x-2 lg:table-cell lg:px-2 lg:py-3">
+                  <span class="min-w-24 text-sm text-ink-muted lg:hidden">{{
+                    text().admin.logs.columns.user
+                  }}</span>
+                  <span>{{ row.userId ?? text().admin.logs.none }}</span>
+                </td>
+                <td
+                  class="flex flex-wrap gap-x-2 lg:table-cell lg:px-2 lg:py-3 lg:whitespace-nowrap"
+                >
+                  <span class="min-w-24 text-sm text-ink-muted lg:hidden">{{
+                    text().admin.logs.columns.request
+                  }}</span>
+                  <span>{{
+                    row.authorizedRequest
+                      ? text().admin.logs.requests.signedIn
+                      : text().admin.logs.requests.guest
+                  }}</span>
+                </td>
+                <td class="flex flex-wrap gap-x-2 lg:table-cell lg:px-2 lg:py-3">
+                  <span class="min-w-24 text-sm text-ink-muted lg:hidden">{{
+                    text().admin.logs.columns.action
+                  }}</span>
+                  <span class="min-w-0 flex-1 font-semibold wrap-anywhere text-ink-strong">{{
+                    row.action
+                  }}</span>
+                </td>
+                <td
+                  class="flex flex-wrap gap-x-2 lg:table-cell lg:px-2 lg:py-3 lg:whitespace-nowrap"
+                >
+                  <span class="min-w-24 text-sm text-ink-muted lg:hidden">{{
+                    text().admin.logs.columns.outcome
+                  }}</span>
+                  <span
+                    class="font-semibold"
+                    [class]="row.succeeded ? 'text-success' : 'text-danger'"
+                    >{{
+                      row.succeeded
+                        ? text().admin.logs.outcomes.succeeded
+                        : text().admin.logs.outcomes.failed
+                    }}</span
+                  >
+                </td>
+                <td class="flex flex-wrap gap-x-2 lg:table-cell lg:max-w-md lg:px-2 lg:py-3">
+                  <span class="min-w-24 text-sm text-ink-muted lg:hidden">{{
+                    text().admin.logs.columns.details
+                  }}</span>
+                  <span class="min-w-0 flex-1 wrap-anywhere">{{
+                    row.details ?? text().admin.logs.none
+                  }}</span>
+                </td>
+                <td
+                  class="flex flex-wrap gap-x-2 lg:table-cell lg:px-2 lg:py-3 lg:whitespace-nowrap"
+                >
+                  <span class="min-w-24 text-sm text-ink-muted lg:hidden">{{
+                    text().admin.logs.columns.entity
+                  }}</span>
+                  <span class="min-w-0 flex-1">{{
+                    text().admin.logs.entity(row.entityName, row.entityId) || text().admin.logs.none
+                  }}</span>
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    }
+
+    @switch (table.status()) {
+      @case (PageLoadStatus.Idle) {
+        @if (table.rows().length > 0) {
+          <div appScrollSentinel (reached)="loadMore()"></div>
+        }
+      }
+      @case (PageLoadStatus.Loading) {
+        <p class="py-4 text-center text-sm text-ink-muted" role="status">
+          {{ table.rows().length > 0 ? text().admin.logs.loadingMore : text().admin.logs.loading }}
+        </p>
+      }
+      @case (PageLoadStatus.Failed) {
+        @if (table.failureMessage(); as message) {
+          <app-load-failure
+            [message]="message"
+            [retryLabel]="text().admin.logs.retryButton"
+            (retry)="loadMore()"
+          />
+        }
+      }
+      @case (PageLoadStatus.Ended) {
+        @if (table.rows().length === 0) {
+          <app-empty-state
+            class="rounded-lg border border-border bg-surface-raised"
+            [heading]="text().admin.logs.emptyTitle"
+            [message]="text().admin.logs.emptyMessage"
+          >
+            <svg class="size-8 text-ink-muted" lucideScrollText aria-hidden="true"></svg>
+          </app-empty-state>
+        }
+      }
+    }
+  }
+</div>

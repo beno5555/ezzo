@@ -59,10 +59,6 @@ export const english = {
     adminStatistics: 'Statistics',
     notFound: 'Page not found',
   },
-  // A page whose route exists before the page is built; its ticket replaces it.
-  pagePlaceholder: {
-    message: 'This page is not ready yet.',
-  },
   // The shell around every page: the top bar, the phone's bottom bar and the menus in them (core/shell).
   shell: {
     navigationLabel: 'Main',
@@ -516,6 +512,66 @@ export const english = {
       emptyCommentsMessage: 'Nothing is waiting for a decision.',
       hideButton: 'Hide',
       makeVisibleButton: 'Make visible',
+    },
+    logs: {
+      title: 'Logs',
+      filtersLabel: 'Log filters',
+      userIdLabel: 'User id',
+      actionLabel: 'Action',
+      entityNameLabel: 'Entity name',
+      entityIdLabel: 'Entity id',
+      fromLabel: 'From',
+      toLabel: 'To',
+      // Under the period: the zone its times are typed in, which the page reads from the browser.
+      periodHint: (timeZone: string) => `Times are in your time zone, ${timeZone}.`,
+      searchButton: 'Search',
+      clearButton: 'Clear filters',
+      outcomeLabel: 'Outcome',
+      // The choices of the outcome filter.
+      outcomes: { all: 'All', succeeded: 'Succeeded', failed: 'Failed' },
+      requestLabel: 'Request',
+      // The choices of the signed-in filter, and the words a row shows for the same fact.
+      requests: { all: 'All', signedIn: 'Signed in', guest: 'Not signed in' },
+      columns: {
+        time: 'Time',
+        user: 'User id',
+        request: 'Request',
+        action: 'Action',
+        outcome: 'Outcome',
+        details: 'Details',
+        entity: 'Entity',
+      },
+      // Where a row has no value (a guest has no user id).
+      none: '—',
+      // The name and the id of the entity a row is about.
+      entity: (name: string | null, id: number | null) =>
+        [name, id === null ? null : `#${id}`].filter((part) => part !== null).join(' '),
+      loading: 'Loading the logs…',
+      loadingMore: 'Loading more rows…',
+      retryButton: 'Try again',
+      emptyTitle: 'No rows found',
+      emptyMessage: 'No log row matches these filters.',
+    },
+    statistics: {
+      title: 'Statistics',
+      loading: 'Loading the statistics…',
+      retryButton: 'Try again',
+      totalsTitle: 'Totals',
+      activeAccounts: 'Active accounts',
+      deactivatedAccounts: 'Deactivated accounts',
+      posts: 'Posts',
+      comments: 'Comments',
+      messages: 'Messages',
+      likes: 'Likes',
+      pendingReports: 'Reports awaiting review',
+      last7DaysTitle: 'Created in the last 7 days',
+      last30DaysTitle: 'Created in the last 30 days',
+      newAccounts: 'New accounts',
+      newPosts: 'New posts',
+      newComments: 'New comments',
+      newMessages: 'New messages',
+      onlineTitle: 'Online now',
+      onlineUsers: 'Users online',
     },
   },
   users: {

@@ -40,6 +40,13 @@ export const LIMITS = {
     contentMaxLength: 1000,
     editWindowMilliseconds: 20 * 60 * 1000,
   },
+  // backend/aspnetproject/Common/ProjectConstants/Constants.cs (LogQueryDto's action and entity name; a
+  // row's user and entity ids are the backend's int, which ends at 2^31 - 1)
+  logs: {
+    actionMaxLength: 100,
+    entityNameMaxLength: 50,
+    maxId: 2_147_483_647,
+  },
   // The defaults of backend/aspnetproject/Infrastructure/Services/Storage/Configuration/
   // ImageStorageConfiguration.cs, and the formats ImageStorage accepts (it judges a file by its leading
   // bytes; the browser can only go by the type it reads from the name).
