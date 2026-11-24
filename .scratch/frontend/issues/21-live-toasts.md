@@ -103,3 +103,34 @@ Owner's decisions:
 **Screenshots:** `.scratch/frontend/shots/21/` in the main checkout, the `r2-*` files (round 1's two images stay).
 
 **Branch.** `worktree-live-toasts`, committed and pushed at the end of this round; trial merge against `origin/master` reported in the chat. The two throwaway accounts (`tca_r27107`, `tcb_r27107`, ids 1389 and 1390) and two posts stay in the dev database.
+
+**2026-11-24, round 3: revision (Sonnet 5.5).** Fixed point: `30a944d`.
+
+Owner's decisions:
+- **Merge `master` into this branch before the owner merges it,** resolving conflicts and redundancies here. `master` brought the settings page (ticket 17), `NavigationHistoryStore` and `BackLink` (a Back that goes back properly), and an LF checkout of the frontend (`.gitattributes`) that ends Prettier's line-ending complaints on Windows. Check that the fix works, and remove any mention of the old noise from the docs.
+- **A toast can be discarded** by the user (a close button; a link toast stays a link).
+- **The failure toast shows an X icon,** not an exclamation mark.
+- **The profile's presence dot is a little larger.**
+- **The like delay's reason** is to be told in the chat, not just its number.
+- **The rare presence race:** the owner asks whether it is worth fixing before the deadline.
+- Anything not worth doing before the deadline goes to the roadmap's "After the deadline" list. Also noted by the owner, outside this ticket: the delete animation of a comment and of a post feels not smooth.
+
+**Built (round 3).**
+- **Merge.** `master` (`340cbc9`) is merged into the branch (`d4613a0`), with no textual conflicts. Two redundancies and one miss, found by reading what `master` brought: the **new-post page** had its own Back button, a "back to profile" text and a `goBack` for the link, all made redundant by `master`'s `BackLink` and `NavigationHistoryStore`; it now uses `<app-back-link>` (back to where the reader came from, the feed when opened directly), the `backToProfileLink` text is gone from both dictionaries, and only the sent post still needs the origin (`new-post-origin`), asking `canGoBack()` first so a reload of the page sends the post the way the feed's does. The settings page's **saved toast** had no `ToastLook.Success` and showed a failure icon; it has it now. The other new `show` calls on `master` are failure paths.
+- **Line endings.** The fix works: a file taken fresh from the index is LF (`ls-files --eol` says `attr/text=auto eol=lf`), and `prettier --check .` passes on every file but `frontend/.impeccable/hook.cache.json`, the Impeccable hook's own cache, which Git excludes through `.git/info/exclude` (not in a fresh clone). Old CRLF files from before the fix, left in this worktree, were re-checked-out. No doc mentions the old noise, so none was changed; only old ticket comments do.
+- **Discarding a toast.** Every toast ends in a close button (the shared `IconButton`, 44 px), beside the link, not inside it; text `shared.toasts.dismiss` in both dictionaries. Closing a lasting (uploading) toast is allowed: its outcome then shows as a normal toast. `DESIGN.md` and the spec ("Rules", story 103) say so.
+- **Failure icon** is a circled cross.
+- **Profile dot** `size-4.5` (18 px, was 14 px) through `PresenceDot`'s new `isLarge` input; lists keep the small dot.
+- **Queued after the deadline** (`.scratch/roadmap.md`): the presence race, and a smoother delete (the item fades, then the list closes up in one jump; the likely fix is closing its height while it fades).
+
+**Answers given in the chat.** *Like delay:* the owner's decision of 2026-11-22 (spec, "Likes"; ticket 11 round 3). Its reason: a click shows at once, and the server hears of it one second after the last click on that post, so a like taken back (a slip, a double click) is never sent, and only the net difference goes out; that matters here because each sent like tells the post's author by a `PostLiked` toast. *The presence race:* rare, cosmetic, queued.
+
+**Departures (round 3).** None from the ticket. The close button leaves the spec's "toasts leave after 5 seconds" with "or sooner when the user closes one".
+
+**Checks (round 3).** `npm test` 941 passed (7 s); `npm run lint` clean; Prettier clean on every tracked file; `npm run build` passes (the old 600 kB budget warning, 765 kB). No backend change since round 2 and none from `master`, so the backend suite was not rerun (898 of 898 in round 2). Checked in the running app (own backend on 7302, frontend on 4301, ports 4200 and 7102 untouched): toasts at 1280 dark and 360 light, a click on a link toast's close button closes it without navigating; the friend's profile dot at 1280 dark; Back on the new-post page from the profile (to the profile) and opened directly (to the feed); a post sent from the profile lands on the profile. Not checked: the Georgian close-button label on screen, 768 px, the like and message toasts live (the same template as the ones shown).
+
+**Review (Opus 5.5).** Severe and fixed: none. Fixed: the close button copied `IconButton`'s look by hand (now `appIconButton`); `dismissFollowed` renamed `dismiss`; stale comments in `new-post-origin.ts` and `toast-store.ts`; the spec's "Rules" line; a duplicated assertion in a test; the page's reload case (above). Left alone: two new component DOM tests in `toast-list.spec.ts`, against the "no component DOM tests until 2026-11-25" rule in `typescript.md`, because that file already holds four from earlier rounds (the owner may prefer to delete them all); a close button inside the `aria-live` region may be read aloud by some screen readers; keyboard focus falls to the page when a focused toast times out.
+
+**Screenshots:** `.scratch/frontend/shots/21/`, the `r3-*` files (in this worktree; copy to the main checkout's folder at the merge). The throwaway accounts `tc3a_r31` and `tc3b_r31` (ids 1391 and 1392, friends) and one post stay in the dev database.
+
+**Branch.** `worktree-live-toasts`, committed and pushed at the end of this round; `master` is already inside it, so the merge into `master` is clean.

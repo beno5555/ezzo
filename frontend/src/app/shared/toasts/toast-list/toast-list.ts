@@ -4,14 +4,16 @@ import { RouterLink } from '@angular/router';
 import {
   LucideChevronRight,
   LucideCircleCheck,
-  LucideCircleExclamationPoint,
+  LucideCircleX,
   LucideCloudUpload,
   LucideHeart,
   LucideMessageCircle,
   LucideMessageSquareText,
+  LucideX,
 } from '@lucide/angular';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { Avatar } from '../../avatar/avatar';
+import { IconButton } from '../../icon-button/icon-button';
 import { ToastLook } from '../toast-look';
 import { Toast } from '../toast';
 import { ToastStore } from '../toast-store';
@@ -28,20 +30,23 @@ const badgeColors: Partial<Record<ToastLook, string>> = {
 // bottom bar and of the on-screen keyboard; from 768 px, at the bottom end, clear of the top bar. The
 // region is always there and polite, so a screen reader reads each toast as it arrives without
 // breaking off what it was reading. Toasts lie under an open dialog: a dialog is modal.
-// A toast with a link opens it on a click, and leaves at once. A toast slides in from the edge it sits
-// at (DESIGN.md, Do's and Don'ts), and stays still under "reduce motion".
+// A toast with a link opens it on a click, and leaves at once. The close button (DESIGN.md, Components)
+// discards any toast. A toast slides in from the edge it sits at (DESIGN.md, Do's and Don'ts),
+// and stays still under "reduce motion".
 @Component({
   imports: [
     Avatar,
+    IconButton,
     NgTemplateOutlet,
     RouterLink,
     LucideChevronRight,
     LucideCircleCheck,
-    LucideCircleExclamationPoint,
+    LucideCircleX,
     LucideCloudUpload,
     LucideHeart,
     LucideMessageCircle,
     LucideMessageSquareText,
+    LucideX,
   ],
   selector: 'app-toast-list',
   templateUrl: './toast-list.html',
@@ -54,7 +59,7 @@ export class ToastList {
   protected readonly toasts = this.toastStore.visible;
   protected readonly ToastLook = ToastLook;
 
-  dismissFollowed(toast: Toast): void {
+  dismiss(toast: Toast): void {
     this.toastStore.dismiss(toast.id);
   }
 

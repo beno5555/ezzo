@@ -1,15 +1,5 @@
-<div class="flex flex-col gap-6">
-  @if (isFromProfile) {
-    <button appButton type="button" look="quiet" class="self-start" (click)="goBack()">
-      <svg class="size-5 shrink-0" lucideArrowLeft aria-hidden="true"></svg>
-      {{ text().posts.page.backToProfileLink }}
-    </button>
-  } @else {
-    <a appButton look="quiet" class="self-start" [routerLink]="feedAddress">
-      <svg class="size-5 shrink-0" lucideArrowLeft aria-hidden="true"></svg>
-      {{ text().posts.page.backLink }}
-    </a>
-  }
+<div class="relative flex flex-col gap-6">
+  <app-back-link [label]="text().posts.page.backLink" />
 
   <h1 class="font-display text-2xl text-ink-strong">{{ text().pages.newPost }}</h1>
 

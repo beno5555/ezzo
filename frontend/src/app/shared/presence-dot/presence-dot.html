@@ -1,7 +1,8 @@
 <span class="sr-only">{{ label() }}</span>
 @if (lastActiveAt() === null) {
   <span
-    class="size-3.5 rounded-full bg-success ring-2 ring-surface-raised"
+    class="rounded-full bg-success ring-2 ring-surface-raised"
+    [class]="dotSize()"
     aria-hidden="true"
   ></span>
 } @else if (showsAwayTime() && awayFor(); as away) {
@@ -12,7 +13,8 @@
   >
 } @else {
   <span
-    class="size-3.5 rounded-full bg-ink-muted ring-2 ring-surface-raised"
+    class="rounded-full bg-ink-muted ring-2 ring-surface-raised"
+    [class]="dotSize()"
     aria-hidden="true"
   ></span>
 }

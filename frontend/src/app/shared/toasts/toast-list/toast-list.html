@@ -37,7 +37,7 @@
             <svg class="size-5 text-accent" lucideCloudUpload aria-hidden="true"></svg>
           }
           @default {
-            <svg class="size-5 text-danger" lucideCircleExclamationPoint aria-hidden="true"></svg>
+            <svg class="size-5 text-danger" lucideCircleX aria-hidden="true"></svg>
           }
         }
       </span>
@@ -61,22 +61,31 @@
 >
   @for (toast of toasts(); track toast.id) {
     <div
-      class="pointer-events-auto w-full max-w-96 animate-toast-in-top overflow-hidden rounded-lg border border-border bg-surface-raised text-ink-strong shadow-overlay motion-reduce:animate-none md:animate-toast-in-end"
+      class="pointer-events-auto flex w-full max-w-96 animate-toast-in-top items-stretch overflow-hidden rounded-lg border border-border bg-surface-raised text-ink-strong shadow-overlay motion-reduce:animate-none md:animate-toast-in-end"
     >
       @if (toast.link; as link) {
         <a
-          class="flex min-h-11 items-center gap-3 px-4 py-3 transition-colors hover:bg-surface-sunken focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus motion-reduce:transition-none"
+          class="flex min-h-11 min-w-0 flex-1 items-center gap-3 py-3 ps-4 transition-colors hover:bg-surface-sunken focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus motion-reduce:transition-none"
           [routerLink]="link"
-          (click)="dismissFollowed(toast)"
+          (click)="dismiss(toast)"
         >
           <ng-container *ngTemplateOutlet="content; context: { $implicit: toast }" />
           <svg class="size-5 shrink-0 text-ink-muted" lucideChevronRight aria-hidden="true"></svg>
         </a>
       } @else {
-        <p class="flex min-h-11 items-center gap-3 px-4 py-3">
+        <p class="flex min-h-11 min-w-0 flex-1 items-center gap-3 py-3 ps-4">
           <ng-container *ngTemplateOutlet="content; context: { $implicit: toast }" />
         </p>
       }
+      <button
+        appIconButton
+        type="button"
+        class="m-1 self-center"
+        [attr.aria-label]="text().shared.toasts.dismiss"
+        (click)="dismiss(toast)"
+      >
+        <svg class="size-5" lucideX aria-hidden="true"></svg>
+      </button>
     </div>
   }
 </section>

@@ -128,6 +128,7 @@ export const english = {
     },
     toasts: {
       regionLabel: 'Notifications',
+      dismiss: 'Dismiss',
       // The live toasts (core/hub/live-toast-store). The toast shows the person's name above these lines, as
       // its own highlighted line, so none of them holds the name. A message toast's line is the start of
       // the message, or messages.list.photo.
@@ -729,11 +730,8 @@ export const english = {
     },
     // A post's own page (/posts/:postId, features/posts/post-page).
     page: {
-      // The link above a post, which goes back to the page the reader came from, and above the composer,
-      // which leads to the feed.
+      // The Back link above a post and above the composer (shared/back-link).
       backLink: 'Back',
-      // The same link when the composer was opened from the user's own profile.
-      backToProfileLink: 'Back to your profile',
       loading: 'Loading the post…',
       retryButton: 'Try again',
     },

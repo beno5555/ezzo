@@ -20,10 +20,13 @@ export class PresenceDot {
   readonly lastActiveAt = input.required<string | null>();
   // False for a plain grey dot with no count inside, as on a profile's picture, where a number would be too small.
   readonly showsAwayTime = input(true);
+  // A little larger, as on a profile's large picture.
+  readonly isLarge = input(false);
 
   private readonly dateFormatter = inject(DateFormatter);
 
   protected readonly text = inject(LanguageStore).text;
+  protected readonly dotSize = computed(() => (this.isLarge() ? 'size-4.5' : 'size-3.5'));
   protected readonly awayFor = computed(() => {
     const lastActive = this.lastActiveAt();
     return lastActive === null ? null : this.dateFormatter.shortTimeSince(lastActive);

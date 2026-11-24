@@ -107,6 +107,7 @@ export const georgian: Dictionary = {
     },
     toasts: {
       regionLabel: 'შეტყობინებები',
+      dismiss: 'დახურვა',
       live: {
         comment: 'შენს პოსტზე დააკომენტარა',
         like: 'შენი პოსტი მოიწონა',
@@ -626,7 +627,6 @@ export const georgian: Dictionary = {
     },
     page: {
       backLink: 'დაბრუნება',
-      backToProfileLink: 'პროფილზე დაბრუნება',
       loading: 'პოსტი იტვირთება…',
       retryButton: 'თავიდან ცდა',
     },

@@ -87,7 +87,7 @@ export class ToastStore {
     this.shown.set([]);
   }
 
-  // On a timer, early when the user follows the toast's link, or in code for a lasting toast, which may
+  // On a timer, early when the user follows the toast's link or closes it, or in code for a lasting toast, which may
   // still be waiting for a place.
   dismiss(id: number): void {
     const waitingIndex = this.waiting.findIndex((toast) => toast.id === id);

@@ -69,4 +69,27 @@ describe('ToastList', () => {
     expect(toasts[0].querySelector('a')).toBeNull();
     expect(toasts[1].querySelector('a')?.getAttribute('href')).toBe('/posts/12');
   });
+
+  it('lets the user discard a toast with its close button, link or not, and leaves the others', () => {
+    toastStore.show('Plain');
+    toastStore.show('With a link', { link: '/posts/12' });
+    toastStore.show('Third');
+    const element = render();
+
+    element.querySelectorAll('section > div')[1].querySelector('button')?.click();
+
+    expect(toastStore.visible().map((toast) => toast.message)).toEqual(['Plain', 'Third']);
+
+    element.querySelector<HTMLButtonElement>('section > div button')?.click();
+
+    expect(toastStore.visible().map((toast) => toast.message)).toEqual(['Third']);
+  });
+
+  it('names the close button in the interface language', () => {
+    toastStore.show('Could not like the post.');
+
+    const toast = render().querySelector('section > div');
+
+    expect(toast?.querySelector('button')?.getAttribute('aria-label')).toBe('Dismiss');
+  });
 });
