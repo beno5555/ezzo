@@ -53,6 +53,18 @@ describe('PresenceStore', () => {
     ]);
   });
 
+  it('gives a friend the presence it holds, and leaves a friend it does not know as given', () => {
+    presenceStore.track([onlineAlice], Date.now());
+    presenceStore.markOffline(3, '2026-11-17T09:15:00Z');
+
+    expect(presenceStore.withPresence(onlineAlice)).toEqual({
+      ...onlineAlice,
+      lastActiveAt: '2026-11-17T09:15:00Z',
+      isActive: false,
+    });
+    expect(presenceStore.withPresence(offlineBob)).toEqual(offlineBob);
+  });
+
   it('shows a friend who comes online as online', async () => {
     presenceStore.track([onlineAlice, offlineBob], Date.now());
 

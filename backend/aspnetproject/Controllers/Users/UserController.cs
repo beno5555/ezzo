@@ -91,11 +91,12 @@ public class UserController : BaseController
     [Route("search")]
     [AllowAnonymous]
     [EnableRateLimiting(RateLimitConfig.Policies.SearchUsers)]
-    public async Task<ActionResult<ListResponse<MinimalUserDto>>> SearchUsers(
+    public async Task<ActionResult<ListResponse<SearchUserDto>>> SearchUsers(
         [FromQuery] SearchUserQuery searchUserQuery)
     {
         var response = await _userService.SearchUsersAsync(
             searchUserQuery.Username,
+            GetOptionalUserId(),
             searchUserQuery.PageNumber,
             searchUserQuery.PageSize
             );

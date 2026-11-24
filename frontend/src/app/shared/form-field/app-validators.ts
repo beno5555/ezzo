@@ -38,6 +38,15 @@ export const AppValidators = {
       return errors;
     };
   },
+
+  // The same text as another control, such as a password typed a second time. The caller re-checks this
+  // control when the other one changes.
+  sameAs(other: AbstractControl<string>): ValidatorFn {
+    return (control: AbstractControl<string>): ValidationErrors | null => {
+      const isDifferent = control.value !== '' && control.value !== other.value;
+      return isDifferent ? { [AppErrorKey.PasswordMismatch]: true } : null;
+    };
+  },
 };
 
 function matching(pattern: RegExp, errorKey: AppErrorKey): ValidatorFn {

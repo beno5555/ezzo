@@ -53,11 +53,22 @@ public class CommentRepository : BaseEntityRepository<Comment>
     }
 
     // The caller must already be allowed to read the post; this filters only the comments themselves.
+    // The order is the caller's own comments first, newest first, then everyone else's, oldest first. A guest
+    // has no comments of their own, so they get everyone's oldest first. Id breaks ties between comments
+    // written in the same millisecond, so paging is deterministic.
     public async Task<List<Comment>> GetByPostIdAsync(int postId, int? callerId, bool isAdmin, int? pageNumber, int? pageSize)
     {
+        // A comment with no author (an account the purge removed) has a null owner, and a guest has a null id:
+        // without this check the two would count as equal and the orphaned comments would come first.
+        var hasCaller = callerId.HasValue;
+
         var query = Query()
             .Where(comment => comment.PostId == postId)
-            .Where(ModerationVisibility.CommentReadableBy(callerId, isAdmin));
+            .Where(ModerationVisibility.CommentReadableBy(callerId, isAdmin))
+            .OrderBy(comment => hasCaller && comment.CommenterUserId == callerId ? 0 : 1)
+            .ThenByDescending(comment => hasCaller && comment.CommenterUserId == callerId ? comment.CreatedAt : DateTime.MinValue)
+            .ThenBy(comment => comment.CreatedAt)
+            .ThenBy(comment => comment.Id);
 
         return await Page(query, pageNumber, pageSize).ToListAsync();
     }

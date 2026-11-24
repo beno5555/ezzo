@@ -207,6 +207,21 @@ public class AutomationModerationTests : IClassFixture<DatabaseFixture>, IAsyncL
         Assert.Equal(ResponseMessages.AutomationMayOnlyRaiseModerationStatus, body.Message);
     }
 
+    // Answers to the automation are the plain envelope, success or failure: the "refused" marker the service uses to tell 403
+    // from 404 stays inside the backend and never reaches the body.
+    [Theory]
+    [InlineData(nameof(ModerationStatus.Hidden),  ExistingId)]
+    [InlineData(nameof(ModerationStatus.Visible), ExistingId)]
+    [InlineData(nameof(ModerationStatus.Hidden),  NonexistentId)]
+    public async Task SetStatus_WithApiKey_AnswersWithOnlyTheEnvelopeFields(string status, int id)
+    {
+        var response = await _client.SendWithApiKeyAsync(HttpMethod.Put, RouteFor(Posts, id), new { Status = status });
+
+        using var body = await System.Text.Json.JsonDocument.ParseAsync(await response.Content.ReadAsStreamAsync());
+        var fieldNames = body.RootElement.EnumerateObject().Select(field => field.Name).Order().ToList();
+        Assert.Equal(["message", "succeeded"], fieldNames);
+    }
+
     [Theory]
     [InlineData(Posts,    ResponseMessages.PostNotFound)]
     [InlineData(Comments, ResponseMessages.CommentNotFound)]

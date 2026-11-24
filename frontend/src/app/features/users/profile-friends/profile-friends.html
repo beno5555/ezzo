@@ -1,0 +1,6 @@
+<app-friend-list
+  [list]="friends()"
+  [texts]="text().users.profile.friends"
+  [retryLabel]="text().users.profile.friends.retryButton"
+  (more)="loadMore()"
+/>

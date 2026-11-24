@@ -1,5 +1,5 @@
 /*
- * The global stylesheet: the cascade layer order, Tailwind, the design tokens and the fonts, and nothing else.
+ * The global stylesheet: the cascade layer order, Tailwind, the design tokens and the fonts.
  * Component looks are Tailwind classes in the templates (see the Styling section of the conventions).
  */
 /*
@@ -20,7 +20,24 @@
 @import '@fontsource/noto-sans/400.css';
 @import '@fontsource/noto-sans/600.css';
 @import '@fontsource/noto-sans/700.css';
-/* Noto Sans covers Latin and Cyrillic; its Georgian partner is needed only for Georgian letters. */
-@import '@fontsource/noto-sans-georgian/georgian-400.css';
-@import '@fontsource/noto-sans-georgian/georgian-600.css';
-@import '@fontsource/noto-sans-georgian/georgian-700.css';
+/*
+ * Noto Sans covers Latin and Cyrillic; its Georgian partner is needed only for Georgian letters. The
+ * partner is the variable font: one file gives every weight, and its width axis lets Georgian headings
+ * match the narrow display face. Each file carries a character range, so a browser downloads only the
+ * ones a page's letters need.
+ */
+@import '@fontsource-variable/noto-sans-georgian/wdth.css';
+/* The display face: Bricolage Grotesque with its weight and width axes (Latin and Latin Extended). */
+@import '@fontsource-variable/bricolage-grotesque/wdth.css';
+/*
+ * Subset of fraunces-latin-full-normal.woff2 from @fontsource-variable/fraunces@5.3.0.
+ * FontTools 4.61.1: subset with --text=ezo --flavor=woff2 --name-IDs=* to keep the axes and notices.
+ */
+@font-face {
+  font-family: 'Fraunces Variable';
+  font-style: normal;
+  font-display: swap;
+  font-weight: 100 900;
+  src: url('./fonts/fraunces-wordmark.woff2') format('woff2');
+  unicode-range: U+0065, U+006F, U+007A;
+}

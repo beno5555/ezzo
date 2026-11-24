@@ -3,6 +3,7 @@ using aspnetproject.Common.ProjectConstants.Enums;
 using aspnetproject.Data.Models;
 using aspnetproject.Data.Repositories.Dtos;
 using aspnetproject.Infrastructure.Dtos.Auth;
+using aspnetproject.Infrastructure.Dtos.Friendships;
 using aspnetproject.Infrastructure.Dtos.Users;
 using aspnetproject.Infrastructure.Dtos.Users.Friends;
 
@@ -29,6 +30,16 @@ public static class UserMapper
         {
             Id = user.Id,
             Username = user.Username,
+        };
+    }
+
+    public static SearchUserDto ToSearchDisplay(User user, RelationshipDto? relationship)
+    {
+        return new SearchUserDto
+        {
+            Id           = user.Id,
+            Username     = user.Username,
+            Relationship = relationship,
         };
     }
 

@@ -14,17 +14,26 @@ Decisions are under "Chat" and "Scaffold and plumbing" in `.scratch/frontend/spe
 
 **Blocked by:** 05 (The live connection feeds presence and the unread count), 07 (The shell gives navigation on a desktop, on a phone and to a guest), and the frontend setup (27, 28, 29)
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Difficulty:** tricky: shared state that the hub changes, one pair of routes serving two layouts, and a scroll position that must hold while history loads upward.
 
-- [ ] The list shows each conversation with the name, presence, last message, time and unread count
-- [ ] A row whose last message has only photos reads "Photo"
-- [ ] A friend going online or offline changes their row without a reload
-- [ ] A conversation opens from the list and from its address pasted into a new tab
-- [ ] Older messages load on scrolling up, and the view does not jump
-- [ ] Opening a conversation clears its count and lowers the number on the Messages link
-- [ ] On a phone the list and the conversation are separate screens, and back returns to the list
-- [ ] The conversations store is unit-tested through its public methods: loading the list, opening a conversation, marking it read
-- [ ] The message `…Api` methods used here are unit-tested against the HTTP testing backend
-- [ ] Checked in the running app on a desktop width and on a phone width, with two accounts
+- [x] The list shows each conversation with the name, presence, last message, time and unread count
+- [x] A row whose last message has only photos reads "Photo"
+- [x] A friend going online or offline changes their row without a reload
+- [x] A conversation opens from the list and from its address pasted into a new tab
+- [x] Older messages load on scrolling up, and the view does not jump
+- [x] Opening a conversation clears its count and lowers the number on the Messages link
+- [x] On a phone the list and the conversation are separate screens, and back returns to the list
+- [x] The conversations store is unit-tested through its public methods: loading the list, opening a conversation, marking it read
+- [x] The message `…Api` methods used here are unit-tested against the HTTP testing backend
+- [x] Checked in the running app on a desktop width and on a phone width, with two accounts
+
+## Comments
+
+- **2026-11-22, backend fixes found in the running app.** `MessageRepository.MarkConversationAsReadAsync` stamped `LastUpdatedAt` on every message it marked seen, so each read message showed as edited; and it marked nothing when the conversation's last message was the reader's own, so a reader who replied before reading kept the unread count. Both are fixed on this branch, with an integration test each (`docs/backend/signalr.md`, `data.md`). Messages read before the fix keep their stamp and still show "Edited" in an existing database.
+- **2026-11-22, left as is.** Like `PagedList`, the store's list and history paging repeat its shape (page number, status, failure). The other lane was changing `paged-list.ts`, so this lane did not reshape it. The feed and the user search still carry their own copies of the failure-and-retry block that `shared/load-failure` now holds.
+- **2026-11-22, owner's review, first round.** List rows show presence only as a dot on the avatar: green while online, grey with the time away ("12m", "3h") under a day, a plain grey dot after that. The open conversation's header says "Active now" or "Active 5 minutes ago" beside the dot. The not-found and not-friend states link back to the list only on phones; the not-friend state links to the user's profile, where ticket 14 adds the friend request. The visible "Messages" heading is gone (it stays for screen readers). Relative times are written in the dictionaries, not by `Intl`: Chrome has no Georgian data for them and printed English. For a later merge with ticket 11, keep ticket 11's `shared/load-failure` and fit these templates to its inputs.
+- **2026-11-22, owner's review, second round.** Messages from one sender, each within two minutes of the one before and with nothing from the other person between them, form a run (`features/messages/run-ends.ts`): only the run's last message writes its time below, the others show theirs on hover. The conversation header is one link to the profile (avatar, name, presence), so the name no longer takes a 44 px link of its own and the presence sits right under it. Photos too small in the viewer were the test data (64 x 48 px images): the viewer shows a photo at its own size up to the screen, and does not blow a small one up.
+- **2026-11-22, owner's review, third round.** Under a message only the clock time shows. The history writes a heading above the first message of each day ("Today, 3:38 PM", "Yesterday, 1:25 PM", "Nov 19, 1:25 PM", never the year) and the time alone above a message that follows a pause of 30 minutes or more (`features/messages/history-marks.ts`, which replaces `run-ends.ts`). A run of one message under a heading shows no time below, as the heading has it. The exact date waits for a later message menu (edit, delete). Chrome has no Georgian date data, so `DateFormatter` writes month names and the order of a date's parts from the dictionary (`shared.dates`), across the app; only the clock time stays with `Intl`, and AM/PM in Georgian is fine by the owner.
+- **2026-11-22, owner's review, fourth round.** On a phone, one conversation hides the top and bottom bars and fills the screen edge to edge (`core/shell/is-on-chat-page.ts`, `isInConversation`); its back arrow leads to the list. From 768 px the bars stay: the list sits beside the conversation there, and the top bar is the only way to the other pages.

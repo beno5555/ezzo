@@ -22,6 +22,7 @@ const errorTexts: Record<string, ErrorText> = {
   [AppErrorKey.FutureDate]: (_error, texts) => texts.futureDate,
   [AppErrorKey.TooYoung]: (error, texts) => texts.tooYoung(numberIn(error, 'minAge')),
   [AppErrorKey.TooOld]: (error, texts) => texts.tooOld(numberIn(error, 'maxAge')),
+  [AppErrorKey.PasswordMismatch]: (_error, texts) => texts.passwordMismatch,
 };
 
 // The one message a field shows for its errors, or null when it has none.

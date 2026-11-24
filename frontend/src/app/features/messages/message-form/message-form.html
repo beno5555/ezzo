@@ -1,0 +1,85 @@
+<form
+  class="flex flex-col border-t border-border p-2 md:px-4 md:py-3"
+  [attr.aria-label]="editing() ? text().messages.edit.label : text().messages.messageBox.label"
+  [formGroup]="form"
+  (ngSubmit)="submit()"
+>
+  <!-- Hidden, not removed, while an edit is in the box: the photos of a sent message cannot be changed. -->
+  <app-photo-picker
+    [class.hidden]="editing()"
+    [class.pb-3]="pickerHasContent()"
+    [rules]="photoRules"
+    [compact]="true"
+    [(photos)]="photos"
+  />
+
+  <div class="flex items-end gap-2">
+    <!-- The photo button, or Cancel in its place while an edit is in the box. -->
+    @if (editing()) {
+      <button
+        appIconButton
+        type="button"
+        [attr.aria-label]="text().messages.edit.cancelButton"
+        (click)="cancelEdit()"
+      >
+        <svg class="size-5" [appIcon]="icons.x" aria-hidden="true"></svg>
+      </button>
+    } @else {
+      <button
+        appIconButton
+        type="button"
+        [disabled]="isFull()"
+        [attr.aria-label]="text().shared.photos.addButton"
+        (click)="openPhotos()"
+      >
+        <svg class="size-5" [appIcon]="icons.imagePlus" aria-hidden="true"></svg>
+      </button>
+    }
+    <!-- One row, like the comment form: screen readers read the label and the placeholder shows the same
+         words (owner, 2026-11-22, for the pinned comment form), so the box stays low. It grows with what
+         is typed, up to a few lines. -->
+    <label class="sr-only" for="message-content">{{
+      text().messages.messageBox.contentLabel
+    }}</label>
+    <div class="relative min-w-0 flex-1">
+      <textarea
+        #field
+        appTextInput
+        class="block max-h-32 min-h-11 w-full field-sizing-content resize-none md:max-h-48"
+        id="message-content"
+        rows="1"
+        autocomplete="off"
+        enterkeyhint="send"
+        formControlName="content"
+        [class.md:pe-20]="length() > 0"
+        [attr.maxlength]="maxLength"
+        [placeholder]="text().messages.messageBox.placeholder"
+        (keydown)="sendOnEnter($event)"
+        (keydown.escape)="cancelEdit()"
+        (input)="typed()"
+      ></textarea>
+      <!-- Used characters out of the limit, in the corner of the box, from the first character typed and
+           from a tablet up: a phone's row is too narrow for it (owner, 2026-11-22), and maxlength still
+           stops the typing there. The box keeps room for it on its right (md:pe-20), so the text never
+           runs under it. -->
+      @if (length() > 0) {
+        <app-character-counter
+          class="pointer-events-none absolute end-3 bottom-2 hidden text-xs md:block"
+          aria-hidden="true"
+          [length]="length()"
+          [max]="maxLength"
+        />
+      }
+    </div>
+    <!-- An icon alone on a phone, the word from a tablet up. Save in place of Send while an edit is in the box. -->
+    <button appButton look="primary" type="submit" [disabled]="!canSend()">
+      @if (editing()) {
+        <svg class="size-5 md:hidden" [appIcon]="icons.check" aria-hidden="true"></svg>
+        <span class="sr-only md:not-sr-only">{{ text().messages.edit.saveButton }}</span>
+      } @else {
+        <svg class="size-5 md:hidden" [appIcon]="icons.sendHorizontal" aria-hidden="true"></svg>
+        <span class="sr-only md:not-sr-only">{{ text().messages.messageBox.sendButton }}</span>
+      }
+    </button>
+  </div>
+</form>

@@ -225,6 +225,24 @@ public class FriendshipControllerTests : IClassFixture<DatabaseFixture>, IAsyncL
     }
 
     [Theory]
+    [InlineData("alice", 5, true)]    // alice sent the request to diana
+    [InlineData("diana", 2, false)]   // the same request, seen by its addressee
+    [InlineData("alice", 4, false)]   // charlie sent the request to alice
+    [InlineData("charlie", 2, true)]  // the same request, seen by its sender
+    [InlineData("alice", 3, true)]    // alice sent the request bob accepted
+    [InlineData("bob", 2, false)]     // bob is the addressee of alice's request
+    public async Task GetRelationship_WithAUser_SaysWhetherTheCallerSentTheRequest(
+        string caller, int friendId, bool expectedIsRequester)
+    {
+        await SignInAsync(caller);
+
+        var response = await _client.GetAsync($"api/friendships/{friendId}");
+
+        var friendship = await ResponseReader.ReadDataAsync<StandardFriendshipDto>(response);
+        Assert.Equal(expectedIsRequester, friendship.IsRequester);
+    }
+
+    [Theory]
     [InlineData(1)]                 // a stranger
     [InlineData(2)]                 // oneself
     [InlineData(NonexistentUserId)]

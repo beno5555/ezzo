@@ -15,6 +15,7 @@ function requests(count: number): StandardFriendshipDto[] {
     status: 'Pending',
     sentAt: '2026-11-18T10:00:00Z',
     lastUpdatedAt: null,
+    isRequester: false,
   }));
 }
 

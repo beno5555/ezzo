@@ -1,6 +1,6 @@
 # Working with Codex beside Claude Code
 
-The owner has a Claude plan and a ChatGPT plan. Claude Code does most of the implementing: it holds the project memory, the skills and the browser tools. Codex (OpenAI's CLI, `codex`) adds a second model. Its main job is reviewing, because a model from another vendor misses different things than the model that wrote the code. Codex reads `AGENTS.md` (root), which sends it to `CLAUDE.md` and repeats the owner's rules from Claude's memory. It finds the shared skills through the symlinks in `.agents/skills/` ("Skills for Codex" in `skills.md`).
+Claude Code does most of the implementing, and Codex adds a second model for review or takes an implementation lane. Codex reads `AGENTS.md`, which points to `CLAUDE.md` and repeats the owner's rules from Claude's project memory. It discovers the shared skills through `.agents/skills/` ("Skills for Codex" in `skills.md`).
 
 ## Review order for a branch
 
@@ -9,25 +9,32 @@ The owner has a Claude plan and a ChatGPT plan. Claude Code does most of the imp
 3. Codex reviews the final diff for bugs. Run it from the folder that has the branch checked out (the worktree, or the repo root):
 
    ```bash
-   codex review --base master "Follow AGENTS.md. Hunt for correctness bugs, security holes and missing tests in this branch; for each, give file:line, a concrete failing scenario and a severity. Do not report house-style choices that webcity-conventions requires."
+   codex review --base master -c 'review_model="gpt-6.2-sol"' -c 'model_reasoning_effort="high"'
    ```
 
 4. Paste the findings into the Claude session. Claude checks each finding against the code, and the owner decides which to fix ("When advice conflicts" in `AGENTS.md`).
 5. Merge as usual.
 
-Codex reviews last so that it reads the code that is actually merged. Once Codex does the bug review, Claude's `/code-review` on the same branch is mostly duplicate work. Skip it when usage is tight, but keep `/spec-review`: it needs the skills and ticket context that only the Claude side reads automatically.
+Codex reviews the final diff for bugs after the separate standards and ticket-scope checks. If Codex implements the ticket, it runs those two checks through `spec-review` before handing off the branch.
 
 ## A Codex implementation lane
 
-Use this for a self-contained ticket that touches files no other lane touches. `claude --worktree` and `.worktreeinclude` are Claude Code features, so from the repo root make the lane by hand:
+Use `codex --worktree` from the repo root, or `/worktree` in an open Codex session, to start a managed worktree. For a WebCity ticket lane with a named branch under `.claude/worktrees/` and local test settings, run this from the repo root in PowerShell:
 
-```bash
+```powershell
+$name = 'feature-name'
+$lane = ".claude/worktrees/$name"
 git fetch
-git worktree add .claude/worktrees/<name> -b worktree-<name> origin/master
-for f in $(grep -v '^#' .worktreeinclude); do cp "$f" ".claude/worktrees/<name>/$f"; done
+if ($LASTEXITCODE -ne 0) { throw 'git fetch failed' }
+git worktree add $lane -b "worktree-$name" origin/master
+if ($LASTEXITCODE -ne 0) { throw 'git worktree add failed' }
+Get-Content .worktreeinclude | Where-Object { $_ -match '^\s*[^#\s]' } | ForEach-Object {
+    Copy-Item -LiteralPath $_ -Destination (Join-Path $lane $_) -ErrorAction Stop
+}
+codex -C $lane
 ```
 
-Then start `codex` inside `.claude/worktrees/<name>/`. Test databases are named after the folder, so the lane gets its own pool, as in `worktrees.md`. Codex cannot use Claude in Chrome. For a frontend page, a Claude session (or the owner) does the browser check before the merge. Finish the lane as in `worktrees.md`: a lane never merges into `master`.
+Choose a ticket whose scope fits alongside the other active lanes. See [worktree setup and handoff](worktrees.md) for test databases and the trial merge. For frontend checks, use the [Playwright MCP server and screenshot command](screenshots.md).
 
 ## Keeping AGENTS.md true
 

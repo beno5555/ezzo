@@ -57,7 +57,7 @@ Each smell reads *what it is* → *how to fix*; match it against the diff:
 
 ### 4. Spawn both sub-agents in parallel
 
-Issue both sub-agent calls together, in the foreground, with `model: opus` (Opus 5.5) and `effort: high`, and aggregate the reports they return. Keep both settings: both axes call for judgement, pinning the model keeps the review on Opus even when a cheaper model wrote the code, and without an effort the reviewers fall back to the model's default, which may be lower.
+Issue both sub-agent calls together, in the foreground, and aggregate the reports they return. In Claude Code, use `model: opus` (Opus 5.5) and `effort: high`. In Codex, use the reviewer model and effort in `AGENTS.md`.
 
 **Standards sub-agent prompt** should include:
 

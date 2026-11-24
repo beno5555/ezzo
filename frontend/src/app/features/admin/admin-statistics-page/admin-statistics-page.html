@@ -1,0 +1,28 @@
+<div class="flex flex-col gap-6">
+  <h1 class="font-display text-2xl text-ink-strong">{{ text().admin.statistics.title }}</h1>
+
+  @if (sections().length > 0) {
+    @for (section of sections(); track section.title; let index = $index) {
+      <section class="flex flex-col gap-3" [attr.aria-labelledby]="'statistics-section-' + index">
+        <h2 class="font-display text-lg text-ink-strong" [id]="'statistics-section-' + index">
+          {{ section.title }}
+        </h2>
+        <div class="grid grid-cols-2 gap-4 md:grid-cols-3 lg:grid-cols-4">
+          @for (tile of section.tiles; track tile.label) {
+            <app-stat-tile [label]="tile.label" [value]="tile.value" />
+          }
+        </div>
+      </section>
+    }
+  } @else if (failureMessage(); as message) {
+    <app-load-failure
+      [message]="message"
+      [retryLabel]="text().admin.statistics.retryButton"
+      (retry)="load()"
+    />
+  } @else {
+    <p class="py-4 text-center text-sm text-ink-muted" role="status">
+      {{ text().admin.statistics.loading }}
+    </p>
+  }
+</div>

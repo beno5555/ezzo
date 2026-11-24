@@ -1,15 +1,41 @@
-<section class="mx-auto flex w-full max-w-104 flex-col gap-6 md:pt-6">
-  <header class="flex flex-col gap-2">
-    <h1 class="font-display text-2xl text-ink-strong">{{ heading() }}</h1>
-    @if (lead(); as lead) {
-      <p class="text-ink-muted">{{ lead }}</p>
-    }
-  </header>
+<!-- One heading, placed above the card or, on a lifted frame, on it. -->
+<ng-template #title>
+  <h1 class="font-display text-2xl text-ink-strong">{{ heading() }}</h1>
+</ng-template>
 
-  <div
-    class="flex flex-col gap-5 rounded-lg border border-border bg-surface-raised p-4 shadow-raised md:p-6"
-  >
-    <ng-content />
+<section
+  class="mx-auto flex w-full flex-col gap-6 md:pt-6"
+  [class]="lifted() ? 'max-w-120' : 'max-w-104'"
+>
+  @if (!lifted()) {
+    <header class="flex flex-col gap-2">
+      <ng-container [ngTemplateOutlet]="title" />
+      @if (lead(); as lead) {
+        <p class="text-ink-muted">{{ lead }}</p>
+      }
+    </header>
+  }
+
+  <div class="relative">
+    @if (lifted()) {
+      <!-- The sheet under a lifted card: an accent page set askew behind it. Smaller on a phone, so its
+           corner stays inside the page's margin. -->
+      <div
+        class="absolute inset-0 translate-x-1.5 translate-y-1.5 rotate-2 rounded-lg bg-accent md:translate-x-2.5 md:translate-y-2 md:rotate-3"
+      ></div>
+    }
+
+    <div
+      class="relative flex flex-col gap-5 rounded-lg border border-border bg-surface-raised"
+      [class]="lifted() ? 'p-5 md:p-8' : 'p-4 md:p-6'"
+      [class.shadow-overlay]="lifted()"
+      [class.shadow-raised]="!lifted()"
+    >
+      @if (lifted()) {
+        <ng-container [ngTemplateOutlet]="title" />
+      }
+      <ng-content />
+    </div>
   </div>
 
   <nav class="flex flex-col text-ink-muted" [attr.aria-label]="text().auth.linksLabel">

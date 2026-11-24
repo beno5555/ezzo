@@ -1,0 +1,25 @@
+{
+  "hook": {
+    "quiet": true,
+    "enabled": true,
+    "limits": {
+      "maxFindings": 5,
+      "maxChars": 8000
+    }
+  },
+  "telemetry": false,
+  "updateCheck": false,
+  "stalenessCheck": false,
+  "detector": {
+    "ignoreRules": [],
+    "ignoreFiles": [],
+    "ignoreValues": [
+      {
+        "rule": "overused-font",
+        "value": "fraunces",
+        "createdAt": "2026-11-24T19:18:30.166Z",
+        "reason": "owner confirmed 2026-11-24: Fraunces is the chosen face for the ezzo wordmark only (DESIGN.md, owner 2026-11-23), subset to the letters e, z, o"
+      }
+    ]
+  }
+}

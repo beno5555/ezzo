@@ -1,55 +1,10 @@
 ﻿# WebCity — SignalR
 
-> Part of the WebCity doc set. See also: `README.md`, `data.md`, `auth.md`, `controllers.md`, `signalr.md`, `background-jobs.md`.
-
----
-
 ## Architecture
 
-SignalR (not raw WebSockets) — automatic transport fallback, simpler API than managing raw `WebSocket` instances.
+The app uses one SignalR hub at `/hubs/messages`. On connection, the hub adds the connection to a SignalR group named for its user ID. SignalR removes the connection from its groups on disconnect. The hub delegates [typing](#typing) and [presence](#presence) to services. See [MessageHub.cs](../../backend/aspnetproject/Hubs/MessageHub.cs).
 
-`MessageHub`, in `/Hubs` (sibling to `/Controllers`, its own transport-layer tier). Mapped at `hubs/messages` (`app.MapHub<MessageHub>("hubs/messages")`).
-
-- Mostly push. The one client-called method is `SendTyping` (see Typing). The hub holds no logic: all validation stays in the relevant controller/service (`MessageController`/`MessageService`, `CommentController`/`CommentService`, `TypingService`), not the hub.
-- One SignalR group per `userId` (one-on-one messaging only — no conversation/group table). Connection added to its group in `OnConnectedAsync`; SignalR removes it from all groups automatically on disconnect.
-- `IHubContext<MessageHub>` is injected directly into `MessageService`, `CommentService` and `PostLikeService`, which treat "mutate + notify" as one atomic unit per service method.
-- `MessageHub` now also depends on `UserConnectionTracker` and `PresenceService` to track and broadcast online/offline state, and on `TypingService` for `SendTyping` (left out of the excerpt below):
-
-```csharp
-[Authorize]
-public class MessageHub : Hub
-{
-    private readonly UserConnectionTracker _userConnectionTracker;
-    private readonly PresenceService       _presenceService;
-
-    public override async Task OnConnectedAsync()
-    {
-        int userId = GetUserId();
-        await Groups.AddToGroupAsync(Context.ConnectionId, userId.ToString());
-
-        var isFirstConnection = _userConnectionTracker.AddConnection(userId);
-        if (isFirstConnection)
-        {
-            await _presenceService.NotifyUserOnlineAsync(userId);
-        }
-
-        await base.OnConnectedAsync();
-    }
-
-    public override async Task OnDisconnectedAsync(Exception? exception)
-    {
-        var userId = GetUserId();
-
-        var wasLastConnection = _userConnectionTracker.RemoveConnection(userId);
-        if (wasLastConnection)
-        {
-            await _presenceService.NotifyUserOfflineAsync(userId);
-        }
-
-        await base.OnDisconnectedAsync(exception);
-    }
-}
-```
+`MessageService`, `CommentService`, and `PostLikeService` use `IHubContext<MessageHub>` to push notifications from the same service method that saves the change. Database persistence and hub delivery are separate operations.
 
 ## Presence
 
@@ -70,7 +25,7 @@ public class MessageHub : Hub
 
 Hub requires `[Authorize]`, same JWT scheme as REST.
 
-Browsers can't set custom headers on a WebSocket/SSE handshake, so the client sends the JWT via query string (`?access_token=...`). `JwtBearerEvents.OnMessageReceived` (now in `AuthenticationExtensions.cs`, not inline in `Program.cs`) reads `access_token` from the query string specifically for requests under `/hubs` — REST endpoints are unaffected, still header-only.
+Browsers send the access token in the query string for WebSocket or SSE connections. The JWT handler reads `access_token` from the query string under `/hubs`. REST clients using JWTs send them in the `Authorization` header. See [AuthenticationExtensions.cs](../../backend/aspnetproject/Extensions/AuthenticationExtensions.cs).
 
 ## CORS
 
@@ -88,7 +43,8 @@ Policy name: `OriginPolicy` (`CorsExtensions.AddCorsPolicies`), applied globally
 | `PushMessageDto` | Receiver's live hub arrival (`ReceiveMessage`) | Id, Content, Images, Sender, SentAt |
 | `StandardMessageDto` | Full conversation history (`GetConversation`) | Id, Content, Images, Sender, ReceiverId, SentAt, Seen, SeenAt, IsEdited |
 | `MessageEditedDto` | Edit push (`MessageEdited`) | Id, Content |
-| `NotifyCommentDto` | Live comment push (`ReceiveComment`) | Id, AuthorUsername, Content |
+| `MessageDeletedDto` | Delete push (`MessageDeleted`) | Id |
+| `NotifyCommentDto` | Live comment push (`ReceiveComment`) | Id, AuthorId (null only when the commenter's account no longer exists; a deactivated account keeps its id), AuthorUsername, Content, PostId |
 | `UserTypingDto` | Typing signal (`UserTyping`) | UserId (the sender) |
 | `PostLikedDto` | Like push (`PostLiked`) | PostId, LikedBy (`MinimalUserDto`: Id, Username), LikeCount (the post's count after the like) |
 
@@ -99,8 +55,9 @@ Policy name: `OriginPolicy` (`CorsExtensions.AddCorsPolicies`), applied globally
 | Event | Trigger | Payload | Target group |
 |---|---|---|---|
 | `ReceiveMessage` | `SendMessage` persists successfully | `PushMessageDto` | Receiver's group |
-| `MessageSeen` | Conversation marked read (last unread message from the other user, seen) | `{ SeenBy, SeenAt }` | Sender's group |
+| `MessageSeen` | Conversation marked read (at least one unread message from the other user, seen) | `{ SeenBy, SeenAt }` | Sender's group |
 | `MessageEdited` | Message edit persists successfully | `MessageEditedDto` | Receiver's group only (the editor gets the edited message in the HTTP response) |
+| `MessageDeleted` | The sender deletes a message (not time-limited) | `MessageDeletedDto` | Receiver's group only (the sender's HTTP response is their confirmation). The payload holds only the message id: the client drops the message from an open conversation, and reads its list and the unread count again if it does not hold it |
 | `ReceiveComment` | A comment is added to a post, by someone other than the post's author | `NotifyCommentDto` | Post author's group |
 | `PostLiked` | A post is liked by someone other than its author. A repeated like (already liked) pushes nothing; an unlike pushes nothing | `PostLikedDto` | Post author's group only |
 | `UserOnline` | A user's first connection opens | `{ UserId }` | Each accepted friend's group |
@@ -118,9 +75,8 @@ Policy name: `OriginPolicy` (`CorsExtensions.AddCorsPolicies`), applied globally
 `Message.SeenAt` (nullable `DateTime`) plus `Seen` (redundant-but-harmless boolean, updated atomically alongside `SeenAt` in the same `ExecuteUpdateAsync`).
 
 `MessageRepository.MarkConversationAsReadAsync(readerId, otherUserId)`:
-- Only marks messages and returns `(marked: true, seenAt)` if the **last message** in the conversation was sent by `otherUserId` and was unread.
-- Guards against false-positive `MessageSeen` pushes when a reader reopens an already-read conversation.
-- Bulk-updates all unread incoming messages from that sender, not just the last one.
+- Bulk-updates every unread incoming message from `otherUserId`, wherever it sits in the conversation (a reader who replied before reading still gets the earlier messages marked), and sets only `Seen` and `SeenAt`, never `LastUpdatedAt` (which means edited).
+- Returns `(marked: true, seenAt)` only when the update changed a row, so reopening an already-read conversation sends no false `MessageSeen` push.
 - Called automatically from `MessageService.GetConversationAsync` whenever a conversation is fetched — the client doesn't need to call the mark-as-read endpoint separately just from viewing, though `PUT .../mark-as-read` still exists as an explicit action.
 
 ## Testing

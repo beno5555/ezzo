@@ -45,6 +45,7 @@ When rules conflict, follow the first applicable item:
 ## Agent workflow
 
 - **Read before writing.** Before you touch a layer, open at least one sibling file in it, plus any project docs (README, `docs/`).
+- **Take in only the output you need.** Every tool result stays in your context and is re-read on each later turn. Pipe long command output through `tail` or `grep` to the part that answers your question (a test run's summary and its failures, a build's errors). Run `git diff --stat` before a full diff, then show only the files you need. In a large file, read the part you need. When what you took in turns out not to be enough, read more instead of guessing: the next chunk, or the whole file.
 - **Make minimal diffs.** Do not reformat, rename or reorganize anything the task does not require.
 - **Report suspicious code instead of silently fixing it.** Code that looks inconsistent may be intentional. Report anything outside the task with its location and your reasoning:
   > `CommentController`: create uses `api/comments/posts/{postId}` but list uses `api/comments/post/{postId}`. Left unchanged; clients may depend on it.

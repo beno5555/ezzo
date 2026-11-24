@@ -3,6 +3,7 @@ using System.Net.Http.Json;
 using System.Text.Json;
 using aspnetproject.Common.ProjectConstants;
 using aspnetproject.Data;
+using aspnetproject.Infrastructure.Dtos.Users;
 using Microsoft.EntityFrameworkCore;
 using aspnetproject.IntegrationTests.Fixtures;
 using aspnetproject.IntegrationTests.Helpers;
@@ -135,7 +136,7 @@ public class UserControllerTests : IClassFixture<DatabaseFixture>, IAsyncLifetim
     // ---------- GET /users/search ----------
 
     [Fact]
-    public async Task Search_Anonymous_ReturnsMinimalDtoOnly()
+    public async Task Search_Anonymous_ReturnsOnlyIdAndUsername()
     {
         var response = await _client.GetAsync("api/users/search?Username=ali&PageNumber=1&PageSize=10");
 
@@ -144,7 +145,7 @@ public class UserControllerTests : IClassFixture<DatabaseFixture>, IAsyncLifetim
         var body = await response.Content.ReadAsStringAsync();
         Assert.Contains("alice", body, StringComparison.OrdinalIgnoreCase);
         Assert.DoesNotContain("alice@example.com", body);
-        Assert.DoesNotContain("Primary test caller", body); // no Bio in MinimalUserDto
+        Assert.DoesNotContain("Primary test caller", body); // no Bio in SearchUserDto
     }
 
     [Fact]
@@ -154,6 +155,78 @@ public class UserControllerTests : IClassFixture<DatabaseFixture>, IAsyncLifetim
         var body = await response.Content.ReadAsStringAsync();
 
         Assert.DoesNotContain("erin_deactivated", body);
+    }
+
+    [Fact]
+    public async Task Search_Anonymous_ReturnsNoRelationship()
+    {
+        var response = await _client.GetAsync("api/users/search?Username=bob&PageNumber=1&PageSize=10");
+        var results  = await ResponseReader.ReadListAsync<SearchUserDto>(response);
+
+        var bob = Assert.Single(results);
+        Assert.Null(bob.Relationship);
+    }
+
+    [Theory]
+    [InlineData("bob", "Accepted", true)]      // alice asked, bob accepted
+    [InlineData("diana", "Pending", true)]     // alice's request waits
+    [InlineData("charlie", "Pending", false)]  // charlie's request waits for alice
+    public async Task Search_SignedIn_ReturnsTheCallersRelationshipWithEachResult(string username, string status, bool isRequester)
+    {
+        var token = await AuthTestHelper.LoginAsync(_client, "alice", TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(_client, token);
+
+        var response = await _client.GetAsync($"api/users/search?Username={username}&PageNumber=1&PageSize=10");
+        var results  = await ResponseReader.ReadListAsync<SearchUserDto>(response);
+
+        var found = Assert.Single(results);
+        Assert.NotNull(found.Relationship);
+        Assert.Equal(status, found.Relationship.Status);
+        Assert.Equal(isRequester, found.Relationship.IsRequester);
+    }
+
+    [Fact]
+    public async Task Search_SignedIn_ReturnsNoRelationshipForTheCallerOrAStranger()
+    {
+        var token = await AuthTestHelper.LoginAsync(_client, "alice", TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(_client, token);
+
+        var response = await _client.GetAsync("api/users/search?Username=sandro&PageNumber=1&PageSize=10");
+        var stranger = Assert.Single(await ResponseReader.ReadListAsync<SearchUserDto>(response)); // the administrator
+        response     = await _client.GetAsync("api/users/search?Username=alice&PageNumber=1&PageSize=10");
+        var itself   = Assert.Single(await ResponseReader.ReadListAsync<SearchUserDto>(response));
+
+        Assert.Null(stranger.Relationship);
+        Assert.Null(itself.Relationship);
+    }
+
+    [Fact]
+    public async Task Search_SignedIn_ReturnsADeclinedRequestToItsSender()
+    {
+        var token = await AuthTestHelper.LoginAsync(_client, "bob", TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(_client, token);
+
+        var response = await _client.GetAsync("api/users/search?Username=charlie&PageNumber=1&PageSize=10");
+        var charlie  = Assert.Single(await ResponseReader.ReadListAsync<SearchUserDto>(response));
+
+        Assert.NotNull(charlie.Relationship);
+        Assert.Equal("Declined", charlie.Relationship.Status);
+        Assert.True(charlie.Relationship.IsRequester);
+    }
+
+    [Fact]
+    public async Task Search_SignedIn_MatchesEachRelationshipToItsOwnResult()
+    {
+        var token = await AuthTestHelper.LoginAsync(_client, "alice", TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(_client, token);
+
+        var response = await _client.GetAsync("api/users/search?Username=a&PageNumber=1&PageSize=10");
+        var results  = await ResponseReader.ReadListAsync<SearchUserDto>(response);
+
+        Assert.True(results.Single(user => user.Username == "diana").Relationship?.IsRequester);
+        Assert.False(results.Single(user => user.Username == "charlie").Relationship?.IsRequester);
+        Assert.Null(results.Single(user => user.Username == "alice").Relationship);
+        Assert.Null(results.Single(user => user.Username == "sandro_beno").Relationship);
     }
 
     [Fact]

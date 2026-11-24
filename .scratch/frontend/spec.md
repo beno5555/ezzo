@@ -4,7 +4,7 @@ Status: ready-for-agent
 
 ## Problem Statement
 
-The documentation sent to the principal (`webcity-documentation.md`) is the commitment for 2026-11-25. It promises an Angular application, and none of it exists: there is no `frontend/` folder. WebCity can be used today only through Swagger or Postman.
+The documentation sent to the academy (`webcity-documentation.md`) is the commitment for 2026-11-25. It promises an Angular application, and none of it exists: there is no `frontend/` folder. WebCity can be used today only through Swagger or Postman.
 
 - A person cannot register, sign in, reset a password or reactivate an account in a browser.
 - Nobody can read the feed, write a post with photos, like, comment or report.
@@ -22,7 +22,7 @@ Build the Angular application in `frontend/`, served from the same origin as the
 
 - **Scaffold and plumbing.** The CLI project, the dev proxy, lint, tests and build in CI, the session, the HTTP interceptor with automatic refresh, the hub client, the dictionaries and the shared error handling.
 - **Shell and auth.** Navigation for a desktop and a phone, a guest's reduced shell, and the pages to register, sign in, reset a password and reactivate an account.
-- **Feed, posts and comments.** A ranked feed with a composer, a page per post with its comments, likes, edit and delete, and a report dialog.
+- **Feed, posts and comments.** A ranked feed, a composer on its own page, a page per post with its comments, likes, edit and delete, and a report dialog.
 - **Profile, friends, search and settings.** A profile with posts and friends, the three friendship lists, user search, and one settings page.
 - **Chat and live notifications.** A conversation list and a conversation with photos, edit, delete, seen, typing and presence, and toasts for what happens elsewhere.
 - **Admin panel.** A page each for users, reports, the moderation queue, logs and statistics.
@@ -36,7 +36,7 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 
 1. As a user, I want to stay signed in when I reload the page or open a new tab, so that I do not sign in again every time.
 2. As a user, I want my session renewed without my noticing when the access token expires, so that an action never fails just because time passed.
-3. As a user, I want to be taken to the sign-in page when my session can no longer be renewed, so that I understand why nothing works.
+3. As a user, I want to be taken to the sign-in form when my session can no longer be renewed, so that I understand why nothing works.
 4. As a user, I want to return to the address I asked for after I sign in, so that a link someone sent me still leads where it should.
 5. As a user with two tabs open, I want both tabs to stay signed in, so that one tab's renewal does not sign the other out.
 6. As a user, I want to sign out from the menu, so that the next person at this computer cannot use my account.
@@ -55,9 +55,9 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 16. As a visitor, I want each field checked as I leave it, with the same limits the server uses, so that I fix mistakes before I submit.
 17. As a visitor, I want the server's complaint about a field shown beside that field, so that I know which one to change.
 18. As a new user, I want to be signed in as soon as I have registered, so that I do not type my password twice.
-19. As a new user whose automatic sign-in failed, I want to land on the sign-in page with my username filled in, so that I can finish by hand.
+19. As a new user whose automatic sign-in failed, I want to land on the sign-in form with my username filled in, so that I can finish by hand.
 20. As a user, I want to sign in with my username or my email, so that I can use whichever I remember.
-21. As a signed-in user, I want the sign-in and register addresses to send me to the feed, so that I do not see forms I do not need.
+21. As a signed-in user, I want the home, sign-in and register addresses to send me to the feed, so that I do not see forms I do not need.
 22. As a user who forgot a password, I want to ask for a reset link by email, so that I can get back in.
 23. As a user, I want the link in the reset email to open a page where I choose a new password, so that I do not copy a code by hand.
 24. As a user, I want to be told when a reset link is no longer valid, so that I ask for a new one.
@@ -78,7 +78,7 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 
 34. As a user, I want the feed page to show the ranked feed, so that I see friends' news and discover other people.
 35. As a user, I want more posts to load as I scroll, so that I never press a "next page" button.
-36. As a user, I want a composer at the top of the feed with a title, text and up to 10 photos, so that posting takes no navigation.
+36. As a user, I want a Write a post button on the feed that opens a composer page with a title, text and up to 10 photos, so that the feed stays a list and other kinds of post can join the composer later (owner, 2026-11-21).
 37. As a user, I want a preview of each photo I picked, and a way to drop one before I post, so that I publish what I meant.
 38. As a user, I want a file of the wrong type or over the size limit refused in the browser with a clear message, so that I do not wait for an upload that will fail.
 39. As a user, I want my new post to appear at the top of the feed at once, with a toast while it uploads and another when it is published, so that I never wait and still know when it is done.
@@ -86,8 +86,8 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 41. As a reader, I want each feed card to show the author, the time, the like count and the comment count, so that I can judge a post at a glance.
 42. As a user, I want to like and unlike a post from its card, so that reacting takes one click.
 43. As a reader, I want to open a post on its own page, so that I can read its comments and share its address.
-44. As a post author, I want to edit the title and the text of my post in place, so that I can fix a mistake.
-45. As a post author, I want to remove one photo from my post, and to see "Coming soon" on that control until the server supports it, so that I can fix a mistake without deleting the post and am never offered a button that fails.
+44. As a post author, I want to edit the title and the text of my post on a page of its own, so that I can fix a mistake (owner, 2026-11-22: not in place in the feed).
+45. As a post author, I want to remove one photo from my post, so that I can fix a mistake without deleting the post. (Owner, 2026-11-22: the edit page does not touch photos until it can add them too; the control comes back with that ticket, and asks before it removes.)
 46. As a post author, I want to delete my post after a confirmation, so that I do not delete it by accident.
 47. As a reader, I want times shown in my own time zone and language, so that "when" is never ambiguous.
 
@@ -163,12 +163,12 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 97. As a user, I want a toast when a friend sends me a message while I am elsewhere, so that I do not miss it.
 98. As a user, I want no toast for a message in the conversation I am looking at, so that I am not told what I can already see.
 99. As a post author, I want a toast when someone comments on my post, so that I can answer.
-100. As a post author, I want a toast when someone likes my post, so that I know it was noticed.
-101. As a user, I want a toast when a friend comes online, at most once per friend in 5 minutes, so that I am informed without being flooded.
-102. As a user, I want a click on a toast to open the chat or the post it is about, so that I can act on it.
-103. As a user, I want a toast to leave after 5 seconds and at most three on screen, so that they never cover the page.
-104. As a user, I want the unread count and the online dots to change without a reload, so that what I see is current.
-105. As a user, I want the live connection to come back by itself after my network drops, so that I do not reload the page.
+100.  As a post author, I want a toast when someone likes my post, so that I know it was noticed.
+101.  As a user, I want a toast when a friend comes online, at most once per friend in 5 minutes, so that I am informed without being flooded.
+102.  As a user, I want a click on a toast to open the chat or the post it is about, so that I can act on it.
+103.  As a user, I want a toast to leave after 5 seconds, or sooner when I close it with its close button, and at most three on screen, so that they never cover the page.
+104.  As a user, I want the unread count and the online dots to change without a reload, so that what I see is current.
+105.  As a user, I want the live connection to come back by itself after my network drops, so that I do not reload the page.
 
 ### Settings
 
@@ -229,40 +229,43 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 
 ### Across the whole frontend
 
-- **The conventions hold.** §10 of the conventions skill's TypeScript reference and ADRs 0001 and 0003 to 0006 are the rules: standalone components, no zone.js, signals, `…Api` services that return `Promise<AppResult<T>>`, stores only for state that several pages share or the hub changes, typed reactive forms, lazy pages, relative URLs, three guards, typed dictionaries, one date formatter. This spec adds decisions; it changes none of those.
+- **The conventions hold.** §10 of the conventions skill's TypeScript reference and ADRs 0001, 0003 to 0005, and 0010 are the rules: standalone components, no zone.js, signals, `…Api` services that return `Promise<AppResult<T>>`, stores only for state that several pages share or the hub changes, typed reactive forms, lazy pages, relative URLs, three guards, typed dictionaries, one date formatter.
 - **Page tickets wait for the design session; plumbing tickets do not.** The design session (roadmap step 1) chooses the styling toolset and the tokens. Scaffold, session, interceptor, hub client, dictionaries, stores and `…Api` services have no visual part.
 - **Every user has the default profile picture.** It is the user's initials on a coloured disc, drawn by the frontend through one component, so that a chosen picture can take its place later (`DESIGN.md`, Components). Choosing a picture is not built here.
 - **Light and dark themes both ship** (design session, 2026-11-16). The first visit follows the operating system's setting, the choice is remembered, and the switch sits in the menu beside the language.
 - **Lists use infinite scroll** everywhere a list is paged, with the paging the backend already has (`PageNumber`, `PageSize`). A page shorter than the page size is the last.
-- **Quick actions show their result at once** (owner, 2026-11-20). Like and unlike, every friendship action (add, cancel, accept, decline, remove), Hide and Make visible, the administrator's row actions, and a delete once it is confirmed: the screen changes on the click as if the server had agreed, then the request goes. If the server refuses, the screen goes back to how it was and a toast says why. A second click on the same item while its request is on its way is ignored. `PostLikeStore` is the pattern.
+- **Quick actions show their result at once** (owner, 2026-11-20). Like and unlike, every friendship action (add, cancel, accept, decline, remove), Hide and Make visible, and the administrator's row actions: the screen changes on the click as if the server had agreed, then the request goes. Deletions are the exception (owner, 2026-11-23): see "A deletion waits for the server" below. If the server refuses, the screen goes back to how it was and a toast says why. A second click on the same item while its request is on its way is ignored. `PostLikeStore` is the pattern.
+- **A deletion waits for the server** (owner, 2026-11-23). Deleting a post, a comment, a message or a friend (once confirmed) shows "Deleting…" with a spinner on the item and waits for the answer; the notice stays at least 400 ms, so a fast answer does not flicker. On a yes the item fades out over 200 ms and the next one moves up, and a toast says it is deleted. On a no the notice goes, the item stays, and a toast says why. `DeleteFade` (`shared/fade-out`) is the shared state.
 - **What a user writes shows at once too** (owner, 2026-11-20). A new or edited post, comment or message appears before the server has it, marked as pending, and the server's copy takes its place when it arrives (the server makes the id, the photo addresses and the times). Until then a new item shows the moment it was sent as its time, and its photos from the browser's previews.
-  - **A post:** sending it empties the composer, and saving an edit closes the form; an edit saved on the post's page sends the author to the feed. A toast says the post is uploading and stays until the upload ends; then a second toast says it was published or saved, and leads to the post. Meanwhile a new post is at the top of the feed and an edited one shows its new title and text.
+  - **A post:** sending it empties the composer and goes to the feed, and saving an edit closes the form; an edit saved on the post's page sends the author to the feed. A toast says the post is uploading and stays until the upload ends; then a second toast says it was published or saved, and leads to the post. Meanwhile a new post is at the top of the feed and an edited one shows its new title and text.
   - **A comment** is in the list at once with "Sending…" under it, and the count rises. An edit shows the same mark.
   - **A message** is in the conversation at once with a clock icon where its time goes, and no text; the icon's accessible label says "Sending". An edit shows the same icon.
-  - **A refusal** removes the pending item, or puts an edited one back, and a toast says why. What the user wrote is never lost: a new post goes back into the composer, a comment or a message goes back into its box with its photos, and an edit's toast leads back to its form, filled with what the user wrote.
-- **Destructive actions ask first.** Deleting a post, a comment or a message, removing a friend, and every destructive admin action open a confirmation dialog. Deactivating and deleting one's own account require typing the username.
+  - **A refusal** removes the pending item, or puts an edited one back, and a toast says why. What the user wrote is never lost: a new post's toast leads back to the composer, filled with what the user wrote, a comment or a message goes back into its box with its photos, and an edit's toast leads back to its form, filled with what the user wrote.
+- **Destructive actions ask first.** Deleting a post, a comment or a message, removing a friend, and every destructive admin action open a confirmation dialog. Deactivating one's own account requires typing the username; deleting it requires typing a sentence that holds the username (owner, 2026-11-24), since the user cannot undo a deletion.
 - **Enums travel as text.** Every enum the API sends or accepts is the name of its member as text (`"Pending"`, `"Hidden"`, `"Post"`, `"Active"`); none is a number. Each frontend mirror is an `as const` object whose values are those names. Where the backend reads an enum from a request body it accepts the name only and refuses a number, so the frontend always sends the name.
 - **Two more feature folders.** `admin/` and `reports/` join the list, after the backend's controllers. `PostLikeApi` lives in `posts/`.
 - **The website plays no sound.**
 
 ### Addresses
 
-| Address | Page | Access |
-|---|---|---|
-| `/` | Landing page for guests; a signed-in user is sent to `/feed` | anyone |
-| `/feed` | Feed with the composer | signed in |
-| `/sign-in`, `/register` | Sign in, register | signed out only |
-| `/forgot-password` | Ask for a reset link | anyone |
-| `/reset-password?token=…` | Choose a new password | anyone |
-| `/reactivate-account` (`?token=…` from the email) | Ask for a link; opened from it, reactivate with one button | anyone |
-| `/posts/:postId` | One post and its comments | anyone |
-| `/users/:username` | Profile | anyone |
-| `/search?q=…` | User search | anyone |
-| `/settings` | Settings | signed in |
-| `/friends` | Friends, incoming, sent | signed in |
-| `/messages`, `/messages/:username` | Chat | signed in |
-| `/admin/users`, `/admin/reports`, `/admin/moderation`, `/admin/logs`, `/admin/statistics` | Admin panel | administrator |
-| anything else | Not found | anyone |
+| Address                                                                                   | Page                                                                                                    | Access          |
+| ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | --------------- |
+| `/`                                                                                       | A guest: the landing page with the sign-in form. A signed-in user: the feed, with a Write a post button | anyone          |
+| `/feed`, `/sign-in`                                                                       | Former addresses; both lead to `/`, keeping the query                                                   | anyone          |
+| `/posts/new`                                                                              | The composer                                                                                            | signed in       |
+| `/posts/:postId/edit`                                                                     | Where an author edits a post                                                                            | signed in       |
+| `/register`                                                                               | Register                                                                                                | signed out only |
+| `/forgot-password`                                                                        | Ask for a reset link                                                                                    | anyone          |
+| `/reset-password?token=…`                                                                 | Choose a new password                                                                                   | anyone          |
+| `/reactivate-account` (`?token=…` from the email)                                         | Ask for a link; opened from it, reactivate with one button                                              | anyone          |
+| `/posts/:postId`                                                                          | One post and its comments                                                                               | anyone          |
+| `/users/:username`                                                                        | Profile                                                                                                 | anyone          |
+| `/search?q=…`                                                                             | User search                                                                                             | anyone          |
+| `/settings`                                                                               | Settings                                                                                                | signed in       |
+| `/friends`                                                                                | Friends, incoming, sent                                                                                 | signed in       |
+| `/messages`, `/messages/:username`                                                        | Chat                                                                                                    | signed in       |
+| `/admin/users`, `/admin/reports`, `/admin/moderation`, `/admin/logs`, `/admin/statistics` | Admin panel                                                                                             | administrator   |
+| anything else                                                                             | Not found                                                                                               | anyone          |
 
 - **People are addressed by username,** in profiles and in chat. The backend resolves a username to a user with its public read by username; chat endpoints and hub events use the id, so the chat page resolves the username first, from the conversation list when it is loaded and from the backend otherwise.
 - **Never put a fixed word beside a `:username` segment.** A username could equal it.
@@ -286,7 +289,8 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 - **Desktop:** a top bar with the logo, the search box, Feed, Friends (incoming count), Messages (unread count), and a menu under the user's initials: my profile, settings, admin (administrators only), language, sign out.
 - **Phone:** a top bar with the logo and that menu; a bottom bar with Feed, Search, Friends, Messages and Profile, with the same two counts.
 - **Guest:** the logo, the search box, the language switch, Sign in and Register.
-- **Account pages** (sign-in, register, forgotten password, reset, reactivation): the logo only, with no bottom bar, for a guest and a signed-in user alike. They are a short stop, so they leave out search, the menus and the language switch; the language starts from the browser's (owner, 2026-11-19).
+- **The landing page:** the language and theme menu only; the page's wordmark carries the logo (owner, 2026-11-23).
+- **Account pages** (register, forgotten password, reset, reactivation): the logo only, with no bottom bar, for a guest and a signed-in user alike. They leave out search, the menus and the language switch. They honor the saved language and use the browser preference on a first visit.
 - **The incoming-request count** is loaded at sign-in and again on each visit to `/friends`. It is not live in this spec.
 
 ### Auth pages
@@ -298,13 +302,16 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 
 ### Feed, posts and comments
 
-- **Composer:** a card at the top of the feed. A title is required, and so is either text or at least one photo, as the backend requires. Up to 10 photos, each JPEG, PNG or WebP and at most 5 MB, checked in the browser against `LIMITS` before upload. The post goes as `multipart/form-data`. It shows at the top of the list at once, with an uploading toast and then a published one ("What a user writes shows at once too", under "Across the whole frontend").
+- **Composer:** a card on its own page, `/posts/new`, opened from a Write a post button beside the feed's heading (owner, 2026-11-21: the feed stays a list, and other kinds of post can get their own fields there later). Sending goes to the feed, where the post shows as pending, and the feed takes the composer's place in the history. A title is required, and so is either text or at least one photo, as the backend requires. Up to 10 photos, each JPEG, PNG or WebP and at most 5 MB, checked in the browser against `LIMITS` before upload. The post goes as `multipart/form-data`. It shows at the top of the list at once, with an uploading toast and then a published one ("What a user writes shows at once too", under "Across the whole frontend").
 - **Editing** happens on the post, in the feed card and on the post's page: title and text. Saving shows the edit at once, and from the post's page returns the author to the feed, with the same two toasts as a new post. Photos are removed one at a time. Photos cannot be added to an existing post.
-- **Removing a photo is built against an endpoint that does not exist yet.** `PostApi` gets its method for the documented `DELETE /api/posts/{postId}/images/{imageId}`, and the edit form shows a remove control on each photo, disabled and labelled "Coming soon" from the dictionary. When documented-backend-features ticket 04 lands, the control is enabled and nothing else changes.
+- **Photos on the edit page are shown and left alone** (owner, 2026-11-22). Photos cannot be added to an existing post, so the edit page offers no control on them at all, not even a remove one. `PostApi` has its method for `DELETE /api/posts/{postId}/images/{imageId}` (backend ticket 04 is done), unused until a ticket brings photo editing back; the control must then ask before it removes, as the removal is immediate and final.
+- **Editing is a page, not a form in the feed** (owner, 2026-11-22): `/posts/:postId/edit`, opened from the card's menu. Save goes to the post's own page, where the post shows at once with its new text, marked as uploading. An edit is never shown in the feed: the ranked feed does not list the caller's own posts, and a new post's showing there is test scaffolding that ticket 14 (the profile) removes. A refused edit's toast leads back to the edit page with what the author wrote, and that is dropped as soon as the page is left.
+- **Text boxes of posts stop at their limit** (owner, 2026-11-22): the composer's and the edit page's title and text boxes take no character past the limit (`maxlength`) and show "used/limit" beside their label (`FormField`, `CharacterCounter`), as the comment box does.
+- **A deleted post says "Deleting…" until the server has answered**, then fades out over 200 ms and leaves the list, and a toast says it is deleted (see "A deletion waits for the server").
 - **Feed card:** author, time, title, text, photo grid, like button with the count, comment count linking to the post's page, the "…" menu. Comments are not shown or written in the feed.
-- **Likes** change the card at once, as every quick action does ("Across the whole frontend"). There is no list of who liked.
+- **Likes** change the card at once, as every quick action does ("Across the whole frontend"). There is no list of who liked. The server hears of a click a second after the last click on that post (owner, 2026-11-22): a like taken back inside that second, or an unlike taken back, is never sent, and clicking never waits for an answer.
 - **Photo grid and viewer:** up to four thumbnails with a "+N" on the last when there are more; a click opens a full-screen viewer with previous and next.
-- **Post page:** the post, then its comments by pages, then a comment form for a signed-in user.
+- **Post page:** the post, then its comments by pages, then a comment form for a signed-in user. The form and a "Back" link stay pinned while the reader scrolls (owner, 2026-11-22). The card's comments button goes back too: both go to the page the reader came from, and to the feed when the post was opened directly (owner, 2026-11-24; `NavigationHistoryStore`). The comment box takes no character past the limit (`maxlength`), so a comment cannot be too long to send. In a list a long post's text stops after five lines with a "See more" button that opens the rest in place; the post's own page shows it all. A signed-in user's own comments come first, newest first, then everyone's oldest first; the backend orders them (`docs/backend/controllers.md`), because the list is paged. A new comment appears on top.
 
 ### Actions on content, reports and hidden content
 
@@ -318,12 +325,12 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 - **Friendship button** follows the relationship the backend reports: add; cancel my request; accept or decline theirs; remove. After a decline, add is offered again.
 - **Message button** for a friend opens `/messages/:username`.
 - **Tabs:** Posts and Friends. A guest sees no Friends tab, because the friends list requires sign-in.
-- **Unavailable accounts:** an author with no id is shown as text without a link. A profile the backend does not find shows the not-found page.
+- **Unavailable accounts:** an author with no id is shown as text without a link. A profile the backend does not find shows the not-found page, except for a name the signed-in user had before renaming themselves in this visit: that address is replaced by their profile under the new name (owner, 2026-11-24).
 
 ### Friends and search
 
 - **`/friends`** has three tabs backed by the three lists. Removing a friend warns that the messages between the two are deleted.
-- **`/search`** keeps the words in the address, searches 300 ms after the last keystroke, and ignores every response but the latest (ADR 0003). The top-bar box navigates there. Search is open to a guest.
+- **`/search`** keeps the words in the address, searches 500 ms after the last keystroke, and ignores every response but the latest (ADR 0003). The top-bar box navigates there. Search is open to a guest.
 
 ### Chat
 
@@ -333,22 +340,23 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 - **Sending:** text up to the backend's limit, up to 5 photos, or both, as `multipart/form-data`. The sender sees the message at once with the clock icon, until the HTTP response's copy takes its place; the receiver's copy comes from `ReceiveMessage`.
 - **Opening a conversation marks it read.** So does a message arriving while the conversation is open.
 - **Seen:** `MessageSeen` marks the user's sent messages as seen; "seen" is shown under the last of them.
-- **Edit** is offered for 20 minutes after sending (mirrored in `LIMITS`). The editor sees the edit at once with the clock icon; `MessageEdited` updates the receiver's copy. An edited message is marked.
-- **Delete** removes the message for the sender at once. The backend sends no push for a deletion, so the friend's open conversation keeps it until it is loaded again.
+- **Edit** is offered for 20 minutes after sending (mirrored in `LIMITS`), from the "…" menu at the end of the user's own bubble (shown on hover with a mouse, always on a touch screen). The text is edited in the conversation's own message box, not in the bubble: the box holds the text with Cancel and Save (no "editing" line: the buttons say it); what the user was writing comes back afterwards, and the edit ends by itself when the 20 minutes pass (owner, 2026-11-23). The editor sees the edit at once with the clock icon; `MessageEdited` updates the receiver's copy. An edited message is marked. Only the text changes, so a photo-only message can be given a caption.
+- **Delete** removes the message for the sender at once, and for the friend live: the backend pushes `MessageDeleted` to the receiver (added in ticket 20, round 2), and the friend's open conversation drops the message, and the list row follows.
 - **Typing:** the client calls `SendTyping` at most once every 2 seconds while the user types, and hides the friend's "typing…" 3 seconds after the last `UserTyping`.
 
 ### Toasts
 
 - **Four live toasts:** a new message (not when that conversation is open), a comment on my post, a like on my post, a friend coming online.
 - **Each is a link:** to the chat, to the post, to the post, to the chat.
-- **Rules:** 5 seconds on screen, at most three at once, and at most one online toast per friend in 5 minutes.
+- **Look** (owner, 2026-11-24): every toast shows its news by its picture, name and badge, and slides in; a live toast from an account that is gone shows nothing. Signing out takes the toasts down. The look is in `DESIGN.md`.
+- **Rules:** 5 seconds on screen, or sooner when the user closes the toast with its close button (owner, 2026-11-24); at most three at once; and at most one online toast per friend in 5 minutes.
 - **Upload toasts** for a post (under "Across the whole frontend"): the uploading toast stays until the upload ends, outside the 5-second rule, and the published or saved toast that follows it keeps the rule.
 - **Failures of actions outside a form** use the same toast component (conventions, Errors).
 - **There is no notification history,** because the backend stores none.
 
 ### Settings
 
-- **One page, in sections.** Profile: username (with the 20-day limit and the date it was last changed), bio, date of birth, and the account's creation date, read-only. Language. Password: a button that requests a reset email for the user's own address. Danger zone: deactivate and delete, each confirmed by typing the username, each ending in sign-out.
+- **One page, in sections, under a pinned "Back" link** like the post page's (owner, 2026-11-24). Profile: username (with the 20-day limit and the date it was last changed), bio, date of birth, and the account's creation date, read-only. Language. Password: a button that requests a reset email for the user's own address. Danger zone: deactivate (confirmed by typing the username) and delete (confirmed by typing a sentence that holds it), each ending in sign-out.
 - **The email digest toggle is not built here.** It arrives with the n8n spec, which adds the setting to the backend.
 
 ### Admin panel
@@ -362,7 +370,7 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 
 ### Languages and dates
 
-- **English and Georgian** ship. The first visit picks Georgian when the browser's preferred language is Georgian, English otherwise; the choice is then remembered.
+- **English and Georgian** ship. The first visit picks Georgian when the browser's preferred language is Georgian, English otherwise. Only the selected dictionary loads at startup, and a switch loads the other on demand. The chosen language is remembered.
 - **Server text stays English** (ADR 0006).
 
 ### Backend changes

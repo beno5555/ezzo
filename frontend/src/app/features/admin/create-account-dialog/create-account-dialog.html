@@ -1,0 +1,89 @@
+<app-dialog-frame [title]="text().admin.users.createDialog.title">
+  <form class="flex flex-col gap-5" [formGroup]="form" (ngSubmit)="create()">
+    <app-form-field
+      fieldId="create-username"
+      [label]="text().auth.register.usernameLabel"
+      [hint]="text().auth.register.usernameHint(limits.usernameMinLength, limits.usernameMaxLength)"
+      [control]="form.controls.username"
+    >
+      <input
+        appTextInput
+        id="create-username"
+        type="text"
+        autocomplete="off"
+        autocapitalize="none"
+        spellcheck="false"
+        formControlName="username"
+      />
+    </app-form-field>
+
+    <app-form-field
+      fieldId="create-email"
+      [label]="text().auth.register.emailLabel"
+      [control]="form.controls.email"
+    >
+      <input
+        appTextInput
+        id="create-email"
+        type="email"
+        autocomplete="off"
+        spellcheck="false"
+        formControlName="email"
+      />
+    </app-form-field>
+
+    <app-form-field
+      fieldId="create-password"
+      [label]="text().auth.register.passwordLabel"
+      [hint]="text().auth.passwordHint(limits.passwordMinLength)"
+      [control]="form.controls.password"
+    >
+      <input
+        #passwordBox
+        appTextInput
+        class="pe-12"
+        id="create-password"
+        type="password"
+        autocomplete="new-password"
+        formControlName="password"
+      />
+      <app-password-toggle [target]="passwordBox" />
+    </app-form-field>
+
+    <app-form-field
+      fieldId="create-date-of-birth"
+      [label]="text().auth.register.dateOfBirthLabel"
+      [control]="form.controls.dateOfBirth"
+    >
+      <input
+        appTextInput
+        id="create-date-of-birth"
+        type="date"
+        autocomplete="off"
+        formControlName="dateOfBirth"
+      />
+    </app-form-field>
+
+    <app-form-field
+      fieldId="create-bio"
+      [label]="text().auth.register.bioLabel"
+      [hint]="text().auth.register.bioHint(limits.bioMaxLength)"
+      [control]="form.controls.bio"
+    >
+      <textarea appTextInput id="create-bio" rows="3" formControlName="bio"></textarea>
+    </app-form-field>
+
+    @if (failureMessage(); as message) {
+      <app-form-message tone="danger" [message]="message" />
+    }
+
+    <div class="flex flex-wrap justify-end gap-3">
+      <button appButton look="quiet" type="button" (click)="cancel()">
+        {{ text().shared.confirmation.cancelButton }}
+      </button>
+      <button appButton look="primary" type="submit" [disabled]="form.invalid || isSubmitting()">
+        {{ text().admin.users.createDialog.submitButton }}
+      </button>
+    </div>
+  </form>
+</app-dialog-frame>

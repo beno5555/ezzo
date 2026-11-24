@@ -3,7 +3,7 @@
     class="flex size-16 items-center justify-center rounded-full bg-surface-sunken text-ink-muted"
     aria-hidden="true"
   >
-    <svg class="size-8" lucideMapPinOff></svg>
+    <svg class="size-8" [appIcon]="icons.mapPinOff"></svg>
   </span>
   <h1 class="font-display text-2xl text-ink-strong">{{ text().notFound.title }}</h1>
   <p class="max-w-80 text-ink-muted">{{ text().notFound.message }}</p>

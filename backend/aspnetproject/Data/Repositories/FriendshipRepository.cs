@@ -1,4 +1,5 @@
-﻿using aspnetproject.Common.ProjectConstants.Enums;
+﻿using System.Linq.Expressions;
+using aspnetproject.Common.ProjectConstants.Enums;
 using aspnetproject.Data.Models;
 using aspnetproject.Data.Repositories.Base;
 using Microsoft.EntityFrameworkCore;
@@ -25,6 +26,7 @@ public class FriendshipRepository : BaseRepository<Friendship>
     private static IOrderedQueryable<Friendship> ById(IQueryable<Friendship> query) =>
         query.OrderBy(friendship => friendship.Id);
 
+    // Request and friendship lists bypass the User query filter to load users whose accounts are deactivated or soft-deleted.
     public async Task<List<Friendship>> GetPendingRequestsAsync(int userId, int? pageNumber = null, int? pageSize = null)
     {
         return await GetAsync(userId, FriendshipStatus.Pending, pageNumber, pageSize);
@@ -37,9 +39,6 @@ public class FriendshipRepository : BaseRepository<Friendship>
             pageNumber, pageSize, ById, ignoreQueryFilters: true);
     }
     
-    /// <summary>
-    /// fetches the friendships that got sent to userId with optional status filter
-    /// </summary>
     private async Task<List<Friendship>> GetAsync(
         int userId,
         FriendshipStatus? status,
@@ -48,22 +47,30 @@ public class FriendshipRepository : BaseRepository<Friendship>
         )
     {
         return await GetWhereAsync(friendship => 
-            friendship.AddresseeUserId == userId && (!status.HasValue || friendship.FriendshipStatus == status), // only checks for status if the parameter has value
+            friendship.AddresseeUserId == userId && (!status.HasValue || friendship.FriendshipStatus == status),
             pageNumber,
             pageSize,
             ById,
             ignoreQueryFilters: true);
     }
 
-    /// <summary>
-    /// fetches the friendships of userId which have been accepted from either, including users who got deactivated/deleted
-    /// </summary>
     public async Task<List<Friendship>> GetFriendshipsAsync(int userId, int? pageNumber = null, int? pageSize = null)
     {
         return await GetWhereAsync(friendship =>
             (friendship.RequesterUserId == userId || friendship.AddresseeUserId == userId) &&
             friendship.FriendshipStatus == FriendshipStatus.Accepted,
             pageNumber, pageSize, ById, ignoreQueryFilters: true);
+    }
+
+    // User search loads relationships in any status in one query for the entire results page.
+    public async Task<List<Friendship>> GetFriendshipsWithAsync(int userId, List<int> otherUserIds)
+    {
+        return await _dbSet
+            .AsNoTracking()
+            .Where(friendship =>
+                (friendship.RequesterUserId == userId && otherUserIds.Contains(friendship.AddresseeUserId)) ||
+                (friendship.AddresseeUserId == userId && otherUserIds.Contains(friendship.RequesterUserId)))
+            .ToListAsync();
     }
 
     public async Task<List<int>> GetFriendIdsAsync(int userId)
@@ -79,40 +86,30 @@ public class FriendshipRepository : BaseRepository<Friendship>
     
     public async Task<Friendship?> GetRelationshipAsync(int requesterId, int addresseeId, bool orderMatters = false)
     {
-        return await GetFirstAsync(friendship => orderMatters
-            ? friendship.RequesterUserId == requesterId && friendship.AddresseeUserId == addresseeId
-            
-            : (friendship.RequesterUserId == requesterId || friendship.RequesterUserId == addresseeId) &&
-              (friendship.AddresseeUserId == requesterId || friendship.AddresseeUserId == addresseeId)
-        );
+        return await GetFirstAsync(MatchRelationship(requesterId, addresseeId, orderMatters));
     }
 
-    public async Task<Friendship?> GetAcceptedFriendshipAsync(int requesterId, int addresseeId,
-        bool                                                      orderMatters = false)
+    public async Task<Friendship?> GetAcceptedFriendshipAsync(int requesterId, int addresseeId, bool orderMatters = false)
     {
-        return await GetFirstAsync(friendship => orderMatters
-            ? friendship.RequesterUserId == requesterId && friendship.AddresseeUserId == addresseeId && friendship.FriendshipStatus == FriendshipStatus.Accepted
-            
-            : (friendship.RequesterUserId == requesterId || friendship.RequesterUserId == addresseeId) &&
-              (friendship.AddresseeUserId == requesterId || friendship.AddresseeUserId == addresseeId) &&
-              (friendship.FriendshipStatus == FriendshipStatus.Accepted)
-        );
-    
+        return await GetFirstAsync(MatchRelationship(requesterId, addresseeId, orderMatters, FriendshipStatus.Accepted));
     }
 
     public async Task<bool> ExistsAsync(int userIdA, int userIdB, FriendshipStatus? status)
     {
-        return await ExistsAsync(friendship => 
-                (friendship.RequesterUserId == userIdA || friendship.RequesterUserId == userIdB) &&
-                (friendship.AddresseeUserId == userIdA || friendship.AddresseeUserId == userIdB) &&
-                (friendship.FriendshipStatus == status || !status.HasValue));
+        return await ExistsAsync(MatchRelationship(userIdA, userIdB, orderMatters: false, status: status));
     }
 
-    public async Task UpdateStatusAsync(Friendship friendship, FriendshipStatus status)
+    private Expression<Func<Friendship, bool>> MatchRelationship(
+        int requesterId,
+        int addresseeId,
+        bool orderMatters,
+        FriendshipStatus? status = null
+        )
     {
-        friendship.FriendshipStatus = status;
-        friendship.LastUpdatedAt = DateTime.UtcNow;
-        
-        // await _dbContext.SaveChangesAsync();
+        return friendship => (!status.HasValue || friendship.FriendshipStatus == status) &&
+            (orderMatters
+                ? friendship.RequesterUserId == requesterId && friendship.AddresseeUserId == addresseeId
+                : (friendship.RequesterUserId == requesterId || friendship.RequesterUserId == addresseeId) &&
+                  (friendship.AddresseeUserId == requesterId || friendship.AddresseeUserId == addresseeId));
     }
 }

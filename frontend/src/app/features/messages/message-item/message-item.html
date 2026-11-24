@@ -1,0 +1,72 @@
+<div
+  class="group flex flex-col gap-1"
+  [appFadeOut]="isFading()"
+  [appDeleting]="isWaitingToDelete()"
+  [class.items-end]="isOwn()"
+  [class.items-start]="!isOwn()"
+  [attr.aria-busy]="isWaitingToDelete() || isFading() || null"
+>
+  <div
+    class="flex max-w-4/5 items-start gap-1 rounded-lg px-3 py-2 text-ink-strong md:max-w-2/3"
+    [class.w-full]="hasPhotos()"
+    [class.bg-surface-sunken]="isOwn()"
+    [class.border]="!isOwn()"
+    [class.border-border]="!isOwn()"
+    [class.bg-surface-page]="!isOwn()"
+    [class.outline-2]="isBeingEdited()"
+    [class.outline-accent]="isBeingEdited()"
+    [attr.title]="showsTime() ? null : dateFormatter.clockTime(message().sentAt)"
+  >
+    <span class="sr-only">{{ senderLabel() }}</span>
+    <div class="flex min-w-0 flex-1 flex-col gap-2">
+      @if (hasText()) {
+        <p class="whitespace-pre-line wrap-break-word">{{ message().content }}</p>
+      }
+      @if (hasPhotos()) {
+        <app-photo-grid [images]="message().images" />
+      }
+    </div>
+    <!-- The "…" menu sits at the bubble's end, inside it, so that it reads as part of the message. Its 44 px
+         square (the touch target) reaches into the bubble's padding instead of making the bubble taller.
+         With a mouse it shows while the pointer is over the message or the keyboard is in the menu; a
+         touch screen has no hover, so it always shows there. -->
+    @if (menuEntries().length > 0) {
+      <app-menu
+        class="-my-2 -me-2 shrink-0 pointer-fine:opacity-0 pointer-fine:group-hover:opacity-100 pointer-fine:focus-within:opacity-100"
+        [entries]="menuEntries()"
+        [label]="text().messages.menu.label"
+      />
+    }
+  </div>
+  @if (isWaitingToDelete()) {
+    <app-deleting-notice class="px-1" />
+  } @else if (hasLineBelow()) {
+    <p class="flex flex-wrap items-center gap-x-1 px-1 text-xs text-ink-muted">
+      @if (isSending()) {
+        <span
+          class="inline-flex"
+          role="img"
+          [attr.aria-label]="text().messages.conversation.sending"
+        >
+          <svg class="size-3.5" [appIcon]="icons.clock" aria-hidden="true"></svg>
+        </span>
+      } @else if (showsTime()) {
+        <time [attr.datetime]="message().sentAt">{{
+          dateFormatter.clockTime(message().sentAt)
+        }}</time>
+      }
+      @if (showsClockOrTime() && message().isEdited) {
+        <span aria-hidden="true">·</span>
+      }
+      @if (message().isEdited) {
+        <span>{{ text().messages.conversation.edited }}</span>
+      }
+      @if ((showsClockOrTime() || message().isEdited) && isLastSeen()) {
+        <span aria-hidden="true">·</span>
+      }
+      @if (isLastSeen()) {
+        <span>{{ text().messages.conversation.seen }}</span>
+      }
+    </p>
+  }
+</div>

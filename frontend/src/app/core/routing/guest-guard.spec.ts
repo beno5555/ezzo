@@ -6,14 +6,18 @@ describe('guestGuard', () => {
     const decision = runGuard(
       guestGuard,
       { isSignedIn: false, isAdministrator: false },
-      '/sign-in',
+      '/register',
     );
 
     expect(decision).toBe(true);
   });
 
   it('sends a signed-in user to the home address', () => {
-    const decision = runGuard(guestGuard, { isSignedIn: true, isAdministrator: false }, '/sign-in');
+    const decision = runGuard(
+      guestGuard,
+      { isSignedIn: true, isAdministrator: false },
+      '/register',
+    );
 
     expect(decision).toBe('/');
   });

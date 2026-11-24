@@ -1,0 +1,11 @@
+<p class="flex items-start gap-2 text-danger" role="alert">
+  <svg
+    class="mt-0.5 size-5 shrink-0"
+    [appIcon]="icons.circleExclamationPoint"
+    aria-hidden="true"
+  ></svg>
+  {{ message() }}
+</p>
+<button appButton look="quiet" type="button" (click)="requestRetry()">
+  {{ retryLabel() }}
+</button>

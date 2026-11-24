@@ -1,9 +1,5 @@
 ﻿# WebCity — Controllers
 
-> Part of the WebCity doc set. See also: `README.md`, `data.md`, `auth.md`, `controllers.md`, `signalr.md`, `background-jobs.md`.
-
----
-
 ## Controllers Layer
 
 All routes are prefixed `api/` (e.g. `api/posts`, not `/posts`). Nearly every action carries `[EnableRateLimiting(RateLimitConfig.Policies.X)]` — omitted from the tables below for brevity; see `auth.md`/`RateLimitConfig.cs` for the concrete limits (per-IP before login, per-user after; see the rate-limiting section of `auth.md`).
@@ -43,7 +39,7 @@ public class SearchUserQuery : PageQuery
 }
 ```
 
-Bound via `[FromQuery]`. Unlike the earlier nullable design, both properties now default and validate through `[Range]` — no more unpaginated "return everything" mode reachable from the API surface (internal/background callers still pass `null`/`null` directly to repository methods). `MaxPageNumber` keeps the offset `(PageNumber - 1) * PageSize` inside an `int`, so a page number below 1 or above it gets `400`, not a 500 from a negative or overflowing SQL offset.
+`[FromQuery]` binds page numbers and sizes. They default to 1 and 10. `PageSize` accepts 1 through 100 and `PageNumber` accepts 1 through `MaxPageNumber`, which keeps `(PageNumber - 1) * PageSize` within an `int`. Out-of-range values return `400`.
 
 ---
 
@@ -56,7 +52,7 @@ Route: `api/posts`. Inherits `BaseController`. `[Authorize]` at controller level
 | POST   | `api/posts`               | Required  | Create, `multipart/form-data`, with up to 10 photos |
 | GET    | `api/posts/feed`          | Required  | Ranked posts by everyone but the caller            |
 | GET    | `api/posts/mine`          | Required  | Caller's own posts                                 |
-| GET    | `api/posts/{id}`          | Anonymous | Single post (with comments, split query)           |
+| GET    | `api/posts/{id}`          | Anonymous | Single post, with its counts but not its comments |
 | GET    | `api/posts/user/{userId}` | Anonymous | Any user's posts — public-profile-style visibility |
 | PUT    | `api/posts/{id}`          | Required  | Update, ownership-scoped                           |
 | DELETE | `api/posts/{id}`          | Required  | Delete, ownership-scoped **or admin**              |
@@ -100,7 +96,7 @@ score = (connection weight + likes + comments) / (age in hours + AgeOffsetHours)
 
 **Moderation visibility.** Posts and comments carry a moderation status: `Visible`, `Flagged` or `Hidden`, set by an administrator through `ModerationController` (the automation may also raise one with its API key). Hidden content is readable only by its author and by administrators; for everyone else, a guest included, it does not exist:
 
-- It is left out of `user/{userId}`, of a post's comments (`api/comments/post/{postId}` and the comments inside `GET api/posts/{id}`), and of `CommentCount`. The feed never holds the caller's own posts, so hidden posts appear in it only for an administrator.
+- It is left out of `user/{userId}`, of a post's comments (`api/comments/post/{postId}`), and of `CommentCount`. The feed never holds the caller's own posts, so hidden posts appear in it only for an administrator.
 - Read by id (`api/posts/{id}`, `api/comments/{id}`) it gets `404` with `PostNotFound` or `CommentNotFound`. A comment on a hidden post reads as the post does, so it cannot reveal the post.
 - Liking, unliking, listing likers, commenting on, listing comments of, editing and deleting hidden content all answer as they do for an id that does not exist. So a user who liked a post before it was hidden cannot unlike it, and a post author cannot delete someone else's hidden comment on their post.
 - The author still reads, edits and deletes their own hidden content, and editing does not change the status.
@@ -134,10 +130,12 @@ Route: `api/comments`. Inherits `BaseController`. Same `[Authorize]`-at-controll
 |--------|-------------------------------|-----------|-------------------------------------------|
 | POST   | `api/comments/posts/{postId}` | Required  | Create                                    |
 | GET    | `api/comments/mine`           | Required  | Caller's own comments                     |
-| GET    | `api/comments/post/{postId}`  | Anonymous | Paginated, comments for a post            |
+| GET    | `api/comments/post/{postId}`  | Anonymous | Paginated, comments for a post, the caller's own first (see below) |
 | GET    | `api/comments/{id}`           | Anonymous | Single comment                            |
 | PUT    | `api/comments/{id}`           | Required  | Update, ownership-scoped                  |
 | DELETE | `api/comments/{id}`           | Required  | Delete — commenter, post author, or admin |
+
+**The order of a post's comments** (`CommentRepository.GetByPostIdAsync`): a signed-in caller's own comments come first, newest first, then everyone else's, oldest first; a guest gets everyone's oldest first. Id breaks ties, so paging is deterministic. The order lives in the query because the list is paged: a client that sorted what it had loaded could not bring the caller's comment from page 5 to the top. A comment with no author (the purge removed the account) never counts as the caller's, even for a guest, whose id is also null. A new comment is the caller's newest, so it moves every other comment one place down: a client that loaded page 1 earlier may see the last comment of that page again at the top of page 2, and drops the repeat by id.
 
 Note the create/read route naming is inconsistent: creating posts a comment under `api/comments/posts/{postId}` (plural `posts`), while listing a post's comments reads from `api/comments/post/{postId}` (singular `post`) — not a typo to "fix" without checking client code depends on it.
 
@@ -166,7 +164,7 @@ Route: `api/friendships`. Inherits `BaseController`. `[Authorize]` at controller
 | PUT    | `api/friendships/{requesterId}/decline` | Decline a pending request                                                                                                                                      |
 | DELETE | `api/friendships/{friendId}`            | Remove an existing relationship                                                                                                                                |
 
-**Two tiers of "get relationship."** `GetRelationship` (`GET /{friendId}`) returns any status via `StandardFriendshipDto` (other user as `MinimalUserDto`, `Status`, `SentAt`, `LastUpdatedAt`). `GetAcceptedFriendship` (`GET /accepted/{friendId}`) is accepted-only and returns `AcceptedFriendshipDto` (other user as the richer `DisplayFriendDto`, which includes `LastActiveAt`/`IsActive` presence data) — a deliberately different shape for the "you're already friends" case versus the general relationship-status case.
+**Two tiers of "get relationship."** `GetRelationship` (`GET /{friendId}`) returns any status via `StandardFriendshipDto` (other user as `MinimalUserDto`, `Status`, `SentAt`, `LastUpdatedAt`, and `IsRequester`, true when the caller sent the request, so a client can tell "my request is waiting" from "theirs is" without reading the lists; on `user/{userId}` it is relative to that user, as `OtherUser` is). `GetAcceptedFriendship` (`GET /accepted/{friendId}`) is accepted-only and returns `AcceptedFriendshipDto` (other user as the richer `DisplayFriendDto`, which includes `LastActiveAt`/`IsActive` presence data) — a deliberately different shape for the "you're already friends" case versus the general relationship-status case.
 
 **List order and deactivated friends.** The four lists (`accepted`, `pending`, `sent`, `user/{userId}`) are ordered by `Friendship.Id`, lowest id first, so every page of a list is stable and no row shows on two pages or on none. They include friends whose account is deactivated or soft-deleted, under the placeholder names (`UsernameMapper.ResolveUsername`); `GET accepted/{friendId}` does the same, reading the friend without the user query filter. `user/{userId}` answers `404` for a user who does not exist or is deactivated or soft-deleted.
 
@@ -196,7 +194,7 @@ No `GetMessage(id)` action — a single message isn't fetched by id from the cli
 | GET    | `api/messages/conversations/unread`                    | `{ UnreadCount: int }` — distinct-sender count of unread messages, via `GetUnreadConversationsCount`                                                     |
 | PUT    | `api/messages/conversation/{otherUserId}/mark-as-read` | Mark the conversation as read. No content                                                                                                                |
 | PUT    | `api/messages/{id}`                                    | Edit own message, sender-scoped, allowed while the message is younger than `Constants.EditMessageWindow` (20 minutes). Pushes `MessageEdited` to the receiver |
-| DELETE | `api/messages/{id}`                                    | Delete own message, sender-scoped. Not time-limited. Removes the message's photo rows (cascade) and then its files                                       |
+| DELETE | `api/messages/{id}`                                    | Delete own message, sender-scoped. Not time-limited. Removes the message's photo rows (cascade) and then its files. Pushes `MessageDeleted` to the receiver                                       |
 
 **`ValidFriendship` check** (`MessageService`) gates `SendMessage`: rejects self-messaging, nonexistent receiver, and non-friends, collapsing to one `ApplicationResponse.Fail` → `BadRequest`, same oracle-avoidance reasoning as elsewhere.
 
@@ -247,7 +245,7 @@ Route: `api/users`. Inherits `BaseController`. `[Authorize]` at controller level
 | GET    | `api/users/{id:int}`   | Anonymous       | Single user by id, `StandardUserDto`                                                             |
 | GET    | `api/users/{username}` | Anonymous       | Single user by username, `StandardUserDto` (route-constraint-disambiguated from the id overload) |
 | GET    | `api/users/mine`       | Required        | Caller's own full profile, `FullUserDto` (includes email + roles)                                |
-| GET    | `api/users/search`     | Anonymous       | Username-substring search, `SearchUserQuery`, `ListResponse<MinimalUserDto>`                     |
+| GET    | `api/users/search`     | Anonymous       | Username-substring search, `SearchUserQuery`, `ListResponse<SearchUserDto>`; a signed-in caller also gets their friendship with each result (`SearchUserDto`, under DTO tiers) |
 | PUT    | `api/users/mine`       | Required        | Edit own profile (username, DOB, bio)                                                            |
 | PUT    | `api/users/mine/digest-email` | Required | Switch the weekly digest on or off, `SetDigestEmailDto` (`{ "enabled": bool }`, required), returns `FullUserDto`. Policy `SetDigestEmail` (30/hour) |
 | PUT    | `api/users/{id:int}`   | `Administrator` | Edit another user's profile                                                                      |
@@ -257,7 +255,8 @@ Route: `api/users`. Inherits `BaseController`. `[Authorize]` at controller level
 **DTO tiers**, shape-by-audience:
 - `FullUserDto` — Id, Username, Email, Bio, `Roles` (list of role names), RegisteredAt, DateOfBirth, `UsernameLastChangedAt` (null when the username was never changed), `DigestEmailEnabled`. Only returned for the caller's own profile or a freshly-registered account (and by the two administrator routes that reuse it, `POST api/users` and `PUT api/users/{id:int}`).
 - `StandardUserDto` — Id, Username, Bio, DateOfBirth (no email, no roles, **no joined date**). Public single-fetch, by id and by username. The joined date is private: only the user (in `FullUserDto`) and administrators (`AdminUserDto.RegisteredAt`) see it.
-- `MinimalUserDto` — nullable Id + Username. List/search results.
+- `MinimalUserDto` — nullable Id + Username. Lists of people (likers, friends).
+- `SearchUserDto` — Id (never null: the search skips deactivated and deleted accounts), Username, and `Relationship` (`RelationshipDto`: `Status`, and `IsRequester`, true when the caller sent the request). `Relationship` is null for a guest, for the caller's own row, and for a user the caller has no friendship with. One query reads the friendships of the whole page (`FriendshipRepository.GetFriendshipsWithAsync`), so the search page can show the right friendship button on each row without a call per row. A declined request is reported as `Declined`, as `GET api/friendships/{id}` does.
 
 **The digest switch.** `User.DigestEmailEnabled`, on for every account until its owner turns it off. Only `PUT api/users/mine/digest-email` changes it: it is not a field of `EditUserDto`, because that edit replaces the whole profile, and a client that did not know the field would switch the digest off without meaning to. So neither the user's own profile edit nor an administrator's edit touches it. The change writes a `Log` row (`UserService.SetDigestEmailAsync`).
 

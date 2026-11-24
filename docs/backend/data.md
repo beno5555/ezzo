@@ -1,9 +1,5 @@
 ﻿# WebCity — Data Layer
 
-> Part of the WebCity doc set. See also: `README.md`, `data.md`, `auth.md`, `controllers.md`, `signalr.md`, `background-jobs.md`.
-
----
-
 ## Repository Layer
 
 ### `BaseRepository<T> where T : class`
@@ -15,7 +11,7 @@
 - `AddAsync(T entity)` / `DeleteAsync(T entity)` — save immediately.
 - `DeleteWhereAsync(predicate)` — `protected`; uses `ExecuteDeleteAsync`, bypasses change tracker.
 - `ExistsAsync(predicate)` — `protected`.
-- `ExecuteInTransactionAsync(Func<Task> operation)` — wraps operations in a DB transaction; safe to call from any repository since all share the same scoped `DbContext`. The overload `ExecuteInTransactionAsync<TResponse>(Func<Task<TResponse>> operation) where TResponse : ApplicationResponse` commits only when the returned response succeeded and rolls back otherwise, so a refusal found midway (e.g. a report decision whose target is gone) undoes what was written before it.
+- `ExecuteInTransactionAsync(Func<Task> operation)` — wraps operations in a [database transaction](#savechanges-strategy). The overload that returns an `ApplicationResponse` commits on success and rolls back on a refused response.
 - `GetSingleByIgnoringQueryFilterAsync` / `GetWhereByIgnoringQueryFilterAsync` / `ExistsByIgnoringQueryFilterAsync` — `protected`; explicit query-filter-bypassing variants, used where a lookup legitimately needs to see deactivated/deleted rows (e.g. resolving a user by email during registration, or finding a deactivated account to reactivate).
 - `SaveChangesAsync()` — public passthrough to `_dbContext.SaveChangesAsync()`.
 
@@ -31,11 +27,13 @@ Extends `BaseRepository<T>`. Adds:
 
 ### Pagination
 
-`GetWhereAsync`/`GetAllAsync` accept optional `pageNumber`/`pageSize`; both null skips pagination (used by background jobs / internal callers). At the API layer, `PageQuery` now defaults `PageNumber = 1` and `PageSize = Constants.DefaultPageSize` (10), and validates both with `[Range]`: `PageNumber` from 1 to `Constants.MaxPageNumber` (so the offset `(PageNumber - 1) * PageSize` cannot overflow an `int`), `PageSize` from 1 to `Constants.MaxPageSize` (100) — no longer unbounded/unvalidated.
+`GetWhereAsync` and `GetAllAsync` paginate when both `pageNumber` and `pageSize` are supplied. See [API pagination defaults and limits](controllers.md#pagequery--searchuserquery).
 
 ### SaveChanges Strategy
 
-`SaveChangesAsync` is generally called at the point of mutation. For atomic multistep operations (e.g. soft-delete), wrap in a transaction via `ExecuteInTransactionAsync` at the service layer. `ExecuteDeleteAsync`/`ExecuteUpdateAsync` bypass the change tracker and commit directly, without a separate `SaveChangesAsync` call.
+`SaveChangesAsync` persists tracked changes. `ExecuteDeleteAsync` and `ExecuteUpdateAsync` send their statements to the database immediately, bypass the change tracker, and require no `SaveChangesAsync` call. Each statement participates in an existing transaction on the context, so rolling back that transaction also rolls back the bulk write.
+
+For atomic multistep writes, the service wraps its operations in `ExecuteInTransactionAsync`. All repositories in the scope share the context. For example, soft-delete revokes refresh tokens with a bulk update and saves the tracked account changes in the same transaction. See [BaseRepository.cs](../../backend/aspnetproject/Data/Repositories/Base/BaseRepository.cs) and [AccountManagementService.cs](../../backend/aspnetproject/Infrastructure/Services/BusinessLogic/Users/AccountManagementService.cs).
 
 ---
 
@@ -72,7 +70,7 @@ public class BaseEntity
 }
 ```
 
-- `LastUpdatedAt` is nullable and defaults to `null` (not DB-defaulted) — stamped explicitly by service code on update, and doubles as a semantic flag (`Message.IsEdited`). A post or comment edit stamps it only when the title or text really changes (`PostService.UpdatePost`, `CommentService.EditCommentAsync`); removing a photo from a post stamps it too (`PostService.RemovePostImageAsync`); `EditMessage` and the profile edit still stamp it on every saved edit.
+- `LastUpdatedAt` is nullable and defaults to `null` (not DB-defaulted) — stamped explicitly by service code on update, and doubles as a semantic flag (`Message.IsEdited`). A post or comment edit stamps it only when the title or text really changes (`PostService.UpdatePost`, `CommentService.EditCommentAsync`); removing a photo from a post stamps it too (`PostService.RemovePostImageAsync`); `EditMessage` and the profile edit still stamp it on every saved edit. Marking a conversation read sets only `Seen` and `SeenAt`: reading is not an edit.
 - `Friendship` now inherits `BaseEntity` (unlike the earlier composite-PK design) — it has an `Id`, but controllers still route by the other user's id, not by `Friendship.Id`.
 - `UserRole` does not inherit `BaseEntity` — composite PK `(UserId, RoleId)`.
 - `FriendshipStatus` is stored as a string in the database, lives under `Common/ProjectConstants/Enums`.

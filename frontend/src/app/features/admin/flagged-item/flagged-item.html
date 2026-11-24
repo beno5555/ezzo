@@ -1,0 +1,17 @@
+<article
+  class="flex flex-col gap-4 rounded-lg border border-border bg-surface-raised p-4 text-ink-strong"
+  [appFadeOut]="isFading()"
+  [attr.aria-busy]="isFading() || null"
+>
+  <ng-content />
+  <div class="flex flex-wrap gap-2">
+    <button appButton look="quiet" type="button" (click)="requestHide()">
+      <svg class="size-5 shrink-0" [appIcon]="icons.eyeOff" aria-hidden="true"></svg>
+      {{ text().admin.moderation.hideButton }}
+    </button>
+    <button appButton look="quiet" type="button" (click)="requestMakeVisible()">
+      <svg class="size-5 shrink-0" [appIcon]="icons.eye" aria-hidden="true"></svg>
+      {{ text().admin.moderation.makeVisibleButton }}
+    </button>
+  </div>
+</article>

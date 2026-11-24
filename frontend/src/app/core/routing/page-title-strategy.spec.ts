@@ -39,7 +39,7 @@ describe('PageTitleStrategy', () => {
     await harness.navigateByUrl('/feed');
     TestBed.tick();
 
-    expect(title.getTitle()).toBe('Feed – WebCity');
+    expect(title.getTitle()).toBe('Feed – Ezzo');
   });
 
   it('follows the page the user moves to', async () => {
@@ -47,23 +47,23 @@ describe('PageTitleStrategy', () => {
     await harness.navigateByUrl('/friends');
     TestBed.tick();
 
-    expect(title.getTitle()).toBe('Friends – WebCity');
+    expect(title.getTitle()).toBe('Friends – Ezzo');
   });
 
   it('names only the app on a page without a title', async () => {
     await harness.navigateByUrl('/untitled');
     TestBed.tick();
 
-    expect(title.getTitle()).toBe('WebCity');
+    expect(title.getTitle()).toBe('Ezzo');
   });
 
   it('changes the title in place when the language changes', async () => {
     await harness.navigateByUrl('/feed');
     TestBed.tick();
 
-    TestBed.inject(LanguageStore).setLanguage(Language.Georgian);
+    await TestBed.inject(LanguageStore).setLanguage(Language.Georgian);
     TestBed.tick();
 
-    expect(title.getTitle()).toBe('სიახლეები – WebCity');
+    expect(title.getTitle()).toBe('სიახლეები – Ezzo');
   });
 });
