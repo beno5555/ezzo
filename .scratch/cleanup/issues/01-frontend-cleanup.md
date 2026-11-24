@@ -13,5 +13,6 @@
 - [ ] Correct the admin logs comment to reflect automatic search after a typing pause and the profile picture comment to explain that an unavailable account shows the default silhouette with a grey ring.
 - [ ] Review nearby comments for obsolete claims and redundant narration. Keep the explanations of constraints and timing that the code alone does not make clear.
 - [ ] Run the frontend formatting check, lint, unit tests, and build. Record the feature checks and their results.
+- [ ] Run `$spec-review` on the ticket branch against `cleanup` after verification. The Standards reviewer applies `webcity-conventions` and the applicable project rules. The Spec reviewer checks this ticket's acceptance criteria, including behavior at all four route callers. Address confirmed findings before merging.
 
 **Branch:** Start from `cleanup` and target `cleanup` for integration. A worktree session finishes with a trial merge against `cleanup` and leaves the actual merge to the main checkout.
