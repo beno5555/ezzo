@@ -93,6 +93,27 @@ Then one Telegram message to the developers' chat (`TELEGRAM_DEVELOPERS_CHAT_ID`
 - [ ] Stop n8n (`docker compose -f n8n/compose.yaml stop`) and register: the registration still succeeds (the welcome email is lost, and a `Log` row records it).
 - [ ] A post with a wrong signature gets `401` and sends no email: change `$eventName` in a copy of `send-test-exception.ps1` to `account-created`, or send any body to `http://127.0.0.1:5678/webhook/account-created` with an `X-WebCity-Signature` of 64 zeros.
 
+### Report handling (`workflows/report-handling.json`, id `wcReportHandling`)
+
+`POST /webhook/report-created`, sent by the backend when a user reports a post, a comment or a user. It starts with the same signature check (raw body, Crypto node, comparison, `401` or `200` before any work). Then:
+
+1. **`Settings: hide after N reports`** holds the two numbers the owner may tune: `reportsToHide` (5) and `windowHours` (24). Change them in this node and export the workflow; the backend does not change.
+2. **`Write the messages`** (Code node) counts the event's `pendingReportTimes` that fall within `windowHours` before the report's time, and writes the alert and the moderation alert from the target snapshot in the event, every inserted value escaped.
+3. **The alert,** for every report: one Telegram message to the administrators' chat (`TELEGRAM_ADMINISTRATORS_CHAT_ID`) with what was reported (its id, author, title and text, or a user's name and bio), the reason, the reporter, the time and the pending counts. A reported user gets the alert and nothing else.
+4. **Hiding,** for a post or a comment only, when the count reaches `reportsToHide` and the snapshot is not already hidden: `PUT {WEBCITY_BACKEND_URL}/api/admin/posts/{id}/moderation` (or `comments`) with `Hidden`, with the `Ezzo automation API key` credential and certificate problems ignored. A `200` sends the moderation alert: one Telegram message to the administrators' chat and one email to `WEBCITY_ADMINISTRATOR_EMAIL`, each with a link to the reports list. A `404` (the content was deleted) ends the run quietly. Any other answer (a wrong key, a rate limit) fails the run at `Hiding failed`, which names the status. The moderation route does not touch reports, so they stay pending for an administrator.
+
+**When Telegram refuses.** Each Telegram node retries twice, five seconds apart (Telegram answers `429` to a burst), and then lets the run go on, so a failed alert never stops the hiding or the email. Such a run is listed as succeeded: the error is on the Telegram node's output in the run.
+
+**Checklist.** Fill in the bot token, `TELEGRAM_ADMINISTRATORS_CHAT_ID`, the SMTP entry and `WEBCITY_ADMINISTRATOR_EMAIL`, run `docker compose -f n8n/compose.yaml up -d`, and run the backend and the frontend. One user can hold only one pending report on a target, so reaching five takes five accounts besides the content's author, and an administrator account to check the reports list.
+
+- [ ] Report a post, a comment and a user, one each. Each sends one Telegram message with the target, the reason and the reporter.
+- [ ] Report one post from four accounts: it stays visible to a fifth user.
+- [ ] Report it from a fifth account: within seconds another user no longer sees it, and one Telegram message and one email say it was hidden by reports.
+- [ ] The five reports are still pending in the admin panel's reports list (<http://localhost:4200/admin/reports>), and an administrator can decide them.
+- [ ] Report one user from five accounts: five alerts arrive, and the account is still active.
+- [ ] Change `reportsToHide` to 2 in the settings node (in the editor, then `pwsh -File n8n/export-workflow.ps1 -Id wcReportHandling`, or in the file), run `docker compose -f n8n/compose.yaml up -d`, and report a new post from two accounts: the second report hides it. Set it back to 5 and load it again.
+- [ ] A post with a wrong signature gets `401` and sends nothing: send any body to `http://127.0.0.1:5678/webhook/report-created` with an `X-WebCity-Signature` of 64 zeros.
+
 ## What was checked against the real n8n
 
 The spec's n8n facts came from the documentation and source at `2.47.7`. Ticket 02 ran them on this machine (2026-11-21); its Comments hold the details.

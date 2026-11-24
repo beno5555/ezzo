@@ -119,7 +119,7 @@ n8n runs in Docker from `n8n/` at the repo root; `n8n/README.md` has the setup, 
 - **A `401` or a `404` from n8n is a failed delivery** to the publisher, like any answer that is not a success: one `Log` row, nothing else. A `404` means n8n has no published workflow for that event, or is in the two seconds of an import.
 - **n8n reaches the backend at `https://host.docker.internal:7102`,** the backend's `localhost` seen from the container, ignoring certificate problems, because the development certificate is self-signed and issued for `localhost`.
 
-Workflows so far: `exception-occurred` (Exception alerts, one Telegram message to the developers' chat).
+Workflows so far: `exception-occurred` (Exception alerts, one Telegram message to the developers' chat), `account-created` (Welcome email) and `report-created` (Report handling: an alert per report, and Hidden through the moderation route when a post or comment collects enough pending reports; the numbers are in the workflow).
 
 ## The automation calling the backend
 
