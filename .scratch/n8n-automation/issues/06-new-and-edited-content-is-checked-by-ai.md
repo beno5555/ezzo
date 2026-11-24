@@ -21,6 +21,17 @@ Decisions are under "The six workflows" and "Moderation by the automation" in `.
 
 **Difficulty:** tricky: three systems joined for the first time, an external API whose behaviour with photos is unconfirmed, and no test to catch a mistake.
 
+## How to work this ticket (workflow ticket: no `/implement`, no TDD)
+
+No test catches a broken workflow, so this ticket is proven by running it, and the owner's run closes it.
+
+1. Set the status to `in-progress`. Work on the current branch; read `n8n/README.md` and ticket 02's Comments first, and copy the exception-alert workflow's pattern.
+2. Build the workflow file and its README checklist. Load it with `docker compose -f n8n/compose.yaml up -d` and prove every box that does not need the owner's accounts (the signature answers, the node chain, the real events). Secrets are never printed or committed. Docker must be running, and the Telegram, SMTP and OpenAI values are the owner's to fill in.
+3. Run the `spec-review` skill against this ticket and the spec, and fix what it finds.
+4. Append a report under `## Comments` as `**<date>, built (<model>).**`: what was built and any departure from the ticket with its reason; what was run against the real n8n and what it showed; and a `For the owner` block with the exact commands from the repo root, what each should show, and which credential and `.env` names to fill in first (names, never values). Say which boxes the session proved and which only the owner's run can prove.
+5. Tick only the boxes the session proved. The status stays `in-progress` until the owner has run the checklist; never set `done`. The build and the full test suite are not needed when no backend file changed.
+6. Commit to the current branch (the author and the `Co-Authored-By` line follow `CLAUDE.md`). Do not merge.
+
 - [ ] A clean post stays Visible and sends no alert
 - [ ] A post whose text OpenAI marks as violating becomes Flagged, stays visible to other users, and appears in the moderation queue
 - [ ] A post whose text scores 0.9 or more in a category becomes Hidden within seconds: another user no longer sees it, and its author sees it marked hidden
