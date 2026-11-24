@@ -114,6 +114,31 @@ Then one Telegram message to the developers' chat (`TELEGRAM_DEVELOPERS_CHAT_ID`
 - [ ] Change `reportsToHide` to 2 in the settings node (in the editor, then `pwsh -File n8n/export-workflow.ps1 -Id wcReportHandling`, or in the file), run `docker compose -f n8n/compose.yaml up -d`, and report a new post from two accounts: the second report hides it. Set it back to 5 and load it again.
 - [ ] A post with a wrong signature gets `401` and sends nothing: send any body to `http://127.0.0.1:5678/webhook/report-created` with an `X-WebCity-Signature` of 64 zeros.
 
+### AI moderation (`workflows/ai-moderation.json`, id `wcAiModeration01`)
+
+`POST /webhook/post-created`, `post-edited`, `comment-created` and `comment-edited`: four webhooks sharing one signature check (raw body, Crypto node, comparison, `401` or `200` before any work). Then:
+
+1. **`Settings: hide score`** holds the number the owner may tune: `hideScore` (0.9). Change it in this node and export the workflow; the backend does not change.
+2. **`Not hidden yet?`** ends the run for content that arrives already Hidden: it is not checked, so a hidden post edited into clean text stays hidden.
+3. **`List the checks`** (Code node): the text (a post's title and text) is one check; each photo of a new post is a check of its own, because OpenAI refuses more than one image in a call (`too_many_images`). An edit is checked on its text alone. Direct messages send no event, so they never reach OpenAI.
+4. **Photos** are downloaded from `WEBCITY_BACKEND_URL` plus the relative address and sent as base64 data URLs. A photo that answers `404` was deleted after the event, and its check is dropped; any other answer fails the run.
+5. **`Ask OpenAI`** calls `https://api.openai.com/v1/moderations` with model `omni-moderation-latest`, once per check, on the `Ezzo OpenAI` credential. It retries twice, five seconds apart; a third failure fails the run.
+6. **`Decide`** (Code node): the highest result across the checks decides. Any category score at or above `hideScore`: Hidden. Otherwise, any check OpenAI marks as violating: Flagged. Otherwise, or when the content already has that status (a Flagged post edited and flagged again), nothing more happens. It writes the alert, with the text, the author, the outcome and the deciding categories with their scores and the check they came from (`text`, `photo 1`, ...), every inserted value escaped.
+7. **Acting:** `PUT {WEBCITY_BACKEND_URL}/api/admin/posts/{id}/moderation` (or `comments`) with the outcome, on the `Ezzo automation API key` credential. A `200` sends one Telegram message to the administrators' chat and one email to `WEBCITY_ADMINISTRATOR_EMAIL`, with a link to the moderation queue (Flagged) or to the post (Hidden). A `404` (deleted meanwhile) or a `403` (the status may not be lowered) ends the run quietly. Any other answer fails the run at `Setting the status failed`. The Telegram node retries and then lets the run go on, as in Report handling.
+
+**Checklist.** Fill in the `Ezzo OpenAI` key (`apiKey`), the bot token, `TELEGRAM_ADMINISTRATORS_CHAT_ID`, the SMTP entry and `WEBCITY_ADMINISTRATOR_EMAIL`, run `docker compose -f n8n/compose.yaml up -d`, and run the backend and the frontend. Use two accounts (an author and a reader) and an administrator. Texts that scored as noted on 2026-11-24: `I hope you get hit by a bus.` is flagged below 0.9 (Flagged); `I will punch you in the face if I see you.` scores 0.95 for violence (Hidden). A post's title is checked with its text, so keep the title neutral (`Test`).
+
+- [ ] Publish a post with clean text (`A lovely walk in the park today.`): it stays visible, and no alert arrives.
+- [ ] Publish a post with the flagging text: it stays visible to the reader, appears in the administrator's moderation queue (<http://localhost:4200/admin/moderation>), and one Telegram message and one email say it was flagged, with the text, the author and the categories.
+- [ ] Publish a post with the hiding text: within seconds the reader no longer sees it, its author sees it marked hidden, and one Telegram message and one email say it was hidden.
+- [ ] Publish a post with clean text and a violating photo (for example a picture of a weapon pointed at someone, or of a bloody wound): it is flagged or hidden, and the alert's categories name `photo 1`.
+- [ ] Write a comment with the flagging text, and another with the hiding text: the first is flagged, the second hidden, each with one Telegram message and one email.
+- [ ] Edit a clean post into the hiding text: it is hidden after the edit.
+- [ ] Edit that hidden post back into clean text: it stays hidden, and no alert arrives.
+- [ ] Publish a post with the hiding text and delete it at once: the run in n8n's executions list (<http://localhost:5678>) is listed as succeeded.
+- [ ] Change `hideScore` to 0.5 in the settings node (in the editor, then `pwsh -File n8n/export-workflow.ps1 -Id wcAiModeration01`, or in the file), run `docker compose -f n8n/compose.yaml up -d`, and publish a post with the flagging text: it is hidden instead. Set it back to 0.9 and load it again.
+- [ ] A post with a wrong signature gets `401` and sends nothing: send any body to `http://127.0.0.1:5678/webhook/post-created` with an `X-WebCity-Signature` of 64 zeros.
+
 ## What was checked against the real n8n
 
 The spec's n8n facts came from the documentation and source at `2.47.7`. Ticket 02 ran them on this machine (2026-11-21); its Comments hold the details.
