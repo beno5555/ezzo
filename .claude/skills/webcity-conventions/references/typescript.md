@@ -317,7 +317,7 @@ export class MyProfilePage implements OnInit {
 **Toolset**
 
 - Tailwind v4 gives every look, and Angular CDK gives behaviour: overlays, dialogs, menus, focus trapping (ADR 0007). Install no component kit.
-- Icons come from `@lucide/angular` and from nowhere else.
+- Import individual Lucide SVG data modules and render them with the shared `Icon` component (`frontend/CLAUDE.md`).
 - Fonts are served by the app. Load nothing from another origin.
 
 **Design tokens**

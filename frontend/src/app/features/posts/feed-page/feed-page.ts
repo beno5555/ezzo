@@ -1,12 +1,15 @@
 import { Component, OnInit, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { LucideNewspaper, LucidePlus, LucideSquarePen } from '@lucide/angular';
+import LucideNewspaper from 'lucide/dist/esm/icons/newspaper.mjs';
+import LucidePlus from 'lucide/dist/esm/icons/plus.mjs';
+import LucideSquarePen from 'lucide/dist/esm/icons/square-pen.mjs';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { LIMITS } from '../../../core/limits';
 import { PageLoadStatus } from '../../../core/paging/page-load-status';
 import { PagedList } from '../../../core/paging/paged-list';
 import { appAddresses } from '../../../core/routing/app-addresses';
 import { Button } from '../../../shared/button/button';
+import { Icon } from '../../../shared/icon/icon';
 import { LoadFailure } from '../../../shared/load-failure/load-failure';
 import { PostCard } from '../../../shared/post-card/post-card';
 import { ScrollSentinel } from '../../../shared/scroll-sentinel/scroll-sentinel';
@@ -22,20 +25,17 @@ import { StandardPostDisplayDto } from '../standard-post-display-dto';
 // end. An empty list shows the same states in place of the posts.
 @Component({
   selector: 'app-feed-page',
-  imports: [
-    Button,
-    LoadFailure,
-    PostCard,
-    RouterLink,
-    ScrollSentinel,
-    LucideNewspaper,
-    LucidePlus,
-    LucideSquarePen,
-  ],
+  imports: [Button, LoadFailure, PostCard, RouterLink, ScrollSentinel, Icon],
   templateUrl: './feed-page.html',
   styleUrl: './feed-page.css',
 })
 export class FeedPage implements OnInit {
+  protected readonly icons = {
+    newspaper: LucideNewspaper,
+    plus: LucidePlus,
+    squarePen: LucideSquarePen,
+  };
+
   private readonly postApi = inject(PostApi);
 
   protected readonly text = inject(LanguageStore).text;

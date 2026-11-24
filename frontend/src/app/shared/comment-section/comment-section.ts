@@ -11,7 +11,7 @@ import {
   viewChild,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { LucideMessageCircle } from '@lucide/angular';
+import LucideMessageCircle from 'lucide/dist/esm/icons/message-circle.mjs';
 import { CommentThreadStore } from '../../features/comments/comment-thread-store';
 import { LanguageStore } from '../../core/languages/language-store';
 import { PageLoadStatus } from '../../core/paging/page-load-status';
@@ -20,6 +20,7 @@ import { SessionStore } from '../../core/session/session-store';
 import { Button } from '../button/button';
 import { CommentForm } from '../comment-form/comment-form';
 import { CommentItem } from '../comment-item/comment-item';
+import { Icon } from '../icon/icon';
 import { LoadFailure } from '../load-failure/load-failure';
 import { ScrollSentinel } from '../scroll-sentinel/scroll-sentinel';
 
@@ -31,15 +32,7 @@ import { ScrollSentinel } from '../scroll-sentinel/scroll-sentinel';
 // refused or deleted, so the card above shows the count at once (CommentThreadStore.start).
 @Component({
   selector: 'app-comment-section',
-  imports: [
-    Button,
-    CommentForm,
-    CommentItem,
-    LoadFailure,
-    RouterLink,
-    ScrollSentinel,
-    LucideMessageCircle,
-  ],
+  imports: [Button, CommentForm, CommentItem, LoadFailure, RouterLink, ScrollSentinel, Icon],
   providers: [CommentThreadStore],
   // The host adds no box of its own, so the section and the pinned form are children of the page's column.
   host: { class: 'contents' },
@@ -47,6 +40,8 @@ import { ScrollSentinel } from '../scroll-sentinel/scroll-sentinel';
   styleUrl: './comment-section.css',
 })
 export class CommentSection implements OnInit {
+  protected readonly icons = { messageCircle: LucideMessageCircle };
+
   private readonly destroyRef = inject(DestroyRef);
 
   readonly postId = input.required<number>();

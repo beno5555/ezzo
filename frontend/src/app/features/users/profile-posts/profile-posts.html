@@ -6,7 +6,7 @@
     [routerLink]="newPostAddress"
     [state]="profileOrigin"
   >
-    <svg class="size-5" lucidePlus aria-hidden="true"></svg>
+    <svg class="size-5" [appIcon]="icons.plus" aria-hidden="true"></svg>
     {{ text().users.profile.posts.writeButton }}
   </a>
 </ng-template>
@@ -72,7 +72,7 @@
           "
           [headingLevel]="3"
         >
-          <svg class="size-8 text-ink-muted" lucideNewspaper aria-hidden="true"></svg>
+          <svg class="size-8 text-ink-muted" [appIcon]="icons.newspaper" aria-hidden="true"></svg>
           @if (isOwn()) {
             <ng-container *ngTemplateOutlet="writeButton; context: { $implicit: 'mt-2' }" />
           }

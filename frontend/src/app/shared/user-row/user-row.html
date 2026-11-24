@@ -23,7 +23,7 @@
         [routerLink]="conversationAddress(username())"
         [attr.aria-label]="messageLabel()"
       >
-        <svg class="size-5 shrink-0" lucideMessageCircle aria-hidden="true"></svg>
+        <svg class="size-5 shrink-0" [appIcon]="icons.messageCircle" aria-hidden="true"></svg>
         {{ text().friendships.page.messageButton }}
       </a>
     }

@@ -1,8 +1,9 @@
 import { Component, computed, input, output } from '@angular/core';
-import { LucideUsers } from '@lucide/angular';
+import LucideUsers from 'lucide/dist/esm/icons/users.mjs';
 import { PageLoadStatus } from '../../core/paging/page-load-status';
 import { PagedList } from '../../core/paging/paged-list';
 import { EmptyState } from '../empty-state/empty-state';
+import { Icon } from '../icon/icon';
 import { LoadFailure } from '../load-failure/load-failure';
 import { ScrollSentinel } from '../scroll-sentinel/scroll-sentinel';
 import { UserRow } from '../user-row/user-row';
@@ -23,11 +24,13 @@ import { StandardFriendshipDto } from '../../features/friendships/standard-frien
 // place of its buttons, and one in fadingIds fades out (DeleteFade).
 @Component({
   selector: 'app-friend-list',
-  imports: [EmptyState, LoadFailure, ScrollSentinel, UserRow, LucideUsers],
+  imports: [EmptyState, LoadFailure, ScrollSentinel, UserRow, Icon],
   templateUrl: './friend-list.html',
   styleUrl: './friend-list.css',
 })
 export class FriendList {
+  protected readonly icons = { users: LucideUsers };
+
   readonly list = input.required<PagedList<StandardFriendshipDto>>();
   readonly texts = input.required<FriendListTexts>();
   readonly retryLabel = input.required<string>();

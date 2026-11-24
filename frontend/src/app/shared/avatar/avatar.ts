@@ -1,5 +1,6 @@
 import { Component, computed, input, linkedSignal } from '@angular/core';
-import { LucideUser } from '@lucide/angular';
+import LucideUser from 'lucide/dist/esm/icons/user.mjs';
+import { Icon } from '../icon/icon';
 import { AvatarSize } from './avatar-size';
 import { ringClass } from './default-picture';
 
@@ -21,7 +22,7 @@ const ringWidthClasses: Record<AvatarSize, string> = {
   selector: 'app-avatar',
   templateUrl: './avatar.html',
   styleUrl: './avatar.css',
-  imports: [LucideUser],
+  imports: [Icon],
   host: {
     class: 'inline-flex shrink-0',
     '[class]': 'sizeClass()',
@@ -29,6 +30,8 @@ const ringWidthClasses: Record<AvatarSize, string> = {
   },
 })
 export class Avatar {
+  protected readonly icons = { user: LucideUser };
+
   readonly userId = input.required<number>();
   readonly pictureAddress = input<string | null>(null);
   readonly isUnavailable = input(false);

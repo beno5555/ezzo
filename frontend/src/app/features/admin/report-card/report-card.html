@@ -11,13 +11,13 @@
     <p class="flex items-center gap-1 text-sm font-semibold" [class]="statusClass()">
       @switch (report().status) {
         @case (ReportStatus.Pending) {
-          <svg class="size-4 shrink-0" lucideClock aria-hidden="true"></svg>
+          <svg class="size-4 shrink-0" [appIcon]="icons.clock" aria-hidden="true"></svg>
         }
         @case (ReportStatus.Resolved) {
-          <svg class="size-4 shrink-0" lucideCircleCheck aria-hidden="true"></svg>
+          <svg class="size-4 shrink-0" [appIcon]="icons.circleCheck" aria-hidden="true"></svg>
         }
         @case (ReportStatus.Rejected) {
-          <svg class="size-4 shrink-0" lucideCircleX aria-hidden="true"></svg>
+          <svg class="size-4 shrink-0" [appIcon]="icons.circleX" aria-hidden="true"></svg>
         }
       }
       {{ text().admin.reports.statuses[report().status] }}
@@ -36,7 +36,7 @@
     <div class="rounded-md bg-surface-sunken p-3">
       @if (report().targetMissing) {
         <p class="flex items-start gap-2 text-ink-muted">
-          <svg class="mt-0.5 size-5 shrink-0" lucideFileX aria-hidden="true"></svg>
+          <svg class="mt-0.5 size-5 shrink-0" [appIcon]="icons.fileX" aria-hidden="true"></svg>
           {{ text().admin.reports.card.targetMissing[report().targetType] }}
         </p>
       } @else {
@@ -70,9 +70,9 @@
       @if (canHide()) {
         <button appButton look="quiet" type="button" (click)="requestDecision(ReportDecision.Hide)">
           @if (report().targetType === ReportTargetType.User) {
-            <svg class="size-5 shrink-0" lucideUserX aria-hidden="true"></svg>
+            <svg class="size-5 shrink-0" [appIcon]="icons.userX" aria-hidden="true"></svg>
           } @else {
-            <svg class="size-5 shrink-0" lucideEyeOff aria-hidden="true"></svg>
+            <svg class="size-5 shrink-0" [appIcon]="icons.eyeOff" aria-hidden="true"></svg>
           }
           {{ text().admin.reports.hideButton[report().targetType] }}
         </button>

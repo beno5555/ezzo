@@ -10,7 +10,9 @@ import {
   untracked,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { LucideCake, LucideMessageCircle, LucideSettings } from '@lucide/angular';
+import LucideCake from 'lucide/dist/esm/icons/cake.mjs';
+import LucideMessageCircle from 'lucide/dist/esm/icons/message-circle.mjs';
+import LucideSettings from 'lucide/dist/esm/icons/settings.mjs';
 import { DateFormatter } from '../../../core/languages/date-formatter';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { appAddresses } from '../../../core/routing/app-addresses';
@@ -19,6 +21,7 @@ import { AvatarSize } from '../../../shared/avatar/avatar-size';
 import { Avatar } from '../../../shared/avatar/avatar';
 import { Button } from '../../../shared/button/button';
 import { ButtonLook } from '../../../shared/button/button-look';
+import { Icon } from '../../../shared/icon/icon';
 import { LoadFailure } from '../../../shared/load-failure/load-failure';
 import { Menu } from '../../../shared/menu/menu';
 import { MenuEntry } from '../../../shared/menu/menu-entry';
@@ -60,15 +63,19 @@ import { ProfileTab } from './profile-tab';
     ProfilePosts,
     RouterLink,
     Tabs,
-    LucideCake,
-    LucideMessageCircle,
-    LucideSettings,
+    Icon,
   ],
   providers: [ProfilePresenceStore, RelationshipStore],
   templateUrl: './profile-view.html',
   styleUrl: './profile-view.css',
 })
 export class ProfileView implements OnInit {
+  protected readonly icons = {
+    cake: LucideCake,
+    messageCircle: LucideMessageCircle,
+    settings: LucideSettings,
+  };
+
   readonly user = input.required<StandardUserDto>();
 
   private readonly sessionStore = inject(SessionStore);

@@ -14,7 +14,7 @@
       [attr.aria-label]="text().shared.photos.removeButton(index() + 1, images().length)"
       (click)="remove()"
     >
-      <svg class="size-5" lucideTrash2 aria-hidden="true"></svg>
+      <svg class="size-5" [appIcon]="icons.trash2" aria-hidden="true"></svg>
       {{ text().shared.photos.removeInViewer }}
     </button>
   }
@@ -24,7 +24,7 @@
     [attr.aria-label]="text().shared.dialog.closeButton"
     (click)="close()"
   >
-    <svg class="size-6" lucideX aria-hidden="true"></svg>
+    <svg class="size-6" [appIcon]="icons.x" aria-hidden="true"></svg>
   </button>
 </div>
 
@@ -36,7 +36,7 @@
       [attr.aria-label]="text().shared.photos.previousButton"
       (click)="showPrevious()"
     >
-      <svg class="size-6" lucideChevronLeft aria-hidden="true"></svg>
+      <svg class="size-6" [appIcon]="icons.chevronLeft" aria-hidden="true"></svg>
     </button>
   }
 
@@ -55,7 +55,7 @@
       [attr.aria-label]="text().shared.photos.nextButton"
       (click)="showNext()"
     >
-      <svg class="size-6" lucideChevronRight aria-hidden="true"></svg>
+      <svg class="size-6" [appIcon]="icons.chevronRight" aria-hidden="true"></svg>
     </button>
   }
 </div>

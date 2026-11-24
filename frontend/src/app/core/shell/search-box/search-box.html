@@ -12,6 +12,6 @@
     [placeholder]="text().shell.searchLabel"
   />
   <button appIconButton type="submit" [attr.aria-label]="text().shell.searchButton">
-    <svg class="size-5" lucideSearch aria-hidden="true"></svg>
+    <svg class="size-5" [appIcon]="icons.search" aria-hidden="true"></svg>
   </button>
 </form>

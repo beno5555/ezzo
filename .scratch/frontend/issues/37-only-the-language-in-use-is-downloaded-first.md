@@ -13,18 +13,27 @@
 
 **Blocked by:** None (can start immediately)
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Difficulty:** tricky. It changes how the app starts (the first page may not show before its dictionary), turns a dictionary that is always there into one that loads later, and touches `text()` and the unit tests across the app.
 
-- [ ] A first load in English downloads no Georgian text, and a first load in Georgian downloads no English text
-- [ ] No page ever shows text in the language that is not chosen, on a first visit, a reload or a sign-in
-- [ ] The first switch to the other language changes the page in place; switching back fetches nothing new
-- [ ] The remembered choice, a first visit with a Georgian browser, and the account pages all start in the right language
-- [ ] Dates and plurals follow the chosen language after a switch
-- [ ] A missing key in either dictionary still fails the build
-- [ ] A new ADR supersedes ADR 0006, ADR 0006 is marked superseded, ADR 0009's lines on the dictionaries point to the new ADR, and its limit is unchanged
-- [ ] The spec's lines on the dictionaries read true
-- [ ] The first download's raw and compressed sizes, before and after, are in the ticket's comments
-- [ ] Checked in the app in both languages and both themes, with the screenshot command
-- [ ] The unit tests, lint, Prettier and the build pass
+- [x] A first load in English downloads no Georgian text, and a first load in Georgian downloads no English text
+- [x] No page ever shows text in the language that is not chosen, on a first visit, a reload or a sign-in
+- [x] The first switch to the other language changes the page in place; switching back fetches nothing new
+- [x] The remembered choice, a first visit with a Georgian browser, and the account pages all start in the right language
+- [x] Dates and plurals follow the chosen language after a switch
+- [x] A missing key in either dictionary still fails the build
+- [x] A new ADR supersedes ADR 0006, ADR 0006 is marked superseded, ADR 0009's lines on the dictionaries point to the new ADR, and its limit is unchanged
+- [x] The spec's lines on the dictionaries read true
+- [x] The first download's raw and compressed sizes, before and after, are in the ticket's comments
+- [x] Checked in the app in both languages and both themes, with the screenshot command
+- [x] The unit tests, lint, Prettier and the build pass
+
+## Comments
+
+### 2026-11-24 implementation
+
+- Startup resolves the remembered choice or the browser preference and loads that dictionary before bootstrapping Angular. `LanguageStore.text()` continues to give a complete dictionary. During a switch it gives the previous dictionary until the requested one is ready. A failed switch shows a message in the current language and leaves the preference intact. A late load cannot overwrite a newer choice.
+- No prefetch. The browser reuses a dictionary it has already loaded, and a visitor using one language never fetches the other. Specs that create their own Angular injector start with an English dictionary supplied by the test setup.
+- The fixture browser checked both first-visit languages, a saved choice overriding the browser in both directions, the first rendered heading, a switch and a switch back without a second request, a reload and a failed switch. Both languages and themes were also captured at 360, 768 and 1280 px.
+- The language-only build reduced Angular's initial total from 773.59 kB raw and 162.23 kB estimated transfer to 711.61 kB raw and 151.16 kB estimated transfer. In the final build with ticket 36, the initial total is 562.05 kB raw and 146.82 kB estimated transfer. The selected dictionary adds 20.71 kB raw (5.56 kB estimated) for English or 44.11 kB raw (7.61 kB estimated) for Georgian at startup.

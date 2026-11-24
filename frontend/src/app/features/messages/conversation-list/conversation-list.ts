@@ -1,7 +1,8 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink, RouterLinkActive } from '@angular/router';
-import { LucideImage, LucideMessageCircleDashed } from '@lucide/angular';
+import LucideImage from 'lucide/dist/esm/icons/image.mjs';
+import LucideMessageCircleDashed from 'lucide/dist/esm/icons/message-circle-dashed.mjs';
 import { DateFormatter } from '../../../core/languages/date-formatter';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { PageLoadStatus } from '../../../core/paging/page-load-status';
@@ -9,6 +10,7 @@ import { SessionStore } from '../../../core/session/session-store';
 import { CountBadge } from '../../../core/shell/count-badge/count-badge';
 import { Avatar } from '../../../shared/avatar/avatar';
 import { EmptyState } from '../../../shared/empty-state/empty-state';
+import { Icon } from '../../../shared/icon/icon';
 import { LoadFailure } from '../../../shared/load-failure/load-failure';
 import { PresenceDot } from '../../../shared/presence-dot/presence-dot';
 import { ScrollSentinel } from '../../../shared/scroll-sentinel/scroll-sentinel';
@@ -30,13 +32,14 @@ import { ConversationListStore } from '../conversation-list-store';
     LoadFailure,
     PresenceDot,
     ScrollSentinel,
-    LucideImage,
-    LucideMessageCircleDashed,
+    Icon,
   ],
   templateUrl: './conversation-list.html',
   styleUrl: './conversation-list.css',
 })
 export class ConversationList {
+  protected readonly icons = { image: LucideImage, messageCircleDashed: LucideMessageCircleDashed };
+
   private readonly conversationListStore = inject(ConversationListStore);
   private readonly sessionStore = inject(SessionStore);
 

@@ -2,7 +2,10 @@ import { Component, DestroyRef, computed, effect, inject, signal, untracked } fr
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { LucideCircleCheck, LucideCircleX, LucideScrollText, LucideSearch } from '@lucide/angular';
+import LucideCircleCheck from 'lucide/dist/esm/icons/circle-check.mjs';
+import LucideCircleX from 'lucide/dist/esm/icons/circle-x.mjs';
+import LucideScrollText from 'lucide/dist/esm/icons/scroll-text.mjs';
+import LucideSearch from 'lucide/dist/esm/icons/search.mjs';
 import { map } from 'rxjs';
 import { DateFormatter } from '../../../core/languages/date-formatter';
 import { LanguageStore } from '../../../core/languages/language-store';
@@ -15,6 +18,7 @@ import { DateTimeInput } from '../../../shared/date-time-input/date-time-input';
 import { EmptyState } from '../../../shared/empty-state/empty-state';
 import { FormField } from '../../../shared/form-field/form-field';
 import { FormMessage } from '../../../shared/form-message/form-message';
+import { Icon } from '../../../shared/icon/icon';
 import { LoadFailure } from '../../../shared/load-failure/load-failure';
 import { ScrollSentinel } from '../../../shared/scroll-sentinel/scroll-sentinel';
 import { TextInput } from '../../../shared/text-input/text-input';
@@ -47,15 +51,19 @@ const idValidators = [
     ScrollSentinel,
     TextInput,
     ToggleButton,
-    LucideCircleCheck,
-    LucideCircleX,
-    LucideScrollText,
-    LucideSearch,
+    Icon,
   ],
   templateUrl: './admin-logs-page.html',
   styleUrl: './admin-logs-page.css',
 })
 export class AdminLogsPage {
+  protected readonly icons = {
+    circleCheck: LucideCircleCheck,
+    circleX: LucideCircleX,
+    scrollText: LucideScrollText,
+    search: LucideSearch,
+  };
+
   private readonly adminApi = inject(AdminApi);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);

@@ -1,46 +1,43 @@
 import { DOCUMENT, Injectable, computed, effect, inject, signal } from '@angular/core';
-import { Dictionary } from './dictionary';
-import { dictionaries } from './dictionaries';
+import { dictionaryLoaders } from './dictionaries';
+import { initialLanguage } from './initial-language';
 import { Language, languageStorageKey } from './language';
 
 // The current language and its dictionary. Templates read text(), so a switch redraws in place.
 @Injectable({ providedIn: 'root' })
 export class LanguageStore {
   private readonly document = inject(DOCUMENT);
-  private readonly current = signal<Language>(startingLanguage());
+  private readonly current = signal(inject(initialLanguage));
+  private readonly failed = signal(false);
+  private latestRequest = 0;
 
-  readonly language = this.current.asReadonly();
-  readonly text = computed<Dictionary>(() => dictionaries[this.current()]);
+  readonly language = computed(() => this.current().language);
+  readonly text = computed(() => this.current().text);
+  readonly switchFailed = this.failed.asReadonly();
 
   constructor() {
     effect(() => {
-      this.document.documentElement.lang = this.current();
+      this.document.documentElement.lang = this.language();
     });
   }
 
-  setLanguage(language: Language): void {
-    this.current.set(language);
-    localStorage.setItem(languageStorageKey, language);
+  async setLanguage(language: Language): Promise<void> {
+    const request = ++this.latestRequest;
+    const isNewLanguage = language !== this.language();
+    this.failed.set(false);
+
+    try {
+      const text = isNewLanguage ? await dictionaryLoaders[language]() : this.text();
+      const isLatest = request === this.latestRequest;
+      if (isLatest) {
+        localStorage.setItem(languageStorageKey, language);
+        this.current.set({ language, text });
+      }
+    } catch {
+      const isLatest = request === this.latestRequest;
+      if (isLatest) {
+        this.failed.set(true);
+      }
+    }
   }
-}
-
-// The remembered choice; on a first visit, Georgian for a browser that prefers Georgian, else English.
-function startingLanguage(): Language {
-  let result: Language;
-  const stored = localStorage.getItem(languageStorageKey);
-
-  if (isLanguage(stored)) {
-    result = stored;
-  } else {
-    // The primary subtag: ka-GE is Georgian, kab (Kabyle) is not.
-    const browserPrimaryLanguage = navigator.language.toLowerCase().split('-')[0];
-    const browserPrefersGeorgian = browserPrimaryLanguage === Language.Georgian;
-    result = browserPrefersGeorgian ? Language.Georgian : Language.English;
-  }
-
-  return result;
-}
-
-function isLanguage(value: string | null): value is Language {
-  return Object.values<string | null>(Language).includes(value);
 }

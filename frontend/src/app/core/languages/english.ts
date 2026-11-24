@@ -13,9 +13,8 @@ export const english = {
     name: 'Ezzo',
   },
   languages: {
-    // Each language is named in itself, so the switch reads the same in every language.
-    ownName: 'English',
     switchLabel: 'Language',
+    switchFailed: 'Could not load the language. Reload the page and try again.',
   },
   themes: {
     switchLabel: 'Theme',

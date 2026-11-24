@@ -5,7 +5,7 @@
   [cdkMenuPosition]="positions"
   [attr.aria-label]="label() ?? text().shared.menu.buttonLabel"
 >
-  <svg class="size-5" lucideEllipsis aria-hidden="true"></svg>
+  <svg class="size-5" [appIcon]="icons.ellipsis" aria-hidden="true"></svg>
 </button>
 
 <ng-template #list>

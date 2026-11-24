@@ -36,3 +36,10 @@
 - The screenshot command captured the landing page, reset page, guest post with an unavailable author's avatar, signed-in post, feed, Friends and admin logs at 360, 768 and 1280 px in both themes and languages. All 84 images were reviewed as contact sheets. Playwright captured five more images showing the landing and reset pages with fragments, the delete dialog and the two outcomes after deletion.
 - Playwright found no horizontal overflow across 21 page and width combinations. Typing in the admin logs filter updated the address automatically. The unavailable author's avatar showed the default silhouette with a grey ring.
 - The screenshot command stalled on reloads of addresses with fragments. The full sets used query-only addresses, and Playwright explicitly reloaded the fragment addresses for the separate captures. The frontend ran on 4300 with synthetic API data on 7202. Both servers and the browsers were stopped afterwards.
+
+### 2026-11-24 rerun after lazy dictionaries and per-icon SVG imports
+
+- Removed the obsolete icon examples and Angular icon test stand-in, and checked the updated guidance against the source. The route-path helper and its callers required no further edits.
+- Prettier, lint and its 39 checks, all 981 frontend unit tests, and the production build passed. The initial total was 562.05 kB raw and triggered no budget warning.
+- On fixture ports 4300 and 7202, verified the complete sign-in return address, a direct reset-page reload with a query and fragment, and both deletion outcomes. Deleting the open post returned to the feed. Navigating to Friends during another delete request kept the Friends page in place when the response arrived.
+- The 24 before-and-after landing and feed images matched pixel for pixel across the three widths, both languages and both themes.

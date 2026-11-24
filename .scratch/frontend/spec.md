@@ -229,7 +229,7 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 
 ### Across the whole frontend
 
-- **The conventions hold.** §10 of the conventions skill's TypeScript reference and ADRs 0001 and 0003 to 0006 are the rules: standalone components, no zone.js, signals, `…Api` services that return `Promise<AppResult<T>>`, stores only for state that several pages share or the hub changes, typed reactive forms, lazy pages, relative URLs, three guards, typed dictionaries, one date formatter. This spec adds decisions; it changes none of those.
+- **The conventions hold.** §10 of the conventions skill's TypeScript reference and ADRs 0001, 0003 to 0005, and 0010 are the rules: standalone components, no zone.js, signals, `…Api` services that return `Promise<AppResult<T>>`, stores only for state that several pages share or the hub changes, typed reactive forms, lazy pages, relative URLs, three guards, typed dictionaries, one date formatter.
 - **Page tickets wait for the design session; plumbing tickets do not.** The design session (roadmap step 1) chooses the styling toolset and the tokens. Scaffold, session, interceptor, hub client, dictionaries, stores and `…Api` services have no visual part.
 - **Every user has the default profile picture.** It is the user's initials on a coloured disc, drawn by the frontend through one component, so that a chosen picture can take its place later (`DESIGN.md`, Components). Choosing a picture is not built here.
 - **Light and dark themes both ship** (design session, 2026-11-16). The first visit follows the operating system's setting, the choice is remembered, and the switch sits in the menu beside the language.
@@ -370,7 +370,7 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 
 ### Languages and dates
 
-- **English and Georgian** ship. The first visit picks Georgian when the browser's preferred language is Georgian, English otherwise; the choice is then remembered.
+- **English and Georgian** ship. The first visit picks Georgian when the browser's preferred language is Georgian, English otherwise. Only the selected dictionary loads at startup, and a switch loads the other on demand. The chosen language is remembered.
 - **Server text stays English** (ADR 0006).
 
 ### Backend changes

@@ -6,7 +6,7 @@ import { markActiveBarLink } from './active-bar-link';
 // A link in the phone's bottom bar: an icon over a short word, filling its fifth of the bar, muted until
 // it leads to the current page. A word too long for its fifth is cut with an ellipsis. The caller puts
 // the routerLink beside it:
-//   <a appBottomBarLink [routerLink]="addresses.friends"><svg lucideUsers ...></svg><span>Friends</span></a>
+//   <a appBottomBarLink [routerLink]="addresses.friends"><svg [appIcon]="icons.users"></svg><span>Friends</span></a>
 @Directive({
   selector: 'a[appBottomBarLink]',
   hostDirectives: [{ directive: RouterLinkActive, inputs: ['routerLinkActiveOptions'] }],

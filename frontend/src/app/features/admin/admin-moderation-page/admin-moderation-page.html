@@ -69,7 +69,11 @@
               [heading]="text().admin.moderation.emptyPostsTitle"
               [message]="text().admin.moderation.emptyPostsMessage"
             >
-              <svg class="size-8 text-ink-muted" lucideShieldCheck aria-hidden="true"></svg>
+              <svg
+                class="size-8 text-ink-muted"
+                [appIcon]="icons.shieldCheck"
+                aria-hidden="true"
+              ></svg>
             </app-empty-state>
           }
         }
@@ -135,7 +139,11 @@
               [heading]="text().admin.moderation.emptyCommentsTitle"
               [message]="text().admin.moderation.emptyCommentsMessage"
             >
-              <svg class="size-8 text-ink-muted" lucideMessageCircleDashed aria-hidden="true"></svg>
+              <svg
+                class="size-8 text-ink-muted"
+                [appIcon]="icons.messageCircleDashed"
+                aria-hidden="true"
+              ></svg>
             </app-empty-state>
           }
         }

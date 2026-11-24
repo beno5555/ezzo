@@ -13,12 +13,16 @@ import {
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { map } from 'rxjs';
-import { LucideCheck, LucideImagePlus, LucideSendHorizontal, LucideX } from '@lucide/angular';
+import LucideCheck from 'lucide/dist/esm/icons/check.mjs';
+import LucideImagePlus from 'lucide/dist/esm/icons/image-plus.mjs';
+import LucideSendHorizontal from 'lucide/dist/esm/icons/send-horizontal.mjs';
+import LucideX from 'lucide/dist/esm/icons/x.mjs';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { LIMITS } from '../../../core/limits';
 import { Button } from '../../../shared/button/button';
 import { CharacterCounter } from '../../../shared/character-counter/character-counter';
 import { IconButton } from '../../../shared/icon-button/icon-button';
+import { Icon } from '../../../shared/icon/icon';
 import { PhotoPicker } from '../../../shared/photos/photo-picker/photo-picker';
 import { PhotoRules } from '../../../shared/photos/photo-rules';
 import { TextInput } from '../../../shared/text-input/text-input';
@@ -54,15 +58,19 @@ import { TypingSender } from '../typing-sender';
     IconButton,
     PhotoPicker,
     TextInput,
-    LucideCheck,
-    LucideImagePlus,
-    LucideSendHorizontal,
-    LucideX,
+    Icon,
   ],
   templateUrl: './message-form.html',
   styleUrl: './message-form.css',
 })
 export class MessageForm {
+  protected readonly icons = {
+    check: LucideCheck,
+    imagePlus: LucideImagePlus,
+    sendHorizontal: LucideSendHorizontal,
+    x: LucideX,
+  };
+
   private readonly conversationsStore = inject(ConversationsStore);
   private readonly typingSender = inject(TypingSender);
   private readonly picker = viewChild.required(PhotoPicker);

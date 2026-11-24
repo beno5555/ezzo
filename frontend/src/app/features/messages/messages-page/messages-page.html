@@ -13,7 +13,7 @@
     <app-conversation-list class="flex min-h-0 flex-1 flex-col" />
     <div class="border-t border-border p-2 md:px-4 md:py-3">
       <button appButton look="quiet" class="w-full" type="button" (click)="startConversation()">
-        <svg class="size-5" lucideSquarePen aria-hidden="true"></svg>
+        <svg class="size-5" [appIcon]="icons.squarePen" aria-hidden="true"></svg>
         {{ text().messages.newMessage.openButton }}
       </button>
     </div>

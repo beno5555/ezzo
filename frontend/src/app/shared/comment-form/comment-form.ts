@@ -2,11 +2,12 @@ import { Component, OnInit, computed, inject, input, output } from '@angular/cor
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { map } from 'rxjs';
-import { LucideSendHorizontal } from '@lucide/angular';
+import LucideSendHorizontal from 'lucide/dist/esm/icons/send-horizontal.mjs';
 import { LIMITS } from '../../core/limits';
 import { Button } from '../button/button';
 import { CharacterCounter } from '../character-counter/character-counter';
 import { FormField } from '../form-field/form-field';
+import { Icon } from '../icon/icon';
 import { TextInput } from '../text-input/text-input';
 import { canSendComment } from '../../features/comments/can-send-comment';
 
@@ -22,18 +23,13 @@ import { canSendComment } from '../../features/comments/can-send-comment';
 // refused comment's text back, and isEmpty tells the page when it may.
 @Component({
   selector: 'app-comment-form',
-  imports: [
-    ReactiveFormsModule,
-    Button,
-    CharacterCounter,
-    FormField,
-    LucideSendHorizontal,
-    TextInput,
-  ],
+  imports: [ReactiveFormsModule, Button, CharacterCounter, FormField, TextInput, Icon],
   templateUrl: './comment-form.html',
   styleUrl: './comment-form.css',
 })
 export class CommentForm implements OnInit {
+  protected readonly icons = { sendHorizontal: LucideSendHorizontal };
+
   // Makes the field's id unique on a page that shows several forms.
   readonly fieldId = input.required<string>();
   readonly label = input.required<string>();

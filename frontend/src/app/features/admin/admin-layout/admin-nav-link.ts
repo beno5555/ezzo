@@ -6,7 +6,7 @@ import { markActiveBarLink } from '../../../core/shell/bar-link/active-bar-link'
 // A link in the admin panel's navigation: an icon and a word, 44 px high, muted until it is hovered or
 // leads to the current area, which is marked as the shell's bars mark theirs. The caller puts the
 // routerLink beside it:
-//   <a appAdminNavLink [routerLink]="[addresses.admin, 'users']"><svg lucideUsers ...></svg> Users</a>
+//   <a appAdminNavLink [routerLink]="[addresses.admin, 'users']"><svg [appIcon]="icons.users"></svg> Users</a>
 @Directive({
   selector: 'a[appAdminNavLink]',
   hostDirectives: [RouterLinkActive],

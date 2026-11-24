@@ -51,7 +51,7 @@
             [message]="text().messages.newMessage.emptyMessage"
             [headingLevel]="3"
           >
-            <svg class="size-8 text-ink-muted" lucideUsers aria-hidden="true"></svg>
+            <svg class="size-8 text-ink-muted" [appIcon]="icons.users" aria-hidden="true"></svg>
           </app-empty-state>
         }
       }

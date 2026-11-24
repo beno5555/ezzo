@@ -2,7 +2,7 @@
   <div class="flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
     <h1 class="font-display text-2xl text-ink-strong">{{ text().friendships.page.heading }}</h1>
     <a appButton look="primary" [routerLink]="searchAddress">
-      <svg class="size-5" lucideSearch aria-hidden="true"></svg>
+      <svg class="size-5" [appIcon]="icons.search" aria-hidden="true"></svg>
       {{ text().friendships.page.findFriendsButton }}
     </a>
   </div>
