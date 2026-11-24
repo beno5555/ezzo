@@ -13,7 +13,7 @@ A visitor who is not signed in. A guest can find people and read what they have 
 _Avoid_: anonymous user, visitor, unauthorized user
 
 **Profile picture**:
-The image that stands for a user wherever the user appears. A user who has not set one is shown a default made from their initials.
+The image that stands for a user wherever the user appears. A user who has not set one is shown a default faceless silhouette in a ring coloured by their id.
 _Avoid_: avatar, pfp, user image, photo (a photo is an image attached to a post or a message)
 
 **Automation**:

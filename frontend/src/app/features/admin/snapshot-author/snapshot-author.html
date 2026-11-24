@@ -1,4 +1,4 @@
-<app-avatar [userId]="avatarId()" [username]="author().username" [isUnavailable]="!isAvailable()" />
+<app-avatar [userId]="avatarId()" [isUnavailable]="!isAvailable()" />
 <div class="flex min-w-0 flex-1 flex-col">
   @if (isAvailable()) {
     <a appTextLink class="self-start wrap-anywhere" [routerLink]="profileAddress()">{{

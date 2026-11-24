@@ -355,7 +355,7 @@ export class MyProfilePage implements OnInit {
 
 **Profile pictures**
 
-- One `Avatar` component in `shared/` shows a user's profile picture everywhere. Without a picture it draws the default: the user's initials on a disc.
+- The ring's colour is one of the eight avatar design tokens (lighter in the dark theme), chosen by the user's id; the silhouette inside is the same for everyone. An unavailable account gets the grey ring.
 - The disc's colour is one of the eight disc design tokens, chosen by the user's id. A username in two parts gives both first letters; any other gives its first two letters. An unavailable account gets the grey disc with no letters.
 
 **When a design skill and these documents disagree**

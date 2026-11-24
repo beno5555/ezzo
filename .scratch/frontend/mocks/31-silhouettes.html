@@ -1,0 +1,47 @@
+<!doctype html>
+<meta charset="utf-8" />
+<title>Silhouette options</title>
+<style>
+  body { margin: 0; font: 14px 'Noto Sans', system-ui, sans-serif; display: grid; grid-template-columns: 1fr 1fr; }
+  .theme { padding: 20px; }
+  .light { --page: #ecf1f2; --raised: #ffffff; --sunken: #dce5e8; --ink: #12202a; --muted: #485b63;
+    --r1: #1f6b62; --r2: #4c4f8c; --r3: #8a4925; --r4: #6d3c69; --rg: #686c6e; background: var(--page); color: var(--ink); }
+  .dark { --page: #0f1a20; --raised: #1e2f38; --sunken: #060c10; --ink: #e5eef1; --muted: #9db1b9;
+    --r1: #288b7f; --r2: #7477b3; --r3: #be6533; --r4: #aa65a4; --rg: #787d7f; background: var(--page); color: var(--ink); }
+  h2 { margin: 0 0 12px; font-size: 16px; }
+  .row { display: flex; align-items: center; gap: 12px; background: var(--raised); border-radius: 8px; padding: 10px 12px; margin-bottom: 10px; }
+  .label { width: 150px; font-weight: 600; }
+  .label small { display: block; font-weight: 400; color: var(--muted); }
+  .av { box-sizing: border-box; border-radius: 50%; overflow: hidden; background: var(--sunken); display: flex; align-items: center; justify-content: center; color: var(--muted); border-style: solid; flex-shrink: 0; }
+  .s { width: 32px; height: 32px; border-width: 2px; }
+  .m { width: 40px; height: 40px; border-width: 2px; }
+  .l { width: 96px; height: 96px; border-width: 4px; }
+  .av svg { width: 75%; height: 75%; }
+  .av.bleed svg { width: 100%; height: 100%; }
+  .c1 { border-color: var(--r1); } .c2 { border-color: var(--r2); } .c3 { border-color: var(--r3); } .c4 { border-color: var(--r4); } .cg { border-color: var(--rg); }
+  .fill { fill: currentColor; stroke: currentColor; }
+  .line { fill: none; stroke: currentColor; }
+</style>
+<body>
+<script>
+  const options = [
+    ['A. Round head and shoulders, filled', 'lucide UserRound, filled (what is built)',
+      '<svg viewBox="0 0 24 24" class="fill" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>'],
+    ['B. Square shoulders, filled', 'lucide User, filled',
+      '<svg viewBox="0 0 24 24" class="fill" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>'],
+    ['C. Outline only', 'lucide UserRound, no fill',
+      '<svg viewBox="0 0 24 24" class="line" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>'],
+    ['D. Classic, shoulders fill the disc', 'drawn by hand, clipped by the ring',
+      '<svg viewBox="0 0 24 24" class="fill" stroke-width="0"><circle cx="12" cy="9.5" r="4.5"/><path d="M1 26c0-7 5-10.5 11-10.5S23 19 23 26z"/></svg>', 'bleed'],
+    ['E. Smaller, centred figure', 'lucide UserRound, filled, 60 %',
+      '<svg viewBox="0 0 24 24" class="fill" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="width:60%;height:60%"><circle cx="12" cy="8" r="5"/><path d="M20 21a8 8 0 0 0-16 0"/></svg>'],
+  ];
+  for (const theme of ['light', 'dark']) {
+    const box = document.createElement('div');
+    box.className = 'theme ' + theme;
+    box.innerHTML = '<h2>' + theme + ' theme</h2>' + options.map(([name, note, svg, extra = '']) =>
+      '<div class="row"><div class="label">' + name + '<small>' + note + '</small></div>' +
+      ['c1 s', 'c2 s', 'c3 m', 'c4 m', 'cg m', 'c1 l'].map((c) => '<div class="av ' + c + ' ' + extra + '">' + svg + '</div>').join('') + '</div>').join('');
+    document.body.append(box);
+  }
+</script>

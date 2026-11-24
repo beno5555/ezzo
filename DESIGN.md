@@ -41,7 +41,7 @@ colors:
   focus-dark: "#9bd3f2"
   stamp-dark: "#23343d"
 
-  # Discs of the default profile picture, the same in both themes, always with white letters
+  # Discs of the landing page's drawing, the same in both themes, always with white lines
   disc-1: "#1f6b62"
   disc-2: "#2f6a47"
   disc-3: "#566a1d"
@@ -50,8 +50,27 @@ colors:
   disc-6: "#8a4925"
   disc-7: "#69513a"
   disc-8: "#6d3c69"
-  disc-unavailable: "#686c6e"
   on-disc: "#ffffff"
+
+  # Rings of the default profile picture: the disc hues, lighter in the dark theme (the "-dark" entries)
+  avatar-1: "#1f6b62"
+  avatar-2: "#2f6a47"
+  avatar-3: "#566a1d"
+  avatar-4: "#3d5788"
+  avatar-5: "#4c4f8c"
+  avatar-6: "#8a4925"
+  avatar-7: "#69513a"
+  avatar-8: "#6d3c69"
+  avatar-unavailable: "#686c6e"
+  avatar-1-dark: "#288b7f"
+  avatar-2-dark: "#3e8c5d"
+  avatar-3-dark: "#6d8625"
+  avatar-4-dark: "#5d7cb7"
+  avatar-5-dark: "#7477b3"
+  avatar-6-dark: "#be6533"
+  avatar-7-dark: "#997654"
+  avatar-8-dark: "#aa65a4"
+  avatar-unavailable-dark: "#787d7f"
 typography:
   text-xs:
     fontFamily: Noto Sans, Noto Sans Georgian, system-ui, sans-serif
@@ -119,8 +138,8 @@ components:
     rounded: "{rounded.md}"
     height: 44px
   profile-picture-default:
-    backgroundColor: "{colors.disc-1}"
-    textColor: "{colors.on-disc}"
+    backgroundColor: "{colors.surface-sunken}"
+    textColor: "{colors.ink-muted}"
     rounded: "{rounded.full}"
 ---
 
@@ -161,15 +180,16 @@ A colour is named for its job, never for its shade. A component uses the role na
 | `danger`, `success`, `warning` | Destructive actions and errors; confirmations; cautions.                        |
 | `focus`                        | The keyboard focus ring.                                                        |
 | `stamp`                        | The big "ezzo" fixed behind every page but the landing page (Brand).            |
-| `disc-1` to `disc-8`           | The disc of the default profile picture.                                        |
-| `disc-unavailable`             | The disc of an account that is deactivated or deleted.                          |
-| `on-disc`                      | The initials on a disc.                                                         |
+| `disc-1` to `disc-8`           | The discs of the landing page's drawing.                                        |
+| `on-disc`                      | Lines drawn on a disc in the landing page's drawing.                            |
+| `avatar-1` to `avatar-8`       | The ring of the default profile picture, chosen by the user's id.               |
+| `avatar-unavailable`           | The ring of an account that is deactivated or deleted.                          |
 
 - **Two themes, one set of names.** The DESIGN.md format holds one list of colours, so the dark theme's value of a role is the entry with the `-dark` suffix. In the Tailwind theme block there is no suffix: the dark theme gives the same name another value.
-- **Contrast.** Every text colour on every surface is at least 4.5 to 1 in both themes. White on each disc is at least 4.5 to 1. `border-strong` is at least 3 to 1 on every surface. Check new values the same way before they go in.
+- **Contrast.** Every text colour on every surface is at least 4.5 to 1 in both themes. White on each disc is at least 4.5 to 1. `ink-muted` on `surface-sunken`, the silhouette of the default profile picture, passes the same check in both themes. Each ring colour is at least 3 to 1 on `surface-page` and on `surface-raised` in both themes (4.7 to 1 or more in light; 3.3 to 1 or more in dark, which is why the dark rings are lighter, owner, 2026-11-24). `border-strong` is at least 3 to 1 on every surface. Check new values the same way before they go in.
 - **One accent.** Use it for the single most important action on a screen. Two exceptions, both on the landing page: the wordmark (Brand) and the sheet under the lifted card (Elevation & Depth). Never use colour alone to carry a meaning; pair it with a word or an icon.
 - **Accent and success stay apart.** Both are cool colours, so `success` is a green set clearly away from the blue (a luminance ratio of about 1.4 between them in each theme). A new value keeps that distance.
-- **The discs stay in the palette:** eight muted, deep colours (teal, green, olive, blue, indigo, rust, walnut, plum) that sit beside the accent without competing with it, all dark enough for white initials.
+- **The discs stay in the palette:** eight muted, deep colours (teal, green, olive, blue, indigo, rust, walnut, plum) that sit beside the accent without competing with it, all dark enough for white lines on them.
 - **The landing page's picture** is the one drawing in the app: it takes its colours from the disc roles. Its two posts are set askew and overlap, like prints laid on a table, with the `overlay` shadow.
 - **Scrollbars** take `border-strong` on `surface-page`.
 
@@ -210,10 +230,9 @@ Three radii and "full": `sm` for small controls such as badges and checkboxes, `
 
 ## Components
 
-- **Profile picture.** One `Avatar` component shows a user's profile picture wherever a user appears. A user without one gets the default: their initials in `on-disc` on a disc.
-  - **Disc colour:** one of `disc-1` to `disc-8`, chosen by the user's id, so it survives a change of username.
-  - **Initials:** a username in two parts (`john.doe`, `john_doe`) gives the first letter of each part; any other username gives its first two letters.
-  - **An unavailable account** (deactivated or deleted) gets `disc-unavailable` with no letters.
+- **Profile picture.** One `Avatar` component shows a user's profile picture wherever a user appears. A user without one gets the default: a faceless silhouette (head and shoulders, the lucide `User` icon filled) in `ink-muted` on `surface-sunken`, inside a ring (owner, 2026-11-19). The app stores no gender, so the silhouette is the same for every user, and the picture shows no letters.
+  - **Ring colour:** one of `avatar-1` to `avatar-8`, chosen by the user's id, so it survives a change of username. The ring is 2 px wide, 4 px on the large picture.
+  - **An unavailable account** (deactivated or deleted) gets the same silhouette in an `avatar-unavailable` ring.
 - **Buttons.** One primary button per screen, in `accent`. Other buttons are quiet: `surface-raised` with `border-strong`, or text only. A destructive button uses `danger` and carries a trash icon before its text, which the button adds by itself.
 - **A list of people** (the friends page, a profile's Friends tab) is one card of rows. A name is `ink-strong` and semibold and is underlined only under the pointer, since the avatar and the name together read as a link. A button that every row repeats is never `accent` (the message to a friend is quiet), and a destructive one that every row repeats is text only in `danger` with its trash icon, no edge (owner, 2026-11-23: a column of filled blue buttons and red boxes looked heavy). A button that answers the row, such as Accept on a request, stays `accent`.
 - **The current page** in the top bar, the bottom bar and the admin menu: its link turns `accent` and semibold, with a short accent bar along one edge (under it in the top bar, above it in the bottom bar, at its start in the admin menu).

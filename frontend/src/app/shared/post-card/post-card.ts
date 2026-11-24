@@ -138,7 +138,7 @@ export class PostCard {
     });
   });
   protected readonly isAuthorAvailable = computed(() => this.post().author.id !== null);
-  // The avatar picks its disc by id; an unavailable author gets the grey disc, whatever the id.
+  // The avatar picks its ring by id; an unavailable author gets the grey ring, whatever the id.
   protected readonly authorAvatarId = computed(() => this.post().author.id ?? 0);
   protected readonly profileAddress = computed(() =>
     appAddresses.profile(this.post().author.username),

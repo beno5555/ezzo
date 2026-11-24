@@ -4,7 +4,7 @@
 <ng-template #content let-toast>
   <span class="relative flex shrink-0" aria-hidden="true">
     @if (toast.person; as person) {
-      <app-avatar [userId]="person.id" [username]="person.username" />
+      <app-avatar [userId]="person.id" />
       @if (toast.look === ToastLook.Online) {
         <span
           class="absolute -end-1 -bottom-1 size-3.5 rounded-full bg-success ring-2 ring-surface-raised"
