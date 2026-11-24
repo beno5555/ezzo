@@ -219,6 +219,7 @@ Three radii and "full": `sm` for small controls such as badges and checkboxes, `
 - **The current page** in the top bar, the bottom bar and the admin menu: its link turns `accent` and semibold, with a short accent bar along one edge (under it in the top bar, above it in the bottom bar, at its start in the admin menu).
 - **The "Hidden" badge** is an eye-off icon and the word in `warning`, semibold, with no box.
 - **Inputs.** Every input in a form has a visible label that floats: it rests in the empty box where the text goes, and shrinks up to the box's top once the box is focused or filled (owner, 2026-11-23). The hint and the error text sit under the field, the error in `danger` with an icon; a counter or a "Forgot password?" link ends that row.
+- **Date and time.** A date and clock time (the audit page's period) is chosen in the calendar that opens under a read-only box (`appDateTimeInput`, vanilla-calendar-pro), never in the browser's own date picker, which the app cannot style (owner, 2026-11-24). Hours and minutes, no seconds. The calendar takes its colours from the tokens, so it follows both themes; its day buttons and time boxes are at least 44 px high. A date of birth is a different control (ticket 42).
 - **Icons** come from one set, Lucide. An icon that is the only content of a button has an accessible label.
 - **Dialogs, menus and toasts** take their behaviour from Angular CDK and their look from these design tokens.
 

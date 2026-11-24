@@ -1,15 +1,17 @@
-import { Component, computed, effect, inject, signal, untracked } from '@angular/core';
+import { Component, DestroyRef, computed, effect, inject, signal, untracked } from '@angular/core';
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { LucideScrollText, LucideSearch } from '@lucide/angular';
+import { LucideCircleCheck, LucideCircleX, LucideScrollText, LucideSearch } from '@lucide/angular';
 import { map } from 'rxjs';
 import { DateFormatter } from '../../../core/languages/date-formatter';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { LIMITS } from '../../../core/limits';
 import { PageLoadStatus } from '../../../core/paging/page-load-status';
 import { localInputToUtc, utcToLocalInput } from '../../../core/time/local-date-time-input';
+import { Debouncer, typingPauseMilliseconds } from '../../../core/timing/debouncer';
 import { Button } from '../../../shared/button/button';
+import { DateTimeInput } from '../../../shared/date-time-input/date-time-input';
 import { EmptyState } from '../../../shared/empty-state/empty-state';
 import { FormField } from '../../../shared/form-field/form-field';
 import { FormMessage } from '../../../shared/form-message/form-message';
@@ -19,6 +21,7 @@ import { TextInput } from '../../../shared/text-input/text-input';
 import { ToggleButton } from '../../../shared/toggle-button/toggle-button';
 import { AdminApi } from '../admin-api';
 import { LogFilter } from '../log-filter';
+import { splitLogAction } from '../log-action';
 import { logFilterFromParams, logFilterToParams } from '../log-filter-address';
 import { LogTable } from '../log-table';
 
@@ -34,7 +37,9 @@ const idValidators = [
 // (user, outcome, signed in or not, action, entity name and id, a period) and lives in the address, so a
 // filtered view can be reloaded and sent as a link: Search writes the form into the address, and the page
 // shows whatever filter the address holds (the Back button too). The period is typed in the administrator's
-// own time zone and sent, and kept in the address, as UTC. A period the backend refuses (an end before its
+// own time zone, picked in a calendar (DateTimeInput), and sent, and kept in the address, as UTC. Typing in a
+// box (or picking a time) searches by itself once the reader pauses, as the users page does; Search and a
+// choice of outcome or request search at once. A period the backend refuses (an end before its
 // start) shows the server's sentence under the form. Each filter change makes a new LogTable, read from its
 // first page.
 @Component({
@@ -42,6 +47,7 @@ const idValidators = [
   imports: [
     ReactiveFormsModule,
     Button,
+    DateTimeInput,
     EmptyState,
     FormField,
     FormMessage,
@@ -49,6 +55,8 @@ const idValidators = [
     ScrollSentinel,
     TextInput,
     ToggleButton,
+    LucideCircleCheck,
+    LucideCircleX,
     LucideScrollText,
     LucideSearch,
   ],
@@ -60,6 +68,12 @@ export class AdminLogsPage {
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly formBuilder = inject(NonNullableFormBuilder);
+  // The search that follows typing (and picking a time): it runs when the reader has stopped for a moment,
+  // and only when the form holds a filter other than the one shown.
+  private readonly typingPause = new Debouncer(
+    () => this.searchIfChanged(),
+    typingPauseMilliseconds,
+  );
   private readonly addressFilter = toSignal(
     this.route.queryParamMap.pipe(map((params) => logFilterFromParams(params))),
     { initialValue: {} as LogFilter },
@@ -68,6 +82,7 @@ export class AdminLogsPage {
   protected readonly text = inject(LanguageStore).text;
   protected readonly dates = inject(DateFormatter);
   protected readonly PageLoadStatus = PageLoadStatus;
+  protected readonly splitAction = splitLogAction;
   protected readonly actionMaxLength = LIMITS.logs.actionMaxLength;
   protected readonly entityNameMaxLength = LIMITS.logs.entityNameMaxLength;
   protected readonly timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -89,20 +104,12 @@ export class AdminLogsPage {
 
     return [
       { authorizedRequest: undefined, label: texts.all },
-      { authorizedRequest: true, label: texts.signedIn },
-      { authorizedRequest: false, label: texts.guest },
+      { authorizedRequest: true, label: texts.authorized },
+      { authorizedRequest: false, label: texts.unauthorized },
     ];
   });
   // The columns, in the order shown; each is also the key of its name in the dictionary.
-  protected readonly columnNames = [
-    'time',
-    'user',
-    'request',
-    'action',
-    'outcome',
-    'details',
-    'entity',
-  ] as const;
+  protected readonly columnNames = ['time', 'user', 'action', 'entity', 'outcome'] as const;
   protected readonly form = this.formBuilder.group({
     userId: this.formBuilder.control<number | null>(null, idValidators),
     entityId: this.formBuilder.control<number | null>(null, idValidators),
@@ -116,14 +123,16 @@ export class AdminLogsPage {
   protected readonly table = signal<LogTable | null>(null);
 
   constructor() {
+    inject(DestroyRef).onDestroy(() => this.typingPause.cancel());
     effect(() => {
       const filter = this.addressFilter();
       untracked(() => this.show(filter));
     });
   }
 
-  // Search and Enter: the form goes into the address.
+  // Search and Enter: the form goes into the address, without waiting for the pause.
   search(): void {
+    this.typingPause.cancel();
     if (this.form.invalid) {
       this.form.markAllAsTouched();
     } else {
@@ -131,7 +140,13 @@ export class AdminLogsPage {
     }
   }
 
+  // From each box, on each key and each picked time: the search starts when the reader stops.
+  searchAfterTyping(): void {
+    this.typingPause.call();
+  }
+
   clear(): void {
+    this.typingPause.cancel();
     void this.go({});
   }
 
@@ -181,6 +196,17 @@ export class AdminLogsPage {
     this.selectedRequest.set(filter.authorizedRequest);
     this.table.set(table);
     void table.loadNext(); // the table shows its own failure
+  }
+
+  private searchIfChanged(): void {
+    if (this.form.valid) {
+      const filter = this.filterFromForm();
+      const isChanged = addressOf(filter) !== addressOf(this.addressFilter());
+
+      if (isChanged) {
+        void this.go(filter);
+      }
+    }
   }
 
   private filterFromForm(): LogFilter {

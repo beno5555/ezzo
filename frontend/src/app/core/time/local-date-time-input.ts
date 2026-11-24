@@ -1,4 +1,4 @@
-// The value of a `datetime-local` input is a wall-clock time in the visitor's own time zone, to the minute:
+// The value of the date-time box (DateTimeInput, shaped like a `datetime-local` input's) is a wall-clock time in the visitor's own time zone, to the minute:
 // "2026-11-20T14:30". The backend takes and sends UTC (ADR 0005), so a period typed in a box is turned into
 // UTC on its way out, and a UTC time from the address is turned back into the box's local time.
 

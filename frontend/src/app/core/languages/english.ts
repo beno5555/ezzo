@@ -55,7 +55,7 @@ export const english = {
     adminUsers: 'Users',
     adminReports: 'Reports',
     adminModeration: 'Moderation queue',
-    adminLogs: 'Logs',
+    adminLogs: 'Audit',
     adminStatistics: 'Statistics',
     notFound: 'Page not found',
   },
@@ -165,6 +165,23 @@ export const english = {
       dayMonth: (day: number, month: string) => `${month} ${day}`,
       dayMonthYear: (day: number, month: string, year: number) => `${month} ${day}, ${year}`,
       dateAndTime: (date: string, time: string) => `${date}, ${time}`,
+    },
+    // The date-time picker (DateTimeInput): the weekday names, Sunday first, and the names its screen reader
+    // announcements use.
+    dateTimePicker: {
+      weekdaysLong: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+      weekdaysShort: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+      calendarLabel: 'Calendar',
+      previousMonth: 'Previous month',
+      nextMonth: 'Next month',
+      previousYears: 'Earlier years',
+      nextYears: 'Later years',
+      chooseMonth: 'Choose the month, now:',
+      chooseYear: 'Choose the year, now:',
+      hours: 'Hours',
+      minutes: 'Minutes',
+      // The box's description for screen readers: its value is chosen in the calendar, and Delete clears it.
+      clearHint: 'Press Delete to clear',
     },
     // The day of a moment, when it is today or yesterday (DateFormatter.day).
     days: {
@@ -514,8 +531,8 @@ export const english = {
       makeVisibleButton: 'Make visible',
     },
     logs: {
-      title: 'Logs',
-      filtersLabel: 'Log filters',
+      title: 'Audit',
+      filtersLabel: 'Audit filters',
       userIdLabel: 'User id',
       actionLabel: 'Action',
       entityNameLabel: 'Entity name',
@@ -530,27 +547,27 @@ export const english = {
       // The choices of the outcome filter.
       outcomes: { all: 'All', succeeded: 'Succeeded', failed: 'Failed' },
       requestLabel: 'Request',
-      // The choices of the signed-in filter, and the words a row shows for the same fact.
-      requests: { all: 'All', signedIn: 'Signed in', guest: 'Not signed in' },
+      // The choices of the authorized filter, and the words a row shows for the same fact.
+      requests: { all: 'All', authorized: 'Authorized', unauthorized: 'Unauthorized' },
       columns: {
         time: 'Time',
-        user: 'User id',
-        request: 'Request',
+        user: 'User',
         action: 'Action',
-        outcome: 'Outcome',
-        details: 'Details',
         entity: 'Entity',
+        outcome: 'Outcome',
       },
-      // Where a row has no value (a guest has no user id).
-      none: '—',
+      // The label of a row's details on a phone, where each row is a card.
+      detailsLabel: 'Details',
+      // A row's user: the id, as "#12".
+      userId: (id: number) => `#${id}`,
       // The name and the id of the entity a row is about.
       entity: (name: string | null, id: number | null) =>
         [name, id === null ? null : `#${id}`].filter((part) => part !== null).join(' '),
-      loading: 'Loading the logs…',
+      loading: 'Loading the audit…',
       loadingMore: 'Loading more rows…',
       retryButton: 'Try again',
       emptyTitle: 'No rows found',
-      emptyMessage: 'No log row matches these filters.',
+      emptyMessage: 'No audit row matches these filters.',
     },
     statistics: {
       title: 'Statistics',

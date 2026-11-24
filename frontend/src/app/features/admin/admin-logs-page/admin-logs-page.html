@@ -22,6 +22,7 @@
           min="1"
           step="1"
           formControlName="userId"
+          (input)="searchAfterTyping()"
         />
       </app-form-field>
       <app-form-field
@@ -37,6 +38,7 @@
           spellcheck="false"
           [maxlength]="actionMaxLength"
           formControlName="action"
+          (input)="searchAfterTyping()"
         />
       </app-form-field>
       <app-form-field
@@ -52,6 +54,7 @@
           spellcheck="false"
           [maxlength]="entityNameMaxLength"
           formControlName="entityName"
+          (input)="searchAfterTyping()"
         />
       </app-form-field>
       <app-form-field
@@ -67,6 +70,7 @@
           min="1"
           step="1"
           formControlName="entityId"
+          (input)="searchAfterTyping()"
         />
       </app-form-field>
     </div>
@@ -116,14 +120,27 @@
           [label]="text().admin.logs.fromLabel"
           [control]="form.controls.from"
         >
-          <input appTextInput id="log-from" type="datetime-local" formControlName="from" />
+          <input
+            appTextInput
+            appDateTimeInput
+            id="log-from"
+            formControlName="from"
+            (picked)="searchAfterTyping()"
+          />
         </app-form-field>
         <app-form-field
           fieldId="log-to"
           [label]="text().admin.logs.toLabel"
           [control]="form.controls.to"
         >
-          <input appTextInput id="log-to" type="datetime-local" formControlName="to" />
+          <input
+            appTextInput
+            appDateTimeInput
+            id="log-to"
+            defaultTime="23:59"
+            formControlName="to"
+            (picked)="searchAfterTyping()"
+          />
         </app-form-field>
       </div>
       <p class="text-sm text-ink-muted">{{ text().admin.logs.periodHint(timeZone) }}</p>
@@ -146,12 +163,14 @@
 
   @if (table(); as table) {
     @if (table.rows().length > 0) {
-      <div class="lg:overflow-x-auto">
+      <div
+        class="lg:overflow-x-auto lg:rounded-lg lg:border lg:border-border lg:bg-surface-raised lg:shadow-raised"
+      >
         <table class="block w-full text-start lg:table lg:text-sm">
-          <thead class="sr-only lg:not-sr-only lg:table-header-group">
+          <thead class="sr-only lg:not-sr-only lg:table-header-group lg:bg-surface-sunken">
             <tr class="lg:table-row">
               @for (name of columnNames; track name) {
-                <th scope="col" class="px-2 py-2 text-start text-sm font-semibold text-ink-muted">
+                <th scope="col" class="px-4 py-3 text-start text-sm font-semibold text-ink-muted">
                   {{ text().admin.logs.columns[name] }}
                 </th>
               }
@@ -159,76 +178,78 @@
           </thead>
           <tbody class="flex flex-col gap-3 lg:table-row-group">
             @for (row of table.rows(); track row.id) {
+              @let action = splitAction(row.action);
+              @let entity = text().admin.logs.entity(row.entityName, row.entityId);
               <tr
-                class="flex flex-col gap-2 rounded-lg border border-border bg-surface-raised p-4 shadow-raised lg:table-row lg:rounded-none lg:border-0 lg:border-b lg:bg-transparent lg:p-0 lg:shadow-none"
+                class="flex flex-col gap-2 rounded-lg border border-border bg-surface-raised p-4 shadow-raised lg:table-row lg:rounded-none lg:border-0 lg:border-t lg:bg-transparent lg:p-0 lg:shadow-none"
               >
-                <td
-                  class="flex flex-wrap gap-x-2 lg:table-cell lg:px-2 lg:py-3 lg:whitespace-nowrap"
-                >
+                <td class="flex flex-wrap gap-x-2 lg:table-cell lg:px-4 lg:py-3 lg:align-top">
                   <span class="min-w-24 text-sm text-ink-muted lg:hidden">{{
                     text().admin.logs.columns.time
                   }}</span>
-                  <span>{{ dates.time(row.createdAt) }}</span>
+                  <span class="lg:block lg:whitespace-nowrap">{{ dates.date(row.createdAt) }}</span>
+                  <span class="text-ink-muted lg:block lg:whitespace-nowrap">{{
+                    dates.clockTime(row.createdAt)
+                  }}</span>
                 </td>
-                <td class="flex flex-wrap gap-x-2 lg:table-cell lg:px-2 lg:py-3">
+                <td class="flex flex-wrap gap-x-2 lg:table-cell lg:px-4 lg:py-3 lg:align-top">
                   <span class="min-w-24 text-sm text-ink-muted lg:hidden">{{
                     text().admin.logs.columns.user
                   }}</span>
-                  <span>{{ row.userId ?? text().admin.logs.none }}</span>
-                </td>
-                <td
-                  class="flex flex-wrap gap-x-2 lg:table-cell lg:px-2 lg:py-3 lg:whitespace-nowrap"
-                >
-                  <span class="min-w-24 text-sm text-ink-muted lg:hidden">{{
-                    text().admin.logs.columns.request
-                  }}</span>
-                  <span>{{
+                  @if (row.userId !== null) {
+                    <span class="font-semibold text-ink-strong lg:block">{{
+                      text().admin.logs.userId(row.userId)
+                    }}</span>
+                  }
+                  <span class="text-ink-muted lg:block lg:text-sm lg:whitespace-nowrap">{{
                     row.authorizedRequest
-                      ? text().admin.logs.requests.signedIn
-                      : text().admin.logs.requests.guest
+                      ? text().admin.logs.requests.authorized
+                      : text().admin.logs.requests.unauthorized
                   }}</span>
                 </td>
-                <td class="flex flex-wrap gap-x-2 lg:table-cell lg:px-2 lg:py-3">
+                <td class="flex flex-wrap gap-x-2 lg:table-cell lg:px-4 lg:py-3 lg:align-top">
                   <span class="min-w-24 text-sm text-ink-muted lg:hidden">{{
                     text().admin.logs.columns.action
                   }}</span>
-                  <span class="min-w-0 flex-1 font-semibold wrap-anywhere text-ink-strong">{{
-                    row.action
-                  }}</span>
+                  <div class="min-w-0 flex-1 lg:max-w-md">
+                    <p class="font-semibold wrap-anywhere text-ink-strong">{{ action.method }}</p>
+                    @if (action.service !== null) {
+                      <p class="text-sm wrap-anywhere text-ink-muted">{{ action.service }}</p>
+                    }
+                    @if (row.details !== null) {
+                      <p class="mt-1 text-sm wrap-anywhere">
+                        <span class="text-ink-muted lg:hidden"
+                          >{{ text().admin.logs.detailsLabel }}: </span
+                        >{{ row.details }}
+                      </p>
+                    }
+                  </div>
                 </td>
                 <td
-                  class="flex flex-wrap gap-x-2 lg:table-cell lg:px-2 lg:py-3 lg:whitespace-nowrap"
-                >
-                  <span class="min-w-24 text-sm text-ink-muted lg:hidden">{{
-                    text().admin.logs.columns.outcome
-                  }}</span>
-                  <span
-                    class="font-semibold"
-                    [class]="row.succeeded ? 'text-success' : 'text-danger'"
-                    >{{
-                      row.succeeded
-                        ? text().admin.logs.outcomes.succeeded
-                        : text().admin.logs.outcomes.failed
-                    }}</span
-                  >
-                </td>
-                <td class="flex flex-wrap gap-x-2 lg:table-cell lg:max-w-md lg:px-2 lg:py-3">
-                  <span class="min-w-24 text-sm text-ink-muted lg:hidden">{{
-                    text().admin.logs.columns.details
-                  }}</span>
-                  <span class="min-w-0 flex-1 wrap-anywhere">{{
-                    row.details ?? text().admin.logs.none
-                  }}</span>
-                </td>
-                <td
-                  class="flex flex-wrap gap-x-2 lg:table-cell lg:px-2 lg:py-3 lg:whitespace-nowrap"
+                  class="flex-wrap gap-x-2 lg:table-cell lg:px-4 lg:py-3 lg:align-top"
+                  [class]="entity === '' ? 'hidden' : 'flex'"
                 >
                   <span class="min-w-24 text-sm text-ink-muted lg:hidden">{{
                     text().admin.logs.columns.entity
                   }}</span>
-                  <span class="min-w-0 flex-1">{{
-                    text().admin.logs.entity(row.entityName, row.entityId) || text().admin.logs.none
+                  <span class="min-w-0 flex-1 lg:whitespace-nowrap">{{ entity }}</span>
+                </td>
+                <td class="flex flex-wrap gap-x-2 lg:table-cell lg:px-4 lg:py-3 lg:align-top">
+                  <span class="min-w-24 text-sm text-ink-muted lg:hidden">{{
+                    text().admin.logs.columns.outcome
                   }}</span>
+                  <span
+                    class="inline-flex items-center gap-1.5 lg:whitespace-nowrap"
+                    [class]="row.succeeded ? 'text-ink-muted' : 'font-semibold text-danger'"
+                  >
+                    @if (row.succeeded) {
+                      <svg class="size-4 text-success" lucideCircleCheck aria-hidden="true"></svg>
+                      {{ text().admin.logs.outcomes.succeeded }}
+                    } @else {
+                      <svg class="size-4" lucideCircleX aria-hidden="true"></svg>
+                      {{ text().admin.logs.outcomes.failed }}
+                    }
+                  </span>
                 </td>
               </tr>
             }

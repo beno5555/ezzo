@@ -1,5 +1,6 @@
 /*
- * The global stylesheet: the cascade layer order, Tailwind, the design tokens and the fonts, and nothing else.
+ * The global stylesheet: the cascade layer order, Tailwind, the design tokens, the fonts and the date-time picker's
+ * calendar (which sits outside any component), and nothing else.
  * Component looks are Tailwind classes in the templates (see the Styling section of the conventions).
  */
 /*
@@ -15,6 +16,13 @@
  */
 @import 'tailwindcss' source('.');
 @import './design-tokens.css';
+
+/* The date-time picker's calendar: its layout and its light theme, then the app's colours over them. */
+@import 'vanilla-calendar-pro/styles/layout/core.css';
+@import 'vanilla-calendar-pro/styles/layout/time.css';
+@import 'vanilla-calendar-pro/styles/themes/light/core.css';
+@import 'vanilla-calendar-pro/styles/themes/light/time.css';
+@import './app/shared/date-time-input/calendar-theme.css';
 
 /* The fonts, served by the app itself: the build copies every file, so no font request leaves the origin. */
 @import '@fontsource/noto-sans/400.css';
