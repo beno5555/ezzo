@@ -10,9 +10,12 @@ The copies in `~/.claude/skills/` with the same names are **Windows directory ju
 
 ## Skills for Codex
 
-Codex does not read `.claude/skills/`. It finds skills in `.agents/skills/`, which holds **git symlinks** (mode `120000`) to the skills any agent may start on its own: `webcity-conventions`, `tdd`, `codebase-design`, `domain-modeling`, `frontend-design`, `spec-review`. The skills the owner starts (`disable-model-invocation: true`, and `grilling`) get no link, because Codex would offer them to itself.
+Codex discovers project skills through **Git symlinks** (mode `120000`) in `.agents/skills/`. Both harnesses use the same `SKILL.md` files under `.claude/skills/`.
 
-- `.claude/skills/` stays the only real copy. Edit a skill there.
+- Codex can select `webcity-conventions`, `tdd`, `codebase-design`, `domain-modeling`, `frontend-design` and `spec-review`.
+- Start the owner-invoked workflows with `$implement`, `$revise`, `$to-spec`, `$to-tickets`, `$handoff`, `$grill-with-docs`, `$grilling` or `$setup-matt-pocock-skills`. For example, type `$implement .scratch/<feature>/issues/<ticket>.md` in Codex. The Codex policy is `allow_implicit_invocation: false` in each skill's `agents/openai.yaml`. Claude Code uses its existing frontmatter and slash commands.
+- Follow `AGENTS.md` for Claude-specific steps in a shared skill, including the two passes in `spec-review`.
+
 - A Windows checkout needs `git config core.symlinks true` (and Windows Developer Mode, which is on). Without it, git writes each link as a small text file holding the path, and Codex finds no skills. Linux and cloud checkouts need nothing.
 - Add a link from the repo root with `MSYS=winsymlinks:nativestrict ln -s ../../.claude/skills/<name> .agents/skills/<name>`. Without the `MSYS` setting, Git Bash copies the folder instead of linking it. Remove a link with `git rm .agents/skills/<name>`, with no trailing slash.
 

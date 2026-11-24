@@ -11,7 +11,7 @@ This file is for agents other than Claude Code, such as OpenAI's Codex. Claude C
 
 ## Claude Code terms and what to do instead
 
-- **Skills:** `.agents/skills/` holds symlinks to the skills under `.claude/skills/` that any agent may use, so they are in your skills list. Never run any other skill there, even when `CLAUDE.md` or a ticket names it (`implement`, `revise`, `to-spec`, `to-tickets`, `handoff`, `grill-with-docs`, `grilling`, `setup-matt-pocock-skills`). Only the owner starts those.
+- **Skills:** Discover project skills through `.agents/skills/`, which links to their shared instructions in `.claude/skills/`. Only the owner starts an explicit-only workflow, using `$<skill-name>` in Codex. When an invoked workflow calls Claude Code's Skill tool, read the named linked skill and follow its instructions. An explicit invocation covers the steps of that workflow, including the grilling interview in `$grill-with-docs`.
 - **Subagents** (for example, the two parallel reviews in `spec-review`): do each part yourself, one after another.
 - **Claude in Chrome and the Playwright MCP server:** if you have no browser tool, use the screenshot command (`npm run screenshots` in `frontend/CLAUDE.md`). If neither exists, say the page was not checked in a browser. Never claim it was.
 - **`claude --worktree`:** a Codex lane makes its own worktree under `.claude/worktrees/` (steps in `docs/agents/codex.md`).
@@ -25,7 +25,7 @@ Claude Code keeps these in a memory you cannot read. They apply to you too.
 - **Push once, when a task is done**, not after every commit. Ordinary pushes only: force-pushes and history rewrites always need the owner.
 - **Never delete a branch, tag or remote ref** without asking the owner right before you do it, naming the exact refs. This holds even when the owner told you to earlier. Deleting ordinary files needs no prompt, but look at a file before you delete it.
 - **No pull requests from a local session:** in the main checkout, merge the finished branch into `master` with `git merge --no-ff`, run the checks `CLAUDE.md` asks for, then push. A lane in a worktree under `.claude/worktrees/` never merges: it ends with a clean trial merge (`docs/agents/worktrees.md`).
-- **Tickets are made only by the owner's `/to-tickets` run.** Never write a ticket file by hand. Put findings in your reply as input for `/to-tickets`.
+- **Tickets are made only when the owner invokes `/to-tickets` in Claude Code or `$to-tickets` in Codex.** Outside that workflow, put findings in your reply as input for it.
 - **When the owner asks "should I ...?", answer and stop.** Don't start the workflow yourself.
 - **When advice conflicts with a project document,** give both arguments and let the owner decide. A document does not win by default.
 - **Stop every browser and script you started** before you report, not only the servers `CLAUDE.md` names.
