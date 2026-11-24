@@ -94,3 +94,7 @@ ALTER TABLE Users ADD CONSTRAINT CK_User_DateOfBirth
 CREATE UNIQUE INDEX IX_Friendships_RequesterUserId_AddresseeUserId
     ON Friendships (RequesterUserId, AddresseeUserId);
 ```
+
+## n8n Code nodes (JavaScript)
+
+- **Small helpers are copied, not extracted** (owner, 2026-11-24). A Code node cannot import a shared file unless n8n is set up for external modules, which costs more than the copy. `escapeHtml`, `truncate`, the email wrapper and the moderation outcome and verdict names may therefore repeat across Code nodes and workflows, past the third use. Keep each copy identical to the others, so that a fix can be applied to all of them by search.

@@ -17,15 +17,15 @@ Decisions are under "n8n setup" and "The six workflows" in `.scratch/n8n-automat
 
 **Blocked by:** 01 (A failure in the backend leaves as a signed event)
 
-**Status:** in-progress
+**Status:** done
 
 **Difficulty:** tricky: nothing in the setup has been tried on a real n8n, the import and the signature check rest on unproven claims, and debugging is likely.
 
 - [x] From a clean start (no volume), one command brings n8n up with the workflow imported and published, and no click in n8n's interface
 - [x] A second start with the volume kept also succeeds
 - [x] After n8n's process dies (replaced `docker kill`, which Docker treats as a stop by hand: see Comments), Docker starts it again by itself, and the import service does not run twice
-- [ ] A request to the backend's throwing route produces one Telegram message in the developers' chat, with the type, the message, the place, the time and the stack lines readable
-- [ ] An exception whose text contains characters Telegram treats as markup (`_`, `*`, `<`) still arrives intact
+- [x] A request to the backend's throwing route produces one Telegram message in the developers' chat, with the type, the message, the place, the time and the stack lines readable
+- [x] An exception whose text contains characters Telegram treats as markup (`_`, `*`, `<`) still arrives intact
 - [x] A post to the webhook with a wrong signature, and one with none, gets `401` and sends no message
 - [x] From inside the container, the backend answers at the address in `.env` (proves `host.docker.internal` reaches a backend that listens on `localhost`)
 - [x] With n8n stopped, a failing request to the backend still gets its usual answer, and a `Log` row records the lost event
@@ -33,7 +33,7 @@ Decisions are under "n8n setup" and "The six workflows" in `.scratch/n8n-automat
 - [x] The credentials file is gitignored; `git status` shows no secret after the setup; the committed workflow file has a fixed id and no pinned data
 - [x] Each claim from the spec's "Nothing here was run against a real n8n" note is marked confirmed or replaced in this ticket's comments
 - [x] `CLAUDE.md` names the `n8n/` folder, its commands and what a session needs to run them; `README.md` and `docs/backend/automation.md` describe the setup
-- [ ] The owner ran the checklist on their machine
+- [x] The owner ran the checklist on their machine
 
 ## Known limits from ticket 01
 
@@ -68,3 +68,7 @@ Ticket 01 built the backend's sending side (`EventPublisher`, `docs/backend/auto
     - n8n's `/tmp` is emptied when the container restarts; the export script uses it only within one run.
   - **For the owner (ticket 02's checklist):** run `pwsh -File n8n/setup.ps1` in the main checkout (this lane wrote only its own worktree's gitignored files), put the bot token into `n8n/credentials.json` (`wcTelegramBot001`, `accessToken`) and the two chat ids into `n8n/.env`, run `docker compose -f n8n/compose.yaml up -d`, restart the backend, and run the checklist in `n8n/README.md`.
 - **2026-11-21, spec review (Claude, Opus 5.5).** Standards: no hard violations; fixed the unnamed conditions (`clean-workflow.js`, `setup.ps1`, `export-workflow.ps1`, the Code node), the placeholder pattern built twice and the index-read file lists in `setup.ps1`, `cut` renamed to `truncate`, the timezone written once (a YAML anchor). Spec: fixed the `compose.yaml` comment that still named `localhost:5678`; the README checklist gained the two setup steps the spec's Testing Decisions ask for (a clean start, the container reaching the backend), and `send-test-exception.ps1` gained `-Signature None` beside `Wrong`, so the owner can recheck the missing-header case. Kept, though no box asks for them: the test-event sender, `N8N_DIAGNOSTICS_ENABLED=false`, `TZ`, `disable_web_page_preview`, and the setup script creating the gitignored files and the encryption key. Rerun on n8n after the fixes: a clean start, an unchanged second setup run, `200`/`401`/`401` for a right, wrong and missing signature, the export round trip, and the container's call to a running backend.
+- **2026-11-24, the owner's checklist (owner, Claude).** The owner ran every step of the README's checklist: a clean start, the container reaching the backend, `api/dev/throw/7` delivering one readable message, and the markup test showing `_`, `*`, `<b>`, `&` and the backticks as plain text. n8n's run history confirms that a wrong and a missing signature end at "Answer 401" with no Telegram call. Done. Learned on the way:
+  - **Run `setup.ps1` in the folder that starts n8n,** not necessarily the main checkout, as the lane's comment above says. The compose file fixes the project name (`ezzo-n8n`), so every checkout shares one container and one volume. Setup in a second checkout generates a second encryption key, and `up -d` from there would make n8n refuse the volume. The second checkout was fixed by copying the first one's `n8n/.env`, `n8n/credentials.json` and the two automation sections of `appsettings.Development.json`. `n8n/README.md` now says this.
+  - **Telegram chat ids:** a private chat's id is the user's own id, and the bot can write there only after the user pressed Start. A group's id (negative) is the `chat.id` that `getUpdates` lists after a `/start` in the group; it changes to a `-100…` id if the group becomes a supergroup. `n8n/README.md` now says this.
+  - **A backend started on another port** (one was running with `--urls https://localhost:7202`) is unreachable at `WEBCITY_BACKEND_URL`: the container's check gave `ECONNREFUSED` until the backend ran on 7102 again.

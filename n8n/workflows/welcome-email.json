@@ -1,0 +1,221 @@
+{
+  "id": "wcWelcomeEmail01",
+  "name": "Welcome email",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "account-created",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4e01",
+      "name": "Event: account-created",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "9b6e2f41-3c7d-4e8a-b5f0-1d2c3e4f5a02"
+    },
+    {
+      "parameters": {
+        "action": "hmac",
+        "binaryData": true,
+        "binaryPropertyName": "data",
+        "type": "SHA256",
+        "dataPropertyName": "expectedSignature",
+        "encoding": "hex"
+      },
+      "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4e02",
+      "name": "Sign the raw body",
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "credentials": {
+        "crypto": {
+          "id": "wcSigningSecret1",
+          "name": "Ezzo event signing secret"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4e10",
+              "leftValue": "={{ $json.headers['x-webcity-signature'] ?? '' }}",
+              "rightValue": "={{ $json.expectedSignature }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4e03",
+      "name": "Signature matches?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "noData",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4e04",
+      "name": "Answer 200",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        660,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "noData",
+        "options": {
+          "responseCode": 401
+        }
+      },
+      "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4e05",
+      "name": "Answer 401",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        660,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Builds the welcome email for one account-created event (docs/backend/automation.md).\n// The text and the layout live here: change them in n8n and export the workflow, no backend change needed.\nconst escapeHtml = (text) =>\n  String(text ?? '')\n    .replaceAll('&', '&amp;')\n    .replaceAll('<', '&lt;')\n    .replaceAll('>', '&gt;')\n    .replaceAll('\"', '&quot;');\n\nconst productName = escapeHtml($env.WEBCITY_PRODUCT_NAME);\nconst frontendUrl = escapeHtml($env.WEBCITY_FRONTEND_URL);\n\nreturn $input.all().map((item) => {\n  const data = item.json.body.data;\n  const username = escapeHtml(data.username);\n  const html = [\n    '<div style=\"font-family: Arial, Helvetica, sans-serif; font-size: 16px; line-height: 1.5; color: #222;\">',\n    `<h2>Welcome to ${productName}, ${username}!</h2>`,\n    `<p>${productName} is a place to show what you make to friends and to people who share your hobby: post your work, comment on others, make friends and chat with them.</p>`,\n    `<p><a href=\"${frontendUrl}\">Open ${productName}</a> and make your first post.</p>`,\n    '</div>',\n  ].join('\\n');\n  return {\n    json: {\n      to: data.email,\n      subject: `Welcome to ${$env.WEBCITY_PRODUCT_NAME}`,\n      html,\n    },\n  };\n});\n"
+      },
+      "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4e06",
+      "name": "Write the email",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $env.WEBCITY_SENDER_NAME }} <{{ $env.WEBCITY_SENDER_EMAIL }}>",
+        "toEmail": "={{ $json.to }}",
+        "subject": "={{ $json.subject }}",
+        "emailFormat": "html",
+        "html": "={{ $json.html }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4e07",
+      "name": "Send the welcome email",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1100,
+        -100
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "wcSmtpAccount001",
+          "name": "Ezzo SMTP"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Event: account-created": {
+      "main": [
+        [
+          {
+            "node": "Sign the raw body",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sign the raw body": {
+      "main": [
+        [
+          {
+            "node": "Signature matches?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Signature matches?": {
+      "main": [
+        [
+          {
+            "node": "Answer 200",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Answer 401",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Answer 200": {
+      "main": [
+        [
+          {
+            "node": "Write the email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write the email": {
+      "main": [
+        [
+          {
+            "node": "Send the welcome email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

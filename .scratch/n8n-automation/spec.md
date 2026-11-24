@@ -17,7 +17,7 @@ The documentation sent to the academy (`webcity-documentation.md`) promises six 
 
 Add the **automation**: n8n, running in Docker beside the backend, with six workflows. The backend tells the automation what happened, as signed events. The automation acts through a small set of endpoints that only it can call, and through Telegram, email and OpenAI.
 
-- **AI moderation.** New and edited posts and comments, and the photos of a new post, are checked by OpenAI's moderation endpoint. Doubtful content becomes Flagged, clearly violating content becomes Hidden, and administrators get an alert either way.
+- **AI moderation.** New and edited posts and comments, and the photos of a new post, are checked by OpenAI's moderation endpoint, and what it catches is read again in context by a chat model, the AI judge. Doubtful content becomes Flagged, clearly violating content becomes Hidden, and administrators get an alert either way.
 - **Report handling.** Every new report raises an alert. A post or comment with five pending reports within 24 hours is hidden until an administrator decides.
 - **Welcome email.** A new account gets a welcome email.
 - **Weekly digest.** Once a week a user gets an email with their unread conversations, their pending friend requests and popular posts by their friends. A switch on the settings page turns it off.
@@ -219,6 +219,7 @@ The six emails the backend already sends (about passwords, reactivation and deac
 - **Welcome email** (`account-created`): one email from an HTML template.
 - **AI moderation** (`post-created`, `post-edited`, `comment-created`, `comment-edited`): the text goes to OpenAI's moderation endpoint in one call, and each photo in a call of its own, downloaded from the backend and sent as base64. The highest result decides.
   - Marked as violating by OpenAI: set Flagged. Any category score of 0.9 or more: set Hidden.
+  - **The AI judge** (added in ticket 06's revision, 2026-11-24): the classifier flagged negations and "`<country>` is bad". Content it flags or hides goes, with its photos and categories, to a chat model, which answers clean, doubtful or violating. The judge may confirm the classifier's outcome or lower it one step, never raise it. When its call fails (no credits left, any error), the classifier's outcome stands.
   - An edit cannot add photos, so an edit is checked on its text alone.
   - Content that arrives already Hidden is not checked.
   - Flagged or Hidden: an alert to the administrators' chat and an email to the administrator address, with the content, its author, the outcome and the categories.
@@ -277,7 +278,7 @@ The six emails the backend already sends (about passwords, reactivation and deac
 - **Nothing here was run against a real n8n.** The n8n facts come from its documentation and source at 2.47.7. The first slice exists to settle the unproven ones: import followed by publish in a compose service, the Crypto node's check of a raw body, `$env` in expressions, and reaching a backend that listens on `localhost` through `host.docker.internal`. If one fails, the slice finds the replacement before any other workflow is built on it.
   - **Settled by ticket 02 (2026-11-21), on n8n 2.47.7 in Docker Desktop:** all four confirmed. The import service runs `import:credentials`, `import:workflow --separate` (which leaves every workflow deactivated) and `publish:workflow --id` for each file, and n8n starts after it; a second start re-imports and publishes again. The Crypto node's HMAC of the webhook's raw binary data matches the backend's signature. `$env` works in expressions and in the Code node. `host.docker.internal:7102` reaches the backend; a call must ignore certificate problems (`DEPTH_ZERO_SELF_SIGNED_CERT` otherwise).
   - **Replaced:** the backend's address for n8n is `http://127.0.0.1:5678`, not `localhost` (n8n setup, above). And `restart: unless-stopped` brings n8n back after its process dies, but not after `docker kill`, which Docker treats as a stop by hand; the restart is tested by killing the process inside the container. Details in ticket 02's Comments and `n8n/README.md`.
-- **Not confirmed:** that OpenAI's moderation endpoint serves an account with no payment method, and that it refuses more than one photo per call. The workflow sends one photo per call either way.
+- **OpenAI, settled by ticket 06 (2026-11-24):** the owner's key is served (`200` for text, for one image, and for text with one image); whether that account has a payment method was not checked from the session. A call with two images is refused: `400`, `too_many_images`, "exceeds maximum of 1". The workflow sends one photo per call. Details in ticket 06's Comments.
 - **Needs from the owner:** the Telegram bot token and chat ids before the first slice; the OpenAI key before AI moderation; the administrator address; the SMTP account, which may be the one the backend uses.
 - **Deliberate differences from the documentation:**
   - Of the emails it lists under n8n, only the welcome email goes through n8n (ADR 0008).

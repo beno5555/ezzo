@@ -24,9 +24,9 @@ $PSNativeCommandUseErrorActionPreference = $true
 
 $composeFile = Join-Path $PSScriptRoot 'compose.yaml'
 $workflowsFolder = Join-Path $PSScriptRoot 'workflows'
-$exportedPath = '/tmp/webcity-export.json'
-$cleanPath = '/tmp/webcity-clean.json'
-$toolsFolder = '/opt/webcity-tools' # where compose.yaml mounts n8n/tools
+$exportedPath = '/tmp/ezzo-export.json'
+$cleanPath = '/tmp/ezzo-clean.json'
+$toolsFolder = '/opt/ezzo-tools' # where compose.yaml mounts n8n/tools
 
 $fileGiven = [bool] $File
 if (-not $fileGiven) {
