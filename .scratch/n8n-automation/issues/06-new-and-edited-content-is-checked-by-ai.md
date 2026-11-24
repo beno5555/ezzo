@@ -18,7 +18,7 @@ Decisions are under "The six workflows" and "Moderation by the automation" in `.
 
 **Blocked by:** 02 (n8n starts from the repository and sends that failure to Telegram), 03 (The automation calls the backend with its own key and can only raise a moderation status), 04 (The backend tells the automation about new accounts, content and reports)
 
-**Status:** in-progress
+**Status:** done
 
 **Difficulty:** tricky: three systems joined for the first time, an external API whose behaviour with photos is unconfirmed, and no test to catch a mistake.
 
@@ -46,7 +46,7 @@ No test catches a broken workflow, so this ticket is proven by running it, and t
 - [x] The two unconfirmed points about OpenAI are recorded as confirmed or corrected in this ticket's comments
 - [x] Content the classifier catches but the judge finds clean (a negation) is not flagged; a judge that cannot answer leaves the classifier's outcome
 - [x] The workflow file is committed with a fixed id and no pinned data; the README's checklist is written
-- [ ] The owner ran the checklist on their machine
+- [x] The owner ran the checklist on their machine
 
 ## Known limits from ticket 01
 
@@ -142,4 +142,5 @@ Ticket 01 built the backend's sending side (`EventPublisher`, `docs/backend/auto
       - The judge rule stays stated in the ticket, the spec and the README: the ticket and the spec hold the decision, and the README holds the operation.
   - **Open:** the shared-module decision from the build comment, which now also covers the verdict names.
   - **For the owner:** publish a post titled `Test` with `I would never say I hope you get hit by a bus.`: it stays visible, stays out of the moderation queue, and sends no alert. That run ticks the last box and closes the ticket.
-  - **Branch:** `worktree-n8n`, pushed; the trial merge result is in the chat report.
+  - **Branch:** `worktree-n8n`, pushed; the trial merge against `origin/master` (`aa6dbc3`) was clean.
+  - **The owner's run of the judge (2026-11-24):** the cleared text stayed visible and sent nothing. "I really hope you get hit by a bus. (not really, I'm just kidding. I'd never say that)" is still flagged; the owner accepts it: a wish of harm with a disclaimer is for a moderator to see, and Flagged leaves it visible. The ticket is done.
