@@ -3,7 +3,16 @@
     <!-- On a phone the name goes under the picture, on the full row, so a long name is not broken into a
          narrow column beside the large picture; from md: up it sits beside it. -->
     <div class="flex flex-wrap items-start gap-x-4 gap-y-3 md:flex-nowrap">
-      <app-avatar [userId]="user().id" [username]="user().username" [size]="AvatarSize.Large" />
+      <span class="relative flex shrink-0">
+        <app-avatar [userId]="user().id" [username]="user().username" [size]="AvatarSize.Large" />
+        @if (presence.dot(); as dot) {
+          <app-presence-dot
+            class="absolute end-1.5 bottom-1.5"
+            [lastActiveAt]="dot.lastActiveAt"
+            [showsAwayTime]="false"
+          />
+        }
+      </span>
 
       <div class="order-last flex w-full min-w-0 flex-col gap-1 md:order-none md:w-auto md:flex-1">
         <h1 class="font-display text-2xl text-ink-strong wrap-anywhere">{{ user().username }}</h1>

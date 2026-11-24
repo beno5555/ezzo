@@ -4,6 +4,7 @@ import { AppResult, fail, ok } from '../../core/http/app-result';
 import { english } from '../../core/languages/english';
 import { SessionStore } from '../../core/session/session-store';
 import { PreviewAddressMaker } from '../../shared/photos/preview-address-maker';
+import { ToastLook } from '../../shared/toasts/toast-look';
 import { ToastStore } from '../../shared/toasts/toast-store';
 import { NewPost } from './new-post';
 import { NewPostStore } from './new-post-store';
@@ -134,7 +135,13 @@ describe('NewPostStore', () => {
     expect(shown).toEqual([serverCopy(12, 'Sunday at the lake')]);
     expect(previews.released).toEqual(['blob:lake.jpg', 'blob:map.png']);
     expect(toastStore.visible()).toEqual([
-      { id: expect.any(Number), message: english.posts.composer.publishedToast, link: '/posts/12' },
+      {
+        id: expect.any(Number),
+        message: english.posts.composer.publishedToast,
+        link: '/posts/12',
+        look: ToastLook.Success,
+        person: null,
+      },
     ]);
   });
 
@@ -157,6 +164,8 @@ describe('NewPostStore', () => {
         id: expect.any(Number),
         message: 'Image lake.jpg is not a supported image',
         link: '/posts/new',
+        look: ToastLook.Failure,
+        person: null,
       },
     ]);
     expect(store.takeReturned()).toEqual(written);

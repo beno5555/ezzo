@@ -128,12 +128,13 @@ export const english = {
     },
     toasts: {
       regionLabel: 'Notifications',
-      // The live toasts (core/hub/live-toast-store). preview is the start of a message, or messages.list.photo.
+      // The live toasts (core/hub/live-toast-store). The toast shows the person's name above these lines, as
+      // its own highlighted line, so none of them holds the name. A message toast's line is the start of
+      // the message, or messages.list.photo.
       live: {
-        message: (name: string, preview: string) => `${name}: ${preview}`,
-        comment: (name: string) => `${name} commented on your post`,
-        like: (name: string) => `${name} liked your post`,
-        online: (name: string) => `${name} is online`,
+        comment: 'commented on your post',
+        like: 'liked your post',
+        online: 'is online',
       },
     },
     // Whether a friend is online, or when they last were (shared/presence-label, shared/presence-dot).
@@ -556,6 +557,7 @@ export const english = {
         emptyTitle: 'No posts yet',
         emptyMessage: 'Posts written by this user show up here.',
         emptyOwnMessage: 'Posts you write show up here.',
+        writeButton: 'Write a post',
         retryButton: 'Try again',
       },
       friends: {
@@ -587,6 +589,7 @@ export const english = {
       heading: 'Friends',
       tabsLabel: 'Friend lists',
       myFriendsTab: 'My friends',
+      findFriendsButton: 'Find friends',
       incomingTab: 'Requests',
       sentTab: 'Sent',
       retryButton: 'Try again',
@@ -665,6 +668,8 @@ export const english = {
     page: {
       // The link above a post and above the composer that leads back to the feed.
       backLink: 'Back',
+      // The same link when the composer was opened from the user's own profile.
+      backToProfileLink: 'Back to your profile',
       loading: 'Loading the post…',
       retryButton: 'Try again',
     },

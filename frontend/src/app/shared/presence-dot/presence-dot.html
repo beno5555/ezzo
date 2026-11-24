@@ -4,7 +4,7 @@
     class="size-3.5 rounded-full bg-success ring-2 ring-surface-raised"
     aria-hidden="true"
   ></span>
-} @else if (awayFor(); as away) {
+} @else if (showsAwayTime() && awayFor(); as away) {
   <span
     class="flex h-4.5 min-w-4.5 items-center justify-center rounded-full bg-ink-muted px-1 text-xs font-semibold text-surface-raised ring-2 ring-surface-raised"
     aria-hidden="true"

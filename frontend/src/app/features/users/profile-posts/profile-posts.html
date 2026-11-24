@@ -1,4 +1,25 @@
+<ng-template #writeButton let-extraClass>
+  <a
+    appButton
+    look="primary"
+    [class]="extraClass"
+    [routerLink]="newPostAddress"
+    [state]="profileOrigin"
+  >
+    <svg class="size-5" lucidePlus aria-hidden="true"></svg>
+    {{ text().users.profile.posts.writeButton }}
+  </a>
+</ng-template>
+
 <div class="flex flex-col gap-6">
+  <!-- The writer's own profile has the feed's button at the top end of the list; a profile with no posts has
+       it under the empty message instead, so the page never shows two. -->
+  @if (isOwn() && isListShown()) {
+    <div class="flex justify-end">
+      <ng-container *ngTemplateOutlet="writeButton; context: { $implicit: '' }" />
+    </div>
+  }
+
   @if (isListShown()) {
     <ul class="flex flex-col gap-4">
       @for (post of pendingPosts(); track post.id) {
@@ -52,6 +73,9 @@
           [headingLevel]="3"
         >
           <svg class="size-8 text-ink-muted" lucideNewspaper aria-hidden="true"></svg>
+          @if (isOwn()) {
+            <ng-container *ngTemplateOutlet="writeButton; context: { $implicit: 'mt-2' }" />
+          }
         </app-empty-state>
       }
     }

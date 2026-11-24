@@ -1,5 +1,7 @@
 import { signal } from '@angular/core';
 import { TestBed } from '@angular/core/testing';
+import { ToastLook } from '../../shared/toasts/toast-look';
+import { ToastPerson } from '../../shared/toasts/toast-person';
 import { ToastStore } from '../../shared/toasts/toast-store';
 import { FriendPresence } from '../../features/friendships/friend-presence';
 import { PresenceStore } from '../../features/friendships/presence-store';
@@ -14,6 +16,7 @@ import { LiveToastStore } from './live-toast-store';
 const fiveMinutes = 5 * 60 * 1000;
 
 const alice: FriendPresence = { id: 3, username: 'alice', lastActiveAt: null };
+const aliceAsPerson: ToastPerson = { id: alice.id, username: alice.username };
 
 function pushed(overrides: Partial<PushMessageDto> = {}): PushMessageDto {
   return {
@@ -33,8 +36,13 @@ describe('LiveToastStore', () => {
   let liveToastStore: LiveToastStore;
   let toastStore: ToastStore;
 
-  function shownToasts(): { message: string; link: string | null }[] {
-    return toastStore.visible().map(({ message, link }) => ({ message, link }));
+  function shownToasts() {
+    return toastStore.visible().map(({ message, link, look, person }) => ({
+      message,
+      link,
+      look,
+      person,
+    }));
   }
 
   beforeEach(() => {
@@ -64,7 +72,14 @@ describe('LiveToastStore', () => {
     it('shows the friend and the start of the message, and opens that conversation', () => {
       liveToastStore.messageReceived(pushed());
 
-      expect(shownToasts()).toEqual([{ message: 'alice: Hello there', link: '/messages/alice' }]);
+      expect(shownToasts()).toEqual([
+        {
+          message: 'Hello there',
+          link: '/messages/alice',
+          look: ToastLook.Message,
+          person: aliceAsPerson,
+        },
+      ]);
     });
 
     it('shows no toast for the conversation that is open', () => {
@@ -102,12 +117,12 @@ describe('LiveToastStore', () => {
 
       liveToastStore.messageReceived(pushed({ content: '', images }));
 
-      expect(shownToasts()).toEqual([{ message: 'alice: Photo', link: '/messages/alice' }]);
+      expect(shownToasts()[0]).toMatchObject({ message: 'Photo', link: '/messages/alice' });
 
       toastStore.dismiss(toastStore.visible()[0].id);
       liveToastStore.messageReceived(pushed({ id: 2, content: '  \n ', images }));
 
-      expect(shownToasts()).toEqual([{ message: 'alice: Photo', link: '/messages/alice' }]);
+      expect(shownToasts()[0]).toMatchObject({ message: 'Photo', link: '/messages/alice' });
     });
 
     it('shows the text of a message that has photos too', () => {
@@ -115,7 +130,7 @@ describe('LiveToastStore', () => {
 
       liveToastStore.messageReceived(pushed({ content: 'Look at this', images }));
 
-      expect(shownToasts()[0].message).toBe('alice: Look at this');
+      expect(shownToasts()[0].message).toBe('Look at this');
     });
 
     it('shortens a long message and puts its lines on one line', () => {
@@ -123,7 +138,7 @@ describe('LiveToastStore', () => {
 
       const { message } = shownToasts()[0];
 
-      expect(message.startsWith('alice: first second xxx')).toBe(true);
+      expect(message.startsWith('first second xxx')).toBe(true);
       expect(message.endsWith('…')).toBe(true);
       expect(message.length).toBeLessThan(100);
     });
@@ -145,12 +160,34 @@ describe('LiveToastStore', () => {
     it('shows who commented and opens the post', () => {
       liveToastStore.commentReceived({
         id: 5,
+        authorId: 4,
         authorUsername: 'bob',
         content: 'Nice',
         postId: 12,
       });
 
-      expect(shownToasts()).toEqual([{ message: 'bob commented on your post', link: '/posts/12' }]);
+      expect(shownToasts()).toEqual([
+        {
+          message: 'commented on your post',
+          link: '/posts/12',
+          look: ToastLook.Comment,
+          person: { id: 4, username: 'bob' },
+        },
+      ]);
+    });
+  });
+
+  describe('a comment from an account that is gone', () => {
+    it('shows no toast, as it has no picture to show', () => {
+      liveToastStore.commentReceived({
+        id: 5,
+        authorId: null,
+        authorUsername: 'account_deleted',
+        content: 'Nice',
+        postId: 12,
+      });
+
+      expect(shownToasts()).toEqual([]);
     });
   });
 
@@ -162,7 +199,24 @@ describe('LiveToastStore', () => {
         likeCount: 3,
       });
 
-      expect(shownToasts()).toEqual([{ message: 'bob liked your post', link: '/posts/12' }]);
+      expect(shownToasts()).toEqual([
+        {
+          message: 'liked your post',
+          link: '/posts/12',
+          look: ToastLook.Like,
+          person: { id: 4, username: 'bob' },
+        },
+      ]);
+    });
+
+    it('shows no toast for a like from an account that is gone', () => {
+      liveToastStore.postLiked({
+        postId: 12,
+        likedBy: { id: null, username: 'account_deleted' },
+        likeCount: 3,
+      });
+
+      expect(shownToasts()).toEqual([]);
     });
   });
 
@@ -170,7 +224,14 @@ describe('LiveToastStore', () => {
     it('shows the friend`s name and that they are online, and opens their conversation', () => {
       liveToastStore.friendOnline(alice.id);
 
-      expect(shownToasts()).toEqual([{ message: 'alice is online', link: '/messages/alice' }]);
+      expect(shownToasts()).toEqual([
+        {
+          message: 'is online',
+          link: '/messages/alice',
+          look: ToastLook.Online,
+          person: aliceAsPerson,
+        },
+      ]);
     });
 
     it('shows nothing for a friend whose name the presence store does not hold', () => {
@@ -192,7 +253,11 @@ describe('LiveToastStore', () => {
       liveToastStore.friendOnline(alice.id);
 
       expect(show).toHaveBeenCalledTimes(2);
-      expect(show).toHaveBeenLastCalledWith('alice is online', '/messages/alice');
+      expect(show).toHaveBeenLastCalledWith('is online', {
+        link: '/messages/alice',
+        look: ToastLook.Online,
+        person: aliceAsPerson,
+      });
     });
 
     it('counts the 5 minutes from the last toast, not from the last event', () => {
@@ -214,10 +279,7 @@ describe('LiveToastStore', () => {
       liveToastStore.friendOnline(alice.id);
       liveToastStore.friendOnline(bob.id);
 
-      expect(shownToasts().map(({ message }) => message)).toEqual([
-        'alice is online',
-        'bob is online',
-      ]);
+      expect(shownToasts().map(({ person }) => person?.username)).toEqual(['alice', 'bob']);
     });
 
     it('forgets the times on sign-out', () => {
@@ -231,22 +293,40 @@ describe('LiveToastStore', () => {
     });
   });
 
+  describe('sign-out', () => {
+    it('takes down the toasts still on screen, so a message does not show over the next screen', () => {
+      liveToastStore.messageReceived(pushed());
+      liveToastStore.postLiked({ postId: 12, likedBy: { id: 4, username: 'bob' }, likeCount: 3 });
+      expect(shownToasts()).toHaveLength(2);
+
+      liveToastStore.clear();
+
+      expect(shownToasts()).toEqual([]);
+    });
+  });
+
   it('writes every toast in the language in use', () => {
     language.set('ka');
 
     liveToastStore.messageReceived(
       pushed({ content: '', images: [{ id: 1, address: '', orderIndex: 0 }] }),
     );
-    liveToastStore.commentReceived({ id: 5, authorUsername: 'bob', content: 'Nice', postId: 12 });
+    liveToastStore.commentReceived({
+      id: 5,
+      authorId: 4,
+      authorUsername: 'bob',
+      content: 'Nice',
+      postId: 12,
+    });
     liveToastStore.postLiked({ postId: 12, likedBy: { id: 4, username: 'bob' }, likeCount: 3 });
 
     const texts = shownToasts().map(({ message }) => message);
 
     expect(texts).toEqual([
-      georgian.shared.toasts.live.message('alice', georgian.messages.list.photo),
-      georgian.shared.toasts.live.comment('bob'),
-      georgian.shared.toasts.live.like('bob'),
+      georgian.messages.list.photo,
+      georgian.shared.toasts.live.comment,
+      georgian.shared.toasts.live.like,
     ]);
-    expect(texts).not.toContain(english.shared.toasts.live.comment('bob'));
+    expect(texts).not.toContain(english.shared.toasts.live.comment);
   });
 });

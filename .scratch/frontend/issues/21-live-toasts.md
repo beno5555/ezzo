@@ -60,3 +60,46 @@ Decisions are under "Toasts" in `.scratch/frontend/spec.md`. Events and payloads
 **Screenshots:** `.scratch/frontend/shots/21/` in the main checkout (`toasts-desktop.png`: three toasts at about 800 px; `toasts-phone-ka.png`: Georgian at 360 px).
 
 **Branch.** `worktree-live-toasts`, committed, not pushed, waiting for the owner's review (visual work). A lane does not merge; the roadmap and review queue are left for the merge.
+
+**2026-11-24, round 2: revision (Sonnet 5.5).** Fixed point: `ee19655`.
+
+Owner's decisions:
+- **Toasts animate in:** a toast slides in from its corner (or emerges slowly), instead of appearing at once.
+- **Toasts say what they are by looking:** the person's avatar, the name highlighted, a green bubble for an online friend and for a message, a distinct mark for a comment and for a like. About 90 % of the time the user should know what a toast says without reading it. The same holds for the other toasts (failures, uploads), and every toast keeps being a link where it is one.
+- **A friend's profile shows their presence:** on another user's profile, when they are a friend, a green dot while online, a grey dot after a recent visit (no minutes, no sentence), and no dot when they were last active too long ago.
+- **Toasts clear on sign-out** (open decision 1: `ToastStore.clear()` on sign-out).
+- **Open decisions 2 and 3 stay as they are.**
+- **Tests favour the dark theme** (about 80 % dark, 20 % light), written in the docs where tests and screenshots are described.
+- **Also asked, not part of this ticket:** a "Write a post" button on the own profile (under the empty "no posts yet" message, and at the top right when there are posts, as in the feed, with the back button leading back to the profile); the same kind of button on the friends page leading to the search; a look at the occasional wrong active indicator with two tabs in one browser; a reminder of the like delay (1 second, `likeSendDelayMilliseconds`).
+- **Trial merge** when everything is settled.
+
+**Built (round 2).**
+- **Look.** A toast about a person shows their avatar (the disc colour follows their id), their name in `ink-strong` semibold on its own line, and the news in muted text under it. A small badge on the avatar says what kind: a green dot for a friend who came online, an `accent` badge with a speech icon for a message and another for a comment, a `danger` badge with a heart for a like. A toast about no one shows an icon disc: a check (success), a cloud (uploading), an exclamation mark (failure). A link toast ends in a chevron. `ToastLook` is on every `show()` (failure by default); the success toasts of the app (published, saved, deleted, copied, sent, created) say `Success`.
+- **Slide-in.** 300 ms: down from the top edge on a phone, in from the end edge from `md:`; none under reduce motion (tokens in `design-tokens.css`; the motion rule's exception is in `DESIGN.md`).
+- **Sign-out** clears every toast (`LiveToastStore.clear` calls `ToastStore.clear`). An upload that was under way at sign-out no longer shows its outcome over the sign-in page.
+- **Profile dot.** `ProfilePresenceStore` (provided by the profile) reads a friend's presence once and keeps it through `PresenceStore`: green while online, grey within a day of the last visit, nothing after. No words.
+- **Write a post** on the own profile: under "No posts yet", and at the top right when there are posts. The page it opens leads back one step in the history when it came from the profile (link, and a sent post alike), so the back button never shows the profile twice. **Find friends** on the friends page leads to `/search`; the empty state got no second button, to keep one primary button per screen.
+- **Backend (one line, for the avatar):** `NotifyCommentDto` gained `AuthorId` (`int?`), set by `CommentMapper.ToNotification`.
+
+**Departures (round 2).**
+- A live **comment, like or message from an account that no longer exists shows no toast** (the avatar needs an id; a message from one already showed none). The backend change above is the only one.
+- **The message badge is `accent` blue, not green:** the owner's words read as a green dot for an online friend; green stays for that alone, so the two never look alike. A comment and a message differ by their icon only; see the open decisions.
+- **Georgian:** the name now stands on its own line, so the ending "-მა" ("[name]-მა დააკომენტარა") is gone from the Georgian texts: "შენს პოსტზე დააკომენტარა", "შენი პოსტი მოიწონა".
+
+**Checks (round 2).** `npm test` 880 passed (7 s); `npm run lint` clean; Prettier on every changed file clean; `npm run build` passes (only the old 600 kB budget warning, 756 kB). Backend: build 0 warnings, `dotnet test aspnetproject.IntegrationTests` 898 of 898 passed (`Duration: 36 s`); nothing backend changed after that run except comments and docs.
+
+**Review (Opus 5.5).** Severe and fixed: *a second person's toast was dropped* (the de-duplication compared message and link only, so a like by a second user on the same post within 5 s was skipped; it now compares the person too); *an upload's outcome showed on the sign-in page after sign-out*; *a late presence read could bring the dot back after the friend was removed*; *a sent post could be lost if the step back was cancelled* (`goBack` now ends on any navigation outcome). Tidy-ups fixed: `toast.ts` split to one type per file, `ProfilePresence` renamed `ProfilePresenceStore` and its type inlined, a named boolean in `postLiked`, the profile's two identical buttons made one template, the motion exceptions reworded in `DESIGN.md` and `typescript.md`, the `AuthorId` docs corrected (null only when the account no longer exists; a deactivated account keeps its id), import order, a fire-and-forget comment. Left alone: the feed's third "Write a post" copy (different layout: pinned and floating, not the same block); the repeated `writeButton` dictionary text; four `ToastLook` branches in the toast list (a map and three small switches over a closed set); `text-on-accent` on the danger badge (the token pair has the right contrast in both themes); a DOM spec for the toast list (five DOM specs already exist).
+
+**Occasional wrong active indicator.** Worth knowing, not worth a fix now. In one browser two tabs share one stored session, so signing in as a second account in the second tab changes who the first tab acts as after its next token refresh, and presence follows the account, not the tab: that looks like a flicker. One real race exists too: a page reload closes the old connection and opens a new one, and if the offline write (`LastOnlineAt = now`) lands after the online write (`null`), the user stays "offline" while connected until their next reconnect. It needs the two database writes to cross within milliseconds, so it is rare. Sketch of a fix if it ever matters: `PresenceService` stamps offline only if no connection exists when the write runs.
+
+**Like delay (reminder):** 1 second, `likeSendDelayMilliseconds = 1000` in `post-like-store.ts`: the server hears of a click one second after the last click on that post.
+
+**Open decisions.**
+- *Message vs comment badge:* both are blue with a speech icon (a circle, and a square with lines). I judge them different enough; say if you want the comment in another colour or shape.
+- *The profile's Friends tab* has no "Find friends" button; only the friends page does.
+
+**Not checked:** the Georgian texts on screen this round (unit-tested), 768 px, the sign-out clearing in the running app (unit-tested), the grey dot's disappearance after a day (unit-tested; the dev data holds no such friend). Checked in the running app: the online, message, comment and like toasts and their slide-in at 1280 px dark and at 360 px light; the published toast; the profile dot green and grey (dark, 1280); the own profile's button with and without posts (360 and 1280, dark); the back button from the profile (link, sent post, the browser's Back); the friends page at 360 dark and its button to `/search`. About 80 % of the pictures are dark.
+
+**Screenshots:** `.scratch/frontend/shots/21/` in the main checkout, the `r2-*` files (round 1's two images stay).
+
+**Branch.** `worktree-live-toasts`, committed and pushed at the end of this round; trial merge against `origin/master` reported in the chat. The two throwaway accounts (`tca_r27107`, `tcb_r27107`, ids 1389 and 1390) and two posts stay in the dev database.

@@ -1,4 +1,14 @@
-import { Component, OnInit, computed, inject, input, linkedSignal, signal } from '@angular/core';
+import {
+  Component,
+  OnInit,
+  computed,
+  effect,
+  inject,
+  input,
+  linkedSignal,
+  signal,
+  untracked,
+} from '@angular/core';
 import { RouterLink } from '@angular/router';
 import { LucideCake, LucideMessageCircle, LucideSettings } from '@lucide/angular';
 import { DateFormatter } from '../../../core/languages/date-formatter';
@@ -12,6 +22,7 @@ import { ButtonLook } from '../../../shared/button/button-look';
 import { LoadFailure } from '../../../shared/load-failure/load-failure';
 import { Menu } from '../../../shared/menu/menu';
 import { MenuEntry } from '../../../shared/menu/menu-entry';
+import { PresenceDot } from '../../../shared/presence-dot/presence-dot';
 import { Tab } from '../../../shared/tabs/tab';
 import { panelId, tabId } from '../../../shared/tabs/tab-ids';
 import { Tabs } from '../../../shared/tabs/tabs';
@@ -25,6 +36,7 @@ import { ReportTargetType } from '../../reports/report-target-type';
 import { ProfileFriends } from '../profile-friends/profile-friends';
 import { ProfilePosts } from '../profile-posts/profile-posts';
 import { StandardUserDto } from '../standard-user-dto';
+import { ProfilePresenceStore } from './profile-presence-store';
 import { ProfileTab } from './profile-tab';
 
 // One user's profile: the header (picture, username, birthday as a day and a month, bio), the buttons for
@@ -32,7 +44,8 @@ import { ProfileTab } from './profile-tab';
 //   - a guest: the header and the posts, read-only, with nothing where the buttons go and no Friends tab;
 //   - the user on their own profile: a link to the settings where another profile has the friendship button;
 //   - a signed-in user on someone else's: the friendship button for the relationship the backend reports
-//     (RelationshipStore), a Message button for a friend, and a "…" menu with Report.
+//     (RelationshipStore), a Message button for a friend, and a "…" menu with Report. A friend also has a dot
+//     on their picture: green while online, grey for a day after, none after that (ProfilePresenceStore).
 // The posts and the friends are lists of their own components. The Friends tab loads when it is first opened
 // and stays, hidden, while another tab is shown, so a switch back does not load again.
 @Component({
@@ -42,6 +55,7 @@ import { ProfileTab } from './profile-tab';
     Button,
     LoadFailure,
     Menu,
+    PresenceDot,
     ProfileFriends,
     ProfilePosts,
     RouterLink,
@@ -50,7 +64,7 @@ import { ProfileTab } from './profile-tab';
     LucideMessageCircle,
     LucideSettings,
   ],
-  providers: [RelationshipStore],
+  providers: [ProfilePresenceStore, RelationshipStore],
   templateUrl: './profile-view.html',
   styleUrl: './profile-view.css',
 })
@@ -60,6 +74,7 @@ export class ProfileView implements OnInit {
   private readonly sessionStore = inject(SessionStore);
   private readonly reportOpener = inject(ReportOpener);
   protected readonly relationships = inject(RelationshipStore);
+  protected readonly presence = inject(ProfilePresenceStore);
   protected readonly text = inject(LanguageStore).text;
   protected readonly dateFormatter = inject(DateFormatter);
   protected readonly AvatarSize = AvatarSize;
@@ -107,6 +122,24 @@ export class ProfileView implements OnInit {
         ]
       : [];
   });
+
+  constructor() {
+    // A friend's presence is read once the relationship says friend, and dropped when it stops: a request
+    // accepted or a friend removed on this profile changes the dot at once.
+    effect(() => {
+      const isFriend = this.relationships.isFriend();
+      const friendId = this.user().id;
+
+      untracked(() => {
+        if (isFriend) {
+          // Fire and forget: the read cannot fail the profile, and the dot appears when it answers.
+          void this.presence.watch(friendId);
+        } else {
+          this.presence.forget();
+        }
+      });
+    });
+  }
 
   async ngOnInit(): Promise<void> {
     if (this.hasFriendshipButton()) {

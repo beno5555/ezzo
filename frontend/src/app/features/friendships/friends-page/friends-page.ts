@@ -1,5 +1,9 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
+import { RouterLink } from '@angular/router';
+import { LucideSearch } from '@lucide/angular';
 import { LanguageStore } from '../../../core/languages/language-store';
+import { appAddresses } from '../../../core/routing/app-addresses';
+import { Button } from '../../../shared/button/button';
 import { Tab } from '../../../shared/tabs/tab';
 import { panelId, tabId } from '../../../shared/tabs/tab-ids';
 import { Tabs } from '../../../shared/tabs/tabs';
@@ -18,7 +22,7 @@ import { StandardFriendshipDto } from '../standard-friendship-dto';
 // (FriendsPageStore). The count and the incoming list do not update live (spec, "Last in line").
 @Component({
   selector: 'app-friends-page',
-  imports: [FriendList, Tabs],
+  imports: [Button, FriendList, RouterLink, Tabs, LucideSearch],
   providers: [FriendsPageStore],
   templateUrl: './friends-page.html',
   styleUrl: './friends-page.css',
@@ -31,6 +35,7 @@ export class FriendsPage implements OnInit {
   protected readonly tabIdOf = tabId;
   protected readonly panelIdOf = panelId;
   protected readonly tabsIdPrefix = 'friends';
+  protected readonly searchAddress = appAddresses.search;
   protected readonly FriendsTab = FriendsTab;
   // The buttons each list offers on a row (My friends also has Message, which is a link).
   protected readonly actionsOfTab: Record<FriendsTab, readonly FriendshipAction[]> = {

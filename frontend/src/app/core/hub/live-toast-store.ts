@@ -1,5 +1,6 @@
 import { Injectable, computed, inject } from '@angular/core';
 import { Router } from '@angular/router';
+import { ToastLook } from '../../shared/toasts/toast-look';
 import { ToastStore } from '../../shared/toasts/toast-store';
 import { NotifyCommentDto } from '../../features/comments/notify-comment-dto';
 import { PresenceStore } from '../../features/friendships/presence-store';
@@ -40,38 +41,52 @@ export class LiveToastStore {
 
   // ReceiveMessage. A message from an account that is gone has no conversation to open, so it shows nothing.
   messageReceived(pushed: PushMessageDto): void {
-    const { sender } = pushed;
-    const canOpen = sender.id !== null;
+    const { id, username } = pushed.sender;
+    const canOpen = id !== null;
 
-    if (canOpen && !this.isOpen(sender.id, sender.username)) {
-      const labels = this.labels();
+    if (canOpen && !this.isOpen(id, username)) {
       const preview = previewOf(
         pushed.content,
         pushed.images.length > 0,
         this.text().messages.list.photo,
       );
 
-      this.toastStore.show(
-        labels.message(sender.username, preview),
-        this.addressOf(appAddresses.conversation(sender.username)),
-      );
+      this.toastStore.show(preview, {
+        link: this.addressOf(appAddresses.conversation(username)),
+        look: ToastLook.Message,
+        person: { id, username },
+      });
     }
   }
 
-  // ReceiveComment: someone commented on the user's post.
+  // ReceiveComment: someone commented on the user's post. A comment from an account that is gone has no
+  // picture to show, like a message from one, so it shows nothing.
   commentReceived(comment: NotifyCommentDto): void {
-    this.toastStore.show(
-      this.labels().comment(comment.authorUsername),
-      this.addressOf(appAddresses.post(comment.postId)),
-    );
+    const { authorId, authorUsername } = comment;
+    const hasAuthor = authorId !== null;
+
+    if (hasAuthor) {
+      this.toastStore.show(this.labels().comment, {
+        link: this.addressOf(appAddresses.post(comment.postId)),
+        look: ToastLook.Comment,
+        person: { id: authorId, username: authorUsername },
+      });
+    }
   }
 
-  // PostLiked: someone liked the user's post.
+  // PostLiked: someone liked the user's post. A like from an account that is gone has no picture to show,
+  // like a message from one, so it shows nothing.
   postLiked(like: PostLikedDto): void {
-    this.toastStore.show(
-      this.labels().like(like.likedBy.username),
-      this.addressOf(appAddresses.post(like.postId)),
-    );
+    const { id, username } = like.likedBy;
+    const hasLiker = id !== null;
+
+    if (hasLiker) {
+      this.toastStore.show(this.labels().like, {
+        link: this.addressOf(appAddresses.post(like.postId)),
+        look: ToastLook.Like,
+        person: { id, username },
+      });
+    }
   }
 
   // UserOnline, once PresenceStore holds the friend's name (it looks an unknown friend up by id). A friend
@@ -86,16 +101,19 @@ export class LiveToastStore {
 
     if (isKnown && !isQuiet) {
       this.onlineToastAt.set(userId, now);
-      this.toastStore.show(
-        this.labels().online(friend.username),
-        this.addressOf(appAddresses.conversation(friend.username)),
-      );
+      this.toastStore.show(this.labels().online, {
+        link: this.addressOf(appAddresses.conversation(friend.username)),
+        look: ToastLook.Online,
+        person: { id: friend.id, username: friend.username },
+      });
     }
   }
 
-  // On sign-out.
+  // On sign-out: forgets when each friend's online toast was shown, and takes down every toast still on
+  // screen, which could show a message's text over the next screen on a shared machine.
   clear(): void {
     this.onlineToastAt.clear();
+    this.toastStore.clear();
   }
 
   // The open conversation is the one the user sees, also while its friend is still being looked up: then

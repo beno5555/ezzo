@@ -348,6 +348,7 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 
 - **Four live toasts:** a new message (not when that conversation is open), a comment on my post, a like on my post, a friend coming online.
 - **Each is a link:** to the chat, to the post, to the post, to the chat.
+- **Look** (owner, 2026-11-24): every toast shows its news by its picture, name and badge, and slides in; a live toast from an account that is gone shows nothing. Signing out takes the toasts down. The look is in `DESIGN.md`.
 - **Rules:** 5 seconds on screen, at most three at once, and at most one online toast per friend in 5 minutes.
 - **Upload toasts** for a post (under "Across the whole frontend"): the uploading toast stays until the upload ends, outside the 5-second rule, and the published or saved toast that follows it keeps the rule.
 - **Failures of actions outside a form** use the same toast component (conventions, Errors).
