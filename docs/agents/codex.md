@@ -19,7 +19,7 @@ Codex reviews the final diff for bugs after the separate standards and ticket-sc
 
 ## A Codex implementation lane
 
-Use `codex --worktree` from the repo root, or `/worktree` in an open Codex session, to start a managed worktree. For a WebCity ticket lane with a named branch under `.claude/worktrees/` and local test settings, run this from the repo root in PowerShell:
+Use `codex --worktree` from the repo root, or `/worktree` in an open Codex session, to start a managed worktree. For a ticket lane with a named branch under `.claude/worktrees/` and local test settings, run this from the repo root in PowerShell:
 
 ```powershell
 $name = 'feature-name'

@@ -1,10 +1,10 @@
-﻿# WebCity — SignalR
+﻿# Ezzo — SignalR
 
 ## Architecture
 
 The app uses one SignalR hub at `/hubs/messages`. On connection, the hub adds the connection to a SignalR group named for its user ID. SignalR removes the connection from its groups on disconnect. The hub delegates [typing](#typing) and [presence](#presence) to services. See [MessageHub.cs](../../backend/aspnetproject/Hubs/MessageHub.cs).
 
-`MessageService`, `CommentService`, and `PostLikeService` use `IHubContext<MessageHub>` to push notifications from the same service method that saves the change. Database persistence and hub delivery are separate operations.
+`MessageService`, `CommentService`, `PostLikeService`, `PresenceService` and `TypingService` use `IHubContext<MessageHub>` to push events from the same service method that saves the change (or, for typing, decides to relay it), and `NotificationService` to push the automation's notifications. Database persistence and hub delivery are separate operations.
 
 ## Presence
 
@@ -97,4 +97,4 @@ Dispose each client with `await using`, and the factory in the test class's `Dis
 
 ## Not implemented / explicitly deferred
 
-- **`EditedAt` timestamp** on `MessageEditedDto` — deferred to frontend work; `Message.IsEdited` (computed from `LastUpdatedAt`) is available server-side if needed sooner.
+- **`EditedAt` timestamp** on `MessageEditedDto`: not sent. The chat marks an edited message from `IsEdited` and the `MessageEdited` push, without the time of the edit; `Message.LastUpdatedAt` holds it if a client ever needs it.

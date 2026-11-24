@@ -11,7 +11,7 @@ public static class SwaggerExtensions
         {
             options.SwaggerDoc("v1", new OpenApiInfo
             {
-                Title = "WebCity API",
+                Title = "Ezzo API",
                 Version = "v1",
             });
             options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme

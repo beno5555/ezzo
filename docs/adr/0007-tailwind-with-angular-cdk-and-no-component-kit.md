@@ -1,6 +1,6 @@
 # The frontend is styled with Tailwind and Angular CDK, and uses no component kit
 
-WebCity's look must be its own, and the product's name and brand were still open when the pages had to start. The frontend therefore uses Tailwind v4 for every look and Angular CDK for the behaviour that is hard to write well (overlays, dialogs, menus, focus trapping), and installs no ready-made component kit. Every colour, size and radius is a design token named by its role, so a brand or a second theme is another set of values for the same names and no component changes.
+Ezzo's look must be its own, and the product's name and brand were still open when the pages had to start. The frontend therefore uses Tailwind v4 for every look and Angular CDK for the behaviour that is hard to write well (overlays, dialogs, menus, focus trapping), and installs no ready-made component kit. Every colour, size and radius is a design token named by its role, so a brand or a second theme is another set of values for the same names and no component changes.
 
 ## Considered Options
 

@@ -2,7 +2,7 @@
 
 Superseded by [ADR 0010](0010-load-only-the-selected-language-at-startup.md).
 
-WebCity's UI has a language switch: English and Georgian first, Russian and Spanish to follow. The frontend translates only the text it owns (labels, buttons, its own validation and status messages), from one TypeScript dictionary file per language, each checked against the English one by the compiler. Text that comes from the backend (failure messages in the response envelope, validation messages, emails) stays English, because the envelope carries a message but no code to translate by.
+Ezzo's UI has a language switch: English and Georgian first, Russian and Spanish to follow. The frontend translates only the text it owns (labels, buttons, its own validation and status messages), from one TypeScript dictionary file per language, each checked against the English one by the compiler. Text that comes from the backend (failure messages in the response envelope, validation messages, emails) stays English, because the envelope carries a message but no code to translate by.
 
 ## Considered Options
 

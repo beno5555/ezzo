@@ -36,12 +36,12 @@ $envelope = [ordered]@{
     event      = $eventName
     occurredAt = [DateTime]::UtcNow.ToString('yyyy-MM-ddTHH:mm:ss.fffZ')
     data       = [ordered]@{
-        exceptionType = 'WebCity.Test_Markup.<Odd>*Exception*'
+        exceptionType = 'Ezzo.Test_Markup.<Odd>*Exception*'
         message       = 'snake_case *bold* _italic_ <b>not a tag</b> & [a link](https://example.com) `code`'
-        stackTrace    = "   at WebCity.Test<T>.Run_Once() in C:\test_folder\file.cs:line 1`n   at *Star*.Main()"
+        stackTrace    = "   at Ezzo.Test<T>.Run_Once() in C:\test_folder\file.cs:line 1`n   at *Star*.Main()"
         placeKind     = 'Request'
         place         = 'GET /api/test_markup/<id>'
-        fingerprint   = 'WebCity.Test_Markup.<Odd>*Exception*|GET /api/test_markup/<id>'
+        fingerprint   = 'Ezzo.Test_Markup.<Odd>*Exception*|GET /api/test_markup/<id>'
     }
 }
 $body = $utf8.GetBytes((ConvertTo-Json -InputObject $envelope -Compress))

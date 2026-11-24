@@ -1,6 +1,6 @@
 # Frontend and backend live in one repository
 
-WebCity's backend was built alone in this repository, and an Angular frontend is now being added. We keep both in this one repository, as `backend/` and `frontend/` folders with shared `docs/`, and we preserve the backend-only state as the git tag `api-only` instead of freezing it in a repository of its own. The two halves are always served from one origin (ADR 0001), are built by one developer, and share the same agent instructions, skills, glossary and issue tracker, so splitting them would duplicate all of that for no gain.
+Ezzo's backend was built alone in this repository, and an Angular frontend is now being added. We keep both in this one repository, as `backend/` and `frontend/` folders with shared `docs/`, and we preserve the backend-only state as the git tag `api-only` instead of freezing it in a repository of its own. The two halves are always served from one origin (ADR 0001), are built by one developer, and share the same agent instructions, skills, glossary and issue tracker, so splitting them would duplicate all of that for no gain.
 
 ## Considered Options
 

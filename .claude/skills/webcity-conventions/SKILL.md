@@ -1,11 +1,11 @@
 ---
 name: webcity-conventions
-description: "WebCity house style. Use when writing, editing or reviewing any code in this repo (C#/ASP.NET Core backend, TypeScript/Angular frontend): control flow, layering, errors, security, logging, data access, naming, tests."
+description: "Ezzo house style. Use when writing, editing or reviewing any code in this repo (C#/ASP.NET Core backend, TypeScript/Angular frontend): control flow, layering, errors, security, logging, data access, naming, tests."
 ---
 
-# WebCity Conventions
+# Ezzo Conventions
 
-The house style for this repo. The rules come from the WebCity ASP.NET Core Web API. `references/typescript.md` carries them over to the frontend. This skill takes precedence over the global `coding-conventions` skill.
+The house style for this repo. The rules come from the Ezzo ASP.NET Core Web API. `references/typescript.md` carries them over to the frontend. This skill takes precedence over the global `coding-conventions` skill.
 
 ## How to use this skill
 

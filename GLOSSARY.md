@@ -1,12 +1,12 @@
-# WebCity
+# Ezzo
 
 A small social platform where people post, comment, befriend each other and exchange direct messages.
 
 ## Language
 
-**WebCity**:
-The product as a whole: the platform its users see, regardless of which part of the system serves them. Users see it under the name **Ezzo**; WebCity is its name in the code and the docs.
-_Avoid_: AspNetProject, aspnetproject (that is only the name of the backend code project); Ezzo anywhere but in text a user reads
+**Ezzo**:
+The product as a whole: the platform its users see, regardless of which part of the system serves them.
+_Avoid_: AspNetProject, aspnetproject (that is only the name of the backend code project); the former name (`CLAUDE.md`, "The former name")
 
 **Guest**:
 A visitor who is not signed in. A guest can find people and read what they have published, but cannot act: no posting, liking, commenting, reporting, befriending or messaging.
@@ -17,15 +17,15 @@ The image that stands for a user wherever the user appears. A user who has not s
 _Avoid_: avatar, pfp, user image, photo (a photo is an image attached to a post or a message)
 
 **Automation**:
-The part of WebCity that acts without a person asking: it reacts to what happens on the platform and to the calendar.
+The part of Ezzo that acts without a person asking: it reacts to what happens on the platform and to the calendar.
 _Avoid_: n8n (that is only the tool it runs on), bot, workflow engine
 
 **Notification**:
-Something the automation tells a user inside WebCity while they are using it. A message, a comment or a like reaching a user is not a notification.
+Something the automation tells a user inside Ezzo while they are using it. A message, a comment or a like reaching a user is not a notification.
 _Avoid_: alert, toast, push, live notification
 
 **Alert**:
-Something the automation tells administrators or developers outside WebCity.
+Something the automation tells administrators or developers outside Ezzo.
 _Avoid_: notification, warning
 
 **Toast**:
