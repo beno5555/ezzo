@@ -86,6 +86,7 @@ On the frontend, in this order from the end: choosing a profile picture (the def
 - A few end-to-end test flows (sign in, post, message). They come before component tests.
 - **Stored notifications:** a table, a list with an unread count, a mark-as-read route, and a bell with a badge. Until then a notification reaches only a user who is connected.
 - **Retried events:** an outbox table and a job that resends an event the automation did not receive (n8n ticket 15). Until then an event sent while n8n is down is lost.
+- **A signed event can be replayed** (found in the review of n8n ticket 01, owner, 2026-11-24). The workflows check only that the signature matches the body; they ignore the envelope's `id` and `occurredAt`, so a captured request is accepted again (a replayed fifth report re-hides content an administrator restored). The traffic stays on the owner's machine (`127.0.0.1:5678`), so it waits. Fix sketch: the signature check also refuses an `occurredAt` older than a few minutes, and n8n remembers recent `id`s; ticket 15's resend must then send a fresh time. The signature comparison is a plain string equals, not constant time; fix it in the same change. No ticket yet.
 - Images on AWS S3. Until then they stay on local disk.
 - Russian and Spanish dictionary files (ADR 0006).
 - Translated server text, which needs a stable code on every backend failure (ADR 0006).
