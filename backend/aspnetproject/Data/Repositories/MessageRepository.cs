@@ -64,8 +64,8 @@ public class MessageRepository : BaseEntityRepository<Message>
         await DeleteWhereAsync(InConversation(userA, userB));
     }
 
-    // Marks every unread message from otherUserId to readerId as seen, wherever it sits in the conversation.
-    // marked is false when there was none, so reopening a read conversation sends no MessageSeen.
+    // The read update covers the whole conversation even when the caller fetched one page.
+    // Reopening a conversation with no unread messages sends no MessageSeen event.
     public async Task<(bool marked, DateTime seenAt)> MarkConversationAsReadAsync(int readerId, int otherUserId)
     {
         var seenAt = DateTime.UtcNow;
@@ -95,7 +95,6 @@ public class MessageRepository : BaseEntityRepository<Message>
             .CountAsync();
     }
 
-    // Either direction between the two users.
     private Expression<Func<Message, bool>> InConversation(int userA, int userB)
     {
         return message => (message.SenderUserId == userA && message.ReceiverUserId == userB) ||

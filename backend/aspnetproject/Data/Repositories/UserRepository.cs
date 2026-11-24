@@ -137,7 +137,7 @@ public class UserRepository : BaseEntityRepository<User>
         return await GetWhereAsync(user => user.Username.Contains(usernameInput), pageNumber, pageSize);
     }
 
-    // ignores query filters automatically which is fine for now. we want to fetch conversations with deactivated/soft deleted users
+    // The raw SQL reads Users directly so existing conversations still include deactivated or soft-deleted friends.
     public async Task<List<ConversationFriendProjection>> GetConversationFriendsAsync(int userId, int? pageNumber, int? pageSize)
     {
         const string sql = """
@@ -185,12 +185,9 @@ public class UserRepository : BaseEntityRepository<User>
         return await query.ToListAsync();
     }
 
-    /// <summary>
-    /// fetches friends with whom the user does not have a conversation
-    /// </summary>
+    // The User query filter limits this list of potential chat recipients to active accounts.
     public async Task<List<User>> GetNonConversationFriendsAsync(int userId, int? pageNumber, int? pageSize)
     {
-        // areFriends && haveNoConversation
         Expression<Func<User, bool>> shouldFetch = user =>
             _dbContext.Friendships.Any(friendship =>
                 ((friendship.AddresseeUserId == userId && friendship.RequesterUserId == user.Id) ||
@@ -312,6 +309,7 @@ public class UserRepository : BaseEntityRepository<User>
     {
         var result = new SoftDeleteCleanupResult();
         
+        // The User query filter would hide every candidate for the purge.
         var userIds = await _dbSet
             .IgnoreQueryFilters()
             .Where(user => user.AccountDeletedAt != null && user.AccountDeletedAt < cutoff)
@@ -337,8 +335,7 @@ public class UserRepository : BaseEntityRepository<User>
         return result;
     }
 
-    // Adds the addresses of the deleted messages' images to deletedImageAddresses, so the caller can remove the files.
-    // The image rows go with their messages (cascade).
+    // Read image addresses before the message delete cascades to the image rows so the cleanup job can remove the files.
     private async Task<int> DeleteUsersMessagesAsync(
         List<int> userIds,
         int batchSize,
@@ -374,8 +371,7 @@ public class UserRepository : BaseEntityRepository<User>
         return totalDeleted;
     }
     
-    // Adds the addresses of the deleted posts' images to deletedImageAddresses, so the caller can remove the files.
-    // The image rows go with their posts (cascade).
+    // Read image addresses before the post delete cascades to the image rows so the cleanup job can remove the files.
     private async Task<int> DeleteUsersPostsAsync(
         List<int> userIds,
         int batchSize,

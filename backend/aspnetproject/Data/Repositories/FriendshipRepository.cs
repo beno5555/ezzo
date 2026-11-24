@@ -25,6 +25,7 @@ public class FriendshipRepository : BaseRepository<Friendship>
     private static IOrderedQueryable<Friendship> ById(IQueryable<Friendship> query) =>
         query.OrderBy(friendship => friendship.Id);
 
+    // Request and friendship lists bypass the User query filter to load users whose accounts are deactivated or soft-deleted.
     public async Task<List<Friendship>> GetPendingRequestsAsync(int userId, int? pageNumber = null, int? pageSize = null)
     {
         return await GetAsync(userId, FriendshipStatus.Pending, pageNumber, pageSize);
@@ -37,9 +38,6 @@ public class FriendshipRepository : BaseRepository<Friendship>
             pageNumber, pageSize, ById, ignoreQueryFilters: true);
     }
     
-    /// <summary>
-    /// fetches the friendships that got sent to userId with optional status filter
-    /// </summary>
     private async Task<List<Friendship>> GetAsync(
         int userId,
         FriendshipStatus? status,
@@ -48,16 +46,13 @@ public class FriendshipRepository : BaseRepository<Friendship>
         )
     {
         return await GetWhereAsync(friendship => 
-            friendship.AddresseeUserId == userId && (!status.HasValue || friendship.FriendshipStatus == status), // only checks for status if the parameter has value
+            friendship.AddresseeUserId == userId && (!status.HasValue || friendship.FriendshipStatus == status),
             pageNumber,
             pageSize,
             ById,
             ignoreQueryFilters: true);
     }
 
-    /// <summary>
-    /// fetches the friendships of userId which have been accepted from either, including users who got deactivated/deleted
-    /// </summary>
     public async Task<List<Friendship>> GetFriendshipsAsync(int userId, int? pageNumber = null, int? pageSize = null)
     {
         return await GetWhereAsync(friendship =>
@@ -66,9 +61,7 @@ public class FriendshipRepository : BaseRepository<Friendship>
             pageNumber, pageSize, ById, ignoreQueryFilters: true);
     }
 
-    /// <summary>
-    /// fetches, in one query, the friendships (in any state) between userId and any of otherUserIds
-    /// </summary>
+    // User search loads relationships in any status in one query for the entire results page.
     public async Task<List<Friendship>> GetFriendshipsWithAsync(int userId, List<int> otherUserIds)
     {
         return await _dbSet
@@ -121,11 +114,10 @@ public class FriendshipRepository : BaseRepository<Friendship>
                 (friendship.FriendshipStatus == status || !status.HasValue));
     }
 
+    // Callers persist the tracked changes with SaveChangesAsync. Resending also updates SentAt before that save.
     public async Task UpdateStatusAsync(Friendship friendship, FriendshipStatus status)
     {
         friendship.FriendshipStatus = status;
         friendship.LastUpdatedAt = DateTime.UtcNow;
-        
-        // await _dbContext.SaveChangesAsync();
     }
 }

@@ -192,7 +192,6 @@ public class FriendshipService : BaseService
 
         if (friendship is not null)
         {
-            // The friendship row holds a foreign key to the user, so the user exists even when the filter hides it.
             var otherUser = await ResolveOtherUserAsync(friendship, otherUserId);
 
             var friendshipDto = FriendshipMapper.ToAcceptedDisplay(friendship, otherUser!);
@@ -208,7 +207,7 @@ public class FriendshipService : BaseService
         return response;
     }
     
-    // The user query filter leaves out a deactivated or soft-deleted friend, so such a friend is read without it.
+    // The User query filter can leave the friend navigation empty, so look up the same account without the filter.
     private async Task<User?> ResolveOtherUserAsync(Friendship friendship, int otherUserId)
     {
         var otherUser = friendship.RequesterUserId == otherUserId
@@ -260,7 +259,7 @@ public class FriendshipService : BaseService
 
             if (friendship is not null)
             {
-                // Read before the rows go; the database cascades the image rows with their messages.
+                // Read the file addresses first because deleting the messages also deletes their image rows.
                 var imageAddresses = await _messageRepository.GetConversationImageAddressesAsync(userId, friendId);
 
                 await _messageRepository.DeleteConversationAsync(userId, friendId);
