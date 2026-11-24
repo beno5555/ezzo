@@ -230,7 +230,7 @@ Three radii and "full": `sm` for small controls such as badges and checkboxes, `
 
 ## Components
 
-- **Profile picture.** One `Avatar` component shows a user's profile picture wherever a user appears. A user without one gets the default: a faceless silhouette (head and shoulders, the `UserRound` icon filled) in `ink-muted` on `surface-sunken`, inside a ring (owner, 2026-11-19). The app stores no gender, so the silhouette is the same for every user, and the picture shows no letters.
+- **Profile picture.** One `Avatar` component shows a user's profile picture wherever a user appears. A user without one gets the default: a faceless silhouette (head and shoulders, the lucide `User` icon filled) in `ink-muted` on `surface-sunken`, inside a ring (owner, 2026-11-19). The app stores no gender, so the silhouette is the same for every user, and the picture shows no letters.
   - **Ring colour:** one of `avatar-1` to `avatar-8`, chosen by the user's id, so it survives a change of username. The ring is 2 px wide, 4 px on the large picture.
   - **An unavailable account** (deactivated or deleted) gets the same silhouette in an `avatar-unavailable` ring.
 - **Buttons.** One primary button per screen, in `accent`. Other buttons are quiet: `surface-raised` with `border-strong`, or text only. A destructive button uses `danger` and carries a trash icon before its text, which the button adds by itself.

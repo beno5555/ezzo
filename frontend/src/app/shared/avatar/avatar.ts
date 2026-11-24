@@ -1,5 +1,5 @@
 import { Component, computed, input, linkedSignal } from '@angular/core';
-import { LucideUserRound } from '@lucide/angular';
+import { LucideUser } from '@lucide/angular';
 import { AvatarSize } from './avatar-size';
 import { ringClass } from './default-picture';
 
@@ -26,7 +26,7 @@ const ringWidthClasses: Record<AvatarSize, string> = {
   selector: 'app-avatar',
   templateUrl: './avatar.html',
   styleUrl: './avatar.css',
-  imports: [LucideUserRound],
+  imports: [LucideUser],
   host: {
     class: 'inline-flex shrink-0',
     '[class]': 'sizeClass()',
