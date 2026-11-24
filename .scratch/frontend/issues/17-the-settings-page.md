@@ -108,4 +108,6 @@ Departures and extras: a "saved" toast after saving; a loading and a retry state
 - *Rename after a reload.* The memory of former names lives for the visit; after a reload an old address is a not-found page. Recommendation: leave it (storing names in the browser would outlive the visit and could point a stranger's old link at the user's profile).
 - *`routerLink` exception.* Recommendation: add one line to `typescript.md` naming the two Back controls as the exception.
 
+**After round 3 (owner, 2026-11-24).** Accepted as it stands; goes to the merge without a round 4. The repeated tail of `save()` (four forms, nine lines each) is to be extracted later: noted in `.scratch/roadmap.md` under "After the deadline".
+
 **Screenshots:** `.scratch/frontend/shots/17/` (`delete-dialog--*`: 360 and 1280 px, light, English and Georgian, empty and typed; eight images).
