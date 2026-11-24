@@ -12,7 +12,7 @@ The copies in `~/.claude/skills/` with the same names are **Windows directory ju
 
 Codex discovers project skills through **Git symlinks** (mode `120000`) in `.agents/skills/`. Both harnesses use the same `SKILL.md` files under `.claude/skills/`.
 
-- Codex can select `webcity-conventions`, `tdd`, `codebase-design`, `domain-modeling`, `frontend-design` and `spec-review`.
+- Codex can select `webcity-conventions`, `tdd`, `codebase-design`, `domain-modeling`, `frontend-design`, `spec-review` and `impeccable`.
 - Start the owner-invoked workflows with `$implement`, `$revise`, `$to-spec`, `$to-tickets`, `$handoff`, `$grill-with-docs`, `$grilling` or `$setup-matt-pocock-skills`. For example, type `$implement .scratch/<feature>/issues/<ticket>.md` in Codex. The Codex policy is `allow_implicit_invocation: false` in each skill's `agents/openai.yaml`. Claude Code uses its existing frontmatter and slash commands.
 - Follow `AGENTS.md` for Claude-specific steps in a shared skill, including the two passes in `spec-review`.
 
@@ -38,7 +38,7 @@ Two design skills from other authors serve the frontend. Each is a real folder c
 
 **Never run** `init`, `document` or `doctor --fix`. `init` writes `PRODUCT.md` from an interview about audience and positioning; the name session wrote that file instead, so edit it directly when a product fact changes. `document` rewrites `DESIGN.md`. `doctor --fix` changes files without asking.
 
-**The hook.** It checks a file after each Edit or Write, and it runs a full pass when the session stops. The check after an edit reports only mechanical faults: contrast, overflow, gradient text, glow, design-system drift. It reads `.ts` files too, because `DESIGN.md` exists. Quiet mode hides the "all clean" notes. The hook is wired only in a checkout's gitignored `.claude/settings.local.json`, so neither the repo nor the owner's `~/.claude/settings.json` turns it on. A new worktree copies that file from the main checkout, so it gets the hook too. To wire the main checkout, run this once from the repo root:
+**The hook.** It checks direct UI edits and runs a full pass at the end of the turn. The check after an edit reports only mechanical faults, such as contrast, overflow, gradient text, glow, and design-system drift. It reads `.ts` files too, because `DESIGN.md` exists. Quiet mode hides the "all clean" notes. Claude Code uses the checkout's gitignored `.claude/settings.local.json`, which its worktrees copy. Codex uses the committed `.codex/hooks.json` and the same pinned skill through `.agents/skills/impeccable`. In a trusted Codex project, review and approve the new hook commands through `/hooks`. To wire or repair the manifests, run this from the repo root:
 
 ```bash
 .claude/skills/impeccable/scripts/impeccable hooks on
@@ -64,7 +64,7 @@ Two design skills from other authors serve the frontend. Each is a real folder c
 
 **Trial verdict: the hook stays on (owner, 2026-11-21).** It cost no time that could be noticed and stays silent on clean files. Its rules reach past the lint rule's (a side stripe, gradient text, a glow, cramped padding: "What the detector misses" above), and those faults can be built from tokens alone. The URL scan has no way to sign in: `detect` takes no cookie or saved session, and it opens a fresh browser each time. So run it only on pages a guest can open (`/sign-in`, `/register`), and check pages behind the sign-in with the screenshot command and by eye.
 
-**Cloud sessions.** A cloud session has no `.claude/settings.local.json`, so the hook does not run there. Its skill list still has Impeccable, from the committed folder. The launcher has not been tried in a cloud session: it would download the Linux engine from GitHub's release servers. If it fails there, an agent uses the playbooks without the engine: it reads `reference/` and checks the page by eye against `DESIGN.md`. It says in its report that the detector did not run.
+**Cloud sessions.** A Claude cloud session starts without `.claude/settings.local.json` and uses the playbooks in the committed skill. The launcher can download the Linux engine from GitHub's release servers. If the engine is unavailable, read `reference/`, check the page by eye against `DESIGN.md`, and report that the detector check is pending.
 
 ### Rules for any further skill
 
