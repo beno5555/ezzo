@@ -298,6 +298,7 @@ export const georgian: Dictionary = {
       title: 'ახალი პაროლის არჩევა',
       lead: 'ახალი პაროლი ძველს მაშინვე ჩაანაცვლებს.',
       passwordLabel: 'ახალი პაროლი',
+      confirmPasswordLabel: 'გაიმეორეთ ახალი პაროლი',
       submitButton: 'პაროლის შეცვლა',
       missingToken: 'ეს ბმული არასრულია. ქვემოთ მოითხოვეთ ახალი.',
       newLinkPrompt: 'ბმული აღარ მუშაობს?',

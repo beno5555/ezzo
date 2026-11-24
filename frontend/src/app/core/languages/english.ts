@@ -355,6 +355,7 @@ export const english = {
       title: 'Choose a new password',
       lead: 'Your new password replaces the old one at once.',
       passwordLabel: 'New password',
+      confirmPasswordLabel: 'Confirm new password',
       submitButton: 'Change password',
       // When the address carries no token: the link was cut short on its way here.
       missingToken: 'This link is incomplete. Ask for a new one below.',
