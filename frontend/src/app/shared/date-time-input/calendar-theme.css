@@ -1,0 +1,96 @@
+/*
+ * The look of the date-time picker's calendar (DateTimeInput). vanilla-calendar-pro's layout and its
+ * light theme comes from its own files (imported in styles.css); every colour, size and shadow below is a
+ * design token, so the calendar follows both themes (only its arrows need a rule for the dark one).
+ * The calendar sits in the page, outside any component, so these rules are global.
+ */
+
+[data-vc='calendar'] {
+  --vc-bg: var(--color-surface-raised);
+  --vc-color: var(--color-ink-strong);
+  --vc-focus-outline-color: var(--color-focus);
+  --vc-header-color: var(--color-ink-strong);
+  --vc-title-color: var(--color-ink-strong);
+  --vc-title-color-hover: var(--color-accent);
+  --vc-title-color-disabled: var(--color-ink-muted);
+  --vc-week-day-color: var(--color-ink-muted);
+  --vc-week-day-color-hover: var(--color-ink-muted);
+  --vc-week-day-off-color: var(--color-ink-muted);
+  --vc-week-day-off-color-hover: var(--color-ink-muted);
+  --vc-date-color: var(--color-ink-strong);
+  --vc-date-color-hover: var(--color-ink-strong);
+  --vc-date-bg: transparent;
+  --vc-date-bg-hover: var(--color-surface-sunken);
+  --vc-date-hover-bg: var(--color-surface-sunken);
+  --vc-date-weekend-color: var(--color-ink-strong);
+  --vc-date-weekend-bg-hover: var(--color-surface-sunken);
+  --vc-date-weekend-hover-bg: var(--color-surface-sunken);
+  --vc-date-outside-color: var(--color-ink-muted);
+  --vc-date-weekend-outside-bg: transparent;
+  --vc-date-weekend-outside-color: var(--color-ink-muted);
+  --vc-date-weekend-outside-color-hover: var(--color-ink-muted);
+  --vc-date-weekend-outside-bg-hover: var(--color-surface-sunken);
+  --vc-date-weekend-outside-hover-bg: var(--color-surface-sunken);
+  --vc-date-disabled-color: var(--color-ink-muted);
+  --vc-date-weekend-disabled-color: var(--color-ink-muted);
+  --vc-date-today-color: var(--color-accent);
+  --vc-date-today-outside-color: var(--color-accent);
+  --vc-date-weekend-today-color: var(--color-accent);
+  --vc-date-weekend-today-outside-color: var(--color-accent);
+  --vc-date-selected-bg: var(--color-accent);
+  --vc-date-selected-color: var(--color-on-accent);
+  --vc-date-selected-outside-bg: var(--color-accent);
+  --vc-date-selected-outside-color: var(--color-on-accent);
+  --vc-date-weekend-selected-bg: var(--color-accent);
+  --vc-date-weekend-selected-color: var(--color-on-accent);
+  --vc-months-years-bg: var(--color-surface-raised);
+  --vc-months-years-bg-hover: var(--color-surface-sunken);
+  --vc-months-years-bg-selected: var(--color-accent);
+  --vc-months-years-color: var(--color-ink-strong);
+  --vc-months-years-color-selected: var(--color-on-accent);
+  --vc-months-years-color-disabled: var(--color-ink-muted);
+  --vc-time-border-color: var(--color-border);
+  --vc-time-input-bg: var(--color-surface-sunken);
+  --vc-time-input-bg-hover: var(--color-surface-sunken);
+  --vc-time-input-color: var(--color-ink-strong);
+  --vc-time-separator-color: var(--color-ink-muted);
+
+  font-family: var(--font-body);
+  font-size: var(--text-sm);
+  line-height: var(--text-sm--line-height);
+}
+
+/* Touch targets of at least 44 px (DESIGN.md): the day buttons and the hour and minute boxes. */
+.vc[data-vc='calendar'] [data-vc-date-btn] {
+  min-height: calc(var(--spacing) * 11);
+}
+
+.vc[data-vc='calendar'] [data-vc-time-input] {
+  width: calc(var(--spacing) * 12);
+}
+
+.vc[data-vc='calendar'] [data-vc-time-input] input {
+  min-height: calc(var(--spacing) * 11);
+}
+
+.vc[data-vc='calendar'] [data-vc-time-input='hour'] {
+  margin-right: calc(var(--spacing) * 3);
+}
+
+/* The hour and minute are typed in their boxes; the sliders under them are left out. */
+.vc[data-vc='calendar'] .vc-time__ranges {
+  display: none;
+}
+
+/* The library draws its arrows dark; in the dark theme they are turned light. */
+:root[data-theme='dark'] .vc[data-vc='calendar'] .vc-arrow::before {
+  filter: invert(1);
+}
+
+/* The popup under the box: the app's overlay look (DESIGN.md, Elevation & Depth). */
+.vc[data-vc='calendar'][data-vc-input][data-vc-theme] {
+  z-index: 50;
+  border: 1px solid var(--color-border-strong);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-overlay);
+}

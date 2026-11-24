@@ -55,13 +55,9 @@ export const english = {
     adminUsers: 'Users',
     adminReports: 'Reports',
     adminModeration: 'Moderation queue',
-    adminLogs: 'Logs',
+    adminLogs: 'Audit',
     adminStatistics: 'Statistics',
     notFound: 'Page not found',
-  },
-  // A page whose route exists before the page is built; its ticket replaces it.
-  pagePlaceholder: {
-    message: 'This page is not ready yet.',
   },
   // The shell around every page: the top bar, the phone's bottom bar and the menus in them (core/shell).
   shell: {
@@ -178,6 +174,23 @@ export const english = {
       dayMonth: (day: number, month: string) => `${month} ${day}`,
       dayMonthYear: (day: number, month: string, year: number) => `${month} ${day}, ${year}`,
       dateAndTime: (date: string, time: string) => `${date}, ${time}`,
+    },
+    // The date-time picker (DateTimeInput): the weekday names, Sunday first, and the names its screen reader
+    // announcements use.
+    dateTimePicker: {
+      weekdaysLong: ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'],
+      weekdaysShort: ['Su', 'Mo', 'Tu', 'We', 'Th', 'Fr', 'Sa'],
+      calendarLabel: 'Calendar',
+      previousMonth: 'Previous month',
+      nextMonth: 'Next month',
+      previousYears: 'Earlier years',
+      nextYears: 'Later years',
+      chooseMonth: 'Choose the month, now:',
+      chooseYear: 'Choose the year, now:',
+      hours: 'Hours',
+      minutes: 'Minutes',
+      // The box's description for screen readers: its value is chosen in the calendar, and Delete clears it.
+      clearHint: 'Press Delete to clear',
     },
     // The day of a moment, when it is today or yesterday (DateFormatter.day).
     days: {
@@ -525,6 +538,66 @@ export const english = {
       emptyCommentsMessage: 'Nothing is waiting for a decision.',
       hideButton: 'Hide',
       makeVisibleButton: 'Make visible',
+    },
+    logs: {
+      title: 'Audit',
+      filtersLabel: 'Audit filters',
+      userIdLabel: 'User id',
+      actionLabel: 'Action',
+      entityNameLabel: 'Entity name',
+      entityIdLabel: 'Entity id',
+      fromLabel: 'From',
+      toLabel: 'To',
+      // Under the period: the zone its times are typed in, which the page reads from the browser.
+      periodHint: (timeZone: string) => `Times are in your time zone, ${timeZone}.`,
+      searchButton: 'Search',
+      clearButton: 'Clear filters',
+      outcomeLabel: 'Outcome',
+      // The choices of the outcome filter.
+      outcomes: { all: 'All', succeeded: 'Succeeded', failed: 'Failed' },
+      requestLabel: 'Request',
+      // The choices of the authorized filter, and the words a row shows for the same fact.
+      requests: { all: 'All', authorized: 'Authorized', unauthorized: 'Unauthorized' },
+      columns: {
+        time: 'Time',
+        user: 'User',
+        action: 'Action',
+        entity: 'Entity',
+        outcome: 'Outcome',
+      },
+      // The label of a row's details on a phone, where each row is a card.
+      detailsLabel: 'Details',
+      // A row's user: the id, as "#12".
+      userId: (id: number) => `#${id}`,
+      // The name and the id of the entity a row is about.
+      entity: (name: string | null, id: number | null) =>
+        [name, id === null ? null : `#${id}`].filter((part) => part !== null).join(' '),
+      loading: 'Loading the audit…',
+      loadingMore: 'Loading more rows…',
+      retryButton: 'Try again',
+      emptyTitle: 'No rows found',
+      emptyMessage: 'No audit row matches these filters.',
+    },
+    statistics: {
+      title: 'Statistics',
+      loading: 'Loading the statistics…',
+      retryButton: 'Try again',
+      totalsTitle: 'Totals',
+      activeAccounts: 'Active accounts',
+      deactivatedAccounts: 'Deactivated accounts',
+      posts: 'Posts',
+      comments: 'Comments',
+      messages: 'Messages',
+      likes: 'Likes',
+      pendingReports: 'Reports awaiting review',
+      last7DaysTitle: 'Created in the last 7 days',
+      last30DaysTitle: 'Created in the last 30 days',
+      newAccounts: 'New accounts',
+      newPosts: 'New posts',
+      newComments: 'New comments',
+      newMessages: 'New messages',
+      onlineTitle: 'Online now',
+      onlineUsers: 'Users online',
     },
   },
   users: {

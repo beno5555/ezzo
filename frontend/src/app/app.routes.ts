@@ -4,18 +4,10 @@ import { formerHomePaths } from './core/routing/app-addresses';
 import { authGuard } from './core/routing/auth-guard';
 import { guestGuard } from './core/routing/guest-guard';
 import { landingPageMark } from './core/routing/landing-page-mark';
-import { PageTitleKey } from './core/routing/page-title-key';
 import { signedInMatch } from './core/routing/signed-in-match';
 
 // The address table in .scratch/frontend/spec.md ("Addresses"); app.routes.spec.ts holds this file to it.
 // Every page loads lazily, and its title is a key of the dictionary's pages group (PageTitleStrategy).
-// A page not built yet loads the placeholder, until its ticket puts the page in its place.
-const placeholder = () =>
-  import('./core/page-placeholder/page-placeholder').then((m) => m.PagePlaceholder);
-
-function placeholderPage(path: string, title: PageTitleKey): Routes[number] {
-  return { path, title, loadComponent: placeholder };
-}
 
 export const routes: Routes = [
   // The home address: the feed for a signed-in user, the landing page with the sign-in form for a guest.
@@ -170,8 +162,20 @@ export const routes: Routes = [
             (m) => m.AdminModerationPage,
           ),
       },
-      placeholderPage('logs', 'adminLogs'),
-      placeholderPage('statistics', 'adminStatistics'),
+      {
+        path: 'logs',
+        title: 'adminLogs',
+        loadComponent: () =>
+          import('./features/admin/admin-logs-page/admin-logs-page').then((m) => m.AdminLogsPage),
+      },
+      {
+        path: 'statistics',
+        title: 'adminStatistics',
+        loadComponent: () =>
+          import('./features/admin/admin-statistics-page/admin-statistics-page').then(
+            (m) => m.AdminStatisticsPage,
+          ),
+      },
     ],
   },
   {
