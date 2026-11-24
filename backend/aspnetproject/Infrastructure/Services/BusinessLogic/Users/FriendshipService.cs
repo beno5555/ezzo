@@ -101,7 +101,7 @@ public class FriendshipService : BaseService
             }
             else
             {
-                await _friendshipRepository.UpdateStatusAsync(relationship, FriendshipStatus.Pending);
+                _friendshipRepository.SetStatus(relationship, FriendshipStatus.Pending);
                 relationship.SentAt = DateTime.UtcNow;
 
                 finalRelationship = relationship;
@@ -227,7 +227,7 @@ public class FriendshipService : BaseService
 
             if (friendship is not null && friendship.FriendshipStatus == FriendshipStatus.Pending)
             {
-                await _friendshipRepository.UpdateStatusAsync(friendship, status);
+                _friendshipRepository.SetStatus(friendship, status);
                 
                 var friendshipDto = FriendshipMapper.ToStandardDisplay(friendship, addresseeId);
                 await _friendshipRepository.SaveChangesAsync();

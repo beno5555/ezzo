@@ -484,7 +484,7 @@ public class UserRepository : BaseEntityRepository<User>
 
         do
         {
-            var postIds = await _dbContext.Friendships
+            var friendshipIds = await _dbContext.Friendships
                 .Where(friendship => userIds.Contains(friendship.AddresseeUserId) || userIds.Contains(friendship.RequesterUserId))
                 .OrderBy(friendship => friendship.Id)
                 .Take(batchSize)
@@ -492,7 +492,7 @@ public class UserRepository : BaseEntityRepository<User>
                 .ToListAsync(cancellationToken);
 
             deletedThisBatch = await _dbContext.Friendships
-                .Where(friendship => postIds.Contains(friendship.Id))
+                .Where(friendship => friendshipIds.Contains(friendship.Id))
                 .ExecuteDeleteAsync(cancellationToken);
 
             totalDeleted += deletedThisBatch;
