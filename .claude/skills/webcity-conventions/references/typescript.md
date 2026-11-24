@@ -355,8 +355,7 @@ export class MyProfilePage implements OnInit {
 
 **Profile pictures**
 
-- The ring's colour is one of the eight avatar design tokens (lighter in the dark theme), chosen by the user's id; the silhouette inside is the same for everyone. An unavailable account gets the grey ring.
-- The disc's colour is one of the eight disc design tokens, chosen by the user's id. A username in two parts gives both first letters; any other gives its first two letters. An unavailable account gets the grey disc with no letters.
+Use the shared `Avatar` component. An unavailable account shows the default silhouette with a grey ring even when a picture address is supplied. The design brief defines the [default picture and ring colours](../../../../DESIGN.md#components).
 
 **When a design skill and these documents disagree**
 
