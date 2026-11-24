@@ -53,7 +53,7 @@
 
   @if (isMarkedUploading()) {
     <p class="flex min-h-11 items-center gap-2 text-sm text-ink-muted" role="status">
-      <svg class="size-5 shrink-0" lucideCloudUpload aria-hidden="true"></svg>
+      <svg class="size-5 shrink-0" [appIcon]="icons.cloudUpload" aria-hidden="true"></svg>
       {{ text().posts.card.uploading }}
     </p>
   } @else {
@@ -69,7 +69,7 @@
              overwritten when the icon draws itself, so a card that is liked from the start (the post's
              own page) showed the heart empty. -->
         <svg
-          lucideHeart
+          [appIcon]="icons.heart"
           aria-hidden="true"
           [class]="post().likedByCaller ? 'size-5 fill-current' : 'size-5'"
         ></svg>
@@ -85,7 +85,7 @@
         </a>
       }
       <ng-template #commentsLabel>
-        <svg class="size-5" lucideMessageCircle aria-hidden="true"></svg>
+        <svg class="size-5" [appIcon]="icons.messageCircle" aria-hidden="true"></svg>
         {{ text().posts.card.commentsLink(post().commentCount) }}
       </ng-template>
     </footer>

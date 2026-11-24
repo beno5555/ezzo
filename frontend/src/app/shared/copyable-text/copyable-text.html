@@ -15,5 +15,5 @@
   [attr.aria-label]="text().shared.copy.button(value())"
   (click)="copy()"
 >
-  <svg class="size-5" lucideCopy aria-hidden="true"></svg>
+  <svg class="size-5" [appIcon]="icons.copy" aria-hidden="true"></svg>
 </button>

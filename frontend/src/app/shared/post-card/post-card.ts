@@ -11,7 +11,9 @@ import {
   viewChild,
 } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { LucideCloudUpload, LucideHeart, LucideMessageCircle } from '@lucide/angular';
+import LucideCloudUpload from 'lucide/dist/esm/icons/cloud-upload.mjs';
+import LucideHeart from 'lucide/dist/esm/icons/heart.mjs';
+import LucideMessageCircle from 'lucide/dist/esm/icons/message-circle.mjs';
 import { DateFormatter } from '../../core/languages/date-formatter';
 import { LanguageStore } from '../../core/languages/language-store';
 import { appAddresses } from '../../core/routing/app-addresses';
@@ -31,6 +33,7 @@ import { contentMenuEntries } from '../content-actions/content-menu-entries';
 import { DeletingNotice } from '../deleting-notice/deleting-notice';
 import { FadeOut } from '../fade-out/fade-out';
 import { HiddenBadge } from '../hidden-badge/hidden-badge';
+import { Icon } from '../icon/icon';
 import { Menu } from '../menu/menu';
 import { MenuEntry } from '../menu/menu-entry';
 import { PhotoGrid } from '../photos/photo-grid/photo-grid';
@@ -70,14 +73,18 @@ import { TextLink } from '../text-link/text-link';
     Menu,
     PhotoGrid,
     TextLink,
-    LucideHeart,
-    LucideCloudUpload,
-    LucideMessageCircle,
+    Icon,
   ],
   templateUrl: './post-card.html',
   styleUrl: './post-card.css',
 })
 export class PostCard {
+  protected readonly icons = {
+    cloudUpload: LucideCloudUpload,
+    heart: LucideHeart,
+    messageCircle: LucideMessageCircle,
+  };
+
   readonly post = input.required<StandardPostDisplayDto>();
   readonly isUploading = input(false);
   readonly isFull = input(false);

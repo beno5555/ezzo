@@ -36,7 +36,7 @@
       </div>
       <!-- An icon alone on a phone, the word from a tablet up. -->
       <button appButton look="primary" type="submit" [disabled]="!canSend()">
-        <svg class="size-5 md:hidden" lucideSendHorizontal aria-hidden="true"></svg>
+        <svg class="size-5 md:hidden" [appIcon]="icons.sendHorizontal" aria-hidden="true"></svg>
         <span class="sr-only md:not-sr-only">{{ submitLabel() }}</span>
       </button>
     </div>

@@ -7,8 +7,8 @@ export const georgian: Dictionary = {
     name: 'Ezzo',
   },
   languages: {
-    ownName: 'ქართული',
     switchLabel: 'ენა',
+    switchFailed: 'ენის ჩატვირთვა ვერ მოხერხდა. განაახლეთ გვერდი და სცადეთ ხელახლა.',
   },
   themes: {
     switchLabel: 'თემა',

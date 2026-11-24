@@ -19,7 +19,20 @@ if (!('IntersectionObserver' in globalThis)) {
   });
 }
 
+// Specs create their own Angular injectors instead of running main.ts.
+beforeEach(() => {
+  TestBed.configureTestingModule({
+    providers: [
+      { provide: initialLanguage, useValue: { language: Language.English, text: english } },
+    ],
+  });
+});
+
 afterEach(() => {
   localStorage.clear();
   sessionStorage.clear();
 });
+import { TestBed } from '@angular/core/testing';
+import { english } from './app/core/languages/english';
+import { initialLanguage } from './app/core/languages/initial-language';
+import { Language } from './app/core/languages/language';

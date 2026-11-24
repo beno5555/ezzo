@@ -18,7 +18,7 @@
       <div class="order-last flex w-full min-w-0 flex-col gap-1 md:order-none md:w-auto md:flex-1">
         <h1 class="font-display text-2xl text-ink-strong wrap-anywhere">{{ user().username }}</h1>
         <p class="flex items-center gap-2 text-sm text-ink-muted">
-          <svg class="size-4 shrink-0" lucideCake aria-hidden="true"></svg>
+          <svg class="size-4 shrink-0" [appIcon]="icons.cake" aria-hidden="true"></svg>
           <span>{{ text().users.profile.birthday(birthday()) }}</span>
         </p>
       </div>
@@ -36,7 +36,7 @@
 
     @if (isOwn()) {
       <a appButton look="quiet" class="self-start" [routerLink]="settingsAddress">
-        <svg class="size-5 shrink-0" lucideSettings aria-hidden="true"></svg>
+        <svg class="size-5 shrink-0" [appIcon]="icons.settings" aria-hidden="true"></svg>
         {{ text().users.profile.settingsLink }}
       </a>
     } @else if (hasFriendshipButton()) {
@@ -68,7 +68,11 @@
             }
             @if (relationships.isFriend()) {
               <a appButton look="quiet" [routerLink]="conversationAddress()">
-                <svg class="size-5 shrink-0" lucideMessageCircle aria-hidden="true"></svg>
+                <svg
+                  class="size-5 shrink-0"
+                  [appIcon]="icons.messageCircle"
+                  aria-hidden="true"
+                ></svg>
                 {{ text().users.profile.messageButton }}
               </a>
             }

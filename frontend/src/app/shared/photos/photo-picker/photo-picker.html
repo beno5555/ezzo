@@ -34,7 +34,7 @@
                   "
                   (click)="removeAt(tile.index)"
                 >
-                  <svg class="size-4" lucideX aria-hidden="true"></svg>
+                  <svg class="size-4" [appIcon]="icons.x" aria-hidden="true"></svg>
                 </button>
               }
             </li>
@@ -63,7 +63,7 @@
               [attr.aria-label]="text().shared.photos.removeButton(index + 1, previews().length)"
               (click)="remove(preview)"
             >
-              <svg class="size-4" lucideX aria-hidden="true"></svg>
+              <svg class="size-4" [appIcon]="icons.x" aria-hidden="true"></svg>
             </button>
           </li>
         }
@@ -72,7 +72,7 @@
 
     <div class="flex flex-wrap items-center gap-x-4 gap-y-2">
       <button appButton look="quiet" type="button" [disabled]="isFull()" (click)="openFiles()">
-        <svg class="size-5" lucideImagePlus aria-hidden="true"></svg>
+        <svg class="size-5" [appIcon]="icons.imagePlus" aria-hidden="true"></svg>
         {{ text().shared.photos.addButton }}
       </button>
       @if (previews().length > 0) {
@@ -96,7 +96,11 @@
     <ul class="flex flex-col gap-1" role="alert">
       @for (message of refusalMessages(); track $index) {
         <li class="flex items-start gap-1.5 text-sm text-danger">
-          <svg class="mt-0.5 size-4 shrink-0" lucideCircleExclamationPoint aria-hidden="true"></svg>
+          <svg
+            class="mt-0.5 size-4 shrink-0"
+            [appIcon]="icons.circleExclamationPoint"
+            aria-hidden="true"
+          ></svg>
           <span class="min-w-0 wrap-break-word">{{ message }}</span>
         </li>
       }

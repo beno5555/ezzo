@@ -1,19 +1,18 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import {
-  LucideChevronRight,
-  LucideCircleCheck,
-  LucideCircleX,
-  LucideCloudUpload,
-  LucideHeart,
-  LucideMessageCircle,
-  LucideMessageSquareText,
-  LucideX,
-} from '@lucide/angular';
+import LucideChevronRight from 'lucide/dist/esm/icons/chevron-right.mjs';
+import LucideCircleCheck from 'lucide/dist/esm/icons/circle-check.mjs';
+import LucideCircleX from 'lucide/dist/esm/icons/circle-x.mjs';
+import LucideCloudUpload from 'lucide/dist/esm/icons/cloud-upload.mjs';
+import LucideHeart from 'lucide/dist/esm/icons/heart.mjs';
+import LucideMessageCircle from 'lucide/dist/esm/icons/message-circle.mjs';
+import LucideMessageSquareText from 'lucide/dist/esm/icons/message-square-text.mjs';
+import LucideX from 'lucide/dist/esm/icons/x.mjs';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { Avatar } from '../../avatar/avatar';
 import { IconButton } from '../../icon-button/icon-button';
+import { Icon } from '../../icon/icon';
 import { ToastLook } from '../toast-look';
 import { Toast } from '../toast';
 import { ToastStore } from '../toast-store';
@@ -34,25 +33,23 @@ const badgeColors: Partial<Record<ToastLook, string>> = {
 // discards any toast. A toast slides in from the edge it sits at (DESIGN.md, Do's and Don'ts),
 // and stays still under "reduce motion".
 @Component({
-  imports: [
-    Avatar,
-    IconButton,
-    NgTemplateOutlet,
-    RouterLink,
-    LucideChevronRight,
-    LucideCircleCheck,
-    LucideCircleX,
-    LucideCloudUpload,
-    LucideHeart,
-    LucideMessageCircle,
-    LucideMessageSquareText,
-    LucideX,
-  ],
+  imports: [Avatar, IconButton, NgTemplateOutlet, RouterLink, Icon],
   selector: 'app-toast-list',
   templateUrl: './toast-list.html',
   styleUrl: './toast-list.css',
 })
 export class ToastList {
+  protected readonly icons = {
+    chevronRight: LucideChevronRight,
+    circleCheck: LucideCircleCheck,
+    circleX: LucideCircleX,
+    cloudUpload: LucideCloudUpload,
+    heart: LucideHeart,
+    messageCircle: LucideMessageCircle,
+    messageSquareText: LucideMessageSquareText,
+    x: LucideX,
+  };
+
   private readonly toastStore = inject(ToastStore);
 
   protected readonly text = inject(LanguageStore).text;

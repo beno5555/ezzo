@@ -5,7 +5,7 @@ import { markActiveBarLink } from './active-bar-link';
 
 // A link in the top bar's navigation: an icon, a word and maybe a count, 44 px high, muted until it is
 // hovered or leads to the current page. The caller puts the routerLink beside it:
-//   <a appTopBarLink [routerLink]="addresses.friends"><svg lucideUsers ...></svg> Friends</a>
+//   <a appTopBarLink [routerLink]="addresses.friends"><svg [appIcon]="icons.users"></svg> Friends</a>
 @Directive({
   selector: 'a[appTopBarLink]',
   hostDirectives: [{ directive: RouterLinkActive, inputs: ['routerLinkActiveOptions'] }],

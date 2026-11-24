@@ -48,7 +48,11 @@
           [heading]="text().messages.list.emptyTitle"
           [message]="text().messages.list.emptyMessage"
         >
-          <svg class="size-8 text-ink-muted" lucideMessageCircleDashed aria-hidden="true"></svg>
+          <svg
+            class="size-8 text-ink-muted"
+            [appIcon]="icons.messageCircleDashed"
+            aria-hidden="true"
+          ></svg>
         </app-empty-state>
       }
     }
@@ -78,7 +82,7 @@
       [class.font-semibold]="row.badge !== null"
     >
       @if (row.isPhoto) {
-        <svg class="size-4 shrink-0" lucideImage aria-hidden="true"></svg>
+        <svg class="size-4 shrink-0" [appIcon]="icons.image" aria-hidden="true"></svg>
       }
       <span class="min-w-0 truncate">{{ row.preview }}</span>
       <app-count-badge

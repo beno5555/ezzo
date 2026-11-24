@@ -1,9 +1,10 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { LucideSearch } from '@lucide/angular';
+import LucideSearch from 'lucide/dist/esm/icons/search.mjs';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { appAddresses } from '../../../core/routing/app-addresses';
 import { Button } from '../../../shared/button/button';
+import { Icon } from '../../../shared/icon/icon';
 import { Tab } from '../../../shared/tabs/tab';
 import { panelId, tabId } from '../../../shared/tabs/tab-ids';
 import { Tabs } from '../../../shared/tabs/tabs';
@@ -22,12 +23,14 @@ import { StandardFriendshipDto } from '../standard-friendship-dto';
 // (FriendsPageStore). The count and the incoming list do not update live (spec, "Last in line").
 @Component({
   selector: 'app-friends-page',
-  imports: [Button, FriendList, RouterLink, Tabs, LucideSearch],
+  imports: [Button, FriendList, RouterLink, Tabs, Icon],
   providers: [FriendsPageStore],
   templateUrl: './friends-page.html',
   styleUrl: './friends-page.css',
 })
 export class FriendsPage implements OnInit {
+  protected readonly icons = { search: LucideSearch };
+
   private readonly incomingRequests = inject(IncomingRequestsStore);
 
   protected readonly store = inject(FriendsPageStore);

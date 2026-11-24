@@ -15,7 +15,7 @@
     [routerLink]="newPostAddress"
     [attr.aria-label]="text().posts.feed.writeButton"
   >
-    <svg class="size-6" lucideSquarePen aria-hidden="true"></svg>
+    <svg class="size-6" [appIcon]="icons.squarePen" aria-hidden="true"></svg>
   </a>
 
   <!-- From a tablet up the button spans the heading's row and the list's row, so once the reader scrolls
@@ -27,7 +27,7 @@
     class="shadow-raised max-md:hidden md:sticky md:top-4 md:col-start-2 md:row-span-2 md:row-start-1 md:self-start"
     [routerLink]="newPostAddress"
   >
-    <svg class="size-5" lucidePlus aria-hidden="true"></svg>
+    <svg class="size-5" [appIcon]="icons.plus" aria-hidden="true"></svg>
     {{ text().posts.feed.writeButton }}
   </a>
 
@@ -71,7 +71,7 @@
           <div
             class="flex flex-col items-center gap-2 rounded-lg border border-border bg-surface-raised px-4 py-10 text-center"
           >
-            <svg class="size-8 text-ink-muted" lucideNewspaper aria-hidden="true"></svg>
+            <svg class="size-8 text-ink-muted" [appIcon]="icons.newspaper" aria-hidden="true"></svg>
             <h2 class="font-display text-lg text-ink-strong">
               {{ text().posts.feed.emptyTitle }}
             </h2>

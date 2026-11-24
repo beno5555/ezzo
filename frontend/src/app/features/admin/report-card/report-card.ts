@@ -1,16 +1,15 @@
 import { Component, computed, inject, input, output } from '@angular/core';
-import {
-  LucideCircleCheck,
-  LucideCircleX,
-  LucideClock,
-  LucideEyeOff,
-  LucideFileX,
-  LucideUserX,
-} from '@lucide/angular';
+import LucideCircleCheck from 'lucide/dist/esm/icons/circle-check.mjs';
+import LucideCircleX from 'lucide/dist/esm/icons/circle-x.mjs';
+import LucideClock from 'lucide/dist/esm/icons/clock.mjs';
+import LucideEyeOff from 'lucide/dist/esm/icons/eye-off.mjs';
+import LucideFileX from 'lucide/dist/esm/icons/file-x.mjs';
+import LucideUserX from 'lucide/dist/esm/icons/user-x.mjs';
 import { DateFormatter } from '../../../core/languages/date-formatter';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { Button } from '../../../shared/button/button';
 import { FadeOut } from '../../../shared/fade-out/fade-out';
+import { Icon } from '../../../shared/icon/icon';
 import { AdminReportDto } from '../../reports/admin-report-dto';
 import { ReportDecision } from '../../reports/report-decision';
 import { reportDecisionsOffered } from '../../reports/report-decisions-offered';
@@ -37,25 +36,21 @@ const statusTextClasses: Record<ReportStatus, string> = {
 //   <app-report-card [report]="report" [isFading]="list.isFading(report.id)" (decide)="decide(report, $event)" />
 @Component({
   selector: 'app-report-card',
-  imports: [
-    Button,
-    CommentSnapshot,
-    FadeOut,
-    LucideCircleCheck,
-    LucideCircleX,
-    LucideClock,
-    LucideEyeOff,
-    LucideFileX,
-    LucideUserX,
-    PostSnapshot,
-    SnapshotAuthor,
-    UserSnapshot,
-  ],
+  imports: [Button, CommentSnapshot, FadeOut, PostSnapshot, SnapshotAuthor, UserSnapshot, Icon],
   templateUrl: './report-card.html',
   styleUrl: './report-card.css',
   host: { class: 'block' },
 })
 export class ReportCard {
+  protected readonly icons = {
+    circleCheck: LucideCircleCheck,
+    circleX: LucideCircleX,
+    clock: LucideClock,
+    eyeOff: LucideEyeOff,
+    fileX: LucideFileX,
+    userX: LucideUserX,
+  };
+
   protected readonly text = inject(LanguageStore).text;
   protected readonly dateFormatter = inject(DateFormatter);
   protected readonly ReportDecision = ReportDecision;

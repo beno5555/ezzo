@@ -4,7 +4,7 @@ import { Component, input } from '@angular/core';
 // projected, since a Lucide icon is a directive on the <svg> itself; anything else projected (a link onward)
 // goes below the line:
 //   <app-empty-state [heading]="..." [message]="...">
-//     <svg class="size-8 text-ink-muted" lucideMessageCircleDashed aria-hidden="true"></svg>
+//     <svg class="size-8 text-ink-muted" [appIcon]="icons.messageCircleDashed" aria-hidden="true"></svg>
 //   </app-empty-state>
 // headingLevel keeps the page's outline: 2 under the page's h1, 3 inside a section that has its own h2. The
 // caller gives the space around it and any frame.

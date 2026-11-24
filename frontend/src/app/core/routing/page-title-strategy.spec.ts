@@ -61,7 +61,7 @@ describe('PageTitleStrategy', () => {
     await harness.navigateByUrl('/feed');
     TestBed.tick();
 
-    TestBed.inject(LanguageStore).setLanguage(Language.Georgian);
+    await TestBed.inject(LanguageStore).setLanguage(Language.Georgian);
     TestBed.tick();
 
     expect(title.getTitle()).toBe('სიახლეები – Ezzo');

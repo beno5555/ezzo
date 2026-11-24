@@ -1,5 +1,8 @@
 import { TestBed } from '@angular/core/testing';
 import { DateFormatter } from './date-formatter';
+import { english } from './english';
+import { georgian } from './georgian';
+import { initialLanguage } from './initial-language';
 import { Language } from './language';
 import { LanguageStore } from './language-store';
 
@@ -11,7 +14,8 @@ function withPlainSpaces(text: string): string {
 describe('DateFormatter', () => {
   function startFormatter(timeZone: string, language: Language): DateFormatter {
     vi.stubEnv('TZ', timeZone);
-    TestBed.inject(LanguageStore).setLanguage(language);
+    const text = language === Language.Georgian ? georgian : english;
+    TestBed.overrideProvider(initialLanguage, { useValue: { language, text } });
     return TestBed.inject(DateFormatter);
   }
 
@@ -35,10 +39,10 @@ describe('DateFormatter', () => {
       expect(dates.time(sentAt)).toBe('15 ნოე, 2026, 18:30');
     });
 
-    it('follows a language switch', () => {
+    it('follows a language switch', async () => {
       const dates = startFormatter('Asia/Tbilisi', Language.English);
 
-      TestBed.inject(LanguageStore).setLanguage(Language.Georgian);
+      await TestBed.inject(LanguageStore).setLanguage(Language.Georgian);
 
       expect(dates.time(sentAt)).toBe('15 ნოე, 2026, 18:30');
     });

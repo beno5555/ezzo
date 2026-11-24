@@ -1,10 +1,11 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { LucideFlag } from '@lucide/angular';
+import LucideFlag from 'lucide/dist/esm/icons/flag.mjs';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { PageLoadStatus } from '../../../core/paging/page-load-status';
 import { LIMITS } from '../../../core/limits';
 import { ConfirmationOpener } from '../../../shared/confirmation/confirmation-opener';
 import { EmptyState } from '../../../shared/empty-state/empty-state';
+import { Icon } from '../../../shared/icon/icon';
 import { LoadFailure } from '../../../shared/load-failure/load-failure';
 import { ScrollSentinel } from '../../../shared/scroll-sentinel/scroll-sentinel';
 import { ToastStore } from '../../../shared/toasts/toast-store';
@@ -30,11 +31,13 @@ import { SettlingList } from '../settling-list';
 // new list, read from its first page.
 @Component({
   selector: 'app-admin-reports-page',
-  imports: [EmptyState, LoadFailure, ReportCard, ScrollSentinel, Tabs, ToggleButton, LucideFlag],
+  imports: [EmptyState, LoadFailure, ReportCard, ScrollSentinel, Tabs, ToggleButton, Icon],
   templateUrl: './admin-reports-page.html',
   styleUrl: './admin-reports-page.css',
 })
 export class AdminReportsPage implements OnInit {
+  protected readonly icons = { flag: LucideFlag };
+
   private readonly reportApi = inject(ReportApi);
   private readonly confirmationOpener = inject(ConfirmationOpener);
   private readonly toastStore = inject(ToastStore);

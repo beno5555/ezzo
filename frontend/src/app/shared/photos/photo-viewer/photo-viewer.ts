@@ -1,9 +1,13 @@
 import { DIALOG_DATA, DialogRef } from '@angular/cdk/dialog';
 import { Component, computed, inject, signal } from '@angular/core';
-import { LucideChevronLeft, LucideChevronRight, LucideTrash2, LucideX } from '@lucide/angular';
+import LucideChevronLeft from 'lucide/dist/esm/icons/chevron-left.mjs';
+import LucideChevronRight from 'lucide/dist/esm/icons/chevron-right.mjs';
+import LucideTrash2 from 'lucide/dist/esm/icons/trash.mjs';
+import LucideX from 'lucide/dist/esm/icons/x.mjs';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { Button } from '../../button/button';
 import { IconButton } from '../../icon-button/icon-button';
+import { Icon } from '../../icon/icon';
 import { PhotoViewerData } from '../photo-viewer-data';
 
 // The full-screen viewer that a click on a thumbnail opens (PhotoViewerOpener). It shows one photo at a
@@ -11,7 +15,7 @@ import { PhotoViewerData } from '../photo-viewer-data';
 // on picked photos, it also removes them one by one, and closes once none is left.
 @Component({
   selector: 'app-photo-viewer',
-  imports: [Button, IconButton, LucideChevronLeft, LucideChevronRight, LucideTrash2, LucideX],
+  imports: [Button, IconButton, Icon],
   templateUrl: './photo-viewer.html',
   styleUrl: './photo-viewer.css',
   host: {
@@ -21,6 +25,13 @@ import { PhotoViewerData } from '../photo-viewer-data';
   },
 })
 export class PhotoViewer {
+  protected readonly icons = {
+    chevronLeft: LucideChevronLeft,
+    chevronRight: LucideChevronRight,
+    trash2: LucideTrash2,
+    x: LucideX,
+  };
+
   private readonly dialogRef = inject(DialogRef);
   private readonly data = inject<PhotoViewerData>(DIALOG_DATA);
 

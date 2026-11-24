@@ -9,7 +9,7 @@
       [href]="fallbackAddress"
       (click)="follow($event)"
     >
-      <svg class="size-5 shrink-0" lucideArrowLeft aria-hidden="true"></svg>
+      <svg class="size-5 shrink-0" [appIcon]="icons.arrowLeft" aria-hidden="true"></svg>
       {{ label() }}
     </a>
   </div>

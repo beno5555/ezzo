@@ -55,11 +55,11 @@
       }
       <div class="flex items-center gap-6 text-sm font-semibold text-ink-muted">
         <span class="flex items-center gap-2">
-          <svg class="size-5" lucideHeart></svg>
+          <svg class="size-5" [appIcon]="icons.heart"></svg>
           {{ post.likeCount }}
         </span>
         <span class="flex items-center gap-2">
-          <svg class="size-5" lucideMessageCircle></svg>
+          <svg class="size-5" [appIcon]="icons.messageCircle"></svg>
           {{ text().posts.card.commentsLink(post.commentCount) }}
         </span>
       </div>

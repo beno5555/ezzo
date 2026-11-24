@@ -8,16 +8,28 @@
     </p>
 
     <a appMenuRow [routerLink]="addresses.profile(signedInUser.username)" (click)="menu.close()">
-      <svg class="size-5 shrink-0 text-ink-muted" lucideUserRound aria-hidden="true"></svg>
+      <svg
+        class="size-5 shrink-0 text-ink-muted"
+        [appIcon]="icons.userRound"
+        aria-hidden="true"
+      ></svg>
       {{ text().shell.myProfileLink }}
     </a>
     <a appMenuRow [routerLink]="addresses.settings" (click)="menu.close()">
-      <svg class="size-5 shrink-0 text-ink-muted" lucideSettings aria-hidden="true"></svg>
+      <svg
+        class="size-5 shrink-0 text-ink-muted"
+        [appIcon]="icons.settings"
+        aria-hidden="true"
+      ></svg>
       {{ text().shell.settingsLink }}
     </a>
     @if (isAdministrator()) {
       <a appMenuRow [routerLink]="addresses.admin" (click)="menu.close()">
-        <svg class="size-5 shrink-0 text-ink-muted" lucideShield aria-hidden="true"></svg>
+        <svg
+          class="size-5 shrink-0 text-ink-muted"
+          [appIcon]="icons.shield"
+          aria-hidden="true"
+        ></svg>
         {{ text().shell.adminLink }}
       </a>
     }
@@ -27,7 +39,7 @@
     <hr class="my-1 border-border" />
 
     <button appMenuRow type="button" (click)="signOut()">
-      <svg class="size-5 shrink-0 text-ink-muted" lucideLogOut aria-hidden="true"></svg>
+      <svg class="size-5 shrink-0 text-ink-muted" [appIcon]="icons.logOut" aria-hidden="true"></svg>
       {{ text().shell.signOutButton }}
     </button>
   </app-shell-popover>

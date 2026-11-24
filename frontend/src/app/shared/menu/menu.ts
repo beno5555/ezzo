@@ -1,9 +1,10 @@
 import { CdkMenu, CdkMenuItem, CdkMenuTrigger } from '@angular/cdk/menu';
 import { ConnectedPosition } from '@angular/cdk/overlay';
 import { Component, inject, input } from '@angular/core';
-import { LucideEllipsis } from '@lucide/angular';
+import LucideEllipsis from 'lucide/dist/esm/icons/ellipsis.mjs';
 import { LanguageStore } from '../../core/languages/language-store';
 import { IconButton } from '../icon-button/icon-button';
+import { Icon } from '../icon/icon';
 import { MenuEntry } from './menu-entry';
 
 // The list opens under the "…" button, aligned to its end edge (the button sits at the end of a post, a
@@ -20,12 +21,14 @@ const positions: ConnectedPosition[] = [
 //   <app-menu [entries]="menuEntries()" [label]="text().posts.menuLabel" />
 // label names the button for screen readers; without one it is "More actions".
 @Component({
-  imports: [CdkMenu, CdkMenuItem, CdkMenuTrigger, IconButton, LucideEllipsis],
+  imports: [CdkMenu, CdkMenuItem, CdkMenuTrigger, IconButton, Icon],
   selector: 'app-menu',
   templateUrl: './menu.html',
   styleUrl: './menu.css',
 })
 export class Menu {
+  protected readonly icons = { ellipsis: LucideEllipsis };
+
   protected readonly text = inject(LanguageStore).text;
   protected readonly positions = positions;
 

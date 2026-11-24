@@ -1,7 +1,8 @@
 import { Component, inject, input } from '@angular/core';
-import { LucideCopy } from '@lucide/angular';
+import LucideCopy from 'lucide/dist/esm/icons/copy.mjs';
 import { LanguageStore } from '../../core/languages/language-store';
 import { IconButton } from '../icon-button/icon-button';
+import { Icon } from '../icon/icon';
 import { ToastLook } from '../toasts/toast-look';
 import { ToastStore } from '../toasts/toast-store';
 
@@ -12,11 +13,13 @@ import { ToastStore } from '../toasts/toast-store';
 // title. A screen reader meets only the button, which names the value; the text is a mouse shortcut.
 @Component({
   selector: 'app-copyable-text',
-  imports: [IconButton, LucideCopy],
+  imports: [IconButton, Icon],
   templateUrl: './copyable-text.html',
   host: { class: 'flex min-w-0 items-center gap-1' },
 })
 export class CopyableText {
+  protected readonly icons = { copy: LucideCopy };
+
   private readonly toastStore = inject(ToastStore);
 
   readonly value = input.required<string>();

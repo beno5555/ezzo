@@ -1,5 +1,7 @@
 # UI text is translated in the frontend with typed dictionaries, and server text stays English
 
+Superseded by [ADR 0010](0010-load-only-the-selected-language-at-startup.md).
+
 WebCity's UI has a language switch: English and Georgian first, Russian and Spanish to follow. The frontend translates only the text it owns (labels, buttons, its own validation and status messages), from one TypeScript dictionary file per language, each checked against the English one by the compiler. Text that comes from the backend (failure messages in the response envelope, validation messages, emails) stays English, because the envelope carries a message but no code to translate by.
 
 ## Considered Options
@@ -13,5 +15,5 @@ WebCity's UI has a language switch: English and Georgian first, Russian and Span
 - A user of the Georgian UI sees server failure messages and emails in English. Forms validate in the browser first, so server validation text is rarely seen.
 - No literal UI text may appear in a template or component.
 - Never translate server text by matching its English wording; that breaks silently when the wording changes.
-- Every language ships in the main bundle, which is acceptable at this size.
+- Every language originally shipped in the main bundle.
 - The typeface must cover Latin, Cyrillic and Georgian.

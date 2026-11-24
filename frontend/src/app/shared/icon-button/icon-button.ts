@@ -28,7 +28,7 @@ const lookClasses: Record<IconButtonLook, { button: string; disc: string }> = {
 // muted until hovered. An icon alone says nothing to a screen reader, so the caller gives the button an
 // aria-label from the dictionary:
 //   <button appIconButton type="button" [attr.aria-label]="text().shared.dialog.closeButton">
-//     <svg class="size-5" lucideX aria-hidden="true"></svg>
+//     <svg class="size-5" [appIcon]="icons.x" aria-hidden="true"></svg>
 //   </button>
 // Over a photo (the photo picker's remove buttons), look="on-photo" shows a small disc and keeps the
 // full square as the place a finger can tap; its icon is size-4.

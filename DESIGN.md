@@ -108,7 +108,7 @@ typography:
     fontWeight: 700
     lineHeight: 1.1
   wordmark:
-    fontFamily: Fraunces, serif
+    fontFamily: Fraunces Variable, serif
     fontWeight: 900
 rounded:
   sm: 4px
@@ -196,7 +196,7 @@ A colour is named for its job, never for its shade. A component uses the role na
 ## Typography
 
 - **Two roles,** and the wordmark below. The **body** role (`font-body`) is Noto Sans, with the variable Noto Sans Georgian for Georgian letters. The **display** role (`font-display`: headings and the logo) is Bricolage Grotesque, set narrow through its width axis. It has no Cyrillic or Georgian, so those letters fall to Noto Sans and to the variable Noto Sans Georgian, whose width axis narrows Georgian headings to match.
-- **The wordmark** (`font-wordmark`) is Fraunces at its heaviest, softest, largest optical size, with its wonky letters (owner, 2026-11-23). It sets only the Latin word "ezzo", so it needs no Cyrillic or Georgian partner; the landing page and the stamp use it, so every page loads it.
+- **The wordmark** (`font-wordmark`) is Fraunces at its heaviest, softest, largest optical size, with its wonky letters (owner, 2026-11-23). The landing page and the stamp load the same variable font subset for the letters in "ezzo".
 - **Six sizes,** from `text-xs` (12 px) to `text-2xl` (28 px), and one more, `text-display` (48 px), for the landing page's tagline on a wide screen; at 28 px it read as a caption under the wordmark (owner, 2026-11-23). Body text is `text-base` (16 px) and is never smaller than `text-sm` (14 px).
 - **No letter spacing.** Headings keep the face's own spacing, which Georgian needs.
 - **Fonts are served by the app itself.** No font is loaded from another origin.

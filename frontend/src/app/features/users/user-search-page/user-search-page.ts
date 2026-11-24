@@ -2,7 +2,8 @@ import { Component, DestroyRef, effect, inject, signal, untracked } from '@angul
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { LucideSearch, LucideUserX } from '@lucide/angular';
+import LucideSearch from 'lucide/dist/esm/icons/search.mjs';
+import LucideUserX from 'lucide/dist/esm/icons/user-x.mjs';
 import { map } from 'rxjs';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { LIMITS } from '../../../core/limits';
@@ -17,6 +18,7 @@ import { SessionStore } from '../../../core/session/session-store';
 import { Debouncer, typingPauseMilliseconds } from '../../../core/timing/debouncer';
 import { Button } from '../../../shared/button/button';
 import { EmptyState } from '../../../shared/empty-state/empty-state';
+import { Icon } from '../../../shared/icon/icon';
 import { LoadFailure } from '../../../shared/load-failure/load-failure';
 import { ScrollSentinel } from '../../../shared/scroll-sentinel/scroll-sentinel';
 import { TextInput } from '../../../shared/text-input/text-input';
@@ -43,14 +45,15 @@ import { UserSearchStore } from '../user-search-store';
     ScrollSentinel,
     TextInput,
     UserRow,
-    LucideSearch,
-    LucideUserX,
+    Icon,
   ],
   providers: [UserSearchStore],
   templateUrl: './user-search-page.html',
   styleUrl: './user-search-page.css',
 })
 export class UserSearchPage {
+  protected readonly icons = { search: LucideSearch, userX: LucideUserX };
+
   private readonly userApi = inject(UserApi);
   private readonly router = inject(Router);
   private readonly sessionStore = inject(SessionStore);

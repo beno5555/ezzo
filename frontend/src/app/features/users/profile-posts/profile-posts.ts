@@ -1,7 +1,8 @@
 import { NgTemplateOutlet } from '@angular/common';
 import { Component, DestroyRef, OnInit, computed, inject, input } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { LucideNewspaper, LucidePlus } from '@lucide/angular';
+import LucideNewspaper from 'lucide/dist/esm/icons/newspaper.mjs';
+import LucidePlus from 'lucide/dist/esm/icons/plus.mjs';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { LIMITS } from '../../../core/limits';
 import { PageLoadStatus } from '../../../core/paging/page-load-status';
@@ -11,6 +12,7 @@ import { signInAddress } from '../../../core/routing/sign-in-address';
 import { SessionStore } from '../../../core/session/session-store';
 import { Button } from '../../../shared/button/button';
 import { EmptyState } from '../../../shared/empty-state/empty-state';
+import { Icon } from '../../../shared/icon/icon';
 import { LoadFailure } from '../../../shared/load-failure/load-failure';
 import { PostCard } from '../../../shared/post-card/post-card';
 import { ScrollSentinel } from '../../../shared/scroll-sentinel/scroll-sentinel';
@@ -39,13 +41,14 @@ import { StandardUserDto } from '../standard-user-dto';
     PostCard,
     RouterLink,
     ScrollSentinel,
-    LucideNewspaper,
-    LucidePlus,
+    Icon,
   ],
   templateUrl: './profile-posts.html',
   styleUrl: './profile-posts.css',
 })
 export class ProfilePosts implements OnInit {
+  protected readonly icons = { newspaper: LucideNewspaper, plus: LucidePlus };
+
   readonly user = input.required<StandardUserDto>();
 
   private readonly postApi = inject(PostApi);

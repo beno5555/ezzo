@@ -15,7 +15,7 @@
         (input)="searchAfterTyping()"
       />
       <button appButton look="primary" type="submit" [disabled]="form.invalid">
-        <svg class="size-5" lucideSearch aria-hidden="true"></svg>
+        <svg class="size-5" [appIcon]="icons.search" aria-hidden="true"></svg>
         {{ text().users.search.submitButton }}
       </button>
     </div>
@@ -70,7 +70,7 @@
               [message]="text().users.search.emptyMessage(searchedWords())"
               [headingLevel]="2"
             >
-              <svg class="size-8 text-ink-muted" lucideUserX aria-hidden="true"></svg>
+              <svg class="size-8 text-ink-muted" [appIcon]="icons.userX" aria-hidden="true"></svg>
             </app-empty-state>
           }
         }
@@ -82,7 +82,7 @@
       [heading]="text().users.search.promptTitle"
       [message]="text().users.search.promptMessage"
     >
-      <svg class="size-8 text-ink-muted" lucideSearch aria-hidden="true"></svg>
+      <svg class="size-8 text-ink-muted" [appIcon]="icons.search" aria-hidden="true"></svg>
     </app-empty-state>
   }
 </div>

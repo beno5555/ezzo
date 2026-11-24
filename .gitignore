@@ -451,6 +451,7 @@ test-results/
 
 # Icon must end with two \r
 Icon
+!/frontend/src/app/shared/icon/
 
 
 # Thumbnails

@@ -1,9 +1,11 @@
 import { Component, OnInit, computed, inject, signal } from '@angular/core';
-import { LucideMessageCircleDashed, LucideShieldCheck } from '@lucide/angular';
+import LucideMessageCircleDashed from 'lucide/dist/esm/icons/message-circle-dashed.mjs';
+import LucideShieldCheck from 'lucide/dist/esm/icons/shield-check.mjs';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { LIMITS } from '../../../core/limits';
 import { PageLoadStatus } from '../../../core/paging/page-load-status';
 import { EmptyState } from '../../../shared/empty-state/empty-state';
+import { Icon } from '../../../shared/icon/icon';
 import { LoadFailure } from '../../../shared/load-failure/load-failure';
 import { ScrollSentinel } from '../../../shared/scroll-sentinel/scroll-sentinel';
 import { Tab } from '../../../shared/tabs/tab';
@@ -35,13 +37,17 @@ import { SettlingList } from '../settling-list';
     PostSnapshot,
     ScrollSentinel,
     Tabs,
-    LucideMessageCircleDashed,
-    LucideShieldCheck,
+    Icon,
   ],
   templateUrl: './admin-moderation-page.html',
   styleUrl: './admin-moderation-page.css',
 })
 export class AdminModerationPage implements OnInit {
+  protected readonly icons = {
+    messageCircleDashed: LucideMessageCircleDashed,
+    shieldCheck: LucideShieldCheck,
+  };
+
   private readonly adminApi = inject(AdminApi);
   private readonly moderationApi = inject(ModerationApi);
   private readonly toastStore = inject(ToastStore);

@@ -9,7 +9,7 @@
       [routerLink]="listAddress"
       [attr.aria-label]="text().messages.conversation.backLink"
     >
-      <svg class="size-5" lucideArrowLeft aria-hidden="true"></svg>
+      <svg class="size-5" [appIcon]="icons.arrowLeft" aria-hidden="true"></svg>
     </a>
 
     @if (friend(); as shownFriend) {
@@ -58,7 +58,7 @@
         [message]="text().messages.conversation.notFoundMessage(username())"
         [headingLevel]="3"
       >
-        <svg class="size-8 text-ink-muted" lucideUserX aria-hidden="true"></svg>
+        <svg class="size-8 text-ink-muted" [appIcon]="icons.userX" aria-hidden="true"></svg>
         <!-- On a phone the list is a screen away; beside it, on a wider screen, it needs no link. -->
         <a appTextLink class="md:hidden" [routerLink]="listAddress">{{
           text().messages.conversation.listLink
@@ -72,7 +72,7 @@
         [message]="text().messages.conversation.notFriendMessage(username())"
         [headingLevel]="3"
       >
-        <svg class="size-8 text-ink-muted" lucideUserRoundX aria-hidden="true"></svg>
+        <svg class="size-8 text-ink-muted" [appIcon]="icons.userRoundX" aria-hidden="true"></svg>
         <!-- The profile is where a friend request is sent (ticket 14). -->
         <a appTextLink [routerLink]="profileAddress()">{{
           text().messages.conversation.profileLink
@@ -100,7 +100,11 @@
             [message]="text().messages.conversation.emptyMessage"
             [headingLevel]="3"
           >
-            <svg class="size-8 text-ink-muted" lucideMessageCircleDashed aria-hidden="true"></svg>
+            <svg
+              class="size-8 text-ink-muted"
+              [appIcon]="icons.messageCircleDashed"
+              aria-hidden="true"
+            ></svg>
           </app-empty-state>
         } @else {
           <!-- Reversed, so it opens at the newest message and keeps its place when older ones are added

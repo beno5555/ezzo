@@ -22,7 +22,7 @@
         [attr.aria-label]="text().messages.edit.cancelButton"
         (click)="cancelEdit()"
       >
-        <svg class="size-5" lucideX aria-hidden="true"></svg>
+        <svg class="size-5" [appIcon]="icons.x" aria-hidden="true"></svg>
       </button>
     } @else {
       <button
@@ -32,7 +32,7 @@
         [attr.aria-label]="text().shared.photos.addButton"
         (click)="openPhotos()"
       >
-        <svg class="size-5" lucideImagePlus aria-hidden="true"></svg>
+        <svg class="size-5" [appIcon]="icons.imagePlus" aria-hidden="true"></svg>
       </button>
     }
     <!-- One row, like the comment form: screen readers read the label and the placeholder shows the same
@@ -74,10 +74,10 @@
     <!-- An icon alone on a phone, the word from a tablet up. Save in place of Send while an edit is in the box. -->
     <button appButton look="primary" type="submit" [disabled]="!canSend()">
       @if (editing()) {
-        <svg class="size-5 md:hidden" lucideCheck aria-hidden="true"></svg>
+        <svg class="size-5 md:hidden" [appIcon]="icons.check" aria-hidden="true"></svg>
         <span class="sr-only md:not-sr-only">{{ text().messages.edit.saveButton }}</span>
       } @else {
-        <svg class="size-5 md:hidden" lucideSendHorizontal aria-hidden="true"></svg>
+        <svg class="size-5 md:hidden" [appIcon]="icons.sendHorizontal" aria-hidden="true"></svg>
         <span class="sr-only md:not-sr-only">{{ text().messages.messageBox.sendButton }}</span>
       }
     </button>
