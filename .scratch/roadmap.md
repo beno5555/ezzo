@@ -31,7 +31,7 @@ Two worktree lanes at a time (`docs/agents/worktrees.md`), each taking frontend 
 | 12    | F16, user search (merged)                         | F24, admin: logs and statistics (merged)   |
 | 13    | F15, the friends page (merged)                    | F21, live toasts (merged)                  |
 | 14    | F17, the settings page (merged)                   | F41, the landing page with sign-in (merged) |
-| 15    | F31, the default picture's silhouette             |                                            |
+| 15    | F31, the default picture's silhouette (merged)    |                                            |
 
 Backend lane: n8n 08 and 11 are finished on their worktree branches and parked: the frontend pages come first, so their merge waited until the pages were done (owner, 2026-11-22). The pages are done: the merge comes after workflow 07 in step 9, once the owner has looked at them. Until then a session lists the two branches as parked, not as work to merge. Readiness 07 is left out: it matters only if the demo moves to a host.
 
@@ -75,7 +75,7 @@ The owner expects to lose more than a day, which is more than the buffer. Work t
 
 If time runs short, these are finished last, in this order from the end: the weekly digest, birthday notifications, grouping of repeated exception alerts, automatic hiding after several reports, the activity part of the statistics page.
 
-On the frontend, in this order from the end: the default picture's new look (a ring coloured by the id around a faceless silhouette, frontend ticket 31; the current initials on a coloured disc stay until then), choosing a profile picture (the default picture is built either way), the dark theme (its switch is hidden if it is not checked on every page), the account history in settings (needs a new table, because `AccountDeactivatedAt` is cleared on reactivation), live friend requests (a new hub event, a live badge and incoming list on `/friends`, and their own toast), and the dialog that lists who liked a post.
+On the frontend, in this order from the end: choosing a profile picture (the default picture is built either way), the dark theme (its switch is hidden if it is not checked on every page), the account history in settings (needs a new table, because `AccountDeactivatedAt` is cleared on reactivation), live friend requests (a new hub event, a live badge and incoming list on `/friends`, and their own toast), and the dialog that lists who liked a post.
 
 ## After the deadline
 
