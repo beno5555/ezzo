@@ -350,15 +350,23 @@ A refusal is `403` with the failure envelope (`ResponseMessages.AutomationMayOnl
 
 ### `InternalController`
 
-Route: `api/internal`, in `Controllers/Automation`. `[Authorize(Policy = AutomationAuth.Policies.AutomationOnly)]`: only the automation's API key opens it. A guest, a wrong key and any user's token, an administrator's included, get `401`.
+Route: `api/internal`, in `Controllers/Automation`. `[Authorize(Policy = AutomationAuth.Policies.AutomationOnly)]`: only the automation's API key opens it. A guest, a wrong key and any user's token, an administrator's included, get `401`. Each route has its own policy, because every keyed request counts in the one automation bucket and a shared policy would be used up by whichever route is busiest.
 
-| Method | Route                 | Notes                                                                                                                       |
-|--------|-----------------------|-----------------------------------------------------------------------------------------------------------------------------|
-| GET    | `api/internal/digest` | Who gets the weekly digest and what it says, `PageQuery`, `ListResponse<DigestRecipientDto>`, ordered by user id. Policy `ReadDigest` (120/minute) |
+| Method | Route                        | Notes                                                                                                                       |
+|--------|------------------------------|-----------------------------------------------------------------------------------------------------------------------------|
+| GET    | `api/internal/digest`        | Who gets the weekly digest and what it says, `PageQuery`, `ListResponse<DigestRecipientDto>`, ordered by user id. Policy `ReadDigest` (120/minute) |
+| GET    | `api/internal/birthdays`     | Users with a friend whose birthday is on the date, `BirthdayListQuery`, `ListResponse<BirthdayRecipientDto>`. Policy `InternalReadBirthdays` (30/minute) |
+| POST   | `api/internal/notifications` | Push a notification to connected users, `SendNotificationDto`, `ApplicationResponse`. Policy `InternalSendNotifications` (60/minute) |
+
+A successful read writes no `Log` row, like the administrator's account list, and neither does a push. An invalid query or body gets `400` with the framework's validation `ProblemDetails`.
 
 **The digest list** (`DigestService`, `UserRepository.GetDigestRecipientsAsync`, one query). A row is a user with `DigestEmailEnabled` on and something to report; a user with nothing gets no row. Each row carries `id`, `username`, `email`, and:
 - `unreadConversationCount`: distinct senders of the user's unseen messages, the count the app's badge shows (`MessageRepository.GetUnreadConversationsCount`).
 - `pendingFriendRequestCount`: pending requests the user received.
 - `posts`: up to `Constants.DigestPostLimit` (3) posts by the user's accepted friends, either direction of the friendship, created in the last `Constants.DigestPostWindow` (7 days) and not `Hidden` (`Flagged` ones stay in). Most-liked first, newer first on a tie. Each is `DigestPostDto`: `id`, `title`, `authorUsername`, `likeCount` (every like, as the post reads count them).
 
-Deactivated and soft-deleted users are left out as recipients and as authors by the `User` query filter. The author check goes through the filtered user set, not `post.User`: the filter turns that navigation into a LEFT JOIN, so a hidden author would read as null and pass a check on its dates. A successful read writes no `Log` row, like the administrator's account list.
+Deactivated and soft-deleted users are left out as recipients and as authors by the `User` query filter. The author check goes through the filtered user set, not `post.User`: the filter turns that navigation into a LEFT JOIN, so a hidden author would read as null and pass a check on its dates.
+
+**Birthdays** (`BirthdayService`, `FriendshipRepository.GetBirthdayRecipientIdsAsync` / `GetBirthdayFriendsAsync`): `BirthdayListQuery : PageQuery` adds an optional `date` (`yyyy-MM-dd`); with none, today in UTC. Each row is one recipient, `BirthdayRecipientDto` (`Id`, `Username`, `Email`, `Friends`: a list of `MinimalUserDto`, every accepted friend born on that month and day, ordered by id). Either side of an accepted friendship counts; pending and declined ones do not. Both the recipient and the friend must have an active account: the joins go through `Users`, so its query filter leaves out deactivated and soft-deleted accounts. The digest switch is not read: a user with the email off is still listed. Rows are ordered by recipient id and paged by recipient, so one recipient's friends are never split across pages. **29 February:** in a year without it, a 29 February birthday falls on 28 February; in a leap year it matches only on the 29th.
+
+**Notifications** (`NotificationService`): the body is `{ "recipientIds": [2, 3], "kind": "BIRTHDAY", "data": { "friends": [{ "id": 5, "username": "diana" }] } }`. `recipientIds` holds 1 to 100 ids (`Constants.MaxNotificationRecipients`); `kind` is a name (`NotificationKindJsonConverter`: `BIRTHDAY` is the only kind, numbers are refused); `data.friends` holds at least one friend. Anything else is refused and nothing is pushed. The backend pushes `ReceiveNotification` (`{ kind, data }`, `PushNotificationDto`) to each recipient's hub group once, even if an id is named twice, and stores nothing. A recipient who is not connected, or does not exist, has an empty group: nothing is delivered to them and nothing fails, so the answer is `200`.

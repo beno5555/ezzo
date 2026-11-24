@@ -18,22 +18,54 @@ Decisions are under "Internal endpoints" in `.scratch/n8n-automation/spec.md`. N
 
 **Blocked by:** 03 (The automation calls the backend with its own key and can only raise a moderation status)
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Difficulty:** routine (Opus 5.5 medium): the work is fully specified and the push copies an existing one, but the date rule and the two directions of a friendship must hold together.
 
-- [ ] With the key and a `date`, the list returns a row for each user with an accepted friend born on that month and day, with that friend's id and username
-- [ ] A user with several such friends gets one row that names them all
-- [ ] The friendship counts whichever of the two sent the request; a pending and a declined friendship do not count
-- [ ] A date on which no friend has a birthday returns an empty list
-- [ ] A friend born on 29 February is listed for 29 February in a leap year, for 28 February in another year, and not for 28 February in a leap year
-- [ ] A deactivated recipient and a deactivated friend are left out; a user with the digest switch off is still listed
-- [ ] Without the `date`, the list uses today's UTC date
-- [ ] Paging works and the order is stable across pages
-- [ ] With the key, posting a `BIRTHDAY` notification for two connected users delivers `ReceiveNotification` with the kind and the data to both, and nothing to a third connected user (real SignalR clients)
-- [ ] An unknown recipient id and a recipient who is not connected cause no failure
-- [ ] An unknown kind, no recipients and 101 recipients are refused with the validation shape
-- [ ] Without the key, with a wrong key, with a user's token and with an administrator's token, both routes answer `401`
-- [ ] Each new route has its own rate-limit policy
-- [ ] New seed rows are appended and no existing seeded id changes
-- [ ] `docs/backend/controllers.md`, `signalr.md` and `automation.md` describe the two routes and the push
+- [x] With the key and a `date`, the list returns a row for each user with an accepted friend born on that month and day, with that friend's id and username
+- [x] A user with several such friends gets one row that names them all
+- [x] The friendship counts whichever of the two sent the request; a pending and a declined friendship do not count
+- [x] A date on which no friend has a birthday returns an empty list
+- [x] A friend born on 29 February is listed for 29 February in a leap year, for 28 February in another year, and not for 28 February in a leap year
+- [x] A deactivated recipient and a deactivated friend are left out; a user with the digest switch off is still listed
+- [x] Without the `date`, the list uses today's UTC date
+- [x] Paging works and the order is stable across pages
+- [x] With the key, posting a `BIRTHDAY` notification for two connected users delivers `ReceiveNotification` with the kind and the data to both, and nothing to a third connected user (real SignalR clients)
+- [x] An unknown recipient id and a recipient who is not connected cause no failure
+- [x] An unknown kind, no recipients and 101 recipients are refused with the validation shape
+- [x] Without the key, with a wrong key, with a user's token and with an administrator's token, both routes answer `401`
+- [x] Each new route has its own rate-limit policy
+- [x] New seed rows are appended and no existing seeded id changes
+- [x] `docs/backend/controllers.md`, `signalr.md` and `automation.md` describe the two routes and the push
+
+## Comments
+
+**2026-11-21, files expected to collide with ticket 08** (built in parallel in the `worktree-n8n-08-digest` lane; both add routes under `/api/internal`):
+
+- `backend/aspnetproject/Controllers/Internal/InternalController.cs`: this ticket creates it with `[Route("api/internal")]` and the `AutomationOnly` policy. If 08 creates the same file, the merge is an add/add conflict: keep one class and put both tickets' actions in it.
+- `backend/aspnetproject/Extensions/RateLimitConfig.cs`: both add an `Internal` region to `Policies` and to `AddApplicationRateLimiting`.
+- `backend/aspnetproject/Extensions/ApplicationServicesExtensions.cs`: both register a new service.
+- `backend/aspnetproject/Common/ProjectConstants/ResponseMessages.cs` and `Constants.cs`: both append messages and constants.
+- `backend/aspnetproject/Data/Repositories/UserRepository.cs` or `FriendshipRepository.cs`: both may add a list query. This ticket adds its query to `FriendshipRepository`.
+- `docs/backend/controllers.md` and `docs/backend/automation.md`: both add a section on the internal routes.
+- `.scratch/roadmap.md`: both tick their step and add an "Awaiting the owner's review" line.
+
+Not expected to collide: this ticket adds no migration and no seed rows (the birthday tests insert their own rows; see below), so 08's migration, model snapshot and `TestDataSeeder` changes do not overlap.
+
+The digest switch comes from 08 and does not exist on this branch yet. The birthday query never reads it, so "a user with the digest switch off is still listed" can be tested only after 08 merges.
+
+**2026-11-21, done.** All boxes but one are ticked. The open box is "a user with the digest switch off is still listed": the deactivated half is tested (`GetBirthdays_LeavesOutDeactivatedAndDeletedAccountsAsRecipientsAndAsFriends`), and the digest half needs 08's switch. Once both branches are in `master`, add one test to `InternalBirthdaysTests` that turns the switch off for bob and still finds bob's row on 1 January, then tick the box. The seed-rows box holds because no seed row was added.
+
+Beyond the ticket:
+
+- `data.friends` must hold at least one friend (`400` otherwise). The spec says the data is the list of friends whose birthday it is, and ticket 13's toast needs a first friend's name.
+- A recipient id named twice is told once.
+
+**For ticket 12** (from the spec review):
+
+- **The data is an object:** `{ "recipientIds": [...], "kind": "BIRTHDAY", "data": { "friends": row.friends } }`. Sending the friends list itself as `data` is refused by validation. The spec's "a data object" is the reason for the wrapper; `docs/backend/controllers.md` (`InternalController`) has the exact shape.
+- **The rate limit:** `POST /api/internal/notifications` allows 60 calls a minute (`InternalSendNotifications`), and `GET /api/internal/birthdays` 30 a minute, each in the automation's own bucket. With one call per recipient, the batches and their pauses must keep the workflow under 60 calls a minute, or it gets `429` part-way through.
+
+The spec review (Opus 5.5) found nothing missing or wrong beyond the two points above. The standards review found no hard violation; fixed after it: four parameters wrapped one per line, the access tests' ids named, a date-bound test comment rewritten, and `Constants.LastDayOfFebruaryInACommonYear` named. Left for the owner: `BirthdayRecipientDto` carries no tier in its name though it holds an email (as the automation's event DTOs do), and neither new service writes a `Log` row (as `StatisticsService` does not).
+
+**2026-11-25, `master` taken in** (with 08 merged). The two `InternalController` classes became one, in master's `Controllers/Automation/`, with the digest, birthday and notification actions; this ticket's DTOs moved from `Dtos/Internal/` to `Dtos/Automation/` beside the digest's, and the two `Internal` regions in `RateLimitConfig` became one. The services stay in `BusinessLogic/Internal/`. 08's seed made grace (8) and heidi (9) accepted friends born on 1 January, so three birthday tests now expect them (and grace's friendship with erin_deactivated is checked as left out). The last box is ticked: `GetBirthdays_ForUserWithDigestEmailOff_StillListsThem`. Full suite 963 tests, `Duration` 35 s. The docs (`README.md`, `auth.md`, `automation.md`, `controllers.md`) now describe the three internal routes together.

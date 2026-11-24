@@ -25,7 +25,9 @@ public static class RateLimitConfig
         #endregion
 
         #region Internal
-        public const string ReadDigest = "ReadDigest";
+        public const string ReadDigest                = "ReadDigest";
+        public const string InternalReadBirthdays     = "InternalReadBirthdays";
+        public const string InternalSendNotifications = "InternalSendNotifications";
         #endregion
 
         #region Auth
@@ -298,10 +300,18 @@ public static class RateLimitConfig
                 PerUserSlidingWindow(httpContext, 30, TimeSpan.FromHours(1)));
             #endregion
 
-            #region Internal
+            #region Internal (only the API key opens these, so they count in the automation's bucket: AutomationPartitionKey)
             // The automation pages through the whole list once a week; this leaves room for a large user base at full pages.
             options.AddPolicy(Policies.ReadDigest, httpContext =>
                 PerUserSlidingWindow(httpContext, 120, TimeSpan.FromMinutes(1)));
+
+            // Read once a day, a page at a time.
+            options.AddPolicy(Policies.InternalReadBirthdays, httpContext =>
+                PerUserSlidingWindow(httpContext, 30, TimeSpan.FromMinutes(1)));
+
+            // A call per recipient or per batch, each naming up to Constants.MaxNotificationRecipients users.
+            options.AddPolicy(Policies.InternalSendNotifications, httpContext =>
+                PerUserSlidingWindow(httpContext, 60, TimeSpan.FromMinutes(1)));
             #endregion
             
             #region Global

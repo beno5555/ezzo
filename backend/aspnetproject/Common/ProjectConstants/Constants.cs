@@ -59,6 +59,12 @@ public static class Constants
     public const string AutomationApiKeyHeader = "X-Api-Key";
     public const string AutomationActorName    = "Automation";
 
+    // The internal routes (docs/backend/automation.md). In a year without 29 February, a birthday on that day falls on the 28th.
+    public const int February                       = 2;
+    public const int LeapDay                        = 29;
+    public const int LastDayOfFebruaryInACommonYear = LeapDay - 1;
+    public const int MaxNotificationRecipients      = 100;
+
     public static readonly TimeSpan EditMessageWindow = TimeSpan.FromMinutes(20);
 
     // The two windows of the administrator's activity counts; both end now.

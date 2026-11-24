@@ -26,6 +26,7 @@ For the earlier, API-only state of this repository and the history behind it, se
 - Soft-delete own account; a background job later purges soft-deleted accounts and their messages and posts (with their photo files), friendships, likes and reports once a retention window has passed
 - Outcome logging of service calls to the `Logs` table, plus a file log for unhandled exceptions
 - Automation events: an unhandled exception, in a request or in a background job, is sent to the automation (n8n) as a signed `exception-occurred` event, and so are new accounts, posts, comments, their edits and reports (`account-created`, `post-created`, `post-edited`, `comment-created`, `comment-edited`, `report-created`). Events are off by default; a failed delivery writes a `Logs` row and nothing else. In Development, `GET api/dev/throw` throws on purpose
+- Internal routes for the automation (`api/internal`, its API key only): list who gets this week's digest email and what it says, list the users with a friend whose birthday is today, and push a `ReceiveNotification` to the users it names who are connected. A user turns the digest email off with `PUT api/users/mine/digest-email`
 - Rate limiting: a named policy on every endpoint except logout, and a global limiter over everything
 
 ---
@@ -35,7 +36,7 @@ For the earlier, API-only state of this repository and the history behind it, se
 - ASP.NET Core Web API (C#), target framework `net10.0`
 - Entity Framework Core (SQL Server, code-first migrations)
 - JWT bearer authentication
-- SignalR (real-time push: messages, comments, likes, presence, typing)
+- SignalR (real-time push: messages, comments, likes, presence, typing, automation notifications)
 - ASP.NET Core rate limiting middleware
 - MailKit (SMTP email delivery)
 - Swashbuckle and `Microsoft.AspNetCore.OpenApi` (Swagger UI and OpenAPI, Development only)
@@ -98,7 +99,9 @@ CLAUDE.md
             ReportDecision.cs, ReportStatus.cs, ReportTargetType.cs, RoleName.cs
 /Controllers
     /Admin
-        AdminController.cs
+        AdminController.cs, ModerationController.cs
+    /Automation
+        InternalController.cs
     /Base
         BaseController.cs
     /Content
@@ -144,7 +147,7 @@ CLAUDE.md
         UserMapper.cs
         ...
     /Queries
-        AccountListQuery.cs, PageQuery.cs, ReportListQuery.cs, SearchUserQuery.cs
+        AccountListQuery.cs, BirthdayListQuery.cs, PageQuery.cs, ReportListQuery.cs, SearchUserQuery.cs
     /Services
         /Automation
             /Configuration
@@ -158,6 +161,7 @@ CLAUDE.md
         /BusinessLogic
             /Base
             /Content
+            /Internal
             /Users
             LogService.cs, StatisticsService.cs
         /Helpers
@@ -170,7 +174,7 @@ CLAUDE.md
 Program.cs
 ```
 
-Folders are grouped by domain area, not by REST noun, and the grouping repeats across layers: `AuthController`, `UserController`, `FriendshipController`, `AccountManagementController` and `AccountActivationController` all live under `Controllers/Users/`, mirroring `Services/BusinessLogic/Users/`. `AdminController` (`Controllers/Admin/`) is the administrator-only area; it calls `LogService`, `StatisticsService`, `UserService` and `ModerationService` (`BusinessLogic/Content`). `ModerationController`, beside it, holds the two routes that set a moderation status, because the automation may call those with its API key too.
+Folders are grouped by domain area, not by REST noun, and the grouping repeats across layers: `AuthController`, `UserController`, `FriendshipController`, `AccountManagementController` and `AccountActivationController` all live under `Controllers/Users/`, mirroring `Services/BusinessLogic/Users/`. `AdminController` (`Controllers/Admin/`) is the administrator-only area; it calls `LogService`, `StatisticsService`, `UserService` and `ModerationService` (`BusinessLogic/Content`). `ModerationController`, beside it, holds the two routes that set a moderation status, because the automation may call those with its API key too. `InternalController` (`Controllers/Automation/`) holds the routes only the automation may call: the digest list on `DigestService` (`BusinessLogic/Users`), and birthdays and notifications on `BirthdayService` and `NotificationService` (`BusinessLogic/Internal`).
 
 ---
 
@@ -207,7 +211,7 @@ Dependencies point one way: **Controllers / Hubs → Services → Repositories �
 
 **Repositories**: concrete classes. `BaseRepository<T>` and `BaseEntityRepository<T>` provide the shared query, pagination and transaction logic; specific repositories add domain queries.
 
-**Services**: business logic. The services under `BusinessLogic/Content` and `BusinessLogic/Users` inherit `BaseService` and consume repositories and mappers directly. `LogService` and `StatisticsService` also inherit `BaseService`; they serve the administrator's log and statistics reads through the repositories (`StatisticsService` also reads the online count from `UserConnectionTracker`).
+**Services**: business logic. The services under `BusinessLogic/Content`, `BusinessLogic/Internal` and `BusinessLogic/Users` inherit `BaseService` and consume repositories and mappers directly. `LogService` and `StatisticsService` also inherit `BaseService`; they serve the administrator's log and statistics reads through the repositories (`StatisticsService` also reads the online count from `UserConnectionTracker`).
 
 **Controllers**: thin. They delegate to services and map `ApplicationResponse` outcomes to HTTP status codes. All routes are under `api/` (for example `api/posts`, `api/auth`).
 

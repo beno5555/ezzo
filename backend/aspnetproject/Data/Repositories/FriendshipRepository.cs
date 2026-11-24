@@ -2,6 +2,7 @@
 using aspnetproject.Common.ProjectConstants.Enums;
 using aspnetproject.Data.Models;
 using aspnetproject.Data.Repositories.Base;
+using aspnetproject.Data.Repositories.Dtos;
 using Microsoft.EntityFrameworkCore;
 
 namespace aspnetproject.Data.Repositories;
@@ -84,6 +85,57 @@ public class FriendshipRepository : BaseRepository<Friendship>
             .ToListAsync();
     }
     
+    // The page of recipients first, then every birthday friend of those recipients, so a recipient's friends are never split
+    // across two pages. Both read the same pairs, so they agree on who is listed.
+    public async Task<List<int>> GetBirthdayRecipientIdsAsync(
+        int month,
+        IReadOnlyCollection<int> days,
+        int pageNumber,
+        int pageSize)
+    {
+        return await BirthdayFriendPairs(month, days)
+            .Select(pair => pair.RecipientId)
+            .Distinct()
+            .OrderBy(recipientId => recipientId)
+            .Skip((pageNumber - 1) * pageSize)
+            .Take(pageSize)
+            .ToListAsync();
+    }
+
+    public async Task<List<BirthdayFriendProjection>> GetBirthdayFriendsAsync(int month, IReadOnlyCollection<int> days, List<int> recipientIds)
+    {
+        return await BirthdayFriendPairs(month, days)
+            .Where(pair => recipientIds.Contains(pair.RecipientId))
+            .OrderBy(pair => pair.RecipientId)
+            .ThenBy(pair => pair.FriendId)
+            .ToListAsync();
+    }
+
+    // Each accepted friendship seen from both sides, whoever sent the request, kept when the friend is born on one of the days
+    // of the month. The joins go through Users, so its global filter leaves out deactivated and deleted accounts on either side.
+    private IQueryable<BirthdayFriendProjection> BirthdayFriendPairs(int month, IReadOnlyCollection<int> days)
+    {
+        var accepted = _dbSet.Where(friendship => friendship.FriendshipStatus == FriendshipStatus.Accepted);
+
+        var bothSides = accepted
+            .Select(friendship => new { RecipientId = friendship.RequesterUserId, FriendId = friendship.AddresseeUserId })
+            .Concat(accepted.Select(friendship => new { RecipientId = friendship.AddresseeUserId, FriendId = friendship.RequesterUserId }));
+
+        return
+            from side in bothSides
+            join recipient in _dbContext.Users on side.RecipientId equals recipient.Id
+            join friend in _dbContext.Users on side.FriendId equals friend.Id
+            where friend.DateOfBirth.Month == month && days.Contains(friend.DateOfBirth.Day)
+            select new BirthdayFriendProjection
+            {
+                RecipientId       = recipient.Id,
+                RecipientUsername = recipient.Username,
+                RecipientEmail    = recipient.Email,
+                FriendId          = friend.Id,
+                FriendUsername    = friend.Username
+            };
+    }
+
     public async Task<Friendship?> GetRelationshipAsync(int requesterId, int addresseeId, bool orderMatters = false)
     {
         return await GetFirstAsync(MatchRelationship(requesterId, addresseeId, orderMatters));

@@ -33,7 +33,7 @@ Two worktree lanes at a time (`docs/agents/worktrees.md`), each taking frontend 
 | 14    | F17, the settings page (merged)                   | F41, the landing page with sign-in (merged) |
 | 15    | F31, the default picture's silhouette (merged)    |                                            |
 
-Backend lane: n8n 08 is merged. 11 is finished on its worktree branch and merges next, after it takes in `master`: it needs 08's `DigestEmailEnabled` column. The settings page's digest switch is added only if time allows. Readiness 07 is left out: it matters only if the demo moves to a host.
+Backend lane: n8n 08 and 11 are merged. The settings page's digest switch is added only if time allows. Readiness 07 is left out: it matters only if the demo moves to a host.
 
 1. [ ] **Design.** The name was still open, so the design session fixed the structure and left the brand for later. The frontend setup (tickets 27 to 29) is merged.
    - [ ] **Frontend ticket 30: Impeccable.** Merged, and the owner kept the hook on after its trial on F10. Open only for box 6, a cloud session's run of the launcher. No ticket waits for it.
@@ -55,12 +55,12 @@ Backend lane: n8n 08 is merged. 11 is finished on its worktree branch and merges
 7. [x] **Fri 20: chat and live notifications.** The SignalR service and the central state for the session, conversations, online friends and unread count. Conversation list with last message, conversation with photos, edit and delete, seen, typing, presence and last active. Toasts for a new message, comment, like and a friend coming online. F18 to F21 are merged.
 8. [x] **Sat 21: admin panel.** Users (create, edit, deactivate, restore, delete, grant and remove the administrator role), delete any post or comment, logs, statistics, the reports list, the moderation queue. F22 to F24 are merged.
 9. [ ] **n8n, late: Tue 24 and the night into Wed 25.** The owner's windows (2026-11-24): Tue 8 to 10 am, Tue 4 to 8 pm, and after midnight into Wed 25, as far as usage allows. The limit is the owner: a workflow ticket is done only when the owner has run its checklist.
-   - Merged: the backend tickets 01, 03 and 04, and the setup (02).
+   - Merged: the backend tickets 01, 03, 04, 08 and 11, and the setup (02).
    - Tickets 02, 05, 06 and 07 are done: the owner ran their checklists (2026-11-24).
-   - Order: 02's checklist, then 05 (welcome email), then 07 (report alert, hiding after five reports), then 06 (AI moderation) only if the OpenAI key is ready. Then the owner reviews and merges the parked backend branches 08 and 11, then 09 with 10 (digest) or 12 with 13 (birthdays). Alert grouping (14) is last; 15 is after the deadline.
+   - Order: 02's checklist, then 05 (welcome email), then 07 (report alert, hiding after five reports), then 06 (AI moderation) only if the OpenAI key is ready. Then 09 with 10 (digest) or 12 with 13 (birthdays). Alert grouping (14) is last; 15 is after the deadline.
    - Realistic count: 02, 05 and 07 firm; 06 if the key is ready; one of the digest or birthday pairs if the evening goes well. What is left stays under Last in line.
    - Needs from the owner: the Telegram bot token and the chat ids, the OpenAI key (before ticket 06), and the administrator address. n8n uses the same SMTP account as the backend's `EmailConfiguration`.
-10. [ ] **Tue 24 and the night into Wed 25: buffer and finish.** Responsive pass on a phone width. Walk the document top to bottom against the running app and fix what fails. Update `README.md` (monorepo ticket 04) and `docs/backend/*.md` for everything added. Frontend ticket 31 runs as a worktree lane beside the n8n work, and is cut first if usage runs short. Suggested split: the morning window takes the responsive pass, the document walk and 02's checklist with 05; the evening takes 07, 06, the merge of 08 and 11 and one more pair; after midnight is the README and docs, a last walk and the full test run.
+10. [ ] **Tue 24 and the night into Wed 25: buffer and finish.** Responsive pass on a phone width. Walk the document top to bottom against the running app and fix what fails. Update `README.md` (monorepo ticket 04) and `docs/backend/*.md` for everything added. Frontend ticket 31 runs as a worktree lane beside the n8n work, and is cut first if usage runs short. Suggested split: the morning window takes the responsive pass, the document walk and 02's checklist with 05; the evening takes 07, 06 and one more pair; after midnight is the README and docs, a last walk and the full test run.
 11. [ ] **Wed 25: hand in.**
 
 ### Before the presentation
