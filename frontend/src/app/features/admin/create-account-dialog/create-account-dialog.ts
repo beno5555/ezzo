@@ -9,6 +9,7 @@ import { applyFieldErrors, setServerErrors } from '../../../shared/form-field/ap
 import { FieldRules } from '../../../shared/form-field/field-rules';
 import { FormField } from '../../../shared/form-field/form-field';
 import { FormMessage } from '../../../shared/form-message/form-message';
+import { PasswordToggle } from '../../../shared/password-toggle/password-toggle';
 import { TextInput } from '../../../shared/text-input/text-input';
 import { RegisterDto } from '../../auth/register-dto';
 import { bioOrNull } from '../../users/bio-or-null';
@@ -21,7 +22,15 @@ import { adminUserFromFull } from '../admin-user-from-full';
 // the new account's row, or with nothing when it is cancelled. The new account is not signed in.
 @Component({
   selector: 'app-create-account-dialog',
-  imports: [ReactiveFormsModule, Button, DialogFrame, FormField, FormMessage, TextInput],
+  imports: [
+    ReactiveFormsModule,
+    Button,
+    DialogFrame,
+    FormField,
+    FormMessage,
+    PasswordToggle,
+    TextInput,
+  ],
   templateUrl: './create-account-dialog.html',
   styleUrl: './create-account-dialog.css',
 })

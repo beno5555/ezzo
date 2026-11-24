@@ -39,12 +39,15 @@
       [control]="form.controls.password"
     >
       <input
+        #passwordBox
         appTextInput
+        class="pe-12"
         id="password"
         type="password"
         autocomplete="new-password"
         formControlName="password"
       />
+      <app-password-toggle [target]="passwordBox" />
     </app-form-field>
 
     <app-form-field

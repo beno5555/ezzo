@@ -97,6 +97,10 @@ export const english = {
     dialog: {
       closeButton: 'Close',
     },
+    // The eye button inside a password box; aria-pressed says whether the password shows.
+    passwordToggle: {
+      label: 'Show password',
+    },
     // The copyable texts (a username, an email) in the admin panel.
     copy: {
       button: (value: string) => `Copy ${value}`,

@@ -11,6 +11,7 @@ import { Button } from '../../../shared/button/button';
 import { applyFieldErrors } from '../../../shared/form-field/apply-field-errors';
 import { FormField } from '../../../shared/form-field/form-field';
 import { FormMessage } from '../../../shared/form-message/form-message';
+import { PasswordToggle } from '../../../shared/password-toggle/password-toggle';
 import { TextInput } from '../../../shared/text-input/text-input';
 import { TextLink } from '../../../shared/text-link/text-link';
 import { AuthFrame } from '../auth-frame/auth-frame';
@@ -37,6 +38,7 @@ import { toLandingPageState } from './landing-page-state';
     FormField,
     FormMessage,
     LandingPicture,
+    PasswordToggle,
     TextInput,
     TextLink,
   ],

@@ -10,6 +10,7 @@ import { Button } from '../../../shared/button/button';
 import { applyFieldErrors, setServerErrors } from '../../../shared/form-field/apply-field-errors';
 import { FormField } from '../../../shared/form-field/form-field';
 import { FormMessage } from '../../../shared/form-message/form-message';
+import { PasswordToggle } from '../../../shared/password-toggle/password-toggle';
 import { TextInput } from '../../../shared/text-input/text-input';
 import { TextLink } from '../../../shared/text-link/text-link';
 import { bioOrNull } from '../../users/bio-or-null';
@@ -34,6 +35,7 @@ import { LandingPageState } from '../landing-page/landing-page-state';
     Button,
     FormField,
     FormMessage,
+    PasswordToggle,
     TextInput,
     TextLink,
   ],

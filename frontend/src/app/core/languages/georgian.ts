@@ -81,6 +81,9 @@ export const georgian: Dictionary = {
     dialog: {
       closeButton: 'დახურვა',
     },
+    passwordToggle: {
+      label: 'პაროლის ჩვენება',
+    },
     // The copyable texts (a username, an email) in the admin panel.
     copy: {
       button: (value: string) => `დააკოპირე ${value}`,
