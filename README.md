@@ -176,19 +176,26 @@ Folders are grouped by domain area, not by REST noun, and the grouping repeats a
 
 ## Running It
 
-Run the `dotnet` commands from `backend/`:
+Use the .NET 10 SDK and a SQL Server instance. Create the gitignored appsettings files you need in `backend/aspnetproject/`. A fresh clone supplies no template. For local development, set the following in `appsettings.Development.json`.
+
+- `ConnectionStrings:DefaultConnection` for the development database.
+- `Jwt:Key`, `Jwt:AccessTokenMinutes`, `Jwt:RefreshTokenDays`, and `PasswordConfiguration:ResetTokenMinutes` for account flows. Keep the signing key and connection credentials out of Git.
+- `EmailConfiguration` for SMTP, or `EmailConfiguration:Enabled` set to `false` for local development without mail delivery.
+- `Cors:AllowedOrigins`, including `http://localhost:4200` when running the frontend, so password reset and reactivation accept links back to it. See [frontend setup](frontend/README.md).
+
+Apply the database migrations before the first dev run. Run these commands from `backend/` with the `dotnet-ef` tool installed.
 
 ```bash
 dotnet build aspnetproject.slnx
+dotnet ef database update --project aspnetproject -- --environment Development
 dotnet run --project aspnetproject
-dotnet test aspnetproject.IntegrationTests
 ```
 
-`appsettings.json`, `appsettings.Development.json` and `appsettings.Testing.json` are gitignored and there is no example template, so a fresh clone does not run until they exist in `backend/aspnetproject/`. The application reads `ConnectionStrings:DefaultConnection`, `Jwt`, `EmailConfiguration`, `PasswordConfiguration:ResetTokenMinutes`, `CleanupConfiguration:{OldLogs,RefreshTokens,SoftDeletedUsers}` and `Cors:AllowedOrigins`, and optionally `ImageStorage:{UploadFolder,MaxFileSizeBytes,MaxImagesPerPost,MaxImagesPerMessage}` (defaults: `Uploads/` under the project, 5 MB, 10, 5) and `CleanupConfiguration:OrphanImages:{Interval,MinimumAge,BatchSize}` (defaults: 24 hours, 1 hour, 500; startup fails if `MinimumAge` is under one minute) and `PasswordConfiguration:HashIterations` (default 100,000; startup fails below that in any environment but Testing) and `AutomationEvents:{Enabled,BaseUrl,SigningSecret,Timeout}` (defaults: off, no address, no secret, 3 seconds; with events on, startup fails without the address or the secret) and `AutomationApi:Key` (no default; with no key configured, every caller that sends one is refused). Uploaded photos, of posts and of messages, are written to the upload folder, which is gitignored.
+See the settings for [cleanup jobs](docs/backend/background-jobs.md), [image storage](docs/backend/controllers.md#postcontroller), [password hashing](docs/backend/auth.md#authentication--authorization), [automation events](docs/backend/automation.md#settings), and [automation API access](docs/backend/auth.md#the-automations-api-key-second-scheme).
 
-The integration tests need a real SQL Server database. On Linux, `scripts/test-linux.sh` (run from the repository root) starts one in Docker and runs the same tests; CI uses that script. How the suite gets its databases and hosts: `docs/backend/testing.md`.
+For direct runs, prepare the [local test settings](docs/backend/testing.md#local-test-settings) and run `dotnet test aspnetproject.IntegrationTests` from `backend/`. On Linux, run [`scripts/test-linux.sh`](scripts/test-linux.sh) from the repository root to provision SQL Server in Docker and run the suite.
 
-The automation runs beside the backend, from the repository root, with Docker running: `pwsh -File n8n/setup.ps1` generates the secrets the two share and turns events on in `appsettings.Development.json`, and `docker compose -f n8n/compose.yaml up -d` starts n8n with every workflow imported and published. Without it, events stay off and the backend runs as before. Steps and checklists: `n8n/README.md`.
+Automation events are off by default. For a local n8n instance, use the [automation setup guide](n8n/README.md#setup) to configure the shared secrets, enable events, and start the Docker services.
 
 ---
 
@@ -210,63 +217,7 @@ Dependencies point one way: **Controllers / Hubs → Services → Repositories �
 
 ### Startup
 
-`Program.cs` composes startup through `Add*` extension methods from `Extensions/`. Condensed:
-
-```csharp
-var builder = WebApplication.CreateBuilder(args);
-
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-{
-    string? connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-    options.UseSqlServer(connectionString);
-});
-
-builder.Services.AddControllers();
-builder.Services.AddHttpContextAccessor();
-
-builder.Services.AddSwaggerConfiguration();
-builder.Services.AddOpenApi();
-builder.Services.AddEndpointsApiExplorer();
-
-builder.Services.AddJwtAuthentication(builder.Configuration);
-builder.Services.AddAuthorization();
-
-builder.Services.AddApplicationRateLimiting();
-builder.Services.AddCorsPolicies(builder.Configuration);
-
-builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
-builder.Services.AddProblemDetails();
-
-builder.Services.AddApplicationServices(builder.Configuration);
-
-var app = builder.Build();
-
-if (app.Environment.IsDevelopment())
-{
-    app.MapThrowingEndpoint();
-    app.MapSwagger();
-    app.MapSwaggerUI();
-    app.MapOpenApi();
-}
-
-app.UseExceptionHandler();
-app.UseHttpsRedirection();
-app.UseImageStorage();
-app.UseRouting();
-
-app.UseCors("OriginPolicy");
-
-app.UseAuthentication();
-app.UseRateLimiter();
-app.UseAuthorization();
-app.MapControllers();
-
-app.MapHub<MessageHub>("hubs/messages");
-
-app.Run();
-```
-
-`AddApplicationServices` (`Extensions/ApplicationServicesExtensions.cs`) registers SignalR, the singleton `UserConnectionTracker`, every repository and service (scoped), the two loggers (scoped), `EmailSender` (transient), `ImageStorage` (scoped), the options classes for email, image storage, automation events and the four cleanup jobs, `EventPublisher` (a typed `HttpClient`), and the four hosted services (`OrphanImagesCleanupService` and `SoftDeletedUsersCleanupService` also as singletons, so the integration tests can run one cycle). `UseImageStorage` serves the upload folder as static files at `/api/images`.
+Startup configures SQL Server and controllers, then uses extension methods to register JWT and automation authentication and the application services. The pipeline serves uploads at `/api/images` and maps `MessageHub` at `/hubs/messages`. Rate limiting runs between authentication and authorization so per-user policies can read the caller. Development also exposes Swagger UI, OpenAPI, and the route that throws to test exception events. See [Program.cs](backend/aspnetproject/Program.cs) for the pipeline and [ApplicationServicesExtensions.cs](backend/aspnetproject/Extensions/ApplicationServicesExtensions.cs) for registrations and options.
 
 ---
 
@@ -276,7 +227,7 @@ app.Run();
 - **Result wrapper.** A service method that can fail returns `ApplicationResponse` or `ApplicationResponse<T>`; the controller maps `Succeeded` to a status code. Where no failure state is possible the wrapper is left out (`AuthService.LogoutAsync`, `MessageService.MarkAsReadAsync`, `MessageService.GetUnreadConversationsCount`). Unhandled exceptions go to `GlobalExceptionHandler`, which writes the same envelope.
 - **Control flow.** The house rule outside controllers and hubs is no early returns: a method has a single `return` at the end and branches with `if`/`else`. Controllers may return early, checking success first.
 - **Two repository bases.** `BaseEntityRepository<T>` is for `BaseEntity` types and adds id-based operations. `UserRoleRepository` (composite key, no `Id`) and `FriendshipRepository` extend `BaseRepository<T>` directly. Subclasses override `protected virtual IQueryable<T> Query(bool track = true)` to set default `Include`s.
-- **Transactions.** `ExecuteInTransactionAsync` can be called from any repository a service holds, because all repositories share the scoped `DbContext`.
+- **Transactions.** Services use the shared repository transaction for atomic writes. See [persistence and bulk writes](docs/backend/data.md#savechanges-strategy).
 - **Two loggers.** `BaseService` holds the `DatabaseLogger` and provides `LogResultAsync`, which writes an outcome row tagged `{ServiceName}.{MethodName}` to the `Logs` table. `SystemLogger` appends to `Logs/ErrorLogs.txt` for unhandled exceptions and for failures to write a log row. Background jobs log through `DatabaseLogger` too. Controllers do not log.
 - **Account states.** Deactivation and soft-delete are two distinct states. A global query filter on `User` hides both from normal reads, so call sites do not have to remember to filter.
 - **`LastUpdatedAt` carries meaning.** It is nullable and stamped by services on update, not defaulted by the database: `Message.IsEdited` is `LastUpdatedAt is not null`.
@@ -293,13 +244,13 @@ app.Run();
 
 Per-area detail lives in `docs/backend/`:
 
-- `auth.md`: authentication, tokens, account activation, roles, error shapes, rate limiting
-- `controllers.md`: every endpoint, per controller
-- `data.md`: repositories, entities, cascade behavior
-- `signalr.md`: the hub, presence, events, CORS
-- `background-jobs.md`: the cleanup jobs
-- `automation.md`: the events sent to the automation, their signature and settings, and how n8n receives them
-- `testing.md`: the integration test infrastructure: database pool, recorded seed, test host
+- [Authentication and authorization](docs/backend/auth.md)
+- [Controllers and endpoint contracts](docs/backend/controllers.md)
+- [Repositories, entities, and cascade behavior](docs/backend/data.md)
+- [SignalR, presence, and live events](docs/backend/signalr.md)
+- [Background jobs](docs/backend/background-jobs.md)
+- [Automation events and API access](docs/backend/automation.md)
+- [Integration test infrastructure](docs/backend/testing.md)
 
 The automation's own setup, workflows and checklists are in `n8n/README.md`.
 

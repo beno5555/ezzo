@@ -1,9 +1,5 @@
 ﻿# WebCity — Authentication & Authorization
 
-> Part of the WebCity doc set. See also: `README.md`, `data.md`, `auth.md`, `controllers.md`, `signalr.md`, `background-jobs.md`, `automation.md`, `testing.md`.
-
----
-
 ## Authentication & Authorization
 
 Password hashing is PBKDF2 (`Rfc2898DeriveBytes.Pbkdf2`, SHA-256, 32-byte salt and hash, both stored base64) — replaced the console app's original hashing scheme (`PasswordHasher`). The iteration count is the setting `PasswordConfiguration:HashIterations`, read through `PasswordHashingConfiguration`, default 100,000. Stored hashes do not record their iteration count, so changing it locks out every existing password and a lowered value weakens every new one. The app therefore refuses to start (`OptionsValidationException` naming the setting) when the value is below 100,000 in any environment other than Testing. The integration test host sets it to 1 (`CustomWebApplicationFactory.TestHashIterations`), and `TestDataSeeder` hashes the shared test password with that count through `PasswordHasher`, so a seeded user signs in only on a Testing host. Never put the lowered value in `appsettings.Testing.json`: the test host loads that file in every environment, so its Development hosts would then fail the guard. JWT access tokens + rotating refresh tokens are implemented. Role-based authorization now exists (`User`/`Administrator`, via `Role`/`UserRole`); ownership-style checks (e.g. can only delete own comment, or a post author/admin can delete any comment on their post) continue to be handled in services against claims, alongside role checks for admin-only actions.

@@ -34,7 +34,7 @@ Get-Content .worktreeinclude | Where-Object { $_ -match '^\s*[^#\s]' } | ForEach
 codex -C $lane
 ```
 
-Choose a ticket whose scope fits alongside the other active lanes. Test databases are named after the worktree folder, so each lane gets its own pool. For frontend checks, use the Playwright MCP server and screenshot command in `screenshots.md`. Finish the lane with the trial merge in `worktrees.md`.
+Choose a ticket whose scope fits alongside the other active lanes. See [worktree setup and handoff](worktrees.md) for test databases and the trial merge. For frontend checks, use the [Playwright MCP server and screenshot command](screenshots.md).
 
 ## Keeping AGENTS.md true
 

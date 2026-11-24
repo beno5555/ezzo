@@ -1,9 +1,5 @@
 ﻿# WebCity — Controllers
 
-> Part of the WebCity doc set. See also: `README.md`, `data.md`, `auth.md`, `controllers.md`, `signalr.md`, `background-jobs.md`, `automation.md`, `testing.md`.
-
----
-
 ## Controllers Layer
 
 All routes are prefixed `api/` (e.g. `api/posts`, not `/posts`). Nearly every action carries `[EnableRateLimiting(RateLimitConfig.Policies.X)]` — omitted from the tables below for brevity; see `auth.md`/`RateLimitConfig.cs` for the concrete limits (per-IP before login, per-user after; see the rate-limiting section of `auth.md`).
@@ -43,7 +39,7 @@ public class SearchUserQuery : PageQuery
 }
 ```
 
-Bound via `[FromQuery]`. Unlike the earlier nullable design, both properties now default and validate through `[Range]` — no more unpaginated "return everything" mode reachable from the API surface (internal/background callers still pass `null`/`null` directly to repository methods). `MaxPageNumber` keeps the offset `(PageNumber - 1) * PageSize` inside an `int`, so a page number below 1 or above it gets `400`, not a 500 from a negative or overflowing SQL offset.
+`[FromQuery]` binds page numbers and sizes. They default to 1 and 10. `PageSize` accepts 1 through 100 and `PageNumber` accepts 1 through `MaxPageNumber`, which keeps `(PageNumber - 1) * PageSize` within an `int`. Out-of-range values return `400`.
 
 ---
 
