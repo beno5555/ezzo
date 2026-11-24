@@ -30,3 +30,9 @@
 
 - Standards found no violations or actionable code smells.
 - Spec found no missing requirements, scope changes, or regressions at the four route callers.
+
+### 2026-11-24 screenshot follow-up
+
+- The screenshot command captured the landing page, reset page, guest post with an unavailable author's avatar, signed-in post, feed, Friends and admin logs at 360, 768 and 1280 px in both themes and languages. All 84 images were reviewed as contact sheets. Playwright captured five more images showing the landing and reset pages with fragments, the delete dialog and the two outcomes after deletion.
+- Playwright found no horizontal overflow across 21 page and width combinations. Typing in the admin logs filter updated the address automatically. The unavailable author's avatar showed the default silhouette with a grey ring.
+- The screenshot command stalled on reloads of addresses with fragments. The full sets used query-only addresses, and Playwright explicitly reloaded the fragment addresses for the separate captures. The frontend ran on 4300 with synthetic API data on 7202. Both servers and the browsers were stopped afterwards.
