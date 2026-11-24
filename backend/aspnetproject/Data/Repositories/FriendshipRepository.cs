@@ -112,11 +112,4 @@ public class FriendshipRepository : BaseRepository<Friendship>
                 : (friendship.RequesterUserId == requesterId || friendship.RequesterUserId == addresseeId) &&
                   (friendship.AddresseeUserId == requesterId || friendship.AddresseeUserId == addresseeId));
     }
-
-    // Callers persist the tracked changes with SaveChangesAsync. Resending also updates SentAt before that save.
-    public void SetStatus(Friendship friendship, FriendshipStatus status)
-    {
-        friendship.FriendshipStatus = status;
-        friendship.LastUpdatedAt = DateTime.UtcNow;
-    }
 }

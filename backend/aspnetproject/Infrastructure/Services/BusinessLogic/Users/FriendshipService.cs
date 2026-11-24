@@ -101,7 +101,7 @@ public class FriendshipService : BaseService
             }
             else
             {
-                _friendshipRepository.SetStatus(relationship, FriendshipStatus.Pending);
+                SetStatus(relationship, FriendshipStatus.Pending);
                 relationship.SentAt = DateTime.UtcNow;
 
                 finalRelationship = relationship;
@@ -227,7 +227,7 @@ public class FriendshipService : BaseService
 
             if (friendship is not null && friendship.FriendshipStatus == FriendshipStatus.Pending)
             {
-                _friendshipRepository.SetStatus(friendship, status);
+                SetStatus(friendship, status);
                 
                 var friendshipDto = FriendshipMapper.ToStandardDisplay(friendship, addresseeId);
                 await _friendshipRepository.SaveChangesAsync();
@@ -246,6 +246,13 @@ public class FriendshipService : BaseService
     }
     private bool ValidRequestResponse(FriendshipStatus status) =>
         status is FriendshipStatus.Accepted or FriendshipStatus.Declined;
+
+    // Callers persist the tracked changes with SaveChangesAsync. Resending also updates SentAt before that save.
+    private void SetStatus(Friendship friendship, FriendshipStatus status)
+    {
+        friendship.FriendshipStatus = status;
+        friendship.LastUpdatedAt = DateTime.UtcNow;
+    }
     
     public async Task<ApplicationResponse> RemoveRelationshipAsync(int userId, int friendId)
     {

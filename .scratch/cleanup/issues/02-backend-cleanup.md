@@ -18,8 +18,15 @@
 
 ## Comments
 
-### 2026-11-24 verification and spec review
+### 2026-11-24 comment cleanup verification and spec review
 
-- The backend build passed with zero warnings and errors. The final integration run passed all 898 tests in 37 s, with zero failures or skips.
+- The backend build passed with zero warnings and errors. The integration run after the comment review passed all 898 tests in 37 s, with zero failures or skips.
 - Verified the purge order and both friendship status-update callers against the code. Non-comment source matched `cleanup` across all seven edited C# files.
 - Standards found no violations or code smells. Spec found two wording gaps. The comments now specify incoming messages across all pages and distinguish a filtered-out friend navigation from the foreign-key reference. Both reviews rechecked the revisions and closed with no open findings.
+
+### 2026-11-24 maintainability follow-up
+
+- The owner asked to share the relationship predicate across the three friendship queries, make the status setter synchronous, and rename the purge loop's `postIds` to `friendshipIds`.
+- Verified that exact-direction and unordered matching, status filtering, tracking, and both service save points are preserved.
+- Standards flagged that the repository stamped `LastUpdatedAt`. The synchronous setter now lives in `FriendshipService`. Standards and Spec rechecked the change and found no open issues.
+- The final backend build passed with zero warnings and errors. Both full integration runs passed all 898 tests, in 35 s before the Standards fix and 38 s after it.
