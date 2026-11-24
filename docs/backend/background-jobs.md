@@ -1,4 +1,4 @@
-# WebCity — Background Jobs
+# Ezzo — Background Jobs
 
 ## `PeriodicHostedService` (base class)
 

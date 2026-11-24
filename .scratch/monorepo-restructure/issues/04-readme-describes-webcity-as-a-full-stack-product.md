@@ -6,7 +6,7 @@ Together with 03, this replaces the former ticket 02.
 
 **Blocked by:** 03 (README describes the backend as it is now, and the repository is called webcity), and the Angular frontend being scaffolded in `frontend/` (frontend ticket 02, done 2026-11-15). Both are met. The roadmap schedules this ticket for the finish on Tue 24 (step 10), once the pages exist for the README to describe.
 
-**Status:** ready-for-agent
+**Status:** superseded by `.scratch/documentation-update/issues/01-the-docs-describe-ezzo-as-it-is-now.md` (2026-11-25), which writes the root README this ticket asked for, splits the backend and frontend detail into their own READMEs, and renames the product to Ezzo.
 
 **Difficulty:** routine: writing checked against the code, in the layout decided below.
 

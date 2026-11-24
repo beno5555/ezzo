@@ -1,4 +1,4 @@
-# WebCity — n8n
+# Ezzo — n8n
 
 The **automation** (`GLOSSARY.md`): n8n in Docker, receiving the backend's signed events (`docs/backend/automation.md`) and acting on them. Everything here starts from the repository: the workflows are committed files, imported and published on every start, so a clean start needs no click in n8n's interface. The decisions behind it are under "n8n setup" and "The six workflows" in `.scratch/n8n-automation/spec.md`.
 

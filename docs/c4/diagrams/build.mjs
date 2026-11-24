@@ -1,4 +1,4 @@
-// Builds the WebCity C4 diagrams: one SVG per diagram in this folder, and a PNG of each when Playwright is installed.
+// Builds the Ezzo C4 diagrams: one SVG per diagram in this folder, and a PNG of each when Playwright is installed.
 // Run from the repo root: node docs/c4/diagrams/build.mjs
 // Every position is set by hand. Moving an element means moving the ends of its arrows too.
 
@@ -36,17 +36,17 @@ function systemContext() {
   const developer = element({
     kind: 'person', shape: 'person', x: 920, y: 700, w: 220, h: 200,
     name: 'Developer', type: 'Person',
-    description: 'Builds and runs WebCity. Is told at once when the server fails.',
+    description: 'Builds and runs Ezzo. Is told at once when the server fails.',
   });
-  const webcity = element({
+  const ezzo = element({
     kind: 'system', x: 455, y: 380, w: 310, h: 170,
-    name: 'WebCity', type: 'Software System',
+    name: 'Ezzo', type: 'Software System',
     description: 'A small social platform: posts with photos, comments, likes, friendships, direct messages, presence, reports and an admin panel.',
   });
   const email = element({
     kind: 'external', x: 60, y: 385, w: 260, h: 160,
     name: 'Email System', type: 'Software System, external',
-    description: 'An SMTP mail service. Delivers WebCity\'s emails to people\'s inboxes.',
+    description: 'An SMTP mail service. Delivers Ezzo\'s emails to people\'s inboxes.',
   });
   const telegram = element({
     kind: 'external', x: 900, y: 385, w: 260, h: 160,
@@ -60,15 +60,15 @@ function systemContext() {
   });
 
   const relations = [
-    relation([user.bottom(), webcity.top()], 'Posts, comments, befriends people and messages friends using', null, { label: [610, 312] }),
-    relation([admin.bottom(-50), webcity.top(130)], 'Manages accounts and moderates content using', null, { label: [858, 300], labelWidth: 150 }),
-    relation([[300, 790], webcity.bottom(-110)], 'Reads profiles and posts using', null, { label: [400, 645], labelWidth: 130 }),
-    relation([webcity.left(), email.right()], 'Sends emails using', null, { labelWidth: 110 }),
+    relation([user.bottom(), ezzo.top()], 'Posts, comments, befriends people and messages friends using', null, { label: [610, 312] }),
+    relation([admin.bottom(-50), ezzo.top(130)], 'Manages accounts and moderates content using', null, { label: [858, 300], labelWidth: 150 }),
+    relation([[300, 790], ezzo.bottom(-110)], 'Reads profiles and posts using', null, { label: [400, 645], labelWidth: 130 }),
+    relation([ezzo.left(), email.right()], 'Sends emails using', null, { labelWidth: 110 }),
     relation([email.top(40), user.left(10)], 'Delivers emails to', null, { label: [370, 300], labelWidth: 110 }),
-    relation([webcity.right(), telegram.left()], 'Sends alerts using', null, { labelWidth: 110 }),
+    relation([ezzo.right(), telegram.left()], 'Sends alerts using', null, { labelWidth: 110 }),
     relation([telegram.top(30), admin.bottom(30)], 'Delivers moderation and report alerts to', null, { label: [1060, 312], labelWidth: 130 }),
     relation([telegram.bottom(30), developer.top(30)], 'Delivers exception alerts to', null, { label: [1060, 620], labelWidth: 130 }),
-    relation([webcity.bottom(), openai.top()], 'Checks posts, comments and photos using', null, { label: [610, 635], labelWidth: 150 }),
+    relation([ezzo.bottom(), openai.top()], 'Checks posts, comments and photos using', null, { label: [610, 635], labelWidth: 150 }),
   ];
 
   const key = legend(
@@ -83,9 +83,9 @@ function systemContext() {
 
   return render({
     width: 1200, height: 1140,
-    title: '[System Context] WebCity',
-    subtitle: `The system context diagram for WebCity. ${DATE}.`,
-    elements: [user, admin, guest, developer, webcity, email, telegram, openai, ...key.elements],
+    title: '[System Context] Ezzo',
+    subtitle: `The system context diagram for Ezzo. ${DATE}.`,
+    elements: [user, admin, guest, developer, ezzo, email, telegram, openai, ...key.elements],
     relations: [...relations, ...key.relations],
   });
 }
@@ -98,7 +98,7 @@ function containers() {
   const user = element({
     kind: 'person', shape: 'person', x: 380, y: 30, w: 220, h: 200,
     name: 'User', type: 'Person',
-    description: 'A guest or a signed-in member of WebCity.',
+    description: 'A guest or a signed-in member of Ezzo.',
   });
   const admin = element({
     kind: 'person', shape: 'person', x: 740, y: 30, w: 220, h: 200,
@@ -113,7 +113,7 @@ function containers() {
   const spa = element({
     kind: 'container', shape: 'browser', x: 480, y: 320, w: 300, h: 190,
     name: 'Single-Page Application', type: 'Container: TypeScript, Angular 22, Tailwind CSS',
-    description: 'Every page of WebCity in the browser: feed, profiles, friends, chat, settings and the admin panel.',
+    description: 'Every page of Ezzo in the browser: feed, profiles, friends, chat, settings and the admin panel.',
   });
   const api = element({
     kind: 'container', x: 480, y: 610, w: 300, h: 180,
@@ -182,9 +182,9 @@ function containers() {
 
   return render({
     width: 1560, height: 1330,
-    title: '[Container] WebCity',
-    subtitle: `The container diagram for WebCity. ${DATE}.`,
-    boundaries: [boundary(30, 285, 1160, 820, 'WebCity', 'Software System')],
+    title: '[Container] Ezzo',
+    subtitle: `The container diagram for Ezzo. ${DATE}.`,
+    boundaries: [boundary(30, 285, 1160, 820, 'Ezzo', 'Software System')],
     elements: [user, admin, web, spa, api, automation, database, files, openai, telegram, email, ...key.elements],
     relations: [...relations, ...key.relations],
   });

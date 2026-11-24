@@ -1,4 +1,4 @@
-// Builds webcity-c4.pdf from webcity-c4.md: pandoc turns the Markdown into HTML, Chromium (Playwright) prints it.
+// Builds ezzo-c4.pdf from ezzo-c4.md: pandoc turns the Markdown into HTML, Chromium (Playwright) prints it.
 // Text pages are A4 portrait; every diagram gets an A4 landscape page of its own, so its labels stay readable.
 // Run from the repo root after node docs/c4/diagrams/build.mjs: node docs/c4/build-pdf.mjs
 // Needs pandoc on the PATH and Playwright resolvable by Node.
@@ -13,7 +13,7 @@ const here = dirname(fileURLToPath(import.meta.url));
 const { chromium } = createRequire(import.meta.url)('playwright');
 
 // The last section, on rebuilding the diagrams, is for whoever maintains the repo and stays out of the PDF.
-const markdownHtml = execFileSync('pandoc', ['--from', 'gfm', '--to', 'html5', '--wrap=none', join(here, 'webcity-c4.md')], { encoding: 'utf8' });
+const markdownHtml = execFileSync('pandoc', ['--from', 'gfm', '--to', 'html5', '--wrap=none', join(here, 'ezzo-c4.md')], { encoding: 'utf8' });
 const body = markdownHtml.replace(/<h2[^>]*>დიაგრამების განახლება<\/h2>[\s\S]*$/, '');
 
 // Each diagram is inlined, so the PDF holds vector drawings, and moved onto a landscape page with its caption.
@@ -27,7 +27,7 @@ const withDiagrams = body.replace(
 );
 
 const html = `<!doctype html>
-<html lang="ka"><head><meta charset="utf-8"><title>WebCity C4</title>
+<html lang="ka"><head><meta charset="utf-8"><title>Ezzo C4</title>
 <style>
   @page { size: A4 portrait; margin: 18mm 16mm; }
   @page wide { size: A4 landscape; margin: 10mm; }
@@ -53,6 +53,6 @@ const html = `<!doctype html>
 const browser = await chromium.launch();
 const page = await browser.newPage();
 await page.setContent(html, { waitUntil: 'load' });
-await page.pdf({ path: join(here, 'webcity-c4.pdf'), preferCSSPageSize: true, printBackground: true });
+await page.pdf({ path: join(here, 'ezzo-c4.pdf'), preferCSSPageSize: true, printBackground: true });
 await browser.close();
-console.log(`Wrote ${pathToFileURL(join(here, 'webcity-c4.pdf')).pathname}`);
+console.log(`Wrote ${pathToFileURL(join(here, 'ezzo-c4.pdf')).pathname}`);

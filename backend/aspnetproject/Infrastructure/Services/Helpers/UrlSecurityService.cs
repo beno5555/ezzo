@@ -1,6 +1,6 @@
 ﻿namespace aspnetproject.Infrastructure.Services.Helpers;
 
-// Guards the return address WebCity puts in emailed links. Trusts exactly the origins in Cors:AllowedOrigins,
+// Guards the return address Ezzo puts in emailed links. Trusts exactly the origins in Cors:AllowedOrigins,
 // the same list that drives the cross-origin policy, so the two can never disagree.
 public class UrlSecurityService
 {

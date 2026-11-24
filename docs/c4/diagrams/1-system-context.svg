@@ -36,10 +36,10 @@
 <circle cx="1030" cy="742" r="42" fill="#08427B" stroke="#052E56" stroke-width="1.5"/>
 <text x="1030" y="817.3" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Developer</text>
 <text x="1030" y="834.3" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle">[Person]</text>
-<text x="1030" y="856.3" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">Builds and runs WebCity. Is told at</text>
-<text x="1030" y="871.3" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">once when the server fails.</text>
+<text x="1030" y="856.3" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">Builds and runs Ezzo. Is told at once</text>
+<text x="1030" y="871.3" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">when the server fails.</text>
 <rect x="455" y="380" width="310" height="170" rx="6" fill="#1168BD" stroke="#0B4884" stroke-width="1.5"/>
-<text x="610" y="436.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">WebCity</text>
+<text x="610" y="436.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Ezzo</text>
 <text x="610" y="453.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle">[Software System]</text>
 <text x="610" y="475.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">A small social platform: posts with photos, comments,</text>
 <text x="610" y="490.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">likes, friendships, direct messages, presence, reports</text>
@@ -47,7 +47,7 @@
 <rect x="60" y="385" width="260" height="160" rx="6" fill="#999999" stroke="#6B6B6B" stroke-width="1.5"/>
 <text x="190" y="443.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Email System</text>
 <text x="190" y="460.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="11" font-weight="normal" fill="#FFFFFF" text-anchor="middle">[Software System, external]</text>
-<text x="190" y="482.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">An SMTP mail service. Delivers WebCity's</text>
+<text x="190" y="482.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">An SMTP mail service. Delivers Ezzo's</text>
 <text x="190" y="497.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#FFFFFF" text-anchor="middle">emails to people's inboxes.</text>
 <rect x="900" y="385" width="260" height="160" rx="6" fill="#999999" stroke="#6B6B6B" stroke-width="1.5"/>
 <text x="1030" y="443.5" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="16" font-weight="bold" fill="#FFFFFF" text-anchor="middle">Telegram</text>
@@ -109,6 +109,6 @@
 <rect x="558.0" y="1021.0" width="74.0" height="18.0" fill="#FFFFFF" fill-opacity="0.92"/>
 <text x="595" y="1034.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#3A3A3A" text-anchor="middle">Relationship</text>
 
-<text x="30" y="1100.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="20" font-weight="normal" fill="#2E2E2E" text-anchor="start">[System Context] WebCity</text>
-<text x="30" y="1122.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#8A8A8A" text-anchor="start">The system context diagram for WebCity. November 2026.</text>
+<text x="30" y="1100.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="20" font-weight="normal" fill="#2E2E2E" text-anchor="start">[System Context] Ezzo</text>
+<text x="30" y="1122.0" font-family="Arial, Helvetica, FreeSans, sans-serif" font-size="12" font-weight="normal" fill="#8A8A8A" text-anchor="start">The system context diagram for Ezzo. November 2026.</text>
 </svg>

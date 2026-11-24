@@ -151,7 +151,7 @@ The same values live in the Tailwind theme block, which is the file the build re
 
 ## Overview
 
-Ezzo (`PRODUCT.md`) is a small social platform: a feed, posts with photos, comments, friends, chat, and an admin panel. Its screens are tools that people use many times a day, so clarity and consistency come before decoration. The code still calls the app WebCity; only what a visitor reads says Ezzo.
+Ezzo (`PRODUCT.md`) is a small social platform: a feed, posts with photos, comments, friends, chat, and an admin panel. Its screens are tools that people use many times a day, so clarity and consistency come before decoration.
 
 **The skin is Balcony** (owner, 2026-11-23): the painted wooden balconies of old Tbilisi, where neighbours lean out and talk across the yard. A deep balcony blue is the one accent, on cool pale walls in the light theme and on a blue-black night in the dark one.
 

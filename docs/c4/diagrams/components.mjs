@@ -38,7 +38,7 @@ export function apiRequests() {
   const spa = element({
     kind: 'container', shape: 'browser', x: 270, y: 30, w: 320, h: 160,
     name: 'Single-Page Application', type: 'Container: TypeScript, Angular',
-    description: 'Every page of WebCity in the browser.',
+    description: 'Every page of Ezzo in the browser.',
   });
   const automation = element({
     kind: 'container', x: 1110, y: 30, w: 260, h: 160,
@@ -75,7 +75,7 @@ export function apiRequests() {
   const database = element({
     kind: 'container', shape: 'database', x: 700, y: 1110, w: 300, h: 160,
     name: 'Database', type: 'Container: SQL Server',
-    description: 'All of WebCity\'s data.',
+    description: 'All of Ezzo\'s data.',
   });
 
   const down = (from, to, label, technology, options = {}) =>
@@ -113,7 +113,7 @@ export function apiRequests() {
 
   return render({
     width: 1700, height: 1500,
-    title: '[Component] WebCity - API Application: request handling',
+    title: '[Component] Ezzo - API Application: request handling',
     subtitle: `Controllers, the hub and the services, and how they reach the data. ${DATE}.`,
     boundaries: [boundary(20, 260, 1660, 800, 'API Application', 'Container: C#, ASP.NET Core Web API')],
     elements: [spa, automation, userControllers, contentControllers, hub, adminController, internalController, jobs,
@@ -203,7 +203,7 @@ export function apiInfrastructure() {
 
   return render({
     width: 1520, height: 1520,
-    title: '[Component] WebCity - API Application: infrastructure',
+    title: '[Component] Ezzo - API Application: infrastructure',
     subtitle: `Email, events, photos and logs: the components that reach outside the process. ${DATE}.`,
     boundaries: [boundary(20, 250, 1440, 810, 'API Application', 'Container: C#, ASP.NET Core Web API')],
     elements: [emailSystem, automation, emailSender, userServices, exceptionHandler, loggers, eventPublisher,
@@ -286,7 +286,7 @@ export function spaComponents() {
 
   return render({
     width: 1200, height: 1470,
-    title: '[Component] WebCity - Single-Page Application',
+    title: '[Component] Ezzo - Single-Page Application',
     subtitle: `The Angular application's parts. Pages not built yet load a placeholder. ${DATE}.`,
     boundaries: [boundary(20, 260, 1160, 790, 'Single-Page Application', 'Container: TypeScript, Angular 22')],
     elements: [user, shell, routing, pages, shared, languages, session, apis, stores, interceptor, hubClient, api, ...key.elements],

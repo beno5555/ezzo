@@ -1,4 +1,4 @@
-# WebCity — Automation Events
+# Ezzo — Automation Events
 
 The backend tells the **automation** (n8n, see `GLOSSARY.md`) what happened by sending it signed events. This page covers the sending side: the publisher, its settings, the envelope, the signature and the events, and, briefly, how n8n receives them. The decisions behind it are under "Events" in `.scratch/n8n-automation/spec.md`.
 

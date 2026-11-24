@@ -63,7 +63,7 @@ export class AdminApi {
     return withServerMessage(result);
   }
 
-  // How big and how active WebCity is: the totals, what was created in the last 7 and 30 days, and how many
+  // How big and how active Ezzo is: the totals, what was created in the last 7 and 30 days, and how many
   // users are online now.
   getStatistics(): Promise<AppResult<SystemStatisticsDto>> {
     return toAppResult(

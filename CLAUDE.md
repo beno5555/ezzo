@@ -1,6 +1,8 @@
 # CLAUDE.md
 
-**WebCity** is an ASP.NET Core Web API (`net10.0`) for a small social platform: posts, comments, friendships, direct messages, presence. It uses EF Core with SQL Server, JWT auth with rotating refresh tokens, SignalR, MailKit email and background cleanup jobs. This repo is a monorepo: the backend lives in `backend/`, the Angular 22 frontend in `frontend/`, and the n8n automation in `n8n/`. The restructure happened **inside** the current root folder: never rename or relocate the root itself, because Claude Code's project memory is keyed to its path.
+**Ezzo** is a small social platform: posts, comments, friendships, direct messages, presence. This repo is a monorepo: the ASP.NET Core Web API (`net10.0`) lives in `backend/`, the Angular 22 frontend in `frontend/`, and the n8n automation in `n8n/`. The backend uses EF Core with SQL Server, JWT auth with rotating refresh tokens, SignalR, MailKit email and background cleanup jobs. The restructure happened **inside** the current root folder: never rename or relocate the root itself, because Claude Code's project memory is keyed to its path.
+
+**The former name.** The product was called WebCity until 2026-11-25, and the names that something else reads keep it until a later rename ("After the deadline" in `.scratch/roadmap.md`), so never "fix" them: the `X-WebCity-Signature` header; the `WEBCITY_*` variables of n8n, the screenshot command and `frontend/.env`; the browser storage keys `webcity.theme` and `webcity.language`; the session lock `webcity-refresh-cookie`; the frontend package and Angular project `webcity`; the ESLint plugin `webcity/...`; the test hosts `*.webcity.test`, the test upload folder `webcity-test-uploads` and the probe origin `webcity.invalid`; the Linux test script's `~/.webcity-test` and `webcity-test-sql`, and the cloud database `WebCityDev`; and the `webcity-conventions` skill.
 
 ## About this file
 
@@ -34,7 +36,7 @@ The backend has no linter or formatter. **Frontend:** run from `frontend/` (Node
 
 ### Config prerequisites
 
-Use the [development setup](README.md#running-it) for local appsettings and the [test settings guide](docs/backend/testing.md#local-test-settings) for direct test runs. Keep appsettings files in `backend/aspnetproject/` and never print or commit their secret values.
+Use the [development setup](backend/README.md#running-it) for local appsettings and the [test settings guide](docs/backend/testing.md#local-test-settings) for direct test runs. Keep appsettings files in `backend/aspnetproject/` and never print or commit their secret values.
 
 ### Integration tests
 
@@ -45,7 +47,7 @@ Use the [development setup](README.md#running-it) for local appsettings and the 
 
 ## Architecture
 
-All application code lives in `backend/aspnetproject/`. Dependencies point one way: **Controllers / Hubs → Services → Repositories → `ApplicationDbContext`**. `Common/` (constants, `ResponseMessages`, enums, `ApplicationResponse`) is shared by every layer. Folders are grouped by domain area (`Users`, `Content`), and the same grouping repeats in each layer. The reasons behind these patterns: "Design Decisions" in `README.md`.
+All application code lives in `backend/aspnetproject/`. Dependencies point one way: **Controllers / Hubs → Services → Repositories → `ApplicationDbContext`**. `Common/` (constants, `ResponseMessages`, enums, `ApplicationResponse`) is shared by every layer. Folders are grouped by domain area (`Users`, `Content`), and the same grouping repeats in each layer. The reasons behind these patterns: "Design decisions" in `backend/README.md`.
 
 - **No interfaces.** Repositories, services and mappers are concrete classes, registered directly in `Extensions/ApplicationServicesExtensions.cs`. `Program.cs` composes startup only through `Add*` extension methods in `Extensions/`.
 - **Result wrapper.** Services that can fail return `ApplicationResponse` or `ApplicationResponse<T>`; controllers map `Succeeded` to a status code at each call site. `GlobalExceptionHandler` writes the same envelope for unexpected exceptions. Failure shapes and status codes: `auth.md`.
@@ -54,7 +56,7 @@ All application code lives in `backend/aspnetproject/`. Dependencies point one w
 - **Account states.** A global query filter on `User` hides deactivated and soft-deleted users from normal reads. `LastUpdatedAt` is nullable, stamped by services, and carries meaning (`Message.IsEdited`).
 - **Real-time.** One hub, `MessageHub`. Services push through `IHubContext` in the same method that mutates the data, and hubs do no validation. Details: `signalr.md`.
 - **Auth.** `BaseController` provides `GetUserId()`, `GetUsername()` and `IsAdministrator()`. `[Authorize]` is set per controller, with `[AllowAnonymous]` overrides. Nearly every action has `[EnableRateLimiting(RateLimitConfig.Policies.X)]`: per-IP before login, per-user after. `UseRateLimiter` sits between `UseAuthentication` and `UseAuthorization`; keep it there, or every per-user limit silently falls back to the IP.
-- **Allowed origins.** `Cors:AllowedOrigins` drives both the `OriginPolicy` CORS policy with credentials and the [return-address allowlist](docs/backend/auth.md#return-address-redirecturl-on-the-reset-and-reactivation-requests) for password reset and reactivation. See [development setup](README.md#running-it) for the frontend origin.
+- **Allowed origins.** `Cors:AllowedOrigins` drives both the `OriginPolicy` CORS policy with credentials and the [return-address allowlist](docs/backend/auth.md#return-address-redirecturl-on-the-reset-and-reactivation-requests) for password reset and reactivation. See [development setup](backend/README.md#running-it) for the frontend origin.
 - **Files.** `ImageStorage` (`Infrastructure/Services/Storage`) is the only code that touches uploaded files; the database stores each image's relative address under `/api/images/`. Details: Images in `controllers.md`.
 - **DTO tiers.** Output DTOs come in Minimal, Standard and Full tiers by audience, built by static mappers in `Infrastructure/Mappers`. Entities are never returned.
 
@@ -67,7 +69,7 @@ Follow the project skill `.claude/skills/webcity-conventions` (it overrides the 
 
 ## Docs
 
-`README.md` describes the backend as it is now: features, stack, layout, architecture and design decisions. `docs/backend/*.md` (`auth`, `controllers`, `data`, `signalr`, `background-jobs`, `automation`, `testing`) holds per-area detail. Update the relevant doc when you change behavior it describes.
+`README.md` describes Ezzo as a product and hands off to `backend/README.md` (what the API does, stack, layout, architecture and design decisions) and `frontend/README.md` (stack, layout, loading on demand, the dev proxy, commands); no fact is in two of them. `docs/backend/*.md` (`auth`, `controllers`, `data`, `signalr`, `background-jobs`, `automation`, `testing`) holds per-area detail. Update the relevant doc when you change behavior it describes.
 
 `DESIGN.md` at the repo root is the frontend's visual brief (design tokens, themes, layout rules). Read it before you edit a template or a style in `frontend/`. `frontend/CLAUDE.md` holds the frontend's hard styling rules.
 

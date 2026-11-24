@@ -18,18 +18,60 @@ The work continues on the branch that already holds the C4 update, `claude/vibra
 
 **Blocked by:** None (can start immediately).
 
-**Status:** ready-for-agent
+**Status:** done
 
 **Difficulty:** tricky: every statement must be checked against the code across some 60 files and three READMEs, and no test catches a wrong doc. The owner chose Opus 5.5 at high effort (2026-11-25).
 
-- [ ] The root README describes Ezzo as a product, names both halves, tells a reader how to run each (backend, frontend, n8n), and links to `backend/README.md`, `frontend/README.md`, `n8n/README.md` and `DESIGN.md`
-- [ ] The backend's detail is in `backend/README.md` and no longer in the root README; nothing is said in two of the READMEs
-- [ ] `frontend/README.md` covers the stack, the folder layout, pages loaded on demand, the single origin through the dev proxy, and the commands, and points to `frontend/CLAUDE.md` and `DESIGN.md` instead of repeating them
-- [ ] Every pointer to the old root README follows the move: the "Design Decisions" pointer and the Docs section in `CLAUDE.md`, and the "See also" line at the top of each `docs/backend/*.md`
-- [ ] Every statement in the three READMEs, `docs/backend/*.md`, `docs/agents/*.md` and `n8n/README.md` is true of the code on the branch
-- [ ] No current doc, skill text, code comment or the Swagger title says WebCity, apart from the one sentence in `CLAUDE.md` about the former name and the deferred names it lists
-- [ ] No deferred name has changed, and the build, the full integration suite, and the frontend's Prettier check, lint, unit tests and build pass
-- [ ] The C4 document and its diagrams say Ezzo; the changed diagrams and the PDF are rebuilt and the PDF is checked by eye
-- [ ] The roadmap's step 10 points to this ticket instead of monorepo ticket 04, and "After the deadline" lists the deferred rename
-- [ ] Monorepo ticket 04's status says it is superseded by this ticket
+- [x] The root README describes Ezzo as a product, names both halves, tells a reader how to run each (backend, frontend, n8n), and links to `backend/README.md`, `frontend/README.md`, `n8n/README.md` and `DESIGN.md`
+- [x] The backend's detail is in `backend/README.md` and no longer in the root README; nothing is said in two of the READMEs
+- [x] `frontend/README.md` covers the stack, the folder layout, pages loaded on demand, the single origin through the dev proxy, and the commands, and points to `frontend/CLAUDE.md` and `DESIGN.md` instead of repeating them
+- [x] Every pointer to the old root README follows the move: the "Design Decisions" pointer and the Docs section in `CLAUDE.md`, and the "See also" line at the top of each `docs/backend/*.md`
+- [x] Every statement in the three READMEs, `docs/backend/*.md`, `docs/agents/*.md` and `n8n/README.md` is true of the code on the branch
+- [x] No current doc, skill text, code comment or the Swagger title says WebCity, apart from the one sentence in `CLAUDE.md` about the former name and the deferred names it lists
+- [x] No deferred name has changed, and the build, the full integration suite, and the frontend's Prettier check, lint, unit tests and build pass
+- [x] The C4 document and its diagrams say Ezzo; the changed diagrams and the PDF are rebuilt and the PDF is checked by eye
+- [x] The roadmap's step 10 points to this ticket instead of monorepo ticket 04, and "After the deadline" lists the deferred rename
+- [x] Monorepo ticket 04's status says it is superseded by this ticket
 - [ ] After the merge and push, and with the owner's go-ahead, the GitHub repository is `ezzo` and `origin` points to it
+
+## Comments
+
+**2026-11-25, round 1: implementation (Opus 5.5).**
+
+- **Built.**
+  - The old root README is now `backend/README.md`, moved with its history and corrected against the code: the API tree, the run command with `--launch-profile https`, and relative links.
+  - A new root README describes Ezzo as a product, names the two halves with a link to each, gives the three steps to run it, and links `DESIGN.md`.
+  - `frontend/README.md` is rewritten.
+  - The proxy explanation moved out of `frontend/CLAUDE.md` into the frontend README; `frontend/CLAUDE.md` keeps the rule.
+  - `CLAUDE.md` has the former-name sentence and the new README pointers.
+  - WebCity is now Ezzo in the docs, ADRs, glossary, `PRODUCT.md`, `DESIGN.md`, the skill text, three code comments, the Swagger title and the C4 document.
+- **Truth check, stale facts corrected:**
+  - ADR 0004: the `Refresh` limit is raised.
+  - ADR 0005: the UTC converter exists.
+  - `controllers.md`: the automation's moderation already uses the flag routes.
+  - `auth.md`: the internal routes' limits, and the open forwarded-headers gap names readiness ticket 07.
+  - `signalr.md`: all six services that push through `IHubContext`, and the missing `EditedAt`.
+- **"See also" lines.** `docs/backend` has none, so that part of the pointer box had nothing to move.
+- **Departures:**
+  - The C4 files are renamed to `docs/c4/ezzo-c4.md` and `.pdf`, so the document sent to the academy carries the product's name. No current file pointed to the old name.
+  - The former-name sentence and the roadmap entry list four deferred names beyond the ticket's list, because something reads each of them: the probe origin `webcity.invalid`, `~/.webcity-test` and `webcity-test-sql` in `scripts/test-linux.sh`, and the cloud database `WebCityDev`.
+  - The sample exception names in `n8n/send-test-exception.ps1` say Ezzo; nothing parses them.
+- **Open decision.** The frontend's commands live only in `frontend/CLAUDE.md`; the frontend README points there, to keep one home per fact. Recommendation: keep it that way.
+- **Checks, all green:**
+  - backend: the build and the full integration suite (963 tests)
+  - frontend: the Prettier check, lint, the unit tests (989) and the build
+- **C4.** All six diagrams changed, and in the text only where the name appears, so all six are rebuilt and committed. The PDF was viewed in Chrome: the title, the body text and the diagrams say Ezzo.
+- **Review findings fixed:**
+  - Both reviews: `backend/README.md` falsely said a plain `dotnet run` cannot be reached by the proxy; both profiles listen on 7102.
+  - Standards review:
+    - The root README's paragraph repeated both halves' stacks; it now names each half with a link.
+    - The frontend README repeated the commands from `frontend/CLAUDE.md`.
+    - The roadmap entry repeated the deferred-name list.
+    - `PRODUCT.md` did not mention records.
+    - `build.mjs` kept the variable `webcity`.
+  - Spec review: the API tree was missing `UtcDateTimeDefaultValueAttribute.cs`.
+- **Review findings left alone:**
+  - The former-name sentence is not marked **Temporary**: the former name stays true after the deferred rename, and only the list will shrink.
+  - The root README's feature list overlaps the API's feature list in `backend/README.md`. One is for users, the other for API consumers.
+- **For the owner.** Your gitignored `appsettings.json` and `appsettings.Testing.json` set `EmailConfiguration:SenderName` to WebCity, so users see that name on the emails. The ticket does not change local settings.
+- **Branch.** Merged into `master` with `--no-ff` and pushed. The last box (the GitHub rename) waits for the owner's go-ahead.

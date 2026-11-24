@@ -252,7 +252,7 @@ export function codeDiagram() {
     ...links.map((l) => drawLink(l).split('\n')[0]),
     ...classes.map(drawClass),
     ...links.map((l) => drawLink(l).split('\n').slice(1).join('\n')),
-    `<text x="30" y="${height - 50}" font-family="${FONT}" font-size="20" fill="#2E2E2E">[Code] WebCity - API Application: creating a post</text>`,
+    `<text x="30" y="${height - 50}" font-family="${FONT}" font-size="20" fill="#2E2E2E">[Code] Ezzo - API Application: creating a post</text>`,
     `<text x="30" y="${height - 28}" font-family="${FONT}" font-size="12" fill="#8A8A8A">UML class diagram. Solid line with a hollow triangle: inherits; dashed line: uses; filled diamond: owns. November 2026.</text>`,
     '</svg>',
   ].join('\n');

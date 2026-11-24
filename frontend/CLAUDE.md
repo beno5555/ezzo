@@ -27,7 +27,7 @@ npx prettier --write .       # Prettier owns formatting
 npm run screenshots -- / [https://example.com] [--signed-in]   # 12 images per app address into screenshots/
 ```
 
-**Dev proxy.** Start the backend first. [proxy.conf.json](proxy.conf.json) forwards `/api` and `/hubs` (including WebSockets) to `https://localhost:7102`, with certificate verification disabled for the development certificate. Keep the proxy on the backend's HTTPS port so `UseHttpsRedirection` does not redirect requests to another origin. See [ADR 0001](../docs/adr/0001-single-origin-for-frontend-and-backend.md).
+**Dev proxy.** Start the backend first. Keep [proxy.conf.json](proxy.conf.json) on the backend's HTTPS port (`https://localhost:7102`) so `UseHttpsRedirection` does not redirect requests to another origin. How the proxy works: "One origin through the dev proxy" in [README.md](README.md).
 
 **Unit-test setup.** `npm test` runs through Angular's unit-test builder, which reads `vitest-base.config.mts` (`runnerConfig` in `angular.json`). Isolation stays off, so `src/test-setup.ts` clears local and session storage after every test. It also supplies the English dictionary for specs that create their own Angular injector and stands in for `IntersectionObserver`, which jsdom lacks. `VITEST_SHUFFLE=1 npm test -- --watch=false` runs the files and tests in random order to find state one leaves behind for the next.
 

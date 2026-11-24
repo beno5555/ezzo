@@ -71,7 +71,7 @@ await _refreshTokenRepository.RevokeAllForUserAsync(user.Id);
 
 ## 6. Allowlist redirect targets
 
-Any URL a client supplies that ends up in an email or a redirect must match an allowlist. The allowlist comes from configuration, never a hardcoded set: WebCity reuses `Cors:AllowedOrigins`, so the trusted callers and the trusted link targets cannot disagree. Compare scheme and authority, ignoring case, and normalize the configured entries the same way as the incoming URL. An empty list rejects everything.
+Any URL a client supplies that ends up in an email or a redirect must match an allowlist. The allowlist comes from configuration, never a hardcoded set: Ezzo reuses `Cors:AllowedOrigins`, so the trusted callers and the trusted link targets cannot disagree. Compare scheme and authority, ignoring case, and normalize the configured entries the same way as the incoming URL. An empty list rejects everything.
 
 ```csharp
 public UrlSecurityService(IConfiguration configuration)

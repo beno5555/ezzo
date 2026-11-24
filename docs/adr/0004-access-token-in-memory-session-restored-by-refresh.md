@@ -9,7 +9,7 @@ The refresh token is an HttpOnly cookie (ADR 0001), and the access token arrives
 
 ## Consequences
 
-- The backend's `Refresh` rate limit must allow a refresh on every page load. At 5 per 10 minutes per IP, the sixth reload is rejected and the user appears signed out. It must be raised (to about 60 per 10 minutes) before the frontend is usable.
+- The backend's `Refresh` rate limit must allow a refresh on every page load. At its first 5 per 10 minutes per IP, the sixth reload was rejected and the user appeared signed out, so it was raised to 60 per 10 minutes (`RateLimitConfig`).
 - Refresh tokens rotate, so two tabs refreshing at the same moment would leave one of them with a revoked token. Tabs take turns through the browser's Web Locks API.
 - The decoder depends on the claim names the backend's token library writes (`nameid`, `unique_name`, `role`, `exp`), and `role` can be missing, a string or an array. A change to `TokenGenerator` must be matched in the decoder.
 - Decoded claims decide only what the UI shows. The backend enforces every permission.

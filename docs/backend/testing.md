@@ -1,4 +1,4 @@
-# WebCity — Integration test infrastructure
+# Ezzo — Integration test infrastructure
 
 For test commands and reporting, see [CLAUDE.md](../../CLAUDE.md#commands). For fixture, reset and naming conventions, see the [testing reference](../../.claude/skills/webcity-conventions/references/testing.md).
 
