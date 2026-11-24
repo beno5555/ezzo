@@ -13,8 +13,8 @@ import { TextLink } from '../../../shared/text-link/text-link';
 import { AccountActivationApi } from '../../accounts/account-activation-api';
 import { AuthFrame } from '../auth-frame/auth-frame';
 import { AuthLink } from '../auth-frame/auth-link';
-import { SignInNotice } from '../sign-in-page/sign-in-notice';
-import { SignInPageState } from '../sign-in-page/sign-in-page-state';
+import { SignInNotice } from '../landing-page/sign-in-notice';
+import { LandingPageState } from '../landing-page/landing-page-state';
 
 // The reactivation page, in two states (spec, Auth pages). Without a token it asks for the email and sends
 // this page as the return address, so the email holds a link back here with ?token=…. Opened from that
@@ -95,8 +95,8 @@ export class ReactivateAccountPage {
     const result = await this.activationApi.activate(this.tokenOrEmpty());
 
     if (result.succeeded) {
-      const state: SignInPageState = { notice: SignInNotice.AccountReactivated };
-      await this.router.navigateByUrl(appAddresses.signIn, { state });
+      const state: LandingPageState = { notice: SignInNotice.AccountReactivated };
+      await this.router.navigateByUrl(appAddresses.home, { state });
       return;
     }
 

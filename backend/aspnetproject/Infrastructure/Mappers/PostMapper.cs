@@ -1,6 +1,5 @@
 ﻿using aspnetproject.Data.Models;
 using aspnetproject.Data.Repositories.Dtos;
-using aspnetproject.Infrastructure.Dtos.Comments;
 using aspnetproject.Infrastructure.Dtos.Posts;
 using aspnetproject.Infrastructure.Dtos.Users;
 
@@ -41,23 +40,10 @@ public static class PostMapper
             LikeCount = postWithStats.LikeCount,
             CommentCount = postWithStats.CommentCount,
             LikedByCaller = postWithStats.LikedByCaller,
-            IsHidden = post.IsHidden,
-
-            Comments = post.Comments.Select(comment => new StandardCommentDto
-            {
-                Id =  comment.Id,
-                Author = new MinimalUserDto
-                {
-                    Id = comment.CommenterUserId,
-                    Username =  UsernameMapper.ResolveUsername(comment.CommenterUser, comment.CommenterUserId)
-                },
-                Content = comment.CommentContent,
-                UploadedAt = comment.CreatedAt,
-                IsHidden = comment.IsHidden
-            }).ToList()
+            IsHidden = post.IsHidden
         };
     }
-    
+
     public static StandardPostDisplayDto ToStandardDisplay(PostWithStatsProjection postWithStats)
     {
         var post = postWithStats.Post;

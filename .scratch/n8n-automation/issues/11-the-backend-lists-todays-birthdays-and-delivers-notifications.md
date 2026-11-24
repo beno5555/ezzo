@@ -27,7 +27,7 @@ Decisions are under "Internal endpoints" in `.scratch/n8n-automation/spec.md`. N
 - [x] The friendship counts whichever of the two sent the request; a pending and a declined friendship do not count
 - [x] A date on which no friend has a birthday returns an empty list
 - [x] A friend born on 29 February is listed for 29 February in a leap year, for 28 February in another year, and not for 28 February in a leap year
-- [ ] A deactivated recipient and a deactivated friend are left out; a user with the digest switch off is still listed
+- [x] A deactivated recipient and a deactivated friend are left out; a user with the digest switch off is still listed
 - [x] Without the `date`, the list uses today's UTC date
 - [x] Paging works and the order is stable across pages
 - [x] With the key, posting a `BIRTHDAY` notification for two connected users delivers `ReceiveNotification` with the kind and the data to both, and nothing to a third connected user (real SignalR clients)
@@ -67,3 +67,5 @@ Beyond the ticket:
 - **The rate limit:** `POST /api/internal/notifications` allows 60 calls a minute (`InternalSendNotifications`), and `GET /api/internal/birthdays` 30 a minute, each in the automation's own bucket. With one call per recipient, the batches and their pauses must keep the workflow under 60 calls a minute, or it gets `429` part-way through.
 
 The spec review (Opus 5.5) found nothing missing or wrong beyond the two points above. The standards review found no hard violation; fixed after it: four parameters wrapped one per line, the access tests' ids named, a date-bound test comment rewritten, and `Constants.LastDayOfFebruaryInACommonYear` named. Left for the owner: `BirthdayRecipientDto` carries no tier in its name though it holds an email (as the automation's event DTOs do), and neither new service writes a `Log` row (as `StatisticsService` does not).
+
+**2026-11-25, `master` taken in** (with 08 merged). The two `InternalController` classes became one, in master's `Controllers/Automation/`, with the digest, birthday and notification actions; this ticket's DTOs moved from `Dtos/Internal/` to `Dtos/Automation/` beside the digest's, and the two `Internal` regions in `RateLimitConfig` became one. The services stay in `BusinessLogic/Internal/`. 08's seed made grace (8) and heidi (9) accepted friends born on 1 January, so three birthday tests now expect them (and grace's friendship with erin_deactivated is checked as left out). The last box is ticked: `GetBirthdays_ForUserWithDigestEmailOff_StillListsThem`. Full suite 963 tests, `Duration` 35 s. The docs (`README.md`, `auth.md`, `automation.md`, `controllers.md`) now describe the three internal routes together.

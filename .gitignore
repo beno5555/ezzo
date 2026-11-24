@@ -16,6 +16,9 @@ riderModule.iml
 # Playwright MCP server: page snapshots and screenshots it writes
 /.playwright-mcp/
 
+# Screenshots kept per ticket for the owner's review (implement skill, "The round report")
+/.scratch/*/shots/
+
 #postman
 *.postman_environment.json
 /postman/
@@ -448,6 +451,7 @@ test-results/
 
 # Icon must end with two \r
 Icon
+!/frontend/src/app/shared/icon/
 
 
 # Thumbnails
@@ -501,6 +505,8 @@ appsettings.json
 appsettings.Development.json
 # Default upload folder for post photos (ImageStorage:UploadFolder)
 backend/aspnetproject/Uploads/
+# n8n: the credentials the import reads (n8n/credentials.example.json lists them). n8n/.env is caught by .env above.
+n8n/credentials.json
 # Claude Code personal settings
 .claude/settings.local.json
 # Worktrees made by claude --worktree (docs/agents/worktrees.md)
@@ -509,3 +515,7 @@ backend/aspnetproject/Uploads/
 !frontend/**/[Ll]ogs/
 !frontend/**/[Dd]ebug/
 !frontend/**/[Rr]elease/
+# Impeccable's per-developer hook files; only .impeccable/config.json is shared (docs/agents/skills.md)
+.impeccable/config.local.json
+.impeccable/hook.cache.json
+.impeccable/hook.pending.json

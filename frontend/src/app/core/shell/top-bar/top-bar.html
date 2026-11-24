@@ -1,8 +1,14 @@
-<header class="border-b border-border bg-surface-raised">
+<header [class]="isOnLandingPage() ? '' : 'border-b border-border bg-surface-raised'">
   <div class="mx-auto flex w-full max-w-wide flex-wrap items-center gap-2 px-4 py-2 md:flex-nowrap">
-    <app-logo class="me-auto md:me-2" />
+    <!-- The landing page draws the logo's bubble into its big name, so a second logo here would repeat it. -->
+    @if (!isOnLandingPage()) {
+      <app-logo class="me-auto md:me-2" />
+    }
 
-    @if (isOnAccountPage()) {
+    @if (isOnLandingPage()) {
+      <!-- The landing page carries the sign-in form itself, so the bar adds only the language and theme menu. -->
+      <app-preferences-menu class="ms-auto" />
+    } @else if (isOnAccountPage()) {
       <!-- An account page keeps only the logo: a short stop needs no search, links or menus. -->
     } @else if (isSignedIn()) {
       <!-- On a phone the bottom bar's Search link takes the box's place. Between 768 and 1024 px the links
@@ -15,17 +21,17 @@
         class="hidden items-center gap-1 md:ms-auto md:flex"
         [attr.aria-label]="text().shell.navigationLabel"
       >
-        <a appTopBarLink [routerLink]="addresses.feed">
-          <svg class="size-5 shrink-0" lucideHouse aria-hidden="true"></svg>
+        <a appTopBarLink [routerLink]="addresses.home" [routerLinkActiveOptions]="homeLinkMatch">
+          <svg class="size-5 shrink-0" [appIcon]="icons.house" aria-hidden="true"></svg>
           <span class="sr-only lg:not-sr-only">{{ text().shell.feedLink }}</span>
         </a>
         <a appTopBarLink [routerLink]="addresses.friends">
-          <svg class="size-5 shrink-0" lucideUsers aria-hidden="true"></svg>
+          <svg class="size-5 shrink-0" [appIcon]="icons.users" aria-hidden="true"></svg>
           <span class="sr-only lg:not-sr-only">{{ text().shell.friendsLink }}</span>
           <app-count-badge [text]="waitingBadge()" [labelFor]="text().shell.waitingBadge" />
         </a>
         <a appTopBarLink [routerLink]="addresses.messages">
-          <svg class="size-5 shrink-0" lucideMessageCircle aria-hidden="true"></svg>
+          <svg class="size-5 shrink-0" [appIcon]="icons.messageCircle" aria-hidden="true"></svg>
           <span class="sr-only lg:not-sr-only">{{ text().shell.messagesLink }}</span>
           <app-count-badge [text]="unreadBadge()" [labelFor]="text().shell.unreadBadge" />
         </a>
@@ -41,7 +47,7 @@
       }
 
       <div class="flex items-center gap-2 md:ms-auto">
-        <a appButton look="quiet" [routerLink]="addresses.signIn">{{ text().shell.signInLink }}</a>
+        <a appButton look="quiet" [routerLink]="addresses.home">{{ text().shell.signInLink }}</a>
         <a appButton look="primary" [routerLink]="addresses.register">{{
           text().shell.registerLink
         }}</a>

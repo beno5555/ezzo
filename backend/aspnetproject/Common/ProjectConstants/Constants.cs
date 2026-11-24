@@ -71,6 +71,10 @@ public static class Constants
     public static readonly TimeSpan StatisticsShortWindow = TimeSpan.FromDays(7);
     public static readonly TimeSpan StatisticsLongWindow  = TimeSpan.FromDays(30);
 
+    // The weekly digest (GET /api/internal/digest): how far back a friend's post counts, and how many a row carries.
+    public static readonly TimeSpan DigestPostWindow = TimeSpan.FromDays(7);
+    public const int                DigestPostLimit  = 3;
+
     public const string EmailRegexPattern    = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
     // No dots: a username is an address segment (/users/:username), and a dot makes it look like a file name.
     public const string UsernameRegexPattern = "^(?=.*[a-zA-Z])[a-zA-Z0-9_-]+$";

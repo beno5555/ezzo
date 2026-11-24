@@ -2,18 +2,20 @@ using System.Net;
 using aspnetproject.Common.ProjectConstants.Enums;
 using aspnetproject.Data;
 using aspnetproject.Data.Models;
-using aspnetproject.Infrastructure.Dtos.Internal;
+using aspnetproject.Infrastructure.Dtos.Automation;
 using aspnetproject.IntegrationTests.Fixtures;
 using aspnetproject.IntegrationTests.Helpers;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 
 namespace aspnetproject.IntegrationTests.Automation;
 
 // ---------- GET /api/internal/birthdays ----------
-// Seed: alice (2), bob (3), charlie (4), diana (5), erin_deactivated (6) and frank_deleted (7) are all born on 1 January;
-// sandro_beno (1) on 16 August. Accepted: alice -> bob (1) and bob -> diana (5). Pending: alice -> diana (2) and
-// charlie -> alice (3). Declined: bob -> charlie (4). So on 1 January alice is told about bob, bob about alice and diana,
-// and diana about bob; charlie is nobody's accepted friend and gets no row.
+// Seed: alice (2), bob (3), charlie (4), diana (5), erin_deactivated (6), frank_deleted (7), grace (8) and heidi (9) are all
+// born on 1 January; sandro_beno (1) on 16 August. Accepted: alice -> bob (1), bob -> diana (5), grace -> heidi (6) and
+// erin_deactivated -> grace (7). Pending: alice -> diana (2) and charlie -> alice (3). Declined: bob -> charlie (4).
+// So on 1 January alice is told about bob, bob about alice and diana, diana about bob, grace about heidi (erin is
+// deactivated) and heidi about grace; charlie is nobody's accepted friend and gets no row.
 // The rows a test needs beyond the seed (a 29 February birthday, a friendship with a deactivated account) are added by the
 // test itself and wiped by the next reset, so the shared seed and the counts other classes rely on stay as they are.
 public class InternalBirthdaysTests : IClassFixture<DatabaseFixture>, IAsyncLifetime
@@ -26,6 +28,8 @@ public class InternalBirthdaysTests : IClassFixture<DatabaseFixture>, IAsyncLife
     private const int DianaId   = 5;
     private const int ErinId    = 6;
     private const int FrankId   = 7;
+    private const int GraceId   = 8;
+    private const int HeidiId   = 9;
 
     private const string NewYear         = "2026-01-01"; // the seed's birthday
     private const string NobodysDay      = "2026-03-15";
@@ -108,7 +112,7 @@ public class InternalBirthdaysTests : IClassFixture<DatabaseFixture>, IAsyncLife
     {
         var rows = await GetBirthdaysAsync($"?date={NewYear}");
 
-        Assert.Equal([AliceId, BobId, DianaId], rows.Select(row => row.Id));
+        Assert.Equal([AliceId, BobId, DianaId, GraceId, HeidiId], rows.Select(row => row.Id));
 
         var alice = rows[0];
         Assert.Equal("alice", alice.Username);
@@ -189,7 +193,8 @@ public class InternalBirthdaysTests : IClassFixture<DatabaseFixture>, IAsyncLife
         Assert.Empty(rows);
     }
 
-    // erin (6) is deactivated and frank (7) soft-deleted; both are born on 1 January and get an accepted friendship here.
+    // erin (6) is deactivated and frank (7) soft-deleted; both are born on 1 January. erin is already grace's accepted friend in
+    // the seed, and each gets one more accepted friendship here.
     [Fact]
     public async Task GetBirthdays_LeavesOutDeactivatedAndDeletedAccountsAsRecipientsAndAsFriends()
     {
@@ -198,8 +203,27 @@ public class InternalBirthdaysTests : IClassFixture<DatabaseFixture>, IAsyncLife
 
         var rows = await GetBirthdaysAsync($"?date={NewYear}");
 
-        Assert.Equal([AliceId, BobId, DianaId], rows.Select(row => row.Id));
+        Assert.Equal([AliceId, BobId, DianaId, GraceId, HeidiId], rows.Select(row => row.Id));
         Assert.Equal([BobId], FriendIdsOf(rows, AliceId));
+        Assert.Equal([AliceId, DianaId], FriendIdsOf(rows, BobId));
+        Assert.Equal([HeidiId], FriendIdsOf(rows, GraceId));
+    }
+
+    // The digest switch turns off the weekly email only; a birthday notification is not an email.
+    [Fact]
+    public async Task GetBirthdays_ForUserWithDigestEmailOff_StillListsThem()
+    {
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
+
+            await db.Users
+                .Where(user => user.Id == BobId)
+                .ExecuteUpdateAsync(setters => setters.SetProperty(user => user.DigestEmailEnabled, false));
+        }
+
+        var rows = await GetBirthdaysAsync($"?date={NewYear}");
+
         Assert.Equal([AliceId, DianaId], FriendIdsOf(rows, BobId));
     }
 
@@ -222,9 +246,11 @@ public class InternalBirthdaysTests : IClassFixture<DatabaseFixture>, IAsyncLife
     {
         var firstPage  = await GetBirthdaysAsync($"?date={NewYear}&pageNumber=1&pageSize=2");
         var secondPage = await GetBirthdaysAsync($"?date={NewYear}&pageNumber=2&pageSize=2");
+        var thirdPage  = await GetBirthdaysAsync($"?date={NewYear}&pageNumber=3&pageSize=2");
 
         Assert.Equal([AliceId, BobId], firstPage.Select(row => row.Id));
-        Assert.Equal([DianaId], secondPage.Select(row => row.Id));
+        Assert.Equal([DianaId, GraceId], secondPage.Select(row => row.Id));
+        Assert.Equal([HeidiId], thirdPage.Select(row => row.Id));
         Assert.Equal([AliceId, DianaId], FriendIdsOf(firstPage, BobId)); // a row is never split across pages
     }
 

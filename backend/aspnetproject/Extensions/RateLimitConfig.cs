@@ -24,6 +24,12 @@ public static class RateLimitConfig
         public const string AdminReadFlaggedComments = "AdminReadFlaggedComments";
         #endregion
 
+        #region Internal
+        public const string ReadDigest                = "ReadDigest";
+        public const string InternalReadBirthdays     = "InternalReadBirthdays";
+        public const string InternalSendNotifications = "InternalSendNotifications";
+        #endregion
+
         #region Auth
         public const string Register             = "Register";
         public const string Login                = "Login";
@@ -62,11 +68,6 @@ public static class RateLimitConfig
         public const string RemoveFriend         = "RemoveFriend";
         #endregion
 
-        #region Internal
-        public const string InternalReadBirthdays     = "InternalReadBirthdays";
-        public const string InternalSendNotifications = "InternalSendNotifications";
-        #endregion
-
         #region Likes
         public const string LikePost      = "LikePost";
         public const string UnlikePost    = "UnlikePost";
@@ -102,6 +103,7 @@ public static class RateLimitConfig
         public const string SearchUsers      = "SearchUsers";
         public const string UpdateOwnProfile = "UpdateOwnProfile";
         public const string AdminUpdateUser  = "AdminUpdateUser";
+        public const string SetDigestEmail   = "SetDigestEmail";
         #endregion
     }
 
@@ -220,16 +222,6 @@ public static class RateLimitConfig
                 PerUserSlidingWindow(httpContext, 30, TimeSpan.FromHours(1)));
             #endregion
 
-            #region Internal (only the API key opens these, so they count in the automation's bucket: AutomationPartitionKey)
-            // Read once a day, a page at a time.
-            options.AddPolicy(Policies.InternalReadBirthdays, httpContext =>
-                PerUserSlidingWindow(httpContext, 30, TimeSpan.FromMinutes(1)));
-
-            // A call per recipient or per batch, each naming up to Constants.MaxNotificationRecipients users.
-            options.AddPolicy(Policies.InternalSendNotifications, httpContext =>
-                PerUserSlidingWindow(httpContext, 60, TimeSpan.FromMinutes(1)));
-            #endregion
-
             #region Likes
             options.AddPolicy(Policies.LikePost, httpContext =>
                 PerUserSlidingWindow(httpContext, 60, TimeSpan.FromMinutes(10)));
@@ -302,6 +294,24 @@ public static class RateLimitConfig
 
             options.AddPolicy(Policies.AdminUpdateUser, httpContext =>
                 PerUserSlidingWindow(httpContext, 30, TimeSpan.FromHours(1)));
+
+            // One flip of a switch per request; a user toggling it back and forth on the settings page stays well inside.
+            options.AddPolicy(Policies.SetDigestEmail, httpContext =>
+                PerUserSlidingWindow(httpContext, 30, TimeSpan.FromHours(1)));
+            #endregion
+
+            #region Internal (only the API key opens these, so they count in the automation's bucket: AutomationPartitionKey)
+            // The automation pages through the whole list once a week; this leaves room for a large user base at full pages.
+            options.AddPolicy(Policies.ReadDigest, httpContext =>
+                PerUserSlidingWindow(httpContext, 120, TimeSpan.FromMinutes(1)));
+
+            // Read once a day, a page at a time.
+            options.AddPolicy(Policies.InternalReadBirthdays, httpContext =>
+                PerUserSlidingWindow(httpContext, 30, TimeSpan.FromMinutes(1)));
+
+            // A call per recipient or per batch, each naming up to Constants.MaxNotificationRecipients users.
+            options.AddPolicy(Policies.InternalSendNotifications, httpContext =>
+                PerUserSlidingWindow(httpContext, 60, TimeSpan.FromMinutes(1)));
             #endregion
             
             #region Global

@@ -1,8 +1,6 @@
 # WebCity — Automation Events
 
-> Part of the WebCity doc set. See also: `README.md`, `data.md`, `auth.md`, `controllers.md`, `signalr.md`, `background-jobs.md`, `automation.md`.
-
-The backend tells the **automation** (n8n, see `GLOSSARY.md`) what happened by sending it signed events. This page covers the sending side: the publisher, its settings, the envelope, the signature and the events. The decisions behind it are under "Events" in `.scratch/n8n-automation/spec.md`.
+The backend tells the **automation** (n8n, see `GLOSSARY.md`) what happened by sending it signed events. This page covers the sending side: the publisher, its settings, the envelope, the signature and the events, and, briefly, how n8n receives them. The decisions behind it are under "Events" in `.scratch/n8n-automation/spec.md`.
 
 ---
 
@@ -31,9 +29,11 @@ It wraps `data` in the envelope, writes the JSON, signs the bytes, and posts the
 | Key | Default | Meaning |
 |---|---|---|
 | `Enabled` | `false` | Off by default, so a fresh clone, the test suite and a cloud session run without n8n |
-| `BaseUrl` | empty | The automation's address, e.g. `http://localhost:5678` |
+| `BaseUrl` | empty | The automation's address: `http://127.0.0.1:5678` for the local n8n, never `localhost` (why: Addresses in `n8n/README.md`) |
 | `SigningSecret` | empty | The shared secret the signature is keyed with. A secret: never print or commit it |
 | `Timeout` | `00:00:03` | How long the one attempt may take |
+
+For development, `n8n/setup.ps1` fills in all three and gives n8n the same secret (Setup in `n8n/README.md`).
 
 The options are validated at startup (`ValidateOnStart`). With `Enabled` true, a missing or blank `BaseUrl` or `SigningSecret` stops the host with an `OptionsValidationException` that names the setting. A `Timeout` of zero or less always does. With events off, the address and the secret are not needed.
 
@@ -108,13 +108,25 @@ Six more events, each sent by the service in the method that changed the data, r
 
 ---
 
+## The receiving side
+
+n8n runs in Docker from `n8n/` at the repo root; `n8n/README.md` has the setup, the commands and each workflow's checklist.
+
+- **One workflow per event,** a committed file with a fixed id, imported and published on every start of the compose file. Its webhook's path is the event name, so the publisher's `{BaseUrl}/webhook/{event name}` reaches it with no setting per event.
+- **Every webhook checks the signature first,** on the raw body: the webhook's raw body option, a Crypto node's HMAC-SHA256 with the shared secret, a comparison with `X-WebCity-Signature`. A mismatch or a missing header answers `401`; a match answers `200` at once, and the work comes after, so the publisher's wait stays short.
+- **A `401` or a `404` from n8n is a failed delivery** to the publisher, like any answer that is not a success: one `Log` row, nothing else. A `404` means n8n has no published workflow for that event, or is in the two seconds of an import.
+- **n8n reaches the backend at `https://host.docker.internal:7102`,** the backend's `localhost` seen from the container, ignoring certificate problems, because the development certificate is self-signed and issued for `localhost`.
+
+Workflows so far: `exception-occurred` (Exception alerts, one Telegram message to the developers' chat), `account-created` (Welcome email), `post-created`, `post-edited`, `comment-created` and `comment-edited` (AI moderation: OpenAI's moderation endpoint, an AI judge that reads what it caught in context, then Flagged or Hidden through the moderation route; the score and the judge's model are in the workflow) and `report-created` (Report handling: an alert per report, and Hidden through the moderation route when a post or comment collects enough pending reports; the numbers are in the workflow).
+
 ## The automation calling the backend
 
 The other direction: n8n calls the backend with its own API key. The key, the second authentication scheme, what it opens, its rate-limit bucket and its `Log` rows are in `auth.md` ("The automation's API key"). The decisions are under "The automation's identity" and "Moderation by the automation" in the spec.
 
 - **The setting** is `AutomationApi:Key` (`AutomationApiConfiguration`, section `AutomationApi`). It has no default, and startup does not require it: with no key configured the backend refuses every caller that sends one, so a clone that never runs n8n needs nothing. The n8n setup script writes the generated value into `appsettings.Development.json` under this name, and the same value is n8n's API-key credential.
-- **What the key reaches:** the two moderation routes (`ModerationController`) and every route under `/api/internal`. Nothing else: any other route ignores the key and answers `401`.
-- **The internal routes** are `GET api/internal/birthdays` (who to tell about a friend's birthday on a date, with 29 February falling on the 28th in a common year) and `POST api/internal/notifications` (push `ReceiveNotification` to the named users who are connected; nothing is stored). Only the key opens them. Shapes, rules and rate limits are under `InternalController` in `controllers.md`; the hub event is in `signalr.md`.
+- **What the key reaches:** the two moderation routes (`ModerationController`) and every route under `/api/internal` (`InternalController`). Nothing else: any other route ignores the key and answers `401`.
+- **The weekly digest list.** `GET /api/internal/digest` pages through the users who get this week's digest email: those with `DigestEmailEnabled` on and an unread conversation, a pending friend request received, or a recent post by an accepted friend. Each row carries the email address and what to put in the email. The workflow pages until a page comes back short. Rows, counts and the post rules are under `InternalController` in `controllers.md`; a user turns the email off with `PUT /api/users/mine/digest-email` ("The digest switch", same file).
+- **Birthdays and notifications.** `GET /api/internal/birthdays` lists who to tell about a friend's birthday on a date, with 29 February falling on the 28th in a common year; the digest switch does not affect it. `POST /api/internal/notifications` pushes `ReceiveNotification` to the named users who are connected, and stores nothing. Shapes, rules and rate limits are under `InternalController` in `controllers.md`; the hub event is in `signalr.md`.
 - **The automation only raises a moderation status.** On the two moderation routes it may set `Flagged` or `Hidden`. It is refused with `403` and the failure envelope when it sends `Visible`, and when it sends `Flagged` for content that is `Hidden`: a person decides what is shown again. Setting the status the content already has succeeds and changes nothing; content that does not exist answers `404`, which a workflow treats as nothing to do. An administrator's use of the same routes is unchanged. The table of cases is under `ModerationController` in `controllers.md`.
 
 ---
@@ -133,4 +145,4 @@ Set `EventRecorder.Answer` to `RecorderAnswer.Fail` (the recorder answers `500`)
 
 Tests: `Automation/AccountCreatedEventTests`, `PostEventTests`, `CommentEventTests` and `ReportCreatedEventTests` (each event's every field, the nothing-sent cases, and a failed and a timed-out delivery for a post and a report), `EventSecretsTests` (the registration, reset and reactivation flows run, and every recorded body searched for tokens, hashes and passwords; `Helpers/EventAssert` checks the address, envelope, time and signature of each event), `Automation/ExceptionOccurredEventTests` (the route on a Development host, the envelope and data, the signature, the query string left out, the unchanged answer, a failed and a timed-out delivery, events off, the route missing outside Development, and a job built in the test, `ThrowingJob`, run once through `RunOnceAsync`) and `Automation/EventPublisherStartupTests` (the startup checks).
 
-The key side: every host has the key `CustomWebApplicationFactory.TestApiKey` (setting `AutomationApi:Key`; pass `""` in the setting overrides for a host with no key configured), and `Helpers/ApiKeyTestHelper.SendWithApiKeyAsync` sends a request with it (another key, or `null` for none, by argument). The client's own headers still apply, so a client that signed in sends its token as well. Tests: `Automation/AutomationModerationTests` (the raise-only table of from-status, to-status and caller on both routes, an administrator unchanged, `404`), `Automation/AutomationApiKeyAuthenticationTests` (the key alone on a sample of ordinary and administrator routes, wrong, empty and missing keys, a host with no key, and the `/api/internal` rule on `Helpers/AutomationOnlyProbeController`, a route that exists only in the test host), `Automation/AutomationLogTests`, `RateLimiting/AutomationRateLimitTests` and `Security/AutomationKeyValidatorTests` (the comparison, including the empty header the test transport cannot send). The internal routes: `Automation/InternalBirthdaysTests` (who is listed, both sides of a friendship, pending and declined, inactive accounts, 29 February, today, paging), `Automation/InternalNotificationsTests` (delivery to connected recipients through real hub clients, a repeated id, unknown and disconnected recipients, invalid bodies) and `Automation/InternalRoutesAccessTests` (only the key, and the two separate limits).
+The key side: every host has the key `CustomWebApplicationFactory.TestApiKey` (setting `AutomationApi:Key`; pass `""` in the setting overrides for a host with no key configured), and `Helpers/ApiKeyTestHelper.SendWithApiKeyAsync` sends a request with it (another key, or `null` for none, by argument). The client's own headers still apply, so a client that signed in sends its token as well. Tests: `Automation/AutomationModerationTests` (the raise-only table of from-status, to-status and caller on both routes, an administrator unchanged, `404`), `Automation/AutomationApiKeyAuthenticationTests` (the key alone on a sample of ordinary and administrator routes, wrong, empty and missing keys, a host with no key, and the `/api/internal` rule on `Helpers/AutomationOnlyProbeController`, a route that exists only in the test host), `Automation/AutomationLogTests`, `Automation/DigestTests` (who gets a row, the counts, the posts and their order, paging, and `401` for everyone but the key; heidi's posts 14-19 and grace in `TestDataSeeder` exist for it), `Automation/InternalBirthdaysTests` (who is listed, both sides of a friendship, pending and declined, inactive accounts, the digest switch, 29 February, today, paging), `Automation/InternalNotificationsTests` (delivery to connected recipients through real hub clients, a repeated id, unknown and disconnected recipients, invalid bodies), `Automation/InternalRoutesAccessTests` (only the key, and separate limits for the birthday and notification routes), `RateLimiting/AutomationRateLimitTests` and `Security/AutomationKeyValidatorTests` (the comparison, including the empty header the test transport cannot send).

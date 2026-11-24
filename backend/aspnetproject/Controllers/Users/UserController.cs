@@ -91,11 +91,12 @@ public class UserController : BaseController
     [Route("search")]
     [AllowAnonymous]
     [EnableRateLimiting(RateLimitConfig.Policies.SearchUsers)]
-    public async Task<ActionResult<ListResponse<MinimalUserDto>>> SearchUsers(
+    public async Task<ActionResult<ListResponse<SearchUserDto>>> SearchUsers(
         [FromQuery] SearchUserQuery searchUserQuery)
     {
         var response = await _userService.SearchUsersAsync(
             searchUserQuery.Username,
+            GetOptionalUserId(),
             searchUserQuery.PageNumber,
             searchUserQuery.PageSize
             );
@@ -124,6 +125,22 @@ public class UserController : BaseController
         return BadRequest(response);
     }
     
+    [HttpPut]
+    [Route("mine/digest-email")]
+    [EnableRateLimiting(RateLimitConfig.Policies.SetDigestEmail)]
+    public async Task<ActionResult<ApplicationResponse<FullUserDto>>> SetDigestEmail([FromBody] SetDigestEmailDto setDigestEmailDto)
+    {
+        int userId   = GetUserId();
+        var response = await _userService.SetDigestEmailAsync(userId, setDigestEmailDto.Enabled!.Value);
+
+        if (response.Succeeded)
+        {
+            return Ok(response);
+        }
+
+        return BadRequest(response);
+    }
+
     [HttpPut]
     [Route("{id:int}")]
     [Authorize(Roles = "Administrator")]

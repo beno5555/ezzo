@@ -58,6 +58,7 @@ public static class CommentMapper
         {
             Id = comment.Id,
             Content = comment.CommentContent,
+            AuthorId = comment.CommenterUserId,
             AuthorUsername = UsernameMapper.ResolveUsername(comment.CommenterUser, comment.CommenterUserId),
             PostId = comment.PostId
         };

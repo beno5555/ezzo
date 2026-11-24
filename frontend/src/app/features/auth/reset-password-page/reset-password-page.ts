@@ -1,21 +1,24 @@
 import { Component, computed, inject, input, signal } from '@angular/core';
-import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { LIMITS } from '../../../core/limits';
 import { appAddresses } from '../../../core/routing/app-addresses';
 import { FieldRules } from '../../../shared/form-field/field-rules';
 import { Button } from '../../../shared/button/button';
+import { AppValidators } from '../../../shared/form-field/app-validators';
 import { applyFieldErrors } from '../../../shared/form-field/apply-field-errors';
 import { FormField } from '../../../shared/form-field/form-field';
 import { FormMessage } from '../../../shared/form-message/form-message';
+import { PasswordToggle } from '../../../shared/password-toggle/password-toggle';
 import { TextInput } from '../../../shared/text-input/text-input';
 import { TextLink } from '../../../shared/text-link/text-link';
 import { AuthApi } from '../auth-api';
 import { AuthFrame } from '../auth-frame/auth-frame';
 import { AuthLink } from '../auth-frame/auth-link';
-import { SignInNotice } from '../sign-in-page/sign-in-notice';
-import { SignInPageState } from '../sign-in-page/sign-in-page-state';
+import { SignInNotice } from '../landing-page/sign-in-notice';
+import { LandingPageState } from '../landing-page/landing-page-state';
 
 // The reset page the reset email links to, with ?token=…. It asks for the new password and, once the
 // backend takes it, sends the user to sign in with it. A token the backend no longer accepts shows the
@@ -30,6 +33,7 @@ import { SignInPageState } from '../sign-in-page/sign-in-page-state';
     Button,
     FormField,
     FormMessage,
+    PasswordToggle,
     TextInput,
     TextLink,
   ],
@@ -49,11 +53,23 @@ export class ResetPasswordPage {
 
   private readonly tokenOrEmpty = computed(() => this.token() ?? '');
   protected readonly hasToken = computed(() => this.tokenOrEmpty() !== '');
-  protected readonly form = inject(NonNullableFormBuilder).group({
-    newPassword: ['', FieldRules.password],
+  private readonly formBuilder = inject(NonNullableFormBuilder);
+  private readonly newPassword = this.formBuilder.control('', FieldRules.password);
+
+  // The password typed a second time stays in the browser: the reset endpoint takes one password.
+  protected readonly form = this.formBuilder.group({
+    newPassword: this.newPassword,
+    confirmPassword: ['', [Validators.required, AppValidators.sameAs(this.newPassword)]],
   });
   protected readonly isSubmitting = signal(false);
   protected readonly failureMessage = signal<string | null>(null);
+
+  constructor() {
+    // A change to the password can make the repeated one match, or stop matching.
+    this.newPassword.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+      this.form.controls.confirmPassword.updateValueAndValidity();
+    });
+  }
 
   async resetPassword(): Promise<void> {
     if (this.form.invalid || this.isSubmitting() || !this.hasToken()) {
@@ -66,8 +82,8 @@ export class ResetPasswordPage {
     const result = await this.authApi.resetPassword({ token: this.tokenOrEmpty(), newPassword });
 
     if (result.succeeded) {
-      const state: SignInPageState = { notice: SignInNotice.PasswordReset };
-      await this.router.navigateByUrl(appAddresses.signIn, { state });
+      const state: LandingPageState = { notice: SignInNotice.PasswordReset };
+      await this.router.navigateByUrl(appAddresses.home, { state });
       return;
     }
 

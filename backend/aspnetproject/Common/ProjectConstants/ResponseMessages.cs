@@ -73,6 +73,8 @@ public static class ResponseMessages
     public const string ProfileRetrieved = $"Profile {Retrieved} {Successfully}";
     public const string ProfileEdited    = $"Profile {Edited} {Successfully}";
 
+    public const string DigestEmailUpdated = $"Digest email setting {Updated} {Successfully}";
+
     public const string CouldNotDeactivateAccount    = $"{CouldNot} {Deactivate} Account";
     public const string ReactivationTokenSentOnEmail = $"Reativation token {Sent} on Email";
 
@@ -91,6 +93,7 @@ public static class ResponseMessages
 
     public const string LogsRetrieved     = $"Logs {Retrieved} {Successfully}";
     public const string AccountsRetrieved = $"Accounts {Retrieved} {Successfully}";
+    public const string DigestRetrieved   = $"Digest recipients {Retrieved} {Successfully}";
     public const string InvalidDateRange  = "The start of the date range must not be after its end";
 
     public const string StatisticsRetrieved = $"Statistics {Retrieved} {Successfully}";

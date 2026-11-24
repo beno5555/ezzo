@@ -1,21 +1,43 @@
 <div class="flex flex-col gap-1">
-  <div class="flex flex-wrap items-center justify-between gap-x-4">
-    <label class="py-1 text-sm font-semibold text-ink-strong" [for]="fieldId()">{{
-      label()
-    }}</label>
-    <!-- The action keeps its 44 px touch target without making this row taller than a bare label. -->
-    <div class="-my-1.5">
-      <ng-content select="[fieldAction]" />
-    </div>
+  <!-- The label floats in the box, after the control it follows (the control is its peer). It rests
+       where the text goes while the box is empty and unfocused, and shrinks up to the box's top once the
+       box is focused or holds text. -->
+  <div class="relative flex flex-col">
+    <ng-content />
+    <label
+      class="pointer-events-none absolute start-3 end-3 top-2 truncate text-xs text-ink-muted peer-placeholder-shown:translate-y-2 peer-placeholder-shown:text-base peer-focus:translate-y-0 peer-focus:text-xs peer-aria-invalid:text-danger motion-safe:transition-all motion-safe:duration-150"
+      [for]="fieldId()"
+      >{{ label() }}</label
+    >
   </div>
-  <ng-content />
-  @if (hint(); as hint) {
-    <p class="text-sm text-ink-muted" [id]="hintId()">{{ hint }}</p>
-  }
-  @if (errorMessage(); as message) {
-    <p class="flex items-start gap-1.5 text-sm text-danger" [id]="errorId()">
-      <svg class="mt-0.5 size-4 shrink-0" lucideCircleExclamationPoint aria-hidden="true"></svg>
-      {{ message }}
-    </p>
-  }
+  <!-- The hint and the error, with the counter or the action (a "Forgot password?" link) at the row's
+       end. Hidden while all of them are absent. -->
+  <div class="flex items-start justify-end gap-x-4 empty:hidden">
+    @if (hint() || errorMessage()) {
+      <div class="flex flex-1 flex-col gap-1">
+        @if (hint(); as hint) {
+          <p class="text-sm text-ink-muted" [id]="hintId()">{{ hint }}</p>
+        }
+        @if (errorMessage(); as message) {
+          <p class="flex items-start gap-1.5 text-sm text-danger" [id]="errorId()">
+            <svg
+              class="mt-0.5 size-4 shrink-0"
+              [appIcon]="icons.circleExclamationPoint"
+              aria-hidden="true"
+            ></svg>
+            {{ message }}
+          </p>
+        }
+      </div>
+    }
+    @if (maxLength(); as max) {
+      <app-character-counter
+        class="ms-auto text-sm"
+        aria-hidden="true"
+        [length]="length()"
+        [max]="max"
+      />
+    }
+    <ng-content select="[fieldAction]" />
+  </div>
 </div>

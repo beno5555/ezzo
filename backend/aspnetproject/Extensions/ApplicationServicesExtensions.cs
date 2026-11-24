@@ -6,8 +6,8 @@ using aspnetproject.Infrastructure.Services.BackgroundJobs;
 using aspnetproject.Infrastructure.Services.BackgroundJobs.Configuration;
 using aspnetproject.Infrastructure.Services.BusinessLogic;
 using aspnetproject.Infrastructure.Services.BusinessLogic.Content;
-using aspnetproject.Infrastructure.Services.BusinessLogic.Users;
 using aspnetproject.Infrastructure.Services.BusinessLogic.Internal;
+using aspnetproject.Infrastructure.Services.BusinessLogic.Users;
 using aspnetproject.Infrastructure.Services.Helpers;
 using aspnetproject.Infrastructure.Services.Helpers.Configuration;
 using aspnetproject.Infrastructure.Services.Logging;
@@ -41,6 +41,7 @@ public static class ApplicationServicesExtensions
         services.AddScoped<ReportRepository>();
 
         services.AddScoped<UserService>();
+        services.AddScoped<DigestService>();
         services.AddScoped<AuthService>();
         services.AddScoped<AccountManagementService>();
         services.AddScoped<AccountActivationService>();

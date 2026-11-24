@@ -11,7 +11,7 @@ Decisions are under "Addresses" in `.scratch/frontend/spec.md`.
 
 **Blocked by:** 07 (The shell gives navigation on a desktop, on a phone and to a guest), 09 (The feed shows posts with photos and likes), whose post card the skeletons copy, and the frontend setup (27, 28, 29)
 
-**Status:** ready-for-agent
+**Status:** superseded by 41 (owner, 2026-11-23: the landing page and sign-in are one page at `/`, and the feed is shown at `/`)
 
 **Difficulty:** routine: one static page and one redirect, following the shell's guards and the feed card.
 

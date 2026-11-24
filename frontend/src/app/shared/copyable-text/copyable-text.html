@@ -1,0 +1,19 @@
+<button
+  type="button"
+  class="min-h-11 min-w-0 cursor-copy truncate text-start hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+  tabindex="-1"
+  aria-hidden="true"
+  [attr.title]="value()"
+  (click)="copy()"
+>
+  {{ value() }}
+</button>
+<button
+  appIconButton
+  class="lg:size-8"
+  type="button"
+  [attr.aria-label]="text().shared.copy.button(value())"
+  (click)="copy()"
+>
+  <svg class="size-5" [appIcon]="icons.copy" aria-hidden="true"></svg>
+</button>

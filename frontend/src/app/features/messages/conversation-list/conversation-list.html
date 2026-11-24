@@ -1,0 +1,95 @@
+<div #scrollArea class="min-h-0 flex-1 overflow-y-auto">
+  @if (hasRows()) {
+    <ul class="flex flex-col gap-1 p-1">
+      @for (row of rows(); track row.friend.id) {
+        <li>
+          @if (row.address; as address) {
+            <a
+              class="flex min-h-16 items-center gap-3 rounded-md px-3 py-2 text-ink-strong hover:bg-surface-sunken focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus"
+              [routerLink]="address"
+              routerLinkActive="bg-surface-sunken"
+              ariaCurrentWhenActive="page"
+            >
+              <ng-container *ngTemplateOutlet="rowContent; context: { $implicit: row }" />
+            </a>
+          } @else {
+            <!-- An account that is no longer available: its history stays listed, but it has no address. -->
+            <div class="flex min-h-16 items-center gap-3 px-3 py-2 text-ink-muted">
+              <ng-container *ngTemplateOutlet="rowContent; context: { $implicit: row }" />
+            </div>
+          }
+        </li>
+      }
+    </ul>
+  }
+
+  @switch (status()) {
+    @case (PageLoadStatus.Idle) {
+      @if (hasRows()) {
+        <div appScrollSentinel [scrollArea]="scrollArea" (reached)="loadMore()"></div>
+      }
+    }
+    @case (PageLoadStatus.Loading) {
+      <p class="px-4 py-4 text-center text-sm text-ink-muted" role="status">
+        {{ hasRows() ? text().messages.list.loadingMore : text().messages.list.loading }}
+      </p>
+    }
+    @case (PageLoadStatus.Failed) {
+      <app-load-failure
+        class="px-4"
+        [message]="failureMessage() ?? ''"
+        [retryLabel]="text().messages.list.retryButton"
+        (retry)="loadMore()"
+      />
+    }
+    @case (PageLoadStatus.Ended) {
+      @if (!hasRows()) {
+        <app-empty-state
+          [heading]="text().messages.list.emptyTitle"
+          [message]="text().messages.list.emptyMessage"
+        >
+          <svg
+            class="size-8 text-ink-muted"
+            [appIcon]="icons.messageCircleDashed"
+            aria-hidden="true"
+          ></svg>
+        </app-empty-state>
+      }
+    }
+  }
+</div>
+
+<ng-template #rowContent let-row>
+  <span class="relative shrink-0">
+    <app-avatar [userId]="row.friend.id" [isUnavailable]="row.address === null" />
+    @if (row.address !== null) {
+      <app-presence-dot
+        class="absolute -end-1 -bottom-1"
+        [lastActiveAt]="row.friend.lastActiveAt"
+      />
+    }
+  </span>
+  <span class="flex min-w-0 flex-1 flex-col">
+    <span class="flex items-center gap-2">
+      <span class="min-w-0 truncate font-semibold">{{ row.friend.username }}</span>
+      <time class="ms-auto shrink-0 text-xs text-ink-muted" [attr.datetime]="row.sentAt">{{
+        dateFormatter.shortTime(row.sentAt)
+      }}</time>
+    </span>
+    <span
+      class="flex items-center gap-1 text-sm"
+      [class.text-ink-muted]="row.badge === null"
+      [class.font-semibold]="row.badge !== null"
+    >
+      @if (row.isPhoto) {
+        <svg class="size-4 shrink-0" [appIcon]="icons.image" aria-hidden="true"></svg>
+      }
+      <span class="min-w-0 truncate">{{ row.preview }}</span>
+      <app-count-badge
+        class="ms-auto shrink-0 ps-1"
+        [text]="row.badge"
+        [labelFor]="text().messages.list.unreadBadge"
+      />
+    </span>
+  </span>
+</ng-template>

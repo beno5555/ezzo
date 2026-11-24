@@ -1,4 +1,4 @@
-using aspnetproject.Infrastructure.Dtos.Internal;
+using aspnetproject.Infrastructure.Dtos.Automation;
 using aspnetproject.Infrastructure.Dtos.WebsocketsTransfer;
 
 namespace aspnetproject.Infrastructure.Mappers;

@@ -4,7 +4,7 @@ Status: ready-for-agent
 
 ## Problem Statement
 
-The documentation sent to the principal (`webcity-documentation.md`) is the commitment for 2026-11-25. It describes things WebCity's backend does not do yet, and the Angular pages that are about to be built need them:
+The documentation sent to the academy (`webcity-documentation.md`) is the commitment for 2026-11-25. It describes things WebCity's backend does not do yet, and the Angular pages that are about to be built need them:
 
 - A post or a message can only be text. No photo can be uploaded anywhere.
 - A post cannot be liked.

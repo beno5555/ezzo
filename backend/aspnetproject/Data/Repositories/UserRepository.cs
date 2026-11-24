@@ -137,7 +137,7 @@ public class UserRepository : BaseEntityRepository<User>
         return await GetWhereAsync(user => user.Username.Contains(usernameInput), pageNumber, pageSize);
     }
 
-    // ignores query filters automatically which is fine for now. we want to fetch conversations with deactivated/soft deleted users
+    // The raw SQL reads Users directly so existing conversations still include deactivated or soft-deleted friends.
     public async Task<List<ConversationFriendProjection>> GetConversationFriendsAsync(int userId, int? pageNumber, int? pageSize)
     {
         const string sql = """
@@ -185,12 +185,9 @@ public class UserRepository : BaseEntityRepository<User>
         return await query.ToListAsync();
     }
 
-    /// <summary>
-    /// fetches friends with whom the user does not have a conversation
-    /// </summary>
+    // The User query filter limits this list of potential chat recipients to active accounts.
     public async Task<List<User>> GetNonConversationFriendsAsync(int userId, int? pageNumber, int? pageSize)
     {
-        // areFriends && haveNoConversation
         Expression<Func<User, bool>> shouldFetch = user =>
             _dbContext.Friendships.Any(friendship =>
                 ((friendship.AddresseeUserId == userId && friendship.RequesterUserId == user.Id) ||
@@ -259,6 +256,83 @@ public class UserRepository : BaseEntityRepository<User>
         await _dbContext.SaveChangesAsync();
     }
 
+    // Who gets the weekly digest, by user id, one page at a time. The global filter leaves out deactivated and deleted recipients.
+    // A row needs the switch on and something to report: an unread conversation, a pending request received, or a post by an
+    // accepted friend (either direction) since `since`. The counts match the ones the app shows: an unread conversation is a
+    // distinct sender of unseen messages, like MessageRepository.GetUnreadConversationsCount, and a request counts whoever sent it.
+    // Posts leave out hidden ones and those by deactivated or deleted friends, and go most-liked first, newer first on a tie.
+    public async Task<List<DigestRecipientProjection>> GetDigestRecipientsAsync(DateTime since, int postLimit, PageQuery pageQuery)
+    {
+        var messages    = _dbContext.Set<Message>();
+        var friendships = _dbContext.Set<Friendship>();
+
+        // Each post that counts, paired with the friend whose digest it is in: the other side of the accepted friendship.
+        // Defined once and inlined by EF wherever it is used below; nothing runs until the final query.
+        var friendsPosts =
+            from friendship in friendships
+            where friendship.FriendshipStatus == FriendshipStatus.Accepted
+            from post in _dbContext.Set<Post>()
+            where (post.UserId == friendship.RequesterUserId || post.UserId == friendship.AddresseeUserId)
+                  && post.ModerationStatus != ModerationStatus.Hidden
+                  && post.CreatedAt >= since
+                  // Through the filtered user set, not post.User: the filter turns that join into a LEFT JOIN, so a hidden
+                  // author reads as null and a check on its dates passes.
+                  && _dbSet.Any(author => author.Id == post.UserId)
+            select new
+            {
+                RecipientId = post.UserId == friendship.RequesterUserId ? friendship.AddresseeUserId : friendship.RequesterUserId,
+                Post        = post
+            };
+
+        var unreadMessages  = messages.Where(message => !message.Seen);
+        var pendingRequests = friendships.Where(friendship => friendship.FriendshipStatus == FriendshipStatus.Pending);
+
+        return await _dbSet
+            .AsNoTracking()
+            .Where(user => user.DigestEmailEnabled
+                           && (unreadMessages.Any(message => message.ReceiverUserId == user.Id)
+                               || pendingRequests.Any(friendship => friendship.AddresseeUserId == user.Id)
+                               || friendsPosts.Any(row => row.RecipientId == user.Id)))
+            .OrderBy(user => user.Id)
+            .Skip((pageQuery.PageNumber - 1) * pageQuery.PageSize)
+            .Take(pageQuery.PageSize)
+            .Select(user => new DigestRecipientProjection
+            {
+                Id       = user.Id,
+                Username = user.Username,
+                Email    = user.Email,
+                UnreadConversationCount = unreadMessages
+                    .Where(message => message.ReceiverUserId == user.Id)
+                    .Select(message => message.SenderUserId)
+                    .Distinct()
+                    .Count(),
+                PendingFriendRequestCount = pendingRequests.Count(friendship => friendship.AddresseeUserId == user.Id),
+                Posts = friendsPosts
+                    .Where(row => row.RecipientId == user.Id)
+                    .Select(row => row.Post)
+                    .OrderByDescending(post => post.Likes.Count())
+                    .ThenByDescending(post => post.CreatedAt)
+                    .Take(postLimit)
+                    .Select(post => new DigestPostProjection
+                    {
+                        Id             = post.Id,
+                        Title          = post.PostTitle,
+                        AuthorUsername = post.User!.Username,
+                        LikeCount      = post.Likes.Count()
+                    })
+                    .ToList()
+            })
+            .ToListAsync();
+    }
+
+    public async Task SetDigestEmailAsync(User userToUpdate, bool enabled)
+    {
+        userToUpdate.DigestEmailEnabled = enabled;
+        userToUpdate.LastUpdatedAt      = DateTime.UtcNow;
+
+        await _dbContext.SaveChangesAsync();
+    }
+
     public async Task MarkActiveAsync(int userId)
     {
         await _dbSet.Where(user => user.Id == userId)
@@ -312,6 +386,7 @@ public class UserRepository : BaseEntityRepository<User>
     {
         var result = new SoftDeleteCleanupResult();
         
+        // The User query filter would hide every candidate for the purge.
         var userIds = await _dbSet
             .IgnoreQueryFilters()
             .Where(user => user.AccountDeletedAt != null && user.AccountDeletedAt < cutoff)
@@ -337,8 +412,7 @@ public class UserRepository : BaseEntityRepository<User>
         return result;
     }
 
-    // Adds the addresses of the deleted messages' images to deletedImageAddresses, so the caller can remove the files.
-    // The image rows go with their messages (cascade).
+    // Read image addresses before the message delete cascades to the image rows so the cleanup job can remove the files.
     private async Task<int> DeleteUsersMessagesAsync(
         List<int> userIds,
         int batchSize,
@@ -374,8 +448,7 @@ public class UserRepository : BaseEntityRepository<User>
         return totalDeleted;
     }
     
-    // Adds the addresses of the deleted posts' images to deletedImageAddresses, so the caller can remove the files.
-    // The image rows go with their posts (cascade).
+    // Read image addresses before the post delete cascades to the image rows so the cleanup job can remove the files.
     private async Task<int> DeleteUsersPostsAsync(
         List<int> userIds,
         int batchSize,
@@ -488,7 +561,7 @@ public class UserRepository : BaseEntityRepository<User>
 
         do
         {
-            var postIds = await _dbContext.Friendships
+            var friendshipIds = await _dbContext.Friendships
                 .Where(friendship => userIds.Contains(friendship.AddresseeUserId) || userIds.Contains(friendship.RequesterUserId))
                 .OrderBy(friendship => friendship.Id)
                 .Take(batchSize)
@@ -496,7 +569,7 @@ public class UserRepository : BaseEntityRepository<User>
                 .ToListAsync(cancellationToken);
 
             deletedThisBatch = await _dbContext.Friendships
-                .Where(friendship => postIds.Contains(friendship.Id))
+                .Where(friendship => friendshipIds.Contains(friendship.Id))
                 .ExecuteDeleteAsync(cancellationToken);
 
             totalDeleted += deletedThisBatch;

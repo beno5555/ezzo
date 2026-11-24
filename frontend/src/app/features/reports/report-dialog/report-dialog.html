@@ -1,0 +1,34 @@
+<app-dialog-frame [title]="title()">
+  <form class="flex flex-col gap-5" [formGroup]="form" (ngSubmit)="send()">
+    <app-form-field
+      fieldId="report-reason"
+      [label]="text().reports.dialog.reasonLabel"
+      [hint]="text().reports.dialog.reasonHint"
+      [control]="form.controls.reason"
+      [length]="length()"
+      [maxLength]="maxLength"
+    >
+      <textarea
+        appTextInput
+        id="report-reason"
+        rows="4"
+        autocomplete="off"
+        formControlName="reason"
+        [attr.maxlength]="maxLength"
+      ></textarea>
+    </app-form-field>
+
+    @if (failureMessage(); as message) {
+      <app-form-message tone="danger" [message]="message" />
+    }
+
+    <div class="flex flex-wrap justify-end gap-3">
+      <button appButton look="quiet" type="button" (click)="cancel()">
+        {{ text().shared.confirmation.cancelButton }}
+      </button>
+      <button appButton look="primary" type="submit" [disabled]="!canSend()">
+        {{ text().reports.dialog.submitButton }}
+      </button>
+    </div>
+  </form>
+</app-dialog-frame>

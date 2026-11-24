@@ -4,7 +4,7 @@
 
 | Tier | Audience | Example fields |
 |---|---|---|
-| `Minimal` | Lists, search, nested references | Id, Username |
+| `Minimal` | Lists of people, nested references | Id, Username |
 | `Standard` | Public single fetch | + Bio, DateOfBirth (no joined date: it is private) |
 | `Full` | Owner's own view, freshly created resource | + Email, Roles, RegisteredAt, UsernameLastChangedAt |
 

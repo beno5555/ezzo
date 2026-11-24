@@ -1,7 +1,7 @@
 using aspnetproject.Common.Domain;
 using aspnetproject.Common.ProjectConstants;
 using aspnetproject.Data.Repositories;
-using aspnetproject.Infrastructure.Dtos.Internal;
+using aspnetproject.Infrastructure.Dtos.Automation;
 using aspnetproject.Infrastructure.Mappers;
 using aspnetproject.Infrastructure.Queries;
 using aspnetproject.Infrastructure.Services.BusinessLogic.Base;

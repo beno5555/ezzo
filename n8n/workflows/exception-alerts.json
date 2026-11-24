@@ -1,0 +1,220 @@
+{
+  "id": "wcExceptionAlert",
+  "name": "Exception alerts",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "exception-occurred",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4d01",
+      "name": "Event: exception-occurred",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "9b6e2f41-3c7d-4e8a-b5f0-1d2c3e4f5a01"
+    },
+    {
+      "parameters": {
+        "action": "hmac",
+        "binaryData": true,
+        "binaryPropertyName": "data",
+        "type": "SHA256",
+        "dataPropertyName": "expectedSignature",
+        "encoding": "hex"
+      },
+      "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4d02",
+      "name": "Sign the raw body",
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "credentials": {
+        "crypto": {
+          "id": "wcSigningSecret1",
+          "name": "Ezzo event signing secret"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4d10",
+              "leftValue": "={{ $json.headers['x-webcity-signature'] ?? '' }}",
+              "rightValue": "={{ $json.expectedSignature }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4d03",
+      "name": "Signature matches?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "noData",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4d04",
+      "name": "Answer 200",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        660,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "noData",
+        "options": {
+          "responseCode": 401
+        }
+      },
+      "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4d05",
+      "name": "Answer 401",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        660,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Builds the Telegram message for one exception-occurred event (docs/backend/automation.md).\n// The message is sent with parse mode HTML, where only &, < and > are markup in inserted text.\nconst maxMessageLength = 1000;\nconst maxStackTraceLength = 2500; // Telegram refuses a message over 4096 characters\nconst timeFormat = \"yyyy-MM-dd HH:mm:ss 'GMT'ZZ\";\n\nconst escapeHtml = (text) =>\n  String(text ?? '').replaceAll('&', '&amp;').replaceAll('<', '&lt;').replaceAll('>', '&gt;');\nconst truncate = (text, maxLength) =>\n  text.length > maxLength ? `${text.slice(0, maxLength - 1)}…` : text;\n\nreturn $input.all().map((item) => {\n  const event = item.json.body;\n  const data = event.data;\n  const time = DateTime.fromISO(event.occurredAt).setZone($env.GENERIC_TIMEZONE).toFormat(timeFormat);\n  const lines = [\n    `<b>${escapeHtml($env.WEBCITY_PRODUCT_NAME)}: unhandled exception</b>`,\n    `<b>Type:</b> <code>${escapeHtml(data.exceptionType)}</code>`,\n    `<b>Message:</b> ${escapeHtml(truncate(String(data.message ?? ''), maxMessageLength))}`,\n    `<b>Where:</b> <code>${escapeHtml(data.place)}</code> (${escapeHtml(data.placeKind)})`,\n    `<b>When:</b> ${escapeHtml(time)}`,\n  ];\n  const stackTrace = String(data.stackTrace ?? '');\n  const hasStackTrace = stackTrace.length > 0;\n  if (hasStackTrace) {\n    lines.push('', `<pre>${escapeHtml(truncate(stackTrace, maxStackTraceLength))}</pre>`);\n  }\n  return { json: { text: lines.join('\\n') } };\n});\n"
+      },
+      "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4d06",
+      "name": "Write the message",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        880,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_DEVELOPERS_CHAT_ID }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "disable_web_page_preview": true,
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4d07",
+      "name": "Tell the developers",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1100,
+        -100
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "wcTelegramBot001",
+          "name": "Ezzo Telegram bot"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Event: exception-occurred": {
+      "main": [
+        [
+          {
+            "node": "Sign the raw body",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sign the raw body": {
+      "main": [
+        [
+          {
+            "node": "Signature matches?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Signature matches?": {
+      "main": [
+        [
+          {
+            "node": "Answer 200",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Answer 401",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Answer 200": {
+      "main": [
+        [
+          {
+            "node": "Write the message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write the message": {
+      "main": [
+        [
+          {
+            "node": "Tell the developers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

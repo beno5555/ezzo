@@ -1,7 +1,7 @@
 using System.Text.Json.Serialization;
 using aspnetproject.Common.Json;
 using aspnetproject.Common.ProjectConstants.Enums;
-using aspnetproject.Infrastructure.Dtos.Internal;
+using aspnetproject.Infrastructure.Dtos.Automation;
 
 namespace aspnetproject.Infrastructure.Dtos.WebsocketsTransfer;
 

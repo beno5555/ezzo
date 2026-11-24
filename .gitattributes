@@ -1,1 +1,13 @@
 *.sh text eol=lf
+
+# Prettier expects LF, so the frontend checks out with LF on Windows too; without this,
+# core.autocrlf turns every file CRLF and `prettier --check` fails on all of them.
+frontend/** text=auto eol=lf
+
+# The Impeccable skill's launchers: cmd.exe misreads a batch file with LF line endings,
+# and sh misreads a script with CRLF ones.
+*.cmd text eol=crlf
+.claude/skills/impeccable/scripts/impeccable text eol=lf
+
+# Exclude the third-party Impeccable bundle from GitHub language statistics.
+.claude/skills/impeccable/** linguist-vendored

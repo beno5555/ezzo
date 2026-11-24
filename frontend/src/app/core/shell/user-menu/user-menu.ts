@@ -1,8 +1,12 @@
 import { Component, inject } from '@angular/core';
 import { Router, RouterLink } from '@angular/router';
-import { LucideLogOut, LucideSettings, LucideShield, LucideUserRound } from '@lucide/angular';
+import LucideLogOut from 'lucide/dist/esm/icons/log-out.mjs';
+import LucideSettings from 'lucide/dist/esm/icons/settings.mjs';
+import LucideShield from 'lucide/dist/esm/icons/shield.mjs';
+import LucideUserRound from 'lucide/dist/esm/icons/user-round.mjs';
 import { Avatar } from '../../../shared/avatar/avatar';
 import { AvatarSize } from '../../../shared/avatar/avatar-size';
+import { Icon } from '../../../shared/icon/icon';
 import { LanguageStore } from '../../languages/language-store';
 import { appAddresses } from '../../routing/app-addresses';
 import { SessionStore } from '../../session/session-store';
@@ -15,21 +19,18 @@ import { ShellPreferences } from '../shell-preferences/shell-preferences';
 // the backend enforces the role.
 @Component({
   selector: 'app-user-menu',
-  imports: [
-    RouterLink,
-    Avatar,
-    MenuRow,
-    ShellPopover,
-    ShellPreferences,
-    LucideUserRound,
-    LucideSettings,
-    LucideShield,
-    LucideLogOut,
-  ],
+  imports: [RouterLink, Avatar, MenuRow, ShellPopover, ShellPreferences, Icon],
   templateUrl: './user-menu.html',
   styleUrl: './user-menu.css',
 })
 export class UserMenu {
+  protected readonly icons = {
+    logOut: LucideLogOut,
+    settings: LucideSettings,
+    shield: LucideShield,
+    userRound: LucideUserRound,
+  };
+
   private readonly router = inject(Router);
   private readonly sessionStore = inject(SessionStore);
 

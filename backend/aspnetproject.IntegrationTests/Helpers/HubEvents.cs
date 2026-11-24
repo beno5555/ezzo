@@ -7,6 +7,7 @@ public static class HubEvents
     public const string ReceiveMessage = "ReceiveMessage";
     public const string MessageSeen    = "MessageSeen";
     public const string MessageEdited  = "MessageEdited";
+    public const string MessageDeleted = "MessageDeleted";
     public const string ReceiveComment = "ReceiveComment";
     public const string PostLiked      = "PostLiked";
     public const string UserOnline     = "UserOnline";
@@ -21,6 +22,7 @@ public static class HubEvents
         ReceiveMessage,
         MessageSeen,
         MessageEdited,
+        MessageDeleted,
         ReceiveComment,
         PostLiked,
         UserOnline,

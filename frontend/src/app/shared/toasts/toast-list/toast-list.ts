@@ -1,28 +1,66 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { LucideChevronRight } from '@lucide/angular';
+import LucideChevronRight from 'lucide/dist/esm/icons/chevron-right.mjs';
+import LucideCircleCheck from 'lucide/dist/esm/icons/circle-check.mjs';
+import LucideCircleX from 'lucide/dist/esm/icons/circle-x.mjs';
+import LucideCloudUpload from 'lucide/dist/esm/icons/cloud-upload.mjs';
+import LucideHeart from 'lucide/dist/esm/icons/heart.mjs';
+import LucideMessageCircle from 'lucide/dist/esm/icons/message-circle.mjs';
+import LucideMessageSquareText from 'lucide/dist/esm/icons/message-square-text.mjs';
+import LucideX from 'lucide/dist/esm/icons/x.mjs';
 import { LanguageStore } from '../../../core/languages/language-store';
+import { Avatar } from '../../avatar/avatar';
+import { IconButton } from '../../icon-button/icon-button';
+import { Icon } from '../../icon/icon';
+import { ToastLook } from '../toast-look';
 import { Toast } from '../toast';
 import { ToastStore } from '../toast-store';
+
+// The badge's colour on a person's picture: a like is red, the others are the accent. Online has no
+// badge of this kind: it is the green dot.
+const badgeColors: Partial<Record<ToastLook, string>> = {
+  [ToastLook.Like]: 'bg-danger',
+  [ToastLook.Comment]: 'bg-accent',
+  [ToastLook.Message]: 'bg-accent',
+};
 
 // Where the toasts appear, placed once in the app shell. On a phone they sit at the top, clear of the
 // bottom bar and of the on-screen keyboard; from 768 px, at the bottom end, clear of the top bar. The
 // region is always there and polite, so a screen reader reads each toast as it arrives without
 // breaking off what it was reading. Toasts lie under an open dialog: a dialog is modal.
-// A toast with a link opens it on a click, and leaves at once.
+// A toast with a link opens it on a click, and leaves at once. The close button (DESIGN.md, Components)
+// discards any toast. A toast slides in from the edge it sits at (DESIGN.md, Do's and Don'ts),
+// and stays still under "reduce motion".
 @Component({
-  imports: [RouterLink, LucideChevronRight],
+  imports: [Avatar, IconButton, NgTemplateOutlet, RouterLink, Icon],
   selector: 'app-toast-list',
   templateUrl: './toast-list.html',
   styleUrl: './toast-list.css',
 })
 export class ToastList {
+  protected readonly icons = {
+    chevronRight: LucideChevronRight,
+    circleCheck: LucideCircleCheck,
+    circleX: LucideCircleX,
+    cloudUpload: LucideCloudUpload,
+    heart: LucideHeart,
+    messageCircle: LucideMessageCircle,
+    messageSquareText: LucideMessageSquareText,
+    x: LucideX,
+  };
+
   private readonly toastStore = inject(ToastStore);
 
   protected readonly text = inject(LanguageStore).text;
   protected readonly toasts = this.toastStore.visible;
+  protected readonly ToastLook = ToastLook;
 
-  dismissFollowed(toast: Toast): void {
+  dismiss(toast: Toast): void {
     this.toastStore.dismiss(toast.id);
+  }
+
+  protected badgeColorOf(look: ToastLook): string {
+    return badgeColors[look] ?? '';
   }
 }

@@ -1,0 +1,92 @@
+<article
+  class="flex flex-col gap-4 rounded-lg border border-border bg-surface-raised p-4 text-ink-strong"
+  [appFadeOut]="isFading()"
+  [attr.aria-busy]="isFading() || null"
+>
+  <header class="flex flex-wrap items-start justify-between gap-x-4 gap-y-2">
+    <div class="flex min-w-0 flex-col gap-1">
+      <p class="text-sm font-semibold text-ink-muted">{{ text().admin.reports.card.reportedBy }}</p>
+      <app-snapshot-author [author]="report().reporter" [uploadedAt]="report().createdAt" />
+    </div>
+    <p class="flex items-center gap-1 text-sm font-semibold" [class]="statusClass()">
+      @switch (report().status) {
+        @case (ReportStatus.Pending) {
+          <svg class="size-4 shrink-0" [appIcon]="icons.clock" aria-hidden="true"></svg>
+        }
+        @case (ReportStatus.Resolved) {
+          <svg class="size-4 shrink-0" [appIcon]="icons.circleCheck" aria-hidden="true"></svg>
+        }
+        @case (ReportStatus.Rejected) {
+          <svg class="size-4 shrink-0" [appIcon]="icons.circleX" aria-hidden="true"></svg>
+        }
+      }
+      {{ text().admin.reports.statuses[report().status] }}
+    </p>
+  </header>
+
+  <div class="flex flex-col gap-1">
+    <p class="text-sm font-semibold text-ink-muted">{{ text().admin.reports.card.reason }}</p>
+    <p class="whitespace-pre-line wrap-break-word">{{ report().reason }}</p>
+  </div>
+
+  <section class="flex flex-col gap-2">
+    <h2 class="text-sm font-semibold text-ink-muted">
+      {{ text().admin.reports.card.reported[report().targetType] }}
+    </h2>
+    <div class="rounded-md bg-surface-sunken p-3">
+      @if (report().targetMissing) {
+        <p class="flex items-start gap-2 text-ink-muted">
+          <svg class="mt-0.5 size-5 shrink-0" [appIcon]="icons.fileX" aria-hidden="true"></svg>
+          {{ text().admin.reports.card.targetMissing[report().targetType] }}
+        </p>
+      } @else {
+        @switch (report().targetType) {
+          @case (ReportTargetType.Post) {
+            @if (report().post; as post) {
+              <app-post-snapshot [post]="post" />
+            }
+          }
+          @case (ReportTargetType.Comment) {
+            @if (report().comment; as comment) {
+              <app-comment-snapshot [comment]="comment" />
+            }
+          }
+          @case (ReportTargetType.User) {
+            @if (report().user; as user) {
+              <app-user-snapshot [user]="user" />
+            }
+          }
+        }
+      }
+    </div>
+  </section>
+
+  @if (reviewLine(); as line) {
+    <p class="text-sm text-ink-muted">{{ line }}</p>
+  }
+
+  @if (decisions().length > 0) {
+    <div class="flex flex-wrap gap-2">
+      @if (canHide()) {
+        <button appButton look="quiet" type="button" (click)="requestDecision(ReportDecision.Hide)">
+          @if (report().targetType === ReportTargetType.User) {
+            <svg class="size-5 shrink-0" [appIcon]="icons.userX" aria-hidden="true"></svg>
+          } @else {
+            <svg class="size-5 shrink-0" [appIcon]="icons.eyeOff" aria-hidden="true"></svg>
+          }
+          {{ text().admin.reports.hideButton[report().targetType] }}
+        </button>
+      }
+      @if (canReject()) {
+        <button
+          appButton
+          look="quiet"
+          type="button"
+          (click)="requestDecision(ReportDecision.Reject)"
+        >
+          {{ text().admin.reports.rejectButton }}
+        </button>
+      }
+    </div>
+  }
+</article>

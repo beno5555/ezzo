@@ -1,0 +1,45 @@
+<app-avatar [userId]="userId() ?? 0" [isUnavailable]="!isAvailable()" />
+<div class="flex min-w-0 flex-1 basis-32 items-center">
+  @if (isAvailable()) {
+    <a
+      class="inline-flex min-h-11 min-w-0 cursor-pointer items-center rounded-sm font-semibold text-ink-strong wrap-anywhere hover:underline hover:underline-offset-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+      [routerLink]="profileAddress(username())"
+      >{{ username() }}</a
+    >
+  } @else {
+    <span class="min-w-0 py-3 font-semibold text-ink-muted wrap-anywhere">{{ username() }}</span>
+  }
+</div>
+@if (isWaiting()) {
+  <!-- As tall as the buttons it stands in for, and on the line they take on a phone, so the list does not
+       jump when a row starts deleting. -->
+  <app-deleting-notice class="my-1 ml-auto min-h-11 w-full justify-end md:w-auto" />
+} @else if (isAvailable()) {
+  <div class="ml-auto flex flex-wrap gap-2 py-1">
+    @if (canMessage()) {
+      <a
+        appButton
+        look="quiet"
+        [routerLink]="conversationAddress(username())"
+        [attr.aria-label]="messageLabel()"
+      >
+        <svg class="size-5 shrink-0" [appIcon]="icons.messageCircle" aria-hidden="true"></svg>
+        {{ text().friendships.page.messageButton }}
+      </a>
+    }
+    <!-- Tracked by place: a row's buttons change as its relationship does (Add becomes Cancel), and the
+         button that was pressed keeps the keyboard focus, like the profile's. -->
+    @for (rowAction of actions(); track $index) {
+      <button
+        appButton
+        type="button"
+        [look]="lookOf(rowAction)"
+        [disabled]="isBusy()"
+        [attr.aria-label]="actionLabel(rowAction)"
+        (click)="action.emit(rowAction)"
+      >
+        {{ actionText(rowAction) }}
+      </button>
+    }
+  </div>
+}

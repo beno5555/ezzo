@@ -1,0 +1,13 @@
+<app-avatar [userId]="avatarId()" [isUnavailable]="!isAvailable()" />
+<div class="flex min-w-0 flex-1 flex-col">
+  @if (isAvailable()) {
+    <a appTextLink class="self-start wrap-anywhere" [routerLink]="profileAddress()">{{
+      author().username
+    }}</a>
+  } @else {
+    <span class="font-semibold text-ink-muted wrap-anywhere">{{ author().username }}</span>
+  }
+  <time class="text-sm text-ink-muted" [attr.datetime]="uploadedAt()">{{
+    dateFormatter.time(uploadedAt())
+  }}</time>
+</div>

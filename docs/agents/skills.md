@@ -10,9 +10,12 @@ The copies in `~/.claude/skills/` with the same names are **Windows directory ju
 
 ## Skills for Codex
 
-Codex does not read `.claude/skills/`. It finds skills in `.agents/skills/`, which holds **git symlinks** (mode `120000`) to the skills any agent may start on its own: `webcity-conventions`, `tdd`, `codebase-design`, `domain-modeling`, `frontend-design`, `spec-review`. The skills the owner starts (`disable-model-invocation: true`, and `grilling`) get no link, because Codex would offer them to itself.
+Codex discovers project skills through **Git symlinks** (mode `120000`) in `.agents/skills/`. Both harnesses use the same `SKILL.md` files under `.claude/skills/`.
 
-- `.claude/skills/` stays the only real copy. Edit a skill there.
+- Codex can select `webcity-conventions`, `tdd`, `codebase-design`, `domain-modeling`, `frontend-design`, `spec-review` and `impeccable`.
+- Start the owner-invoked workflows with `$implement`, `$revise`, `$to-spec`, `$to-tickets`, `$handoff`, `$grill-with-docs`, `$grilling` or `$setup-matt-pocock-skills`. For example, type `$implement .scratch/<feature>/issues/<ticket>.md` in Codex. The Codex policy is `allow_implicit_invocation: false` in each skill's `agents/openai.yaml`. Claude Code uses its existing frontmatter and slash commands.
+- Follow `AGENTS.md` for Claude-specific steps in a shared skill, including the two passes in `spec-review`.
+
 - A Windows checkout needs `git config core.symlinks true` (and Windows Developer Mode, which is on). Without it, git writes each link as a small text file holding the path, and Codex finds no skills. Linux and cloud checkouts need nothing.
 - Add a link from the repo root with `MSYS=winsymlinks:nativestrict ln -s ../../.claude/skills/<name> .agents/skills/<name>`. Without the `MSYS` setting, Git Bash copies the folder instead of linking it. Remove a link with `git rm .agents/skills/<name>`, with no trailing slash.
 
@@ -21,9 +24,47 @@ Codex does not read `.claude/skills/`. It finds skills in `.agents/skills/`, whi
 Two design skills from other authors serve the frontend. Each is a real folder committed under `.claude/skills/`, with no junction.
 
 - **`frontend-design`** (Anthropic, Apache 2.0): one text file, copied on 2026-11-16 from `anthropics/skills` at commit `1780c5e`. It guides new visual work, such as the brand session.
-- **Impeccable** (`pbakaus/impeccable`, Apache 2.0): not installed yet; frontend ticket 30 installs it, in a session with the owner. It is used through its named commands (`critique`, `audit`, `adapt`, `polish`) at approval points. Its launcher downloads a program from the skill's GitHub releases and checks it against checksums shipped with the skill. Its hook runs on trial, in quiet mode.
+- **Impeccable** (`pbakaus/impeccable`, Apache 2.0): skill 4.10.0 with engine 0.1.27, copied on 2026-11-21 from commit `b49177d` byte for byte (frontend ticket 30). It is used through its named commands (`critique`, `audit`, `adapt`, `polish`) at approval points and on a page's responsive check. Its hook stays on after its trial (below).
 
-Rules for any further skill:
+### Impeccable
+
+**What it runs.** Everything goes through the launcher `.claude/skills/impeccable/scripts/impeccable` (`impeccable.cmd` for cmd). On first use the launcher downloads one program, the engine (about 24 MB for Windows), from the skill's GitHub release `engine-v0.1.27`. It checks the download against `scripts/engine-checksums.txt` and keeps it per user in `~/.impeccable/bin/0.1.27/`, outside the repo. The Windows engine is signed by Renaissance Geek, Inc. Some commands do more: `live` serves a page on port 8400 and adds a script to `frontend/src/index.html`. `component-review` serves pages on local ports. `shot` and the motion and font checks open a headless browser. Font lookups reach Google Fonts. Image generation needs a key the project does not have.
+
+**Files in the project.**
+
+- `.impeccable/config.json` is committed. It holds the hook's on switch and quiet mode, and it turns off telemetry, the update check and the staleness check.
+- `.impeccable/config.local.json` (the local consent to the hook), `hook.cache.json` and `hook.pending.json` are per developer and listed in `.gitignore`. Turning the hook on also adds them to the clone's `.git/info/exclude`, which every worktree shares.
+- Change the config only through `impeccable hooks ...`, never by hand. The one exception is `detector.extensions`, which has no command.
+
+**Never run** `init`, `document` or `doctor --fix`. `init` writes `PRODUCT.md` from an interview about audience and positioning; the name session wrote that file instead, so edit it directly when a product fact changes. `document` rewrites `DESIGN.md`. `doctor --fix` changes files without asking.
+
+**The hook.** It checks direct UI edits and runs a full pass at the end of the turn. The check after an edit reports only mechanical faults, such as contrast, overflow, gradient text, glow, and design-system drift. It reads `.ts` files too, because `DESIGN.md` exists. Quiet mode hides the "all clean" notes. Claude Code uses the checkout's gitignored `.claude/settings.local.json`, which its worktrees copy. Codex uses the committed `.codex/hooks.json` and the same pinned skill through `.agents/skills/impeccable`. In a trusted Codex project, review and approve the new hook commands through `/hooks`. To wire or repair the manifests, run this from the repo root:
+
+```bash
+.claude/skills/impeccable/scripts/impeccable hooks on
+```
+
+`hooks status` shows where it is wired. `hooks off` turns it off. `claude --settings '{"disableAllHooks": true}'` starts one session without any hooks.
+
+**Hook findings: ask before you ignore one (owner, 2026-11-21).** The hook's message tells an agent to add an exception itself (`hooks ignore-value`) when it judges a finding wrong. Do not. Fix a finding that is right. Show the owner a finding you think is wrong, with the line and your reason. Add the narrowest exception only after the owner agrees, and write `owner confirmed` in its `--reason`. The owner judges by looking, not by reading code, and may follow the session from another device. So when the dispute is about how something looks, send a screenshot of the element into the chat, with the code beside it when the code helps. Where it makes the difference clearer, add a second screenshot of the hook's proposed fix.
+
+**What the detector misses.** In the trial run outside the repo, a test page with known faults got 5 findings and one advisory: a side stripe, gradient text, 1.6:1 contrast, a glow, cramped padding, and a hard offset shadow. It did not flag a spaced all-caps label over a heading, an emoji used as an icon, or the Inter font. `DESIGN.md` bans all three, so a review still checks them by eye.
+
+**Where it disagrees with `DESIGN.md`** (reported to the owner; the open ones are still to be decided on the merits):
+
+- It calls a neutral shell with one accent colour the category default and asks for a coloured shell with a signature move. Decided in the brand session (owner, 2026-11-23): the Balcony skin tints the shell with its blue and keeps its signature in the logo (`DESIGN.md`, Brand).
+- It asks for one designed moment of motion. `DESIGN.md` allows motion only in answer to a user's action, and none on page load. Open.
+- It wants lines of 65 to 75 characters. `DESIGN.md` says under about 80. Open.
+- Cards: not a real disagreement. The skill bans one pattern: a page built from same-size cards of icon, heading and text. It also bans a card inside a card. A post in a card, as `DESIGN.md` has it, is allowed.
+- Scrollbars: decided for the skill (owner, 2026-11-21). The browser's own scrollbars stay, coloured from the palette, never replaced by custom ones. They follow the theme (`color-scheme`) and take the palette (`DESIGN.md`, Colors).
+
+**Rendered-page checks.** The source scan checks patterns in code. Checks that need the rendered page, such as contrast and tiny text, use `.claude/skills/impeccable/scripts/impeccable detect http://localhost:4200/<page>` with the dev server running. Run it as part of a responsive check on a page available to guests, such as the landing page (`/`) or `/register`. The detector opens a fresh browser session. For pages that require sign-in, use the [screenshot command](screenshots.md#the-screenshot-command) and review the images.
+
+**Trial verdict (owner, 2026-11-21).** Keep the hook enabled. It catches design faults that can still occur with valid tokens. In quiet mode, `.impeccable/hook.cache.json` lists the files checked even when the hook reports no findings.
+
+**Cloud sessions.** A Claude cloud session starts without `.claude/settings.local.json` and uses the playbooks in the committed skill. The launcher can download the Linux engine from GitHub's release servers. If the engine is unavailable, read `reference/`, check the page by eye against `DESIGN.md`, and report that the detector check is pending.
+
+### Rules for any further skill
 
 - At most two design skills. A third would contradict the other two and `DESIGN.md`.
 - Read a skill in full before installing it, and say what it runs: scripts, hooks, downloads.

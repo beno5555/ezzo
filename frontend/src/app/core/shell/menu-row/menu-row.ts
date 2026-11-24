@@ -3,7 +3,7 @@ import { Directive } from '@angular/core';
 // A row in a shell menu's panel, a link or a button: an icon and a word, 44 px high (a touch target),
 // sunken while hovered, with the focus ring inside its edge. A directive, so the element keeps its own
 // behaviour:
-//   <a appMenuRow [routerLink]="addresses.settings"><svg lucideSettings ...></svg> Settings</a>
+//   <a appMenuRow [routerLink]="addresses.settings"><svg [appIcon]="icons.settings"></svg> Settings</a>
 @Directive({
   selector: 'a[appMenuRow], button[appMenuRow]',
   host: {

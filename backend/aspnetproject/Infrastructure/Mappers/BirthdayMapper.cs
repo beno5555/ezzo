@@ -1,5 +1,5 @@
 using aspnetproject.Data.Repositories.Dtos;
-using aspnetproject.Infrastructure.Dtos.Internal;
+using aspnetproject.Infrastructure.Dtos.Automation;
 using aspnetproject.Infrastructure.Dtos.Users;
 
 namespace aspnetproject.Infrastructure.Mappers;

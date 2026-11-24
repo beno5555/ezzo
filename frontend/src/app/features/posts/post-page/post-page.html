@@ -1,0 +1,45 @@
+@switch (status()) {
+  @case (PostPageStatus.Loading) {
+    <p class="py-4 text-center text-sm text-ink-muted" role="status">
+      {{ text().posts.page.loading }}
+    </p>
+  }
+  @case (PostPageStatus.NotFound) {
+    <app-not-found-page />
+  }
+  @case (PostPageStatus.Failed) {
+    <app-load-failure
+      [message]="failureMessage() ?? ''"
+      [retryLabel]="text().posts.page.retryButton"
+      (retry)="retry()"
+    />
+  }
+  @case (PostPageStatus.Ready) {
+    @if (displayedPost(); as shownPost) {
+      <div class="relative flex flex-col gap-6">
+        <h1 class="sr-only">{{ text().pages.post }}</h1>
+
+        <!-- A guest has no feed to go back to, so a guest gets no link. -->
+        @if (isSignedIn()) {
+          <app-back-link [label]="text().posts.page.backLink" />
+        }
+
+        <!-- On its own page the card shows the whole post, and its comments button goes back like the back
+             link (a guest has nowhere to go back to, so it keeps the post's own address). -->
+        <app-post-card
+          [post]="shownPost"
+          [isFull]="true"
+          [commentsGoBack]="isSignedIn()"
+          (likeToggle)="toggleLike(shownPost)"
+          (postDelete)="deletePost(shownPost)"
+        />
+
+        <app-comment-section
+          [postId]="shownPost.id"
+          [postAuthorId]="shownPost.author.id"
+          (countChange)="changeCommentCount($event)"
+        />
+      </div>
+    }
+  }
+}

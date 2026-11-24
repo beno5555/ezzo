@@ -9,21 +9,21 @@
          short one; a word that still does not fit is cut with an ellipsis. -->
     <ul class="mx-auto flex h-16 max-w-column">
       <li class="flex min-w-0 flex-auto">
-        <a appBottomBarLink [routerLink]="addresses.feed">
-          <svg class="size-6 shrink-0" lucideHouse aria-hidden="true"></svg>
+        <a appBottomBarLink [routerLink]="addresses.home" [routerLinkActiveOptions]="homeLinkMatch">
+          <svg class="size-6 shrink-0" [appIcon]="icons.house" aria-hidden="true"></svg>
           <span class="max-w-full truncate">{{ text().shell.bottomBar.feedLink }}</span>
         </a>
       </li>
       <li class="flex min-w-0 flex-auto">
         <a appBottomBarLink [routerLink]="addresses.search">
-          <svg class="size-6 shrink-0" lucideSearch aria-hidden="true"></svg>
+          <svg class="size-6 shrink-0" [appIcon]="icons.search" aria-hidden="true"></svg>
           <span class="max-w-full truncate">{{ text().shell.bottomBar.searchLink }}</span>
         </a>
       </li>
       <li class="flex min-w-0 flex-auto">
         <a appBottomBarLink [routerLink]="addresses.friends">
           <span class="relative flex">
-            <svg class="size-6 shrink-0" lucideUsers aria-hidden="true"></svg>
+            <svg class="size-6 shrink-0" [appIcon]="icons.users" aria-hidden="true"></svg>
             <app-count-badge
               class="absolute -end-4 -top-2"
               [text]="waitingBadge()"
@@ -36,7 +36,7 @@
       <li class="flex min-w-0 flex-auto">
         <a appBottomBarLink [routerLink]="addresses.messages">
           <span class="relative flex">
-            <svg class="size-6 shrink-0" lucideMessageCircle aria-hidden="true"></svg>
+            <svg class="size-6 shrink-0" [appIcon]="icons.messageCircle" aria-hidden="true"></svg>
             <app-count-badge
               class="absolute -end-4 -top-2"
               [text]="unreadBadge()"
@@ -48,7 +48,7 @@
       </li>
       <li class="flex min-w-0 flex-auto">
         <a appBottomBarLink [routerLink]="addresses.profile(signedInUser.username)">
-          <svg class="size-6 shrink-0" lucideUserRound aria-hidden="true"></svg>
+          <svg class="size-6 shrink-0" [appIcon]="icons.userRound" aria-hidden="true"></svg>
           <span class="max-w-full truncate">{{ text().shell.bottomBar.profileLink }}</span>
         </a>
       </li>

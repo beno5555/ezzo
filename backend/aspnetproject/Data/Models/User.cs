@@ -17,8 +17,10 @@ public class User : BaseEntity
     public DateTime? LastOnlineAt { get; set; } = null; // null = online
 
     public string? Bio { get; set; }
-    
-    
+
+    // Whether the weekly digest email goes to this user. Changed only by its own route, never by a profile edit.
+    public bool DigestEmailEnabled { get; set; } = true;
+
 
     public string?   ResetTokenHash      { get; set; } = string.Empty;
     public DateTime? ResetTokenExpiresAt { get; set; }

@@ -7,9 +7,13 @@
   />
 } @else {
   <span
-    class="flex size-full items-center justify-center rounded-full font-semibold text-on-disc select-none"
-    [class]="picture().discClass"
+    class="flex size-full items-center justify-center overflow-hidden rounded-full bg-surface-sunken"
+    [class]="ring()"
   >
-    {{ picture().initials }}
+    <svg
+      class="size-3/4 fill-ink-muted text-ink-muted"
+      [appIcon]="icons.user"
+      aria-hidden="true"
+    ></svg>
   </span>
 }
