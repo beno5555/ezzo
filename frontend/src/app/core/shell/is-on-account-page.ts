@@ -4,10 +4,9 @@ import { toSignal } from '@angular/core/rxjs-interop';
 import { NavigationEnd, Router, isActive } from '@angular/router';
 import { filter, map, take } from 'rxjs';
 import { appAddresses } from '../routing/app-addresses';
+import { routePath } from '../routing/route-path';
 
-// The account pages beside the landing page (isOnLandingPage): a short stop on the way in, so the shell
-// around them keeps only the logo (owner, 2026-11-19). The language starts from the browser's
-// (LanguageStore), and the other pages keep the switch.
+// These pages are short stops on the way in, so the shell keeps only the logo (owner, 2026-11-19).
 const accountPageAddresses: readonly string[] = [
   appAddresses.register,
   appAddresses.forgotPassword,
@@ -22,7 +21,7 @@ const accountPageAddresses: readonly string[] = [
 // show the full top bar for a moment.
 export function isOnAccountPage(): Signal<boolean> {
   const router = inject(Router);
-  const startPath = inject(Location).path().split(/[?#]/)[0];
+  const startPath = routePath(inject(Location).path());
   const startedOnAccountPage = accountPageAddresses.includes(startPath);
   const hasNavigated = toSignal(
     router.events.pipe(

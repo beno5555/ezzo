@@ -13,6 +13,7 @@ import { Router } from '@angular/router';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { NotFoundPage } from '../../../core/not-found/not-found-page';
 import { appAddresses } from '../../../core/routing/app-addresses';
+import { routePath } from '../../../core/routing/route-path';
 import { signInAddress } from '../../../core/routing/sign-in-address';
 import { SessionStore } from '../../../core/session/session-store';
 import { BackLink } from '../../../shared/back-link/back-link';
@@ -111,7 +112,6 @@ export class PostPage {
     await this.load(this.postId());
   }
 
-  // The card's like button. A guest is sent to sign-in, which returns to this post.
   async toggleLike(post: StandardPostDisplayDto): Promise<void> {
     if (this.sessionStore.isSignedIn()) {
       this.postLikes.toggle(post, (shown) => this.post.set(shown));
@@ -122,13 +122,12 @@ export class PostPage {
     }
   }
 
-  // Once the server has deleted the post and the card has faded out, the page leads to the feed, unless the
-  // reader has gone elsewhere meanwhile: the wait is as long as the server takes, and a reader who followed
-  // a link is not pulled back.
+  // Check the current route after the server responds and the card fades out. The reader may have
+  // followed a link while the deletion was pending.
   async deletePost(post: StandardPostDisplayDto): Promise<void> {
     await this.postEdits.delete(post, () => {
       const postAddress = this.router.createUrlTree(appAddresses.post(post.id)).toString();
-      const isStillHere = this.router.url.split(/[?#]/)[0] === postAddress;
+      const isStillHere = routePath(this.router.url) === postAddress;
 
       if (isStillHere) {
         // Fire-and-forget on purpose: the store's toast must not wait for the navigation.
