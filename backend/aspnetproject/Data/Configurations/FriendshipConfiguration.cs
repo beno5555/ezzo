@@ -22,7 +22,7 @@ public class FriendshipConfiguration : IEntityTypeConfiguration<Friendship>
         builder.Property(friendship => friendship.SentAt)
             .HasDefaultValueSql("GETUTCDATE()");
         
-        // service implementation must manually set the user's friendships to null before deleting the user.
+        // The background purge deletes friendships where the user is the requester or addressee before deleting the user row.
         builder.HasOne(friendship => friendship.RequesterUser)
             .WithMany()
             .HasForeignKey(friendship => friendship.RequesterUserId)

@@ -21,7 +21,7 @@ public class MessageConfiguration : IEntityTypeConfiguration<Message>
 
         builder.HasIndex(message => new { message.SenderUserId, message.ReceiverUserId, message.CreatedAt });
         
-        // service implementation must manually set the user's messages to null before deleting the user.
+        // The background purge deletes messages sent or received by the user before deleting the user row.
         builder.HasOne(message => message.SenderUser)
             .WithMany()
             .HasForeignKey(message => message.SenderUserId)

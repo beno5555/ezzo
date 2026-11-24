@@ -101,7 +101,7 @@ public class FriendshipService : BaseService
             }
             else
             {
-                await _friendshipRepository.UpdateStatusAsync(relationship, FriendshipStatus.Pending);
+                SetStatus(relationship, FriendshipStatus.Pending);
                 relationship.SentAt = DateTime.UtcNow;
 
                 finalRelationship = relationship;
@@ -192,7 +192,6 @@ public class FriendshipService : BaseService
 
         if (friendship is not null)
         {
-            // The friendship row holds a foreign key to the user, so the user exists even when the filter hides it.
             var otherUser = await ResolveOtherUserAsync(friendship, otherUserId);
 
             var friendshipDto = FriendshipMapper.ToAcceptedDisplay(friendship, otherUser!);
@@ -208,7 +207,7 @@ public class FriendshipService : BaseService
         return response;
     }
     
-    // The user query filter leaves out a deactivated or soft-deleted friend, so such a friend is read without it.
+    // The User query filter can hide a friend while the friendship's foreign key still references that account.
     private async Task<User?> ResolveOtherUserAsync(Friendship friendship, int otherUserId)
     {
         var otherUser = friendship.RequesterUserId == otherUserId
@@ -228,7 +227,7 @@ public class FriendshipService : BaseService
 
             if (friendship is not null && friendship.FriendshipStatus == FriendshipStatus.Pending)
             {
-                await _friendshipRepository.UpdateStatusAsync(friendship, status);
+                SetStatus(friendship, status);
                 
                 var friendshipDto = FriendshipMapper.ToStandardDisplay(friendship, addresseeId);
                 await _friendshipRepository.SaveChangesAsync();
@@ -247,6 +246,13 @@ public class FriendshipService : BaseService
     }
     private bool ValidRequestResponse(FriendshipStatus status) =>
         status is FriendshipStatus.Accepted or FriendshipStatus.Declined;
+
+    // Callers persist the tracked changes with SaveChangesAsync. Resending also updates SentAt before that save.
+    private void SetStatus(Friendship friendship, FriendshipStatus status)
+    {
+        friendship.FriendshipStatus = status;
+        friendship.LastUpdatedAt = DateTime.UtcNow;
+    }
     
     public async Task<ApplicationResponse> RemoveRelationshipAsync(int userId, int friendId)
     {
@@ -260,7 +266,7 @@ public class FriendshipService : BaseService
 
             if (friendship is not null)
             {
-                // Read before the rows go; the database cascades the image rows with their messages.
+                // Read the file addresses first because deleting the messages also deletes their image rows.
                 var imageAddresses = await _messageRepository.GetConversationImageAddressesAsync(userId, friendId);
 
                 await _messageRepository.DeleteConversationAsync(userId, friendId);
