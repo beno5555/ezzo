@@ -97,6 +97,10 @@ export const english = {
     dialog: {
       closeButton: 'Close',
     },
+    // The eye button inside a password box; aria-pressed says whether the password shows.
+    passwordToggle: {
+      label: 'Show password',
+    },
     // The copyable texts (a username, an email) in the admin panel.
     copy: {
       button: (value: string) => `Copy ${value}`,
@@ -264,6 +268,7 @@ export const english = {
           }),
         usernameCharacters: 'Use letters, digits, _ and -, with at least one letter.',
         emailFormat: 'Enter an email address, like name@example.com.',
+        passwordMismatch: 'The passwords do not match.',
         futureDate: 'The date of birth cannot be in the future.',
         tooYoung: (minAge: number) =>
           pluralize(Language.English, minAge, {
@@ -327,6 +332,7 @@ export const english = {
         `${min} to ${max} characters: letters, digits, _ and -.`,
       emailLabel: 'Email',
       passwordLabel: 'Password',
+      confirmPasswordLabel: 'Confirm password',
       dateOfBirthLabel: 'Date of birth',
       bioLabel: 'Bio (optional)',
       bioHint: (max: number) =>

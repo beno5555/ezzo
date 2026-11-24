@@ -27,4 +27,3 @@ Non-visual work (backend, tests, tooling) is merged as soon as it passes the ful
 
 Finished visual branches that wait for the owner's review. No agent merges them until the owner says so. The merge commit deletes the line.
 
-- **`password-visibility`: an eye button shows or hides the password** in every password box (sign-in, register, reset password, the administrator's create-account dialog). Look at it on the landing page and on register in both themes, and press it twice. No ticket: the owner asked for it directly (2026-11-24).

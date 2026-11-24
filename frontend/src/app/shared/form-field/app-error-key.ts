@@ -6,5 +6,6 @@ export const AppErrorKey = {
   FutureDate: 'futureDate',
   TooYoung: 'tooYoung',
   TooOld: 'tooOld',
+  PasswordMismatch: 'passwordMismatch',
 } as const;
 export type AppErrorKey = (typeof AppErrorKey)[keyof typeof AppErrorKey];
