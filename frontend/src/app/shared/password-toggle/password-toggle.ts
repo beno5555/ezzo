@@ -6,6 +6,7 @@ import { Icon } from '../icon/icon';
 import { IconButton } from '../icon-button/icon-button';
 
 // The eye button at the end of a password box: it shows the password as plain text and hides it again.
+// The eye shows the state: closed while the password is hidden (the start), open while it shows.
 // It sits inside the box (the field's control area is positioned), so the box keeps room at its end:
 //   <input #password appTextInput class="pe-12" id="password" type="password" formControlName="password" />
 //   <app-password-toggle [target]="password" />

@@ -1,5 +1,6 @@
 import { Component, inject, signal } from '@angular/core';
-import { NonNullableFormBuilder, ReactiveFormsModule } from '@angular/forms';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { LIMITS } from '../../../core/limits';
@@ -7,6 +8,7 @@ import { appAddresses } from '../../../core/routing/app-addresses';
 import { SessionStore } from '../../../core/session/session-store';
 import { FieldRules } from '../../../shared/form-field/field-rules';
 import { Button } from '../../../shared/button/button';
+import { AppValidators } from '../../../shared/form-field/app-validators';
 import { applyFieldErrors, setServerErrors } from '../../../shared/form-field/apply-field-errors';
 import { FormField } from '../../../shared/form-field/form-field';
 import { FormMessage } from '../../../shared/form-message/form-message';
@@ -51,15 +53,27 @@ export class RegisterPage {
   protected readonly addresses = appAddresses;
   protected readonly limits = LIMITS.users;
 
-  protected readonly form = inject(NonNullableFormBuilder).group({
+  private readonly formBuilder = inject(NonNullableFormBuilder);
+  private readonly password = this.formBuilder.control('', FieldRules.password);
+
+  // The password typed a second time stays in the browser: the register endpoint takes one password.
+  protected readonly form = this.formBuilder.group({
     username: ['', FieldRules.username],
     email: ['', FieldRules.email],
-    password: ['', FieldRules.password],
+    password: this.password,
+    confirmPassword: ['', [Validators.required, AppValidators.sameAs(this.password)]],
     dateOfBirth: ['', FieldRules.dateOfBirth],
     bio: ['', FieldRules.bio],
   });
   protected readonly isSubmitting = signal(false);
   protected readonly failureMessage = signal<string | null>(null);
+
+  constructor() {
+    // A change to the password can make the repeated one match, or stop matching.
+    this.password.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+      this.form.controls.confirmPassword.updateValueAndValidity();
+    });
+  }
 
   async register(): Promise<void> {
     if (this.form.invalid || this.isSubmitting()) {
@@ -101,8 +115,8 @@ export class RegisterPage {
   }
 
   private toRegisterDto(): RegisterDto {
-    const { bio, ...account } = this.form.getRawValue();
+    const { username, email, password, dateOfBirth, bio } = this.form.getRawValue();
 
-    return { ...account, bio: bioOrNull(bio) };
+    return { username, email, password, dateOfBirth, bio: bioOrNull(bio) };
   }
 }

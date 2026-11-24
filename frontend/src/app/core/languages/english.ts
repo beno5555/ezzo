@@ -268,6 +268,7 @@ export const english = {
           }),
         usernameCharacters: 'Use letters, digits, _ and -, with at least one letter.',
         emailFormat: 'Enter an email address, like name@example.com.',
+        passwordMismatch: 'The passwords do not match.',
         futureDate: 'The date of birth cannot be in the future.',
         tooYoung: (minAge: number) =>
           pluralize(Language.English, minAge, {
@@ -331,6 +332,7 @@ export const english = {
         `${min} to ${max} characters: letters, digits, _ and -.`,
       emailLabel: 'Email',
       passwordLabel: 'Password',
+      confirmPasswordLabel: 'Confirm password',
       dateOfBirthLabel: 'Date of birth',
       bioLabel: 'Bio (optional)',
       bioHint: (max: number) =>

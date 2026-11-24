@@ -224,6 +224,7 @@ export const georgian: Dictionary = {
           }),
         usernameCharacters: 'გამოიყენეთ ლათინური ასოები, ციფრები, _ და -, მინიმუმ ერთი ასოთი.',
         emailFormat: 'შეიყვანეთ ელფოსტის მისამართი, მაგალითად name@example.com.',
+        passwordMismatch: 'პაროლები არ ემთხვევა.',
         futureDate: 'დაბადების თარიღი მომავალში ვერ იქნება.',
         tooYoung: (minAge: number) =>
           pluralize(Language.Georgian, minAge, { other: `მინიმუმ ${minAge} წლის უნდა იყოთ.` }),
@@ -274,6 +275,7 @@ export const georgian: Dictionary = {
         `${min}–${max} სიმბოლო: ლათინური ასოები, ციფრები, _ და -.`,
       emailLabel: 'ელფოსტა',
       passwordLabel: 'პაროლი',
+      confirmPasswordLabel: 'გაიმეორეთ პაროლი',
       dateOfBirthLabel: 'დაბადების თარიღი',
       bioLabel: 'ბიოგრაფია (არასავალდებულო)',
       bioHint: (max: number) =>

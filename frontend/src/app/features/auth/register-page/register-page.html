@@ -51,6 +51,23 @@
     </app-form-field>
 
     <app-form-field
+      fieldId="confirmPassword"
+      [label]="text().auth.register.confirmPasswordLabel"
+      [control]="form.controls.confirmPassword"
+    >
+      <input
+        #confirmPasswordBox
+        appTextInput
+        class="pe-12"
+        id="confirmPassword"
+        type="password"
+        autocomplete="new-password"
+        formControlName="confirmPassword"
+      />
+      <app-password-toggle [target]="confirmPasswordBox" />
+    </app-form-field>
+
+    <app-form-field
       fieldId="dateOfBirth"
       [label]="text().auth.register.dateOfBirthLabel"
       [control]="form.controls.dateOfBirth"
