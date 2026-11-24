@@ -5,6 +5,8 @@ Two tools let an agent see the frontend; both are built on Playwright.
 - **The screenshot command** (`frontend/tools/screenshots.ts`, one script) photographs a list of addresses at every width, theme and language a page must be checked in (`frontend/CLAUDE.md`, `DESIGN.md` Layout). Use it to check a page you built and to hand the owner pictures to approve.
 - **The Playwright MCP server** (`.mcp.json` at the repo root) gives a session browser tools: open a page, click, type, read the page, take one screenshot. Use it to click through a flow step by step, or to look at one state the command does not reach (an open menu, a form with an error).
 
+For single screenshots, favour the dark theme about 80 % of the time (`frontend/CLAUDE.md`).
+
 The Claude in Chrome extension is the fallback when the server is not available ("Running the app" in the root `CLAUDE.md`).
 
 ## The screenshot command

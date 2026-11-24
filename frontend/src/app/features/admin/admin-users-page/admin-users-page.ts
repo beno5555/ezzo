@@ -17,6 +17,7 @@ import { Menu } from '../../../shared/menu/menu';
 import { MenuEntry } from '../../../shared/menu/menu-entry';
 import { ScrollSentinel } from '../../../shared/scroll-sentinel/scroll-sentinel';
 import { TextInput } from '../../../shared/text-input/text-input';
+import { ToastLook } from '../../../shared/toasts/toast-look';
 import { ToastStore } from '../../../shared/toasts/toast-store';
 import { ToggleButton } from '../../../shared/toggle-button/toggle-button';
 import { AccountActionStore } from '../account-action-store';
@@ -153,7 +154,9 @@ export class AdminUsersPage implements OnInit {
 
     if (created !== undefined) {
       table.add(created);
-      this.toastStore.show(this.text().admin.users.createDialog.createdToast(created.username));
+      this.toastStore.show(this.text().admin.users.createDialog.createdToast(created.username), {
+        look: ToastLook.Success,
+      });
     }
   }
 
@@ -194,7 +197,9 @@ export class AdminUsersPage implements OnInit {
 
     if (saved !== undefined) {
       table.replace(saved);
-      this.toastStore.show(this.text().admin.users.editDialog.savedToast(saved.username));
+      this.toastStore.show(this.text().admin.users.editDialog.savedToast(saved.username), {
+        look: ToastLook.Success,
+      });
     }
   }
 

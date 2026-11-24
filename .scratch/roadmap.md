@@ -21,18 +21,18 @@ Dates are the day a step should finish. **Steps 5 to 8 are crucial and late.** T
 
 Two worktree lanes at a time (`docs/agents/worktrees.md`), each taking frontend tickets from **different feature areas**, so that the only shared files are the routes and the two dictionaries. A lane that finishes early takes the next ticket in its own column. "F" is a frontend ticket. Rounds 0 to 9 are merged.
 
-| Round | Lane 1 | Lane 2 |
-|---|---|---|
-| 7 | F10, write a post (merged) | F18, chat: list and reading (merged) |
-| 8 | F11, the post page (merged) | F22, admin: layout and users (merged) |
-| 9 | F12, edit and delete a post (merged) | F19, chat: send and receive live (merged) |
-| 10 | F13, reports from the normal pages | F20, chat: edit, delete, typing (merged) |
-| 11 | F14, the profile page | F23, admin: reports and the queue (merged) |
-| 12 | F16, user search | F24, admin: logs and statistics |
-| 13 | F15, the friends page (merged) | F21, live toasts |
-| 14 | F17, the settings page | F41, the landing page with sign-in |
-| 15 | F39, save a photo from the viewer | |
-| 16 | F40, save a message's or a post's photos together | |
+| Round | Lane 1                                            | Lane 2                                     |
+| ----- | ------------------------------------------------- | ------------------------------------------ |
+| 7     | F10, write a post (merged)                        | F18, chat: list and reading (merged)       |
+| 8     | F11, the post page (merged)                       | F22, admin: layout and users (merged)      |
+| 9     | F12, edit and delete a post (merged)              | F19, chat: send and receive live (merged)  |
+| 10    | F13, reports from the normal pages                | F20, chat: edit, delete, typing (merged)   |
+| 11    | F14, the profile page                             | F23, admin: reports and the queue (merged) |
+| 12    | F16, user search                                  | F24, admin: logs and statistics            |
+| 13    | F15, the friends page (merged)                    | F21, live toasts                           |
+| 14    | F17, the settings page                            | F41, the landing page with sign-in         |
+| 15    | F39, save a photo from the viewer                 |                                            |
+| 16    | F40, save a message's or a post's photos together |                                            |
 
 Backend lane: n8n 08 and 11 are finished on their worktree branches and parked: the frontend pages come first, so their merge waits until the pages are done (owner, 2026-11-22). A session lists the two branches as parked, not as work to merge. Readiness 07 is left out: it matters only if the demo moves to a host.
 
@@ -90,3 +90,5 @@ On the frontend, in this order from the end: the default picture's new look (a r
 - **The profile of a deactivated account** (found in frontend ticket 22). `GET api/users/{id}` and `PUT api/users/{id}` go through the `User` query filter, so the backend can neither read nor edit a deactivated account's bio and date of birth. The admin panel lists such an account (the admin list ignores the filter), greyed, and offers Restore and Delete only; to edit it, an administrator restores it first (owner, 2026-11-22). Whether an administrator should be able to read or edit a deactivated profile is a backend decision to discuss. No ticket yet.
 - **Extract the tail of `save()`** (found in frontend ticket 17, owner, 2026-11-24). The same nine lines end `save()` in `register-page.ts`, `create-account-dialog.ts`, `edit-profile-dialog.ts` and `profile-settings.ts`: `isSubmitting.set(false)`, `userRefusalField`, `setServerErrors`, `applyFieldErrors`, `failureMessage.set`. Two forms accept a username or an email refusal, two only a username. One helper next to `userRefusalField`, which sets the error on the control only if the form has it, removes both variants. No ticket yet.
 - **Georgian dates in Chrome** (found in frontend ticket 09). Desktop Chrome has no Georgian locale data, so `DateFormatter` falls back to English month names on the Georgian interface; the time zone is right. The fix is a locale polyfill (`@formatjs/intl-datetimeformat` with `ka` data) or our own Georgian month names. No ticket yet; the owner accepts the English dates until then. Also worth doing in spare time before the deadline.
+- **A presence race on a page reload** (found in frontend ticket 21, owner, 2026-11-24). A reload closes the old hub connection and opens a new one; if `OnDisconnectedAsync`'s offline write (`LastOnlineAt = now`) lands after `OnConnectedAsync`'s online write (`null`), the user stays "offline" while connected until their next reconnect (the `UserOffline` event also arrives after `UserOnline`). It needs the two writes to cross within milliseconds, and the cost is a wrong grey dot, so it waits. Fix sketch: `PresenceService.NotifyUserOfflineAsync` stamps and announces the departure only if `UserConnectionTracker` still has no connection for the user when the write runs; a test needs the two calls forced into that order.
+- **A smoother delete** (found in frontend ticket 21, owner, 2026-11-24). A deleted post, comment or message fades out over 200 ms (`FadeOut`, `DeleteFade`) and then leaves the list at once, so the items below jump up by its height. The likely fix, not yet tried: close the item's height while it fades (a grid row from `1fr` to `0fr`, or a measured `max-height`), so the list closes smoothly; it needs the 200 ms rule in `DESIGN.md` looked at, and a look at all four places that use `FadeOut` (post, comment, message, friend's row).

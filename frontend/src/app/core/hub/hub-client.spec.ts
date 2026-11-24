@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import type { IHttpConnectionOptions } from '@microsoft/signalr';
 import { PresenceStore } from '../../features/friendships/presence-store';
 import { ConversationsStore } from '../../features/messages/conversations-store';
+import { LiveToastStore } from './live-toast-store';
 import { TypingStore } from '../../features/messages/typing-store';
 import { UnreadStore } from '../../features/messages/unread-store';
 import { SessionStore } from '../session/session-store';
@@ -117,7 +118,10 @@ describe('HubClient', () => {
             validAccessToken: () => Promise.resolve(`token-of-${String(userId())}`),
           },
         },
-        { provide: PresenceStore, useValue: { clear: vi.fn() } },
+        {
+          provide: PresenceStore,
+          useValue: { clear: vi.fn(), markOnline: vi.fn().mockResolvedValue(undefined) },
+        },
         { provide: UnreadStore, useValue: { clear: vi.fn(), refresh: vi.fn() } },
         { provide: ErrorHandler, useValue: { handleError } },
         {
@@ -197,7 +201,7 @@ describe('HubClient', () => {
     expect(await connections[0].options.accessTokenFactory?.()).toBe('token-of-8');
   });
 
-  describe('typing and edits', () => {
+  describe('typing, edits and toasts', () => {
     async function connect(): Promise<FakeConnection> {
       signIn(7);
       await waitForPendingWork();
@@ -259,6 +263,67 @@ describe('HubClient', () => {
       connection.push('MessageDeleted', { id: 12 });
 
       expect(markDeleted).toHaveBeenCalledExactlyOnceWith({ id: 12 });
+    });
+
+    it('hands ReceiveMessage to the live toasts as well as the conversations', async () => {
+      const connection = await connect();
+      const toasts = vi
+        .spyOn(TestBed.inject(LiveToastStore), 'messageReceived')
+        .mockReturnValue(undefined);
+      const receive = vi
+        .spyOn(TestBed.inject(ConversationsStore), 'receive')
+        .mockResolvedValue(undefined);
+      const payload = { id: 1, content: 'Hi', images: [], sender: { id: 3, username: 'alice' } };
+
+      connection.push('ReceiveMessage', payload);
+
+      expect(toasts).toHaveBeenCalledExactlyOnceWith(payload);
+      expect(receive).toHaveBeenCalledExactlyOnceWith(payload);
+    });
+
+    it('hands ReceiveComment to the live toasts', async () => {
+      const connection = await connect();
+      const commentReceived = vi
+        .spyOn(TestBed.inject(LiveToastStore), 'commentReceived')
+        .mockReturnValue(undefined);
+      const payload = { id: 5, authorUsername: 'bob', content: 'Nice', postId: 12 };
+
+      connection.push('ReceiveComment', payload);
+
+      expect(commentReceived).toHaveBeenCalledExactlyOnceWith(payload);
+    });
+
+    it('hands PostLiked to the live toasts', async () => {
+      const connection = await connect();
+      const postLiked = vi
+        .spyOn(TestBed.inject(LiveToastStore), 'postLiked')
+        .mockReturnValue(undefined);
+      const payload = { postId: 12, likedBy: { id: 4, username: 'bob' }, likeCount: 3 };
+
+      connection.push('PostLiked', payload);
+
+      expect(postLiked).toHaveBeenCalledExactlyOnceWith(payload);
+    });
+
+    it('asks for an online toast once the presence store has marked the friend online', async () => {
+      const connection = await connect();
+      const order: string[] = [];
+      vi.mocked(TestBed.inject(PresenceStore).markOnline).mockImplementation(() => {
+        order.push('marked online');
+
+        return Promise.resolve();
+      });
+      const friendOnline = vi
+        .spyOn(TestBed.inject(LiveToastStore), 'friendOnline')
+        .mockImplementation(() => {
+          order.push('toast');
+        });
+
+      connection.push('UserOnline', { userId: 3 });
+      await waitForPendingWork();
+
+      expect(order).toEqual(['marked online', 'toast']);
+      expect(friendOnline).toHaveBeenCalledExactlyOnceWith(3);
     });
   });
 

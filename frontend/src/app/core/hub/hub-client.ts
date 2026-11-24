@@ -8,6 +8,7 @@ import {
 } from '@angular/core';
 // Types only: the library itself is loaded on demand by SignalRLoader, so it stays out of the first download.
 import type { HubConnection, IRetryPolicy, RetryContext } from '@microsoft/signalr';
+import { NotifyCommentDto } from '../../features/comments/notify-comment-dto';
 import { PresenceStore } from '../../features/friendships/presence-store';
 import { ConversationsStore } from '../../features/messages/conversations-store';
 import { MessageDeletedDto } from '../../features/messages/message-deleted-dto';
@@ -17,6 +18,8 @@ import { PushMessageDto } from '../../features/messages/push-message-dto';
 import { TypingStore } from '../../features/messages/typing-store';
 import { UnreadStore } from '../../features/messages/unread-store';
 import { UserTypingDto } from '../../features/messages/user-typing-dto';
+import { LiveToastStore } from './live-toast-store';
+import { PostLikedDto } from '../../features/posts/post-liked-dto';
 import { SessionStore } from '../session/session-store';
 import { HubEvent } from './hub-event';
 import { HubMethod } from './hub-method';
@@ -40,9 +43,11 @@ const retryForever: IRetryPolicy = {
 };
 
 // The one owner of the connection to the hub (ADR 0001: same origin, through the dev proxy in development).
-// It connects while a user is signed in and maps each server event to one store method. It holds no logic
-// of its own: what an event means is the store's business. Events whose store arrives in a later ticket
-// (comments, likes) are mapped then. The one call to the hub, SendTyping, goes through sendTyping, so no
+// It connects while a user is signed in and maps each server event to the store methods that take it. It
+// decides nothing about what an event means: that is the stores' business (what becomes a toast:
+// LiveToastStore). Only the order of two calls is its own: ReceiveMessage reaches LiveToastStore before
+// ConversationsStore, which still knows which conversation was open, and UserOnline reaches it once
+// PresenceStore has the friend's name. The one call to the hub, SendTyping, goes through sendTyping, so no
 // store or component touches the connection.
 @Injectable({ providedIn: 'root' })
 export class HubClient {
@@ -53,6 +58,7 @@ export class HubClient {
   private readonly unreadStore = inject(UnreadStore);
   private readonly conversationsStore = inject(ConversationsStore);
   private readonly typingStore = inject(TypingStore);
+  private readonly liveToastStore = inject(LiveToastStore);
   private readonly signalRLoader = inject(SignalRLoader);
 
   private connection: HubConnection | null = null;
@@ -151,13 +157,21 @@ export class HubClient {
       .build();
 
     connection.on(HubEvent.UserOnline, (payload: UserOnlineDto) => {
-      void this.presenceStore.markOnline(payload.userId); // fire-and-forget: the store looks up an unknown friend
+      void this.friendCameOnline(payload.userId); // fire-and-forget: the toast waits for an unknown friend's name
     });
     connection.on(HubEvent.UserOffline, (payload: UserOfflineDto) => {
       this.presenceStore.markOffline(payload.userId, payload.lastActiveAt);
     });
     connection.on(HubEvent.ReceiveMessage, (payload: PushMessageDto) => {
+      // First, while the store still knows which conversation was open when the message arrived.
+      this.liveToastStore.messageReceived(payload);
       void this.conversationsStore.receive(payload); // fire-and-forget: the store shows the message at once
+    });
+    connection.on(HubEvent.ReceiveComment, (payload: NotifyCommentDto) => {
+      this.liveToastStore.commentReceived(payload);
+    });
+    connection.on(HubEvent.PostLiked, (payload: PostLikedDto) => {
+      this.liveToastStore.postLiked(payload);
     });
     connection.on(HubEvent.MessageSeen, (payload: MessageSeenDto) => {
       this.conversationsStore.markSeen(payload);
@@ -197,6 +211,12 @@ export class HubClient {
     }
   }
 
+  // The presence store marks the friend online, looking up their name when it has none; the toast needs it.
+  private async friendCameOnline(userId: number): Promise<void> {
+    await this.presenceStore.markOnline(userId);
+    this.liveToastStore.friendOnline(userId);
+  }
+
   // Messages may have arrived while the connection was down.
   private connected(): void {
     this.connectedTimes.update((times) => times + 1);
@@ -213,6 +233,7 @@ export class HubClient {
       this.unreadStore.clear();
       this.conversationsStore.clear();
       this.typingStore.clear();
+      this.liveToastStore.clear();
     }
   }
 }

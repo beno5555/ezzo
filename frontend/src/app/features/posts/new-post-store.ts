@@ -3,6 +3,7 @@ import { LanguageStore } from '../../core/languages/language-store';
 import { appAddresses } from '../../core/routing/app-addresses';
 import { SessionStore } from '../../core/session/session-store';
 import { PreviewAddressMaker } from '../../shared/photos/preview-address-maker';
+import { ToastLook } from '../../shared/toasts/toast-look';
 import { ToastStore } from '../../shared/toasts/toast-store';
 import { ImageDto } from './image-dto';
 import { NewPost } from './new-post';
@@ -63,14 +64,13 @@ export class NewPostStore {
       for (const show of this.listeners) {
         show(result.data);
       }
-      this.toastStore.replace(
-        toastId,
-        this.text().posts.composer.publishedToast,
-        appAddresses.post(result.data.id).join('/'),
-      );
+      this.toastStore.replace(toastId, this.text().posts.composer.publishedToast, {
+        link: appAddresses.post(result.data.id).join('/'),
+        look: ToastLook.Success,
+      });
     } else {
       this.refused.update((posts) => [...posts, newPost]);
-      this.toastStore.replace(toastId, result.message, appAddresses.newPost);
+      this.toastStore.replace(toastId, result.message, { link: appAddresses.newPost });
     }
     // The pending card has left the list, so no <img> shows these addresses any more.
     for (const address of previewAddresses) {

@@ -350,7 +350,7 @@ export class MyProfilePage implements OnInit {
 
 **Motion and accessibility**
 
-- Motion only answers a user's action, lasts at most 200 ms and is off under `prefers-reduced-motion`. The one exception is the "Deleting…" spinner (`DESIGN.md`, Do's and Don'ts).
+- Motion only answers a user's action, lasts at most 200 ms and is off under `prefers-reduced-motion`. The exceptions are the "Deleting…" spinner and the toast's slide-in (`DESIGN.md`, Do's and Don'ts).
 - Text contrast is at least 4.5 to 1 in both themes. Keyboard focus is always visible. A touch target is at least 44 px high on a phone.
 
 **Profile pictures**

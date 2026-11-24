@@ -12,6 +12,7 @@ import { FieldRules } from '../../../shared/form-field/field-rules';
 import { FormField } from '../../../shared/form-field/form-field';
 import { FormMessage } from '../../../shared/form-message/form-message';
 import { TextInput } from '../../../shared/text-input/text-input';
+import { ToastLook } from '../../../shared/toasts/toast-look';
 import { ToastStore } from '../../../shared/toasts/toast-store';
 import { MinuteClock } from '../../../core/time/minute-clock';
 import { bioOrNull } from '../bio-or-null';
@@ -116,7 +117,9 @@ export class ProfileSettings implements OnInit {
     }
     this.saved.emit(saved);
     this.isSubmitting.set(false);
-    this.toastStore.show(this.text().users.settings.profile.savedToast);
+    this.toastStore.show(this.text().users.settings.profile.savedToast, {
+      look: ToastLook.Success,
+    });
   }
 
   // What the page says about the username's changes: never changed, or when it was last changed and when
