@@ -40,6 +40,7 @@
 ### 2026-11-24 rerun after lazy dictionaries and per-icon SVG imports
 
 - Removed the obsolete icon examples and Angular icon test stand-in, and checked the updated guidance against the source. The route-path helper and its callers required no further edits.
-- Prettier, lint and its 39 checks, all 981 frontend unit tests, and the production build passed. The initial total was 562.05 kB raw and triggered no budget warning.
+- Prettier, lint and its 39 checks, all 982 frontend unit tests, and the production build passed. The initial total was 560.88 kB raw and triggered no budget warning.
 - On fixture ports 4300 and 7202, verified the complete sign-in return address, a direct reset-page reload with a query and fragment, and both deletion outcomes. Deleting the open post returned to the feed. Navigating to Friends during another delete request kept the Friends page in place when the response arrived.
 - The 24 before-and-after landing and feed images matched pixel for pixel across the three widths, both languages and both themes.
+- The Standards review caught an ignored SVG renderer and language-switch feedback that could disappear with the popover. The renderer is tracked and load failures now use a toast. The Spec review confirmed the original route behavior and identified the old account-language wording. The owner confirmed that account pages should honor the saved language.

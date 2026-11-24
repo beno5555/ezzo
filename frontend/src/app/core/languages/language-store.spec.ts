@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { ToastStore } from '../../shared/toasts/toast-store';
 import { dictionaryLoaders } from './dictionaries';
 import { english } from './english';
 import { georgian } from './georgian';
@@ -92,20 +93,23 @@ describe('LanguageStore', () => {
       expect(localStorage.getItem(languageStorageKey)).toBe(Language.English);
     });
 
-    it('keeps the current language on a load failure and clears the error after a successful switch', async () => {
+    it('reports a load failure in the current language and keeps the preference', async () => {
       const store = await startStore('en-US');
       vi.spyOn(dictionaryLoaders, Language.Georgian).mockRejectedValueOnce(new Error('Offline'));
 
       await store.setLanguage(Language.Georgian);
 
       expect(store.text()).toBe(english);
-      expect(store.switchFailed()).toBe(true);
+      expect(
+        TestBed.inject(ToastStore)
+          .visible()
+          .map((toast) => toast.message),
+      ).toEqual([english.languages.switchFailed]);
       expect(localStorage.getItem(languageStorageKey)).toBeNull();
 
       await store.setLanguage(Language.Georgian);
 
       expect(store.text()).toBe(georgian);
-      expect(store.switchFailed()).toBe(false);
     });
   });
 

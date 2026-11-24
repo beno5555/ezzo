@@ -1,14 +1,13 @@
 import { InjectionToken } from '@angular/core';
 import { dictionaryLoaders } from './dictionaries';
-import { Dictionary } from './dictionary';
 import { Language, languageStorageKey } from './language';
+import { LanguageSelection } from './language-selection';
 
-export const initialLanguage = new InjectionToken<{ language: Language; text: Dictionary }>(
+export const initialLanguage = new InjectionToken<LanguageSelection | Promise<LanguageSelection>>(
   'Startup language and dictionary',
 );
 
-// The session and router read translated text during startup, so fetch it before bootstrapping.
-export async function loadInitialLanguage(): Promise<{ language: Language; text: Dictionary }> {
+export async function loadInitialLanguage(): Promise<LanguageSelection> {
   const language = startingLanguage();
   const text = await dictionaryLoaders[language]();
 

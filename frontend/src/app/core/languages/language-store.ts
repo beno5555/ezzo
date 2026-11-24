@@ -1,43 +1,67 @@
 import { DOCUMENT, Injectable, computed, effect, inject, signal } from '@angular/core';
+import { ToastStore } from '../../shared/toasts/toast-store';
 import { dictionaryLoaders } from './dictionaries';
+import { Dictionary } from './dictionary';
 import { initialLanguage } from './initial-language';
 import { Language, languageStorageKey } from './language';
+import { LanguageSelection } from './language-selection';
 
 // The current language and its dictionary. Templates read text(), so a switch redraws in place.
 @Injectable({ providedIn: 'root' })
 export class LanguageStore {
   private readonly document = inject(DOCUMENT);
-  private readonly current = signal(inject(initialLanguage));
-  private readonly failed = signal(false);
+  private readonly toasts = inject(ToastStore);
+  private readonly initial = inject(initialLanguage);
+  private readonly current = signal(this.initial instanceof Promise ? null : this.initial);
   private latestRequest = 0;
 
-  readonly language = computed(() => this.current().language);
-  readonly text = computed(() => this.current().text);
-  readonly switchFailed = this.failed.asReadonly();
+  readonly language = computed(() => this.selection().language);
+  readonly text = computed(() => this.selection().text);
+  readonly ready = this.initialize();
 
   constructor() {
     effect(() => {
-      this.document.documentElement.lang = this.language();
+      const language = this.current()?.language;
+      if (language !== undefined) {
+        this.document.documentElement.lang = language;
+      }
     });
   }
 
   async setLanguage(language: Language): Promise<void> {
     const request = ++this.latestRequest;
     const isNewLanguage = language !== this.language();
-    this.failed.set(false);
+    let text: Dictionary | null;
 
     try {
-      const text = isNewLanguage ? await dictionaryLoaders[language]() : this.text();
-      const isLatest = request === this.latestRequest;
-      if (isLatest) {
-        localStorage.setItem(languageStorageKey, language);
-        this.current.set({ language, text });
-      }
+      text = isNewLanguage ? await dictionaryLoaders[language]() : this.text();
     } catch {
-      const isLatest = request === this.latestRequest;
-      if (isLatest) {
-        this.failed.set(true);
+      text = null;
+    }
+
+    const isLatest = request === this.latestRequest;
+    if (isLatest) {
+      if (text !== null) {
+        this.current.set({ language, text });
+        localStorage.setItem(languageStorageKey, language);
+      } else {
+        this.toasts.show(this.text().languages.switchFailed);
       }
     }
+  }
+
+  private async initialize(): Promise<void> {
+    if (this.initial instanceof Promise) {
+      this.current.set(await this.initial);
+    }
+  }
+
+  private selection(): LanguageSelection {
+    const selection = this.current();
+    if (selection === null) {
+      throw new Error('The startup dictionary has not finished loading.');
+    }
+
+    return selection;
   }
 }

@@ -3,11 +3,9 @@ import { appConfig } from './app/app.config';
 import { App } from './app/app';
 import { initialLanguage, loadInitialLanguage } from './app/core/languages/initial-language';
 
-async function start(): Promise<void> {
-  const language = await loadInitialLanguage();
-  await bootstrapApplication(App, {
-    providers: [...appConfig.providers, { provide: initialLanguage, useValue: language }],
-  });
-}
-
-start().catch((err) => console.error(err));
+bootstrapApplication(App, {
+  providers: [
+    ...appConfig.providers,
+    { provide: initialLanguage, useFactory: loadInitialLanguage },
+  ],
+}).catch((err) => console.error(err));

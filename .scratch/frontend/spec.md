@@ -290,7 +290,7 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 - **Phone:** a top bar with the logo and that menu; a bottom bar with Feed, Search, Friends, Messages and Profile, with the same two counts.
 - **Guest:** the logo, the search box, the language switch, Sign in and Register.
 - **The landing page:** the language and theme menu only; the page's wordmark carries the logo (owner, 2026-11-23).
-- **Account pages** (register, forgotten password, reset, reactivation): the logo only, with no bottom bar, for a guest and a signed-in user alike. They are a short stop, so they leave out search, the menus and the language switch; the language starts from the browser's (owner, 2026-11-19).
+- **Account pages** (register, forgotten password, reset, reactivation): the logo only, with no bottom bar, for a guest and a signed-in user alike. They leave out search, the menus and the language switch. They honor the saved language and use the browser preference on a first visit.
 - **The incoming-request count** is loaded at sign-in and again on each visit to `/friends`. It is not live in this spec.
 
 ### Auth pages

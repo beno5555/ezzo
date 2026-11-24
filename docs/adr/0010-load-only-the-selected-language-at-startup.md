@@ -1,6 +1,6 @@
 # Load only the selected language at startup
 
-Each TypeScript dictionary is a separate production chunk. Startup chooses the saved language when available and otherwise uses Georgian for a Georgian browser and English for other browsers. The app waits for the selected dictionary before rendering so every consumer of `LanguageStore.text()` has a complete dictionary from the start. English still defines the shape the compiler checks, and server text continues to be shown as received.
+Each TypeScript dictionary is a separate production chunk. Startup, including a direct visit to an account page, chooses the saved language when available and otherwise uses Georgian for a Georgian browser and English for other browsers. The dictionary and session refresh load in parallel. The app waits for both before rendering so every consumer of `LanguageStore.text()` has a complete dictionary from the start. English still defines the shape the compiler checks, and server text continues to be shown as received.
 
 This supersedes [ADR 0006](0006-ui-text-is-translated-in-the-frontend-server-text-stays-english.md).
 

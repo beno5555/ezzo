@@ -292,7 +292,7 @@ export class MyProfilePage implements OnInit {
 ### Text and languages
 
 - The UI has a language switch. English and Georgian come first. Russian and Spanish are one file each, added later.
-- All text the frontend owns comes from a dictionary: one TypeScript file per language in `core/`. English is the source and every other language is typed against it, so a missing key fails the build.
+- Frontend text comes from one TypeScript dictionary per language in `core/`. English defines the dictionary shape. Keep the language switch's names in `language.ts` so it can name every language before downloading their dictionaries.
 - `LanguageStore` holds the current language as a signal, remembers it in `localStorage` and exposes the current dictionary as `text()`. Templates read `text().feed.title`. Write no literal UI text in a template or component.
 - An entry that needs a number or a plural form is a function. Use `Intl.PluralRules` for plurals.
 - Text from the backend (failure and validation messages) is shown as it arrives, in English. Never translate it by matching strings.
