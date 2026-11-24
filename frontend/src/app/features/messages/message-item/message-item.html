@@ -48,7 +48,7 @@
           role="img"
           [attr.aria-label]="text().messages.conversation.sending"
         >
-          <svg class="size-3.5" lucideClock aria-hidden="true"></svg>
+          <svg class="size-3.5" [appIcon]="icons.clock" aria-hidden="true"></svg>
         </span>
       } @else if (showsTime()) {
         <time [attr.datetime]="message().sentAt">{{

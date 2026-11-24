@@ -1,6 +1,6 @@
 import { Component, computed, inject, input, output } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import { LucideMessageCircle } from '@lucide/angular';
+import LucideMessageCircle from 'lucide/dist/esm/icons/message-circle.mjs';
 import { LanguageStore } from '../../core/languages/language-store';
 import { appAddresses } from '../../core/routing/app-addresses';
 import { FriendshipAction } from '../../features/friendships/friendship-action';
@@ -10,6 +10,7 @@ import { Button } from '../button/button';
 import { ButtonLook } from '../button/button-look';
 import { DeletingNotice } from '../deleting-notice/deleting-notice';
 import { FadeOut } from '../fade-out/fade-out';
+import { Icon } from '../icon/icon';
 
 // One person in a list: an avatar and the name (a link to the profile), then the friendship buttons the
 // caller offers and, for a friend, a Message button. Shared by the friend lists (the friends page, a
@@ -23,7 +24,7 @@ import { FadeOut } from '../fade-out/fade-out';
 // says "Deleting…" in place of its buttons; while isFading it fades out (DeleteFade).
 @Component({
   selector: 'li[appUserRow]',
-  imports: [Avatar, Button, DeletingNotice, RouterLink, LucideMessageCircle],
+  imports: [Avatar, Button, DeletingNotice, RouterLink, Icon],
   hostDirectives: [
     { directive: FadeOut, inputs: ['appFadeOut: isFading', 'appDeleting: isWaiting'] },
   ],
@@ -35,6 +36,8 @@ import { FadeOut } from '../fade-out/fade-out';
   },
 })
 export class UserRow {
+  protected readonly icons = { messageCircle: LucideMessageCircle };
+
   readonly userId = input.required<number | null>();
   readonly username = input.required<string>();
   readonly actions = input<readonly FriendshipAction[]>([]);

@@ -1,11 +1,12 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { Router, RouterOutlet, isActive } from '@angular/router';
 import { firstValueFrom } from 'rxjs';
-import { LucideSquarePen } from '@lucide/angular';
+import LucideSquarePen from 'lucide/dist/esm/icons/square-pen.mjs';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { appAddresses } from '../../../core/routing/app-addresses';
 import { Button } from '../../../shared/button/button';
 import { DialogOpener } from '../../../shared/dialog/dialog-opener';
+import { Icon } from '../../../shared/icon/icon';
 import { ConversationList } from '../conversation-list/conversation-list';
 import { ConversationListStore } from '../conversation-list-store';
 import { NewMessageDialog } from '../new-message-dialog/new-message-dialog';
@@ -18,12 +19,14 @@ import { NewMessageDialog } from '../new-message-dialog/new-message-dialog';
 // list, opens the friends without a conversation, and choosing one opens theirs.
 @Component({
   selector: 'app-messages-page',
-  imports: [RouterOutlet, Button, ConversationList, LucideSquarePen],
+  imports: [RouterOutlet, Button, ConversationList, Icon],
   templateUrl: './messages-page.html',
   styleUrl: './messages-page.css',
   host: { class: 'flex min-h-0 flex-1 flex-col' },
 })
 export class MessagesPage implements OnInit {
+  protected readonly icons = { squarePen: LucideSquarePen };
+
   private readonly conversationListStore = inject(ConversationListStore);
   private readonly dialogOpener = inject(DialogOpener);
   private readonly router = inject(Router);

@@ -36,8 +36,8 @@ describe('DateTimeInput', () => {
     expect(box.value).toBe('Nov 20, 2026, 14:30');
   });
 
-  it('shows Georgian month names in Georgian', () => {
-    TestBed.inject(LanguageStore).setLanguage(Language.Georgian);
+  it('shows Georgian month names in Georgian', async () => {
+    await TestBed.inject(LanguageStore).setLanguage(Language.Georgian);
     const { box } = start('2026-11-20T14:30');
 
     expect(box.value).toBe('20 ნოე, 2026, 14:30');

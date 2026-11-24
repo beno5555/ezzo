@@ -1,8 +1,9 @@
 import { Component, inject, input } from '@angular/core';
-import { LucideArrowLeft } from '@lucide/angular';
+import LucideArrowLeft from 'lucide/dist/esm/icons/arrow-left.mjs';
 import { appAddresses } from '../../core/routing/app-addresses';
 import { NavigationHistoryStore } from '../../core/routing/navigation-history-store';
 import { Button } from '../button/button';
+import { Icon } from '../icon/icon';
 
 // The "Back" link of a page, pinned while the reader scrolls: on a phone and a tablet a slim bar across the
 // top of the column, from 1024 px a link in the margin left of the column that keeps its place beside the
@@ -14,12 +15,14 @@ import { Button } from '../button/button';
 //     <app-back-link [label]="text().posts.page.backLink" />
 @Component({
   selector: 'app-back-link',
-  imports: [Button, LucideArrowLeft],
+  imports: [Button, Icon],
   templateUrl: './back-link.html',
   styleUrl: './back-link.css',
   host: { class: 'contents' },
 })
 export class BackLink {
+  protected readonly icons = { arrowLeft: LucideArrowLeft };
+
   private readonly history = inject(NavigationHistoryStore);
 
   readonly label = input.required<string>();

@@ -79,6 +79,10 @@ On the frontend, in this order from the end: choosing a profile picture (the def
 
 ## After the deadline
 
+**First, if the documentation session finishes in time** (owner, 2026-11-24): the two bugs below, before the deadline.
+
+- **The tab title reads the dictionary before it loads** (found in the review of the cleanup merge, which brought frontend ticket 37). Every page load logs `ERROR Error: The startup dictionary has not finished loading.` in the console: the effect in `PageTitleStrategy` reads `LanguageStore.text()` before the startup dictionary arrives, and `LanguageStore.selection()` throws. The title corrects itself once the dictionary lands (checked in English and Georgian), so only the console shows it. The unit tests miss it because `src/test-setup.ts` supplies the English dictionary up front. Fix sketch: `LanguageStore` exposes a loaded signal, the title effect sets nothing until it holds, and a spec starts the store without a dictionary. No ticket yet.
+- **Back from editing your own post loses the profile** (found by the owner, 2026-11-24). Profile → Posts → edit one of your own posts: the Back button does not work properly, and the only ways out are the feed or another page; nothing leads back to the profile. The cause is not looked at yet. The place to start is `edit-post-page.ts`, which replaces its history entry with the post page after a save (`replaceUrl`), and the post page's Back link. No ticket yet.
 - **Dropped frontend tickets** (owner, 2026-11-24). F39 (save a photo from the viewer) and F40 (save a message's or post's photos together) are a new feature with no time left. F42 (a three-field date of birth replacing the browser date picker in register and both admin dialogs) is polish and waits. All three stay `ready-for-agent`.
 - **Ticket 24 was not spec-reviewed** (owner, 2026-11-24, to save usage). It was looked at by eye over two rounds. A standards pass on its diff is the cheap one to run later.
 

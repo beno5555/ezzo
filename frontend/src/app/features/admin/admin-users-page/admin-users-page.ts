@@ -1,6 +1,8 @@
 import { Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
-import { LucideSearch, LucidePlus, LucideUsers } from '@lucide/angular';
+import LucideSearch from 'lucide/dist/esm/icons/search.mjs';
+import LucidePlus from 'lucide/dist/esm/icons/plus.mjs';
+import LucideUsers from 'lucide/dist/esm/icons/users.mjs';
 import { DateFormatter } from '../../../core/languages/date-formatter';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { LIMITS } from '../../../core/limits';
@@ -12,6 +14,7 @@ import { Button } from '../../../shared/button/button';
 import { FadeOut } from '../../../shared/fade-out/fade-out';
 import { ConfirmationOpener } from '../../../shared/confirmation/confirmation-opener';
 import { CopyableText } from '../../../shared/copyable-text/copyable-text';
+import { Icon } from '../../../shared/icon/icon';
 import { LoadFailure } from '../../../shared/load-failure/load-failure';
 import { Menu } from '../../../shared/menu/menu';
 import { MenuEntry } from '../../../shared/menu/menu-entry';
@@ -68,14 +71,14 @@ const rowClasses: Record<AccountState, string> = {
     ScrollSentinel,
     TextInput,
     ToggleButton,
-    LucidePlus,
-    LucideSearch,
-    LucideUsers,
+    Icon,
   ],
   templateUrl: './admin-users-page.html',
   styleUrl: './admin-users-page.css',
 })
 export class AdminUsersPage implements OnInit {
+  protected readonly icons = { search: LucideSearch, plus: LucidePlus, users: LucideUsers };
+
   private readonly adminApi = inject(AdminApi);
   private readonly accountActions = inject(AccountActionStore);
   private readonly accountDialogs = inject(AccountDialogOpener);

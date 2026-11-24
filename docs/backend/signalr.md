@@ -1,55 +1,10 @@
 ﻿# WebCity — SignalR
 
-> Part of the WebCity doc set. See also: `README.md`, `data.md`, `auth.md`, `controllers.md`, `signalr.md`, `background-jobs.md`, `automation.md`, `testing.md`.
-
----
-
 ## Architecture
 
-SignalR (not raw WebSockets) — automatic transport fallback, simpler API than managing raw `WebSocket` instances.
+The app uses one SignalR hub at `/hubs/messages`. On connection, the hub adds the connection to a SignalR group named for its user ID. SignalR removes the connection from its groups on disconnect. The hub delegates [typing](#typing) and [presence](#presence) to services. See [MessageHub.cs](../../backend/aspnetproject/Hubs/MessageHub.cs).
 
-`MessageHub`, in `/Hubs` (sibling to `/Controllers`, its own transport-layer tier). Mapped at `hubs/messages` (`app.MapHub<MessageHub>("hubs/messages")`).
-
-- Mostly push. The one client-called method is `SendTyping` (see Typing). The hub holds no logic: all validation stays in the relevant controller/service (`MessageController`/`MessageService`, `CommentController`/`CommentService`, `TypingService`), not the hub.
-- One SignalR group per `userId` (one-on-one messaging only — no conversation/group table). Connection added to its group in `OnConnectedAsync`; SignalR removes it from all groups automatically on disconnect.
-- `IHubContext<MessageHub>` is injected directly into `MessageService`, `CommentService` and `PostLikeService`, which treat "mutate + notify" as one atomic unit per service method.
-- `MessageHub` now also depends on `UserConnectionTracker` and `PresenceService` to track and broadcast online/offline state, and on `TypingService` for `SendTyping` (left out of the excerpt below):
-
-```csharp
-[Authorize]
-public class MessageHub : Hub
-{
-    private readonly UserConnectionTracker _userConnectionTracker;
-    private readonly PresenceService       _presenceService;
-
-    public override async Task OnConnectedAsync()
-    {
-        int userId = GetUserId();
-        await Groups.AddToGroupAsync(Context.ConnectionId, userId.ToString());
-
-        var isFirstConnection = _userConnectionTracker.AddConnection(userId);
-        if (isFirstConnection)
-        {
-            await _presenceService.NotifyUserOnlineAsync(userId);
-        }
-
-        await base.OnConnectedAsync();
-    }
-
-    public override async Task OnDisconnectedAsync(Exception? exception)
-    {
-        var userId = GetUserId();
-
-        var wasLastConnection = _userConnectionTracker.RemoveConnection(userId);
-        if (wasLastConnection)
-        {
-            await _presenceService.NotifyUserOfflineAsync(userId);
-        }
-
-        await base.OnDisconnectedAsync(exception);
-    }
-}
-```
+`MessageService`, `CommentService`, and `PostLikeService` use `IHubContext<MessageHub>` to push notifications from the same service method that saves the change. Database persistence and hub delivery are separate operations.
 
 ## Presence
 
@@ -70,7 +25,7 @@ public class MessageHub : Hub
 
 Hub requires `[Authorize]`, same JWT scheme as REST.
 
-Browsers can't set custom headers on a WebSocket/SSE handshake, so the client sends the JWT via query string (`?access_token=...`). `JwtBearerEvents.OnMessageReceived` (now in `AuthenticationExtensions.cs`, not inline in `Program.cs`) reads `access_token` from the query string specifically for requests under `/hubs` — REST endpoints are unaffected, still header-only.
+Browsers send the access token in the query string for WebSocket or SSE connections. The JWT handler reads `access_token` from the query string under `/hubs`. REST clients using JWTs send them in the `Authorization` header. See [AuthenticationExtensions.cs](../../backend/aspnetproject/Extensions/AuthenticationExtensions.cs).
 
 ## CORS
 

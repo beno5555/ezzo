@@ -1,9 +1,12 @@
 /*
- * The look of the date-time picker's calendar (DateTimeInput). vanilla-calendar-pro's layout and its
- * light theme comes from its own files (imported in styles.css); every colour, size and shadow below is a
- * design token, so the calendar follows both themes (only its arrows need a rule for the dark one).
- * The calendar sits in the page, outside any component, so these rules are global.
+ * The admin logs page loads this stylesheet for DateTimeInput. The calendar sits outside the page's
+ * component tree, so the rules are global. The design tokens adapt the library's light theme to both
+ * app themes.
  */
+@import 'vanilla-calendar-pro/styles/layout/core.css';
+@import 'vanilla-calendar-pro/styles/layout/time.css';
+@import 'vanilla-calendar-pro/styles/themes/light/core.css';
+@import 'vanilla-calendar-pro/styles/themes/light/time.css';
 
 [data-vc='calendar'] {
   --vc-bg: var(--color-surface-raised);

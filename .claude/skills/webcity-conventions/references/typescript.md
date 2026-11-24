@@ -292,7 +292,7 @@ export class MyProfilePage implements OnInit {
 ### Text and languages
 
 - The UI has a language switch. English and Georgian come first. Russian and Spanish are one file each, added later.
-- All text the frontend owns comes from a dictionary: one TypeScript file per language in `core/`. English is the source and every other language is typed against it, so a missing key fails the build.
+- Frontend text comes from one TypeScript dictionary per language in `core/`. English defines the dictionary shape. Keep the language switch's names in `language.ts` so it can name every language before downloading their dictionaries.
 - `LanguageStore` holds the current language as a signal, remembers it in `localStorage` and exposes the current dictionary as `text()`. Templates read `text().feed.title`. Write no literal UI text in a template or component.
 - An entry that needs a number or a plural form is a function. Use `Intl.PluralRules` for plurals.
 - Text from the backend (failure and validation messages) is shown as it arrives, in English. Never translate it by matching strings.
@@ -317,7 +317,7 @@ export class MyProfilePage implements OnInit {
 **Toolset**
 
 - Tailwind v4 gives every look, and Angular CDK gives behaviour: overlays, dialogs, menus, focus trapping (ADR 0007). Install no component kit.
-- Icons come from `@lucide/angular` and from nowhere else.
+- Import individual Lucide SVG data modules and render them with the shared `Icon` component (`frontend/CLAUDE.md`).
 - Fonts are served by the app. Load nothing from another origin.
 
 **Design tokens**
@@ -355,8 +355,7 @@ export class MyProfilePage implements OnInit {
 
 **Profile pictures**
 
-- The ring's colour is one of the eight avatar design tokens (lighter in the dark theme), chosen by the user's id; the silhouette inside is the same for everyone. An unavailable account gets the grey ring.
-- The disc's colour is one of the eight disc design tokens, chosen by the user's id. A username in two parts gives both first letters; any other gives its first two letters. An unavailable account gets the grey disc with no letters.
+Use the shared `Avatar` component. An unavailable account shows the default silhouette with a grey ring even when a picture address is supplied. The design brief defines the [default picture and ring colours](../../../../DESIGN.md#components).
 
 **When a design skill and these documents disagree**
 

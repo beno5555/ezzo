@@ -10,11 +10,14 @@ import {
   signal,
   viewChild,
 } from '@angular/core';
-import { LucideCircleExclamationPoint, LucideImagePlus, LucideX } from '@lucide/angular';
+import LucideCircleExclamationPoint from 'lucide/dist/esm/icons/circle-exclamation-point.mjs';
+import LucideImagePlus from 'lucide/dist/esm/icons/image-plus.mjs';
+import LucideX from 'lucide/dist/esm/icons/x.mjs';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { ImageDto } from '../../../features/posts/image-dto';
 import { Button } from '../../button/button';
 import { IconButton } from '../../icon-button/icon-button';
+import { Icon } from '../../icon/icon';
 import { checkPhotos } from '../check-photos';
 import { fittingTileCount } from '../fitting-tile-count';
 import { PhotoGridTile } from '../photo-grid-tile';
@@ -36,11 +39,17 @@ import { PhotoViewerOpener } from '../photo-viewer-opener';
 // small thumbnails, as many as fit, that open the viewer, where each photo can be removed.
 @Component({
   selector: 'app-photo-picker',
-  imports: [Button, IconButton, LucideCircleExclamationPoint, LucideImagePlus, LucideX],
+  imports: [Button, IconButton, Icon],
   templateUrl: './photo-picker.html',
   styleUrl: './photo-picker.css',
 })
 export class PhotoPicker {
+  protected readonly icons = {
+    circleExclamationPoint: LucideCircleExclamationPoint,
+    imagePlus: LucideImagePlus,
+    x: LucideX,
+  };
+
   private readonly previewAddressMaker = inject(PreviewAddressMaker);
   private readonly photoViewerOpener = inject(PhotoViewerOpener);
   // Each chosen file's preview address, kept until the file leaves the selection.

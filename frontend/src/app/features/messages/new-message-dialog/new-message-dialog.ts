@@ -1,6 +1,6 @@
 import { DialogRef } from '@angular/cdk/dialog';
 import { Component, OnInit, computed, inject } from '@angular/core';
-import { LucideUsers } from '@lucide/angular';
+import LucideUsers from 'lucide/dist/esm/icons/users.mjs';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { LIMITS } from '../../../core/limits';
 import { PageLoadStatus } from '../../../core/paging/page-load-status';
@@ -8,6 +8,7 @@ import { PagedList } from '../../../core/paging/paged-list';
 import { Avatar } from '../../../shared/avatar/avatar';
 import { DialogFrame } from '../../../shared/dialog/dialog-frame/dialog-frame';
 import { EmptyState } from '../../../shared/empty-state/empty-state';
+import { Icon } from '../../../shared/icon/icon';
 import { LoadFailure } from '../../../shared/load-failure/load-failure';
 import { PresenceLabel } from '../../../shared/presence-label/presence-label';
 import { ScrollSentinel } from '../../../shared/scroll-sentinel/scroll-sentinel';
@@ -20,19 +21,13 @@ import { MessageApi } from '../message-api';
 //   const dialogRef = this.dialogOpener.open<string, null, NewMessageDialog>(NewMessageDialog, null);
 @Component({
   selector: 'app-new-message-dialog',
-  imports: [
-    Avatar,
-    DialogFrame,
-    EmptyState,
-    LoadFailure,
-    PresenceLabel,
-    ScrollSentinel,
-    LucideUsers,
-  ],
+  imports: [Avatar, DialogFrame, EmptyState, LoadFailure, PresenceLabel, ScrollSentinel, Icon],
   templateUrl: './new-message-dialog.html',
   styleUrl: './new-message-dialog.css',
 })
 export class NewMessageDialog implements OnInit {
+  protected readonly icons = { users: LucideUsers };
+
   private readonly messageApi = inject(MessageApi);
   private readonly dialogRef = inject<DialogRef<string>>(DialogRef);
 

@@ -109,7 +109,8 @@ public class MessageService : BaseService
         if (callerExists)
         {
             var messages = await _messageRepository.GetConversationAsync(readerId, otherUserId, pageNumber, pageSize);
-            messages.Reverse(); // Repository fetches the messages in descending order to fetch the latest ones. we should reverse it.
+            // Paging selects the newest messages first, while the conversation displays each page oldest first.
+            messages.Reverse();
         
             await MarkAsReadAsync(readerId, otherUserId);
         
@@ -151,9 +152,6 @@ public class MessageService : BaseService
         return await _messageRepository.GetUnreadConversationsCount(userId);
     }
     
-    /// <summary>
-    /// Checks if the ids match, receiverId is valid and 2 users are friends
-    /// </summary>
     private async Task<ApplicationResponse> ValidFriendship(int senderId, int receiverId)
     {
         var response = new ApplicationResponse();

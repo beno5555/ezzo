@@ -15,7 +15,7 @@
       <svg
         class="size-5 transition-transform duration-150 motion-reduce:transition-none"
         [class.rotate-90]="isNavigationOpen()"
-        lucideMenu
+        [appIcon]="icons.menu"
         aria-hidden="true"
       ></svg>
       {{ text().admin.navigationButton }}
@@ -28,31 +28,31 @@
     >
       <li>
         <a appAdminNavLink [routerLink]="[adminAddress, 'users']" (click)="closeNavigation()">
-          <svg class="size-5 shrink-0" lucideUsers aria-hidden="true"></svg>
+          <svg class="size-5 shrink-0" [appIcon]="icons.users" aria-hidden="true"></svg>
           {{ text().pages.adminUsers }}
         </a>
       </li>
       <li>
         <a appAdminNavLink [routerLink]="[adminAddress, 'reports']" (click)="closeNavigation()">
-          <svg class="size-5 shrink-0" lucideFlag aria-hidden="true"></svg>
+          <svg class="size-5 shrink-0" [appIcon]="icons.flag" aria-hidden="true"></svg>
           {{ text().pages.adminReports }}
         </a>
       </li>
       <li>
         <a appAdminNavLink [routerLink]="[adminAddress, 'moderation']" (click)="closeNavigation()">
-          <svg class="size-5 shrink-0" lucideShieldCheck aria-hidden="true"></svg>
+          <svg class="size-5 shrink-0" [appIcon]="icons.shieldCheck" aria-hidden="true"></svg>
           {{ text().pages.adminModeration }}
         </a>
       </li>
       <li>
         <a appAdminNavLink [routerLink]="[adminAddress, 'logs']" (click)="closeNavigation()">
-          <svg class="size-5 shrink-0" lucideScrollText aria-hidden="true"></svg>
+          <svg class="size-5 shrink-0" [appIcon]="icons.scrollText" aria-hidden="true"></svg>
           {{ text().pages.adminLogs }}
         </a>
       </li>
       <li>
         <a appAdminNavLink [routerLink]="[adminAddress, 'statistics']" (click)="closeNavigation()">
-          <svg class="size-5 shrink-0" lucideChartColumn aria-hidden="true"></svg>
+          <svg class="size-5 shrink-0" [appIcon]="icons.chartColumn" aria-hidden="true"></svg>
           {{ text().pages.adminStatistics }}
         </a>
       </li>

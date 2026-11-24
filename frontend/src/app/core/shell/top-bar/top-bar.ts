@@ -1,9 +1,12 @@
 import { Component, computed, inject } from '@angular/core';
 import { Router, RouterLink, isActive } from '@angular/router';
-import { LucideHouse, LucideMessageCircle, LucideUsers } from '@lucide/angular';
+import LucideHouse from 'lucide/dist/esm/icons/house.mjs';
+import LucideMessageCircle from 'lucide/dist/esm/icons/message-circle.mjs';
+import LucideUsers from 'lucide/dist/esm/icons/users.mjs';
 import { IncomingRequestsStore } from '../../../features/friendships/incoming-requests-store';
 import { UnreadStore } from '../../../features/messages/unread-store';
 import { Button } from '../../../shared/button/button';
+import { Icon } from '../../../shared/icon/icon';
 import { LanguageStore } from '../../languages/language-store';
 import { appAddresses } from '../../routing/app-addresses';
 import { SessionStore } from '../../session/session-store';
@@ -36,14 +39,18 @@ import { UserMenu } from '../user-menu/user-menu';
     PreferencesMenu,
     SearchBox,
     UserMenu,
-    LucideHouse,
-    LucideUsers,
-    LucideMessageCircle,
+    Icon,
   ],
   templateUrl: './top-bar.html',
   styleUrl: './top-bar.css',
 })
 export class TopBar {
+  protected readonly icons = {
+    house: LucideHouse,
+    messageCircle: LucideMessageCircle,
+    users: LucideUsers,
+  };
+
   private readonly unreadCount = inject(UnreadStore).count;
 
   protected readonly text = inject(LanguageStore).text;

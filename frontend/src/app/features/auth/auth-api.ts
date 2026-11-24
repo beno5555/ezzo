@@ -46,11 +46,19 @@ export class AuthApi {
     );
   }
 
-  refresh(): Promise<AppResult<AccessTokenResponse>> {
-    return toAppResultWithoutEnvelope(
+  async refresh(): Promise<AppResult<AccessTokenResponse>> {
+    const dictionaryReady = this.languageStore.ready;
+    const request = toAppResultWithoutEnvelope(
       this.http.post<AccessTokenResponse>('/api/auth/refresh', null, { context: skipRenewal() }),
-      this.languageStore.text().httpFailures,
+      async () => {
+        await dictionaryReady;
+        return this.languageStore.text().httpFailures;
+      },
     );
+    // Keep the session unpublished until effects reacting to it can read the dictionary.
+    const [result] = await Promise.all([request, dictionaryReady]);
+
+    return result;
   }
 
   signOut(): Promise<AppResult<void>> {

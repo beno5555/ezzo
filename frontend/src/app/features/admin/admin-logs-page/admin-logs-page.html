@@ -152,7 +152,7 @@
 
     <div class="flex flex-wrap gap-2">
       <button appButton look="primary" type="submit" [disabled]="form.invalid">
-        <svg class="size-5" lucideSearch aria-hidden="true"></svg>
+        <svg class="size-5" [appIcon]="icons.search" aria-hidden="true"></svg>
         {{ text().admin.logs.searchButton }}
       </button>
       <button appButton look="quiet" type="button" (click)="clear()">
@@ -243,10 +243,14 @@
                     [class]="row.succeeded ? 'text-ink-muted' : 'font-semibold text-danger'"
                   >
                     @if (row.succeeded) {
-                      <svg class="size-4 text-success" lucideCircleCheck aria-hidden="true"></svg>
+                      <svg
+                        class="size-4 text-success"
+                        [appIcon]="icons.circleCheck"
+                        aria-hidden="true"
+                      ></svg>
                       {{ text().admin.logs.outcomes.succeeded }}
                     } @else {
-                      <svg class="size-4" lucideCircleX aria-hidden="true"></svg>
+                      <svg class="size-4" [appIcon]="icons.circleX" aria-hidden="true"></svg>
                       {{ text().admin.logs.outcomes.failed }}
                     }
                   </span>
@@ -285,7 +289,11 @@
             [heading]="text().admin.logs.emptyTitle"
             [message]="text().admin.logs.emptyMessage"
           >
-            <svg class="size-8 text-ink-muted" lucideScrollText aria-hidden="true"></svg>
+            <svg
+              class="size-8 text-ink-muted"
+              [appIcon]="icons.scrollText"
+              aria-hidden="true"
+            ></svg>
           </app-empty-state>
         }
       }

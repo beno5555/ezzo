@@ -1,5 +1,6 @@
 import { Component, computed, input } from '@angular/core';
-import { LucideTrash2 } from '@lucide/angular';
+import LucideTrash2 from 'lucide/dist/esm/icons/trash.mjs';
+import { Icon } from '../icon/icon';
 import { ButtonLook } from './button-look';
 
 // Every look a button shares: at least 44 px high (a touch target), the md radius, the focus ring
@@ -38,12 +39,14 @@ const lookClasses: Record<ButtonLook, string> = {
 // on its colour alone (DESIGN.md, Components).
 @Component({
   selector: 'button[appButton], a[appButton]',
-  imports: [LucideTrash2],
+  imports: [Icon],
   templateUrl: './button.html',
   styleUrl: './button.css',
   host: { '[class]': 'classes()' },
 })
 export class Button {
+  protected readonly icons = { trash2: LucideTrash2 };
+
   readonly look = input.required<ButtonLook>();
 
   protected readonly classes = computed(() => `${sharedClasses} ${lookClasses[this.look()]}`);

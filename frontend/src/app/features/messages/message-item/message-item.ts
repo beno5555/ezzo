@@ -1,10 +1,11 @@
 import { Component, computed, inject, input } from '@angular/core';
-import { LucideClock } from '@lucide/angular';
+import LucideClock from 'lucide/dist/esm/icons/clock.mjs';
 import { DateFormatter } from '../../../core/languages/date-formatter';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { beforeDeadline } from '../../../core/time/before-deadline';
 import { DeletingNotice } from '../../../shared/deleting-notice/deleting-notice';
 import { FadeOut } from '../../../shared/fade-out/fade-out';
+import { Icon } from '../../../shared/icon/icon';
 import { Menu } from '../../../shared/menu/menu';
 import { MenuEntry } from '../../../shared/menu/menu-entry';
 import { PhotoGrid } from '../../../shared/photos/photo-grid/photo-grid';
@@ -30,11 +31,13 @@ import { StandardMessageDto } from '../standard-message-dto';
 // "Deleting…" until the server answers and then fades out (FadeOut) before it leaves.
 @Component({
   selector: 'app-message-item',
-  imports: [DeletingNotice, FadeOut, Menu, PhotoGrid, LucideClock],
+  imports: [DeletingNotice, FadeOut, Menu, PhotoGrid, Icon],
   templateUrl: './message-item.html',
   styleUrl: './message-item.css',
 })
 export class MessageItem {
+  protected readonly icons = { clock: LucideClock };
+
   private readonly conversationsStore = inject(ConversationsStore);
 
   readonly message = input.required<StandardMessageDto>();

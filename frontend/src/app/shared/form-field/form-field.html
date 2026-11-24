@@ -22,7 +22,7 @@
           <p class="flex items-start gap-1.5 text-sm text-danger" [id]="errorId()">
             <svg
               class="mt-0.5 size-4 shrink-0"
-              lucideCircleExclamationPoint
+              [appIcon]="icons.circleExclamationPoint"
               aria-hidden="true"
             ></svg>
             {{ message }}

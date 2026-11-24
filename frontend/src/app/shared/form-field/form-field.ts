@@ -1,10 +1,11 @@
 import { Component, computed, inject, input } from '@angular/core';
 import { toObservable, toSignal } from '@angular/core/rxjs-interop';
 import { AbstractControl } from '@angular/forms';
-import { LucideCircleExclamationPoint } from '@lucide/angular';
+import LucideCircleExclamationPoint from 'lucide/dist/esm/icons/circle-exclamation-point.mjs';
 import { switchMap } from 'rxjs';
 import { LanguageStore } from '../../core/languages/language-store';
 import { CharacterCounter } from '../character-counter/character-counter';
+import { Icon } from '../icon/icon';
 import { fieldErrorMessage } from './field-error-message';
 
 // One field of a form (DESIGN.md, Inputs): the label floating in the box, the control the caller puts inside,
@@ -16,11 +17,13 @@ import { fieldErrorMessage } from './field-error-message';
 // fieldAction attribute goes at the end of the row under the box, such as a "Forgot password?" link.
 @Component({
   selector: 'app-form-field',
-  imports: [CharacterCounter, LucideCircleExclamationPoint],
+  imports: [CharacterCounter, Icon],
   templateUrl: './form-field.html',
   styleUrl: './form-field.css',
 })
 export class FormField {
+  protected readonly icons = { circleExclamationPoint: LucideCircleExclamationPoint };
+
   private readonly text = inject(LanguageStore).text;
 
   // The id of the control inside, which the label points at.

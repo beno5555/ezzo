@@ -2,7 +2,10 @@ import { Component, DestroyRef, computed, effect, inject, signal, untracked } fr
 import { toSignal } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { LucideCircleCheck, LucideCircleX, LucideScrollText, LucideSearch } from '@lucide/angular';
+import LucideCircleCheck from 'lucide/dist/esm/icons/circle-check.mjs';
+import LucideCircleX from 'lucide/dist/esm/icons/circle-x.mjs';
+import LucideScrollText from 'lucide/dist/esm/icons/scroll-text.mjs';
+import LucideSearch from 'lucide/dist/esm/icons/search.mjs';
 import { map } from 'rxjs';
 import { DateFormatter } from '../../../core/languages/date-formatter';
 import { LanguageStore } from '../../../core/languages/language-store';
@@ -15,6 +18,7 @@ import { DateTimeInput } from '../../../shared/date-time-input/date-time-input';
 import { EmptyState } from '../../../shared/empty-state/empty-state';
 import { FormField } from '../../../shared/form-field/form-field';
 import { FormMessage } from '../../../shared/form-message/form-message';
+import { Icon } from '../../../shared/icon/icon';
 import { LoadFailure } from '../../../shared/load-failure/load-failure';
 import { ScrollSentinel } from '../../../shared/scroll-sentinel/scroll-sentinel';
 import { TextInput } from '../../../shared/text-input/text-input';
@@ -32,16 +36,8 @@ const idValidators = [
   Validators.pattern(/^\d+$/),
 ];
 
-// The admin panel's logs area at /admin/logs: the log rows, newest first, page after page as the reader
-// scrolls. On a desktop they are a table; on a phone each row is a card. The filter is the backend's own
-// (user, outcome, signed in or not, action, entity name and id, a period) and lives in the address, so a
-// filtered view can be reloaded and sent as a link: Search writes the form into the address, and the page
-// shows whatever filter the address holds (the Back button too). The period is typed in the administrator's
-// own time zone, picked in a calendar (DateTimeInput), and sent, and kept in the address, as UTC. Typing in a
-// box (or picking a time) searches by itself once the reader pauses, as the users page does; Search and a
-// choice of outcome or request search at once. A period the backend refuses (an end before its
-// start) shows the server's sentence under the form. Each filter change makes a new LogTable, read from its
-// first page.
+// The filter lives in the address so it survives reloads and can be shared or restored with Back.
+// The calendar uses the administrator's time zone. The address and the backend use UTC.
 @Component({
   selector: 'app-admin-logs-page',
   imports: [
@@ -55,21 +51,23 @@ const idValidators = [
     ScrollSentinel,
     TextInput,
     ToggleButton,
-    LucideCircleCheck,
-    LucideCircleX,
-    LucideScrollText,
-    LucideSearch,
+    Icon,
   ],
   templateUrl: './admin-logs-page.html',
   styleUrl: './admin-logs-page.css',
 })
 export class AdminLogsPage {
+  protected readonly icons = {
+    circleCheck: LucideCircleCheck,
+    circleX: LucideCircleX,
+    scrollText: LucideScrollText,
+    search: LucideSearch,
+  };
+
   private readonly adminApi = inject(AdminApi);
   private readonly router = inject(Router);
   private readonly route = inject(ActivatedRoute);
   private readonly formBuilder = inject(NonNullableFormBuilder);
-  // The search that follows typing (and picking a time): it runs when the reader has stopped for a moment,
-  // and only when the form holds a filter other than the one shown.
   private readonly typingPause = new Debouncer(
     () => this.searchIfChanged(),
     typingPauseMilliseconds,
@@ -118,8 +116,8 @@ export class AdminLogsPage {
     from: [''],
     to: [''],
   });
-  // The table holds the filter it was made with, so typing in a box changes nothing until Search (or a
-  // choice of outcome or request, which searches with the whole form).
+  // Typing or picking a date or time starts the same delay before applying a valid, changed filter.
+  // Search, Enter and the outcome or request buttons apply a valid filter immediately.
   protected readonly table = signal<LogTable | null>(null);
 
   constructor() {
@@ -130,7 +128,6 @@ export class AdminLogsPage {
     });
   }
 
-  // Search and Enter: the form goes into the address, without waiting for the pause.
   search(): void {
     this.typingPause.cancel();
     if (this.form.invalid) {
@@ -140,7 +137,6 @@ export class AdminLogsPage {
     }
   }
 
-  // From each box, on each key and each picked time: the search starts when the reader stops.
   searchAfterTyping(): void {
     this.typingPause.call();
   }
@@ -180,7 +176,6 @@ export class AdminLogsPage {
     }
   }
 
-  // Fills the form from a filter, and reads the rows that match it from the first page.
   private show(filter: LogFilter): void {
     const table = new LogTable(filter, this.adminApi);
 
@@ -223,6 +218,24 @@ export class AdminLogsPage {
       to: localInputToUtc(values.to, true),
     };
   }
+}
+
+// angular.json emits this global stylesheet without injecting it. The router caches the page once
+// loaded, and waits for the calendar's styles before making the date fields available.
+export async function loadAdminLogsPage(document: Document): Promise<typeof AdminLogsPage> {
+  await new Promise<void>((resolve, reject) => {
+    const stylesheet = document.createElement('link');
+    stylesheet.rel = 'stylesheet';
+    stylesheet.href = 'admin-calendar.css';
+    stylesheet.onload = () => resolve();
+    stylesheet.onerror = () => {
+      stylesheet.remove();
+      reject(new Error('Could not load the admin calendar stylesheet.'));
+    };
+    document.head.append(stylesheet);
+  });
+
+  return AdminLogsPage;
 }
 
 // A filter as one comparable text, whatever the order its values were written in.

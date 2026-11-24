@@ -14,6 +14,7 @@ import {
 import { routes } from './app.routes';
 import { HubClient } from './core/hub/hub-client';
 import { authInterceptor } from './core/http/auth-interceptor';
+import { LanguageStore } from './core/languages/language-store';
 import { PageTitleStrategy } from './core/routing/page-title-strategy';
 import { NavigationHistoryStore } from './core/routing/navigation-history-store';
 import { routerConfig } from './core/routing/router-config';
@@ -29,6 +30,8 @@ export const appConfig: ApplicationConfig = {
     { provide: TitleStrategy, useClass: PageTitleStrategy },
     // Counts the pages behind the one shown, so a "Back" link knows whether the browser can go back.
     provideAppInitializer(() => inject(NavigationHistoryStore).follow()),
+    // Load the dictionary alongside the refresh request. Both finish before the first page renders.
+    provideAppInitializer(() => inject(LanguageStore).ready),
     // Restores the session before the first route activates, so the guards see who is signed in (ADR 0004).
     provideAppInitializer(() => inject(SessionStore).restore()),
     // Holds the live connection to the hub while a user is signed in.

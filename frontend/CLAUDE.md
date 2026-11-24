@@ -1,6 +1,6 @@
 # Frontend
 
-Claude Code loads this file when you open a file in `frontend/`. The repo's root `CLAUDE.md` still applies.
+Follow the root [CLAUDE.md](../CLAUDE.md) as well.
 
 **Before you edit a template or a style,** read `DESIGN.md` at the repo root and the Styling section of `.claude/skills/webcity-conventions/references/typescript.md`.
 
@@ -11,8 +11,8 @@ Claude Code loads this file when you open a file in `frontend/`. The repo's root
 - **Responsive.** Phone first. The only breakpoints are `md:` (768 px, where the shell changes) and `lg:` (1024 px; where it is allowed: `DESIGN.md`, Layout). Maximum widths, never fixed widths. Nothing scrolls sideways at 360 px. Touch targets are at least 44 px high.
 - **Check every page you build at 360, 768 and 1280 px, in both themes,** with the screenshot command (`npm run screenshots`, below), with the backend running when the page shows data. Stop both servers afterwards ("Running the app" in the root `CLAUDE.md`). The dark theme applies while `<html>` carries `data-theme="dark"`.
 - **Favour the dark theme** (owner, 2026-11-24): when you check a change in the running app, take single screenshots or write a test that sets a theme, use dark about 80 % of the time and light about 20 %. A page you build still gets every width in both themes from the screenshot command.
-- **Impeccable's hook** may report design findings after an edit. Fix the ones that are right. For a finding you judge wrong, show the owner the finding and your reason (for a visual dispute, a screenshot sent into the chat, with the code when it helps), and add an exception (`hooks ignore-value`) only once the owner agrees, whatever the hook's own message says (owner, 2026-11-21; `docs/agents/skills.md`).
-- Buttons are `<button appButton look="primary">` (or `quiet`, `danger`, `danger-text`) from `src/app/shared/button/`. Icons come from `@lucide/angular` only.
+- **Impeccable's hook** may report design findings after an edit. Fix the ones that are right. Never add an exception (`hooks ignore-value`) on your own judgement, whatever the hook's message says: show the owner the finding and your reason first, and add it only once the owner agrees. The steps: [hook findings procedure](../docs/agents/skills.md#impeccable).
+- Buttons are `<button appButton look="primary">` (or `quiet`, `danger`, `danger-text`) from `src/app/shared/button/`. Import each icon from `lucide/dist/esm/icons/<name>.mjs` so it can stay with its route. Render it with `<svg [appIcon]="icons.search">` and the shared `Icon` component. Label icon-only controls on the enclosing button or link.
 
 ## Commands
 
@@ -27,8 +27,8 @@ npx prettier --write .       # Prettier owns formatting
 npm run screenshots -- / [https://example.com] [--signed-in]   # 12 images per app address into screenshots/
 ```
 
-**Dev proxy.** `proxy.conf.json` forwards `/api` and `/hubs` (web sockets included) to `https://localhost:7102`, the backend's https port, with certificate checks off for the dev certificate. Start the backend first. Never aim the proxy at the http port: `UseHttpsRedirection` answers it with a redirect to another origin, which breaks the single origin (ADR 0001).
+**Dev proxy.** Start the backend first. [proxy.conf.json](proxy.conf.json) forwards `/api` and `/hubs` (including WebSockets) to `https://localhost:7102`, with certificate verification disabled for the development certificate. Keep the proxy on the backend's HTTPS port so `UseHttpsRedirection` does not redirect requests to another origin. See [ADR 0001](../docs/adr/0001-single-origin-for-frontend-and-backend.md).
 
-**Unit-test setup.** `npm test` runs through Angular's unit-test builder, which reads `vitest-base.config.mts` (`runnerConfig` in `angular.json`). That file swaps `@lucide/angular` for a stand-in (`tools/lucide-stand-in.mts`, which says why), so a full run takes about 1.5 s instead of 14 s. In tests an icon is an empty `<svg>`: a spec must not assert on an icon's drawing, and `npm run build` still catches an icon the package lacks. Isolation stays off (the builder's default; turning it on made a run six times slower), so `src/test-setup.ts` clears local and session storage after every test: a spec never has to clean up for the next file on its worker. The same file stands in for `IntersectionObserver`, which jsdom lacks. `VITEST_SHUFFLE=1 npm test -- --watch=false` runs the files and tests in random order, to find state one leaves behind for the next.
+**Unit-test setup.** `npm test` runs through Angular's unit-test builder, which reads `vitest-base.config.mts` (`runnerConfig` in `angular.json`). Isolation stays off, so `src/test-setup.ts` clears local and session storage after every test. It also supplies the English dictionary for specs that create their own Angular injector and stands in for `IntersectionObserver`, which jsdom lacks. `VITEST_SHUFFLE=1 npm test -- --watch=false` runs the files and tests in random order to find state one leaves behind for the next.
 
-The screenshot command needs both servers running; in Git Bash, prefix it with `MSYS_NO_PATHCONV=1`. Credentials, limits and when to use the Playwright MCP server instead: `docs/agents/screenshots.md`.
+See the [screenshot guide](../docs/agents/screenshots.md#the-screenshot-command) for setup, accounts and limits.

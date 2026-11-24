@@ -1,14 +1,13 @@
 import { Component, computed, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import {
-  LucideHouse,
-  LucideMessageCircle,
-  LucideSearch,
-  LucideUserRound,
-  LucideUsers,
-} from '@lucide/angular';
+import LucideHouse from 'lucide/dist/esm/icons/house.mjs';
+import LucideMessageCircle from 'lucide/dist/esm/icons/message-circle.mjs';
+import LucideSearch from 'lucide/dist/esm/icons/search.mjs';
+import LucideUserRound from 'lucide/dist/esm/icons/user-round.mjs';
+import LucideUsers from 'lucide/dist/esm/icons/users.mjs';
 import { IncomingRequestsStore } from '../../../features/friendships/incoming-requests-store';
 import { UnreadStore } from '../../../features/messages/unread-store';
+import { Icon } from '../../../shared/icon/icon';
 import { LanguageStore } from '../../languages/language-store';
 import { appAddresses } from '../../routing/app-addresses';
 import { SessionStore } from '../../session/session-store';
@@ -24,21 +23,20 @@ import { isOnLandingPage } from '../is-on-landing-page';
 // it also puts a spacer of its own height at the end of the page, which keeps it from covering content.
 @Component({
   selector: 'app-bottom-bar',
-  imports: [
-    RouterLink,
-    BottomBarLink,
-    CountBadge,
-    LucideHouse,
-    LucideSearch,
-    LucideUsers,
-    LucideMessageCircle,
-    LucideUserRound,
-  ],
+  imports: [RouterLink, BottomBarLink, CountBadge, Icon],
   templateUrl: './bottom-bar.html',
   styleUrl: './bottom-bar.css',
   host: { class: 'md:hidden' },
 })
 export class BottomBar {
+  protected readonly icons = {
+    house: LucideHouse,
+    messageCircle: LucideMessageCircle,
+    search: LucideSearch,
+    userRound: LucideUserRound,
+    users: LucideUsers,
+  };
+
   private readonly unreadCount = inject(UnreadStore).count;
   private readonly user = inject(SessionStore).user;
   private readonly isOnAccountPage = isOnAccountPage();

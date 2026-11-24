@@ -10,12 +10,10 @@ import {
   viewChild,
 } from '@angular/core';
 import { RouterLink } from '@angular/router';
-import {
-  LucideArrowLeft,
-  LucideMessageCircleDashed,
-  LucideUserRoundX,
-  LucideUserX,
-} from '@lucide/angular';
+import LucideArrowLeft from 'lucide/dist/esm/icons/arrow-left.mjs';
+import LucideMessageCircleDashed from 'lucide/dist/esm/icons/message-circle-dashed.mjs';
+import LucideUserRoundX from 'lucide/dist/esm/icons/user-round-x.mjs';
+import LucideUserX from 'lucide/dist/esm/icons/user-x.mjs';
 import { DateFormatter } from '../../../core/languages/date-formatter';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { PageLoadStatus } from '../../../core/paging/page-load-status';
@@ -23,6 +21,7 @@ import { appAddresses } from '../../../core/routing/app-addresses';
 import { SessionStore } from '../../../core/session/session-store';
 import { Avatar } from '../../../shared/avatar/avatar';
 import { EmptyState } from '../../../shared/empty-state/empty-state';
+import { Icon } from '../../../shared/icon/icon';
 import { LoadFailure } from '../../../shared/load-failure/load-failure';
 import { PresenceLabel } from '../../../shared/presence-label/presence-label';
 import { ScrollSentinel } from '../../../shared/scroll-sentinel/scroll-sentinel';
@@ -57,16 +56,20 @@ import { historyMarks } from '../history-marks';
     PresenceLabel,
     ScrollSentinel,
     TextLink,
-    LucideArrowLeft,
-    LucideMessageCircleDashed,
-    LucideUserRoundX,
-    LucideUserX,
+    Icon,
   ],
   templateUrl: './conversation-page.html',
   styleUrl: './conversation-page.css',
   host: { class: 'flex min-h-0 flex-1 flex-col' },
 })
 export class ConversationPage {
+  protected readonly icons = {
+    arrowLeft: LucideArrowLeft,
+    messageCircleDashed: LucideMessageCircleDashed,
+    userRoundX: LucideUserRoundX,
+    userX: LucideUserX,
+  };
+
   private readonly conversationsStore = inject(ConversationsStore);
   private readonly typingStore = inject(TypingStore);
 
