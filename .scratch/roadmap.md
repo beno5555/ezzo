@@ -15,26 +15,25 @@ Each decision is recorded where the work reads it: the name session in `PRODUCT.
 
 ## Now
 
-Dates are the day a step should finish. **Steps 5 to 8 are crucial and late.** They are the pages, and the pages are the commitment. No page can be dropped or traded for an item under Last in line. Each step waits for the one before, so every day lost is taken from the buffer first and from Last in line after that.
+Dates are the day a step should finish. **Steps 5 to 8, the pages, are done.** Every hour lost from here is taken from Last in line.
 
 ### Lanes: which tickets run in parallel
 
-Two worktree lanes at a time (`docs/agents/worktrees.md`), each taking frontend tickets from **different feature areas**, so that the only shared files are the routes and the two dictionaries. A lane that finishes early takes the next ticket in its own column. "F" is a frontend ticket. Rounds 0 to 9 are merged.
+Two worktree lanes at a time (`docs/agents/worktrees.md`), each taking frontend tickets from **different feature areas**, so that the only shared files are the routes and the two dictionaries. A lane that finishes early takes the next ticket in its own column. "F" is a frontend ticket. Rounds 0 to 14 are merged. F39 and F40 (saving photos to the device) are dropped, and F42 moves after the deadline (owner, 2026-11-24): see **After the deadline**.
 
 | Round | Lane 1                                            | Lane 2                                     |
 | ----- | ------------------------------------------------- | ------------------------------------------ |
 | 7     | F10, write a post (merged)                        | F18, chat: list and reading (merged)       |
 | 8     | F11, the post page (merged)                       | F22, admin: layout and users (merged)      |
 | 9     | F12, edit and delete a post (merged)              | F19, chat: send and receive live (merged)  |
-| 10    | F13, reports from the normal pages                | F20, chat: edit, delete, typing (merged)   |
-| 11    | F14, the profile page                             | F23, admin: reports and the queue (merged) |
-| 12    | F16, user search                                  | F24, admin: logs and statistics            |
-| 13    | F15, the friends page (merged)                    | F21, live toasts                           |
-| 14    | F17, the settings page                            | F41, the landing page with sign-in         |
-| 15    | F39, save a photo from the viewer                 |                                            |
-| 16    | F40, save a message's or a post's photos together |                                            |
+| 10    | F13, reports from the normal pages (merged)       | F20, chat: edit, delete, typing (merged)   |
+| 11    | F14, the profile page (merged)                    | F23, admin: reports and the queue (merged) |
+| 12    | F16, user search (merged)                         | F24, admin: logs and statistics (merged)   |
+| 13    | F15, the friends page (merged)                    | F21, live toasts (merged)                  |
+| 14    | F17, the settings page (merged)                   | F41, the landing page with sign-in (merged) |
+| 15    | F31, the default picture's silhouette             |                                            |
 
-Backend lane: n8n 08 and 11 are finished on their worktree branches and parked: the frontend pages come first, so their merge waits until the pages are done (owner, 2026-11-22). A session lists the two branches as parked, not as work to merge. Readiness 07 is left out: it matters only if the demo moves to a host.
+Backend lane: n8n 08 and 11 are finished on their worktree branches and parked: the frontend pages come first, so their merge waited until the pages were done (owner, 2026-11-22). The pages are done: the merge comes after workflow 07 in step 9, once the owner has looked at them. Until then a session lists the two branches as parked, not as work to merge. Readiness 07 is left out: it matters only if the demo moves to a host.
 
 1. [ ] **Design.** The name was still open, so the design session fixed the structure and left the brand for later. The frontend setup (tickets 27 to 29) is merged.
    - [ ] **Frontend ticket 30: Impeccable.** Merged, and the owner kept the hook on after its trial on F10. Open only for box 6, a cloud session's run of the launcher. No ticket waits for it.
@@ -47,25 +46,26 @@ Backend lane: n8n 08 and 11 are finished on their worktree branches and parked: 
      - The active link in the bars changes from a sunken pill to accent text with a bar along the edge (`active-bar-link.ts`). Every danger button carries a trash icon. Chat bubbles keep the app's look (own on sunken, the other person's on a bordered page surface).
      - Every on-screen "WebCity" becomes Ezzo: the two dictionaries, the browser-tab title and its spec.
      - Then a full screenshot run (360, 768, 1280; both themes; signed out and in; English and Georgian) and Impeccable's `critique` on the real pages. Check by eye: the liked state of a post (filled heart and `aria-pressed`), Georgian and Russian headings, discs beside the accent, dark toasts and menus against the page.
-     - **Applied on `worktree-brand` (2026-11-23)**, all of the above except the tab mark. The wordmark is live text in the display face (`tracking-logo`, `text-logo` on the sign-in pages), not an SVG; the fretwork and tagline stand under it in `auth-frame`. Screenshots and the critique ran. Revised the same day: the logo is the "zz" speech bubble (top bar and tab icon), the name is not written on the page, and the tagline, welcome line and fretwork left sign-in. Ticket 41, the landing page merged with sign-in at `/`, waits for the owner on `frontend-41-landing-page`. Next: ticket 42, a three-field date of birth (day, month by name, year) replacing the browser date picker in register and both admin dialogs.
+     - **Applied on `worktree-brand` (2026-11-23)**, all of the above except the tab mark. The wordmark is live text in the display face (`tracking-logo`, `text-logo` on the sign-in pages), not an SVG; the fretwork and tagline stand under it in `auth-frame`. Screenshots and the critique ran. Revised the same day: the logo is the "zz" speech bubble (top bar and tab icon), the name is not written on the page, and the tagline, welcome line and fretwork left sign-in. Ticket 41, the landing page merged with sign-in at `/`, is merged.
 2. [x] **Write the tickets.** Of the n8n tickets, 01, 03, 04, 08 and 11 are backend work proven by integration tests; 02, 05, 06, 07, 09, 12 and 14 are workflows, open until the owner has run their checklist; 10 and 13 are visual frontend work.
 3. [x] **The backend gaps** (documented-backend-features), the last of them ticket 04.
 4. [x] **Shell and auth.**
-5. [ ] **Tue 17, late, crucial: feed, posts and comments.** Feed with pagination, create a post with photos, edit and delete, like, comment, edit and delete a comment, report a post or comment. F09 to F12 are merged; only reporting (F13) is left. F09's `PagedList` (`core/paging/`) is the paging pattern the later lists copy.
-6. [ ] **Wed 18, late, crucial: profile, friends and search.** Profile page (bio, posts, friends), edit profile, user search, friend requests (send, accept, decline, remove; the three lists), account settings (deactivate, delete, digest opt-out), the guest view.
-7. [ ] **Fri 20, late, crucial: chat and live notifications.** The SignalR service and the central state for the session, conversations, online friends and unread count. Conversation list with last message, conversation with photos, edit and delete, seen, typing, presence and last active. Toasts for a new message, comment, like and a friend coming online. F18 to F20 are merged; only the live toasts (F21) are left.
-8. [ ] **Sat 21, late, crucial: admin panel.** Users (create, edit, deactivate, restore, delete, grant and remove the administrator role), delete any post or comment, logs, statistics, the reports list, the moderation queue. F22 and F23 are merged; logs and statistics (F24) are built and wait for the owner's review.
-9. [ ] **Sun 22 and Mon 23: n8n.**
+5. [x] **Tue 17: feed, posts and comments.** Feed with pagination, create a post with photos, edit and delete, like, comment, edit and delete a comment, report a post or comment. F09 to F13 are merged. F09's `PagedList` (`core/paging/`) is the paging pattern the later lists copy.
+6. [x] **Wed 18: profile, friends and search.** Profile page (bio, posts, friends), edit profile, user search, friend requests (send, accept, decline, remove; the three lists), account settings (deactivate, delete, digest opt-out), the guest view.
+7. [x] **Fri 20: chat and live notifications.** The SignalR service and the central state for the session, conversations, online friends and unread count. Conversation list with last message, conversation with photos, edit and delete, seen, typing, presence and last active. Toasts for a new message, comment, like and a friend coming online. F18 to F21 are merged.
+8. [x] **Sat 21: admin panel.** Users (create, edit, deactivate, restore, delete, grant and remove the administrator role), delete any post or comment, logs, statistics, the reports list, the moderation queue. F22 to F24 are merged.
+9. [ ] **n8n, late: Tue 24 and the night into Wed 25.** The owner's windows (2026-11-24): Tue 8 to 10 am, Tue 4 to 8 pm, and after midnight into Wed 25, as far as usage allows. The limit is the owner: a workflow ticket is done only when the owner has run its checklist.
    - Merged: the backend tickets 01, 03 and 04, and the setup (02).
-   - Ticket 02 stays `in-progress` until the owner adds the Telegram bot token and the chat ids and runs the checklist in `n8n/README.md` (the ticket's Comments list the steps). Workflows 05 to 14 copy its setup.
-   - Next: 05 (the welcome email), then 06 to 13 (AI moderation, reports, digest, birthdays). Alert grouping (14) is last.
+   - Ticket 02 stays `in-progress` until the owner adds the Telegram bot token and the chat ids and runs the checklist in `n8n/README.md` (the ticket's Comments list the steps). Workflows 05 to 14 copy its setup, so it comes first.
+   - Order: 02's checklist, then 05 (welcome email), then 07 (report alert, hiding after five reports), then 06 (AI moderation) only if the OpenAI key is ready. Then the owner reviews and merges the parked backend branches 08 and 11, then 09 with 10 (digest) or 12 with 13 (birthdays). Alert grouping (14) is last; 15 is after the deadline.
+   - Realistic count: 02, 05 and 07 firm; 06 if the key is ready; one of the digest or birthday pairs if the evening goes well. What is left stays under Last in line.
    - Needs from the owner: the Telegram bot token and the chat ids, the OpenAI key (before ticket 06), and the administrator address. n8n uses the same SMTP account as the backend's `EmailConfiguration`.
-10. [ ] **Tue 24: buffer and finish.** Responsive pass on a phone width. Walk the document top to bottom against the running app and fix what fails. Update `README.md` (monorepo ticket 04) and `docs/backend/*.md` for everything added.
+10. [ ] **Tue 24 and the night into Wed 25: buffer and finish.** Responsive pass on a phone width. Walk the document top to bottom against the running app and fix what fails. Update `README.md` (monorepo ticket 04) and `docs/backend/*.md` for everything added. Frontend ticket 31 runs as a worktree lane beside the n8n work, and is cut first if usage runs short. Suggested split: the morning window takes the responsive pass, the document walk and 02's checklist with 05; the evening takes 07, 06, the merge of 08 and 11 and one more pair; after midnight is the README and docs, a last walk and the full test run.
 11. [ ] **Wed 25: hand in.**
 
 ### Before the presentation
 
-- [ ] **Allow the app's origin for emailed links.** Add `http://localhost:4200` to `Cors:AllowedOrigins` in `backend/aspnetproject/appsettings.Development.json` (the file is gitignored: edit the copy of the checkout the backend runs from), then restart the backend. Today the list holds only the two `:5500` origins, so forgot-password and reactivation answer "url link is not allowed". Whatever origin serves the frontend in the demo must be on the list.
+- [ ] **Check the demo's origin is allowed for emailed links.** `Cors:AllowedOrigins` in `backend/aspnetproject/appsettings.Development.json` (gitignored; edit the copy of the checkout the backend runs from) already holds `http://localhost:4200`, `:4300` and the two `:5500` origins. If the demo opens the app from any other origin (`127.0.0.1:4200`, a host), add it and restart the backend, or forgot-password and reactivation answer "url link is not allowed".
 
 ### Days the owner is away
 
@@ -78,6 +78,9 @@ If time runs short, these are finished last, in this order from the end: the wee
 On the frontend, in this order from the end: the default picture's new look (a ring coloured by the id around a faceless silhouette, frontend ticket 31; the current initials on a coloured disc stay until then), choosing a profile picture (the default picture is built either way), the dark theme (its switch is hidden if it is not checked on every page), the account history in settings (needs a new table, because `AccountDeactivatedAt` is cleared on reactivation), live friend requests (a new hub event, a live badge and incoming list on `/friends`, and their own toast), and the dialog that lists who liked a post.
 
 ## After the deadline
+
+- **Dropped frontend tickets** (owner, 2026-11-24). F39 (save a photo from the viewer) and F40 (save a message's or post's photos together) are a new feature with no time left. F42 (a three-field date of birth replacing the browser date picker in register and both admin dialogs) is polish and waits. All three stay `ready-for-agent`.
+- **Ticket 24 was not spec-reviewed** (owner, 2026-11-24, to save usage). It was looked at by eye over two rounds. A standards pass on its diff is the cheap one to run later.
 
 - **Hidden content, and flagging from the menu** (owner, 2026-11-23). An administrator can restore hidden content only through the "…" menu of the item itself, and cannot flag from the menu at all. Backend ticket 14 lists hidden posts and comments; frontend ticket 43 adds a Hidden tab to the moderation page (and extracts the shared panel); frontend ticket 44 adds Flag to the menu. Ticket 43 waits for 14.
 - A few end-to-end test flows (sign in, post, message). They come before component tests.
