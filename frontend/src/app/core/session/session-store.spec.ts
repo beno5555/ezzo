@@ -104,6 +104,54 @@ describe('SessionStore', () => {
     });
   });
 
+  describe('currentUsernameOf', () => {
+    const renamedToken = createAccessToken({
+      nameid: '12',
+      unique_name: 'johnny',
+      role: 'User',
+      exp: 1900000000,
+    });
+
+    async function refreshWith(accessToken: string): Promise<void> {
+      const refreshing = sessionStore.refresh();
+      await waitForPendingWork();
+      httpTesting.expectOne('/api/auth/refresh').flush({ accessToken });
+      await refreshing;
+    }
+
+    it('names the new username for the one the user had before renaming, in any letter case', async () => {
+      await restoreWith(userToken);
+      await refreshWith(renamedToken);
+
+      expect(sessionStore.currentUsernameOf('john_doe')).toBe('johnny');
+      expect(sessionStore.currentUsernameOf('John_Doe')).toBe('johnny');
+    });
+
+    it('names nothing for a username the user never had', async () => {
+      await restoreWith(userToken);
+      await refreshWith(renamedToken);
+
+      expect(sessionStore.currentUsernameOf('someone_else')).toBeNull();
+    });
+
+    it('names nothing when the user has not been renamed, or is signed out', async () => {
+      expect(sessionStore.currentUsernameOf('john_doe')).toBeNull();
+
+      await restoreWith(userToken);
+      await refreshWith(userToken);
+
+      expect(sessionStore.currentUsernameOf('john_doe')).toBeNull();
+    });
+
+    it('forgets the old names when another user signs in', async () => {
+      await restoreWith(userToken);
+      await refreshWith(renamedToken);
+      await refreshWith(administratorToken);
+
+      expect(sessionStore.currentUsernameOf('john_doe')).toBeNull();
+    });
+  });
+
   describe('signIn', () => {
     it('starts the session from the token login returns', async () => {
       const signingIn = sessionStore.signIn({

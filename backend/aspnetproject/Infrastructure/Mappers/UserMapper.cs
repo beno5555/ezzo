@@ -3,6 +3,7 @@ using aspnetproject.Common.ProjectConstants.Enums;
 using aspnetproject.Data.Models;
 using aspnetproject.Data.Repositories.Dtos;
 using aspnetproject.Infrastructure.Dtos.Auth;
+using aspnetproject.Infrastructure.Dtos.Friendships;
 using aspnetproject.Infrastructure.Dtos.Users;
 using aspnetproject.Infrastructure.Dtos.Users.Friends;
 
@@ -32,6 +33,16 @@ public static class UserMapper
         };
     }
 
+    public static SearchUserDto ToSearchDisplay(User user, RelationshipDto? relationship)
+    {
+        return new SearchUserDto
+        {
+            Id           = user.Id,
+            Username     = user.Username,
+            Relationship = relationship,
+        };
+    }
+
     public static StandardUserDto ToStandardDisplay(User user)
     {
         return new StandardUserDto
@@ -55,7 +66,8 @@ public static class UserMapper
             Roles = user.UserRoles.Select(userRole => userRole.Role).Select(role => role!.Name).ToList(),
             RegisteredAt = user.CreatedAt,
             DateOfBirth = user.DateOfBirth,
-            UsernameLastChangedAt = user.UsernameLastChangedAt
+            UsernameLastChangedAt = user.UsernameLastChangedAt,
+            DigestEmailEnabled    = user.DigestEmailEnabled
         };
     }
 

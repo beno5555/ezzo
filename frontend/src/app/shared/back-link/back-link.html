@@ -1,0 +1,16 @@
+<div
+  class="sticky top-0 z-10 -mx-4 -mt-8 border-b border-border bg-surface-page px-4 py-2 lg:absolute lg:inset-y-0 lg:mt-0 lg:right-full lg:mx-0 lg:mr-4 lg:border-0 lg:bg-transparent lg:p-0"
+>
+  <div class="lg:sticky lg:top-4">
+    <a
+      appButton
+      look="quiet"
+      class="whitespace-nowrap"
+      [href]="fallbackAddress"
+      (click)="follow($event)"
+    >
+      <svg class="size-5 shrink-0" [appIcon]="icons.arrowLeft" aria-hidden="true"></svg>
+      {{ label() }}
+    </a>
+  </div>
+</div>

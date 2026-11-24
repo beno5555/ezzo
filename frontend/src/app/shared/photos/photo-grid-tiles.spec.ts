@@ -29,6 +29,15 @@ describe('photoGridTiles', () => {
     expect(tiles.map((tile) => tile.moreCount)).toEqual([0, 0, 0, 6]);
   });
 
+  it('shows fewer tiles when asked, as a narrow message box does', () => {
+    const images = [0, 1, 2, 3, 4].map((orderIndex) => image(orderIndex + 1, orderIndex));
+
+    const tiles = photoGridTiles(images, 3);
+
+    expect(tiles.map((tile) => tile.image.id)).toEqual([1, 2, 3]);
+    expect(tiles.map((tile) => tile.moreCount)).toEqual([0, 0, 2]);
+  });
+
   it('shows no tile for a post without photos', () => {
     expect(photoGridTiles([])).toEqual([]);
   });

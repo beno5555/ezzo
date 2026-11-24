@@ -1,6 +1,6 @@
 # Parallel local sessions in worktrees
 
-Two local Claude sessions can implement two tickets at once, each in its own git worktree on its own branch. The main checkout stays on `master`.
+Give each parallel lane its own ticket branch and git worktree. Use the main checkout to integrate finished lanes.
 
 ## Start a lane
 
@@ -16,15 +16,15 @@ Pick tickets that touch different files. The ticket's "What to build" names the 
 
 ## What differs inside a worktree
 
-- **Test databases.** With `ConnectionStrings__DefaultConnection` unset, the suite's pool of test databases is named after the worktree folder: `TestSocialMediaWebApiDb_<name>_1` to `_4`, with any character other than a letter or digit turned into `_` (`TestDatabaseNames`). Each test class borrows one, and its `CustomWebApplicationFactory` gives the app under test that database's connection string. The first run creates and migrates them. The main checkout's pool is `TestSocialMediaWebApiDb_1` to `_4`. Every name ends in its number, so two checkouts' suites never share a database.
-- **Sync.** Skip CLAUDE.md's "pull on `master`" step: `master` is checked out in the main checkout, and the worktree already starts from a fresh `origin/master`.
+- **Test databases.** By default, a linked worktree gets a pool named after its folder. See [database pool and connection overrides](../backend/testing.md#the-database-pool).
+- **Sync.** Fetch from the worktree. The [pull on `master`](../../CLAUDE.md#agent-workflow) applies to the main checkout.
 - **Skills.** The worktree has its own copy of `.claude/skills/`, separate from the junctions in `~/.claude/skills/` (see `skills.md`). Editing a skill there is fine: the edit is committed on the lane's branch and reaches the shared copy with that branch.
 
 ## Finish a lane
 
 A lane never merges into `master`, and never commits on it, by any route. The owner does that later from the main checkout. A lane's job ends when its branch is known to merge into `master` without conflicts.
 
-1. Commit on `worktree-<name>`, with the ticket's roadmap update in the branch (see `issue-tracker.md`).
+1. Commit on `worktree-<name>`, with the ticket's roadmap and review-queue updates in the branch (see `issue-tracker.md`).
 2. Run a trial merge against the latest `master`. It writes nothing to any checkout and moves no branch:
 
    ```bash
@@ -34,7 +34,7 @@ A lane never merges into `master`, and never commits on it, by any route. The ow
 
    Exit code 0 means no conflicts: the output is one line, the id of the merged tree. Exit code 1 means conflicts, and every line after the first names a conflicted file.
 3. If it conflicts, bring `master` into the lane's own branch with `git merge origin/master`, resolve the conflicts there (below), run the checks for each side the resolution touched (the build and the full integration suite from `backend/`, and Prettier's check, lint, the unit tests and the build from `frontend/`), and commit. Then repeat step 2 until it exits 0.
-4. Report the ticket done and say that the trial merge against `origin/master` (name its commit) was clean. Then stop.
+4. Push the branch (`git push -u origin HEAD`). Then report the ticket done, say that the trial merge against `origin/master` (name its commit) was clean, and stop.
 5. When you exit the session, keep the worktree: removing it can delete the branch along with it, and it deletes gitignored files that exist only there (above all `frontend/.env`, the screenshot account).
 
 ### Resolving conflicts with another lane

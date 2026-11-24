@@ -1,0 +1,531 @@
+{
+  "id": "wcReportHandling",
+  "name": "Report handling",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "report-created",
+        "responseMode": "responseNode",
+        "options": {
+          "rawBody": true
+        }
+      },
+      "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4f01",
+      "name": "Event: report-created",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "9b6e2f41-3c7d-4e8a-b5f0-1d2c3e4f5a03"
+    },
+    {
+      "parameters": {
+        "action": "hmac",
+        "binaryData": true,
+        "binaryPropertyName": "data",
+        "type": "SHA256",
+        "dataPropertyName": "expectedSignature",
+        "encoding": "hex"
+      },
+      "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4f02",
+      "name": "Sign the raw body",
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 2,
+      "position": [
+        220,
+        0
+      ],
+      "credentials": {
+        "crypto": {
+          "id": "wcSigningSecret1",
+          "name": "Ezzo event signing secret"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4f20",
+              "leftValue": "={{ $json.headers['x-webcity-signature'] ?? '' }}",
+              "rightValue": "={{ $json.expectedSignature }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4f03",
+      "name": "Signature matches?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        440,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "noData",
+        "options": {
+          "responseCode": 200
+        }
+      },
+      "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4f04",
+      "name": "Answer 200",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        660,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "respondWith": "noData",
+        "options": {
+          "responseCode": 401
+        }
+      },
+      "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4f05",
+      "name": "Answer 401",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.5,
+      "position": [
+        660,
+        100
+      ]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4f21",
+              "name": "reportsToHide",
+              "value": 5,
+              "type": "number"
+            },
+            {
+              "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4f22",
+              "name": "windowHours",
+              "value": 24,
+              "type": "number"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4f06",
+      "name": "Settings: hide after N reports",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        880,
+        -100
+      ],
+      "notes": "A post or comment with reportsToHide or more pending reports within the last windowHours is hidden.",
+      "notesInFlow": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Builds the messages for one report-created event (docs/backend/automation.md) and decides whether to hide.\n// Telegram messages use parse mode HTML (&, < and > are markup there, and &quot; is understood); the email is HTML too.\n// The count and the window come from the settings node before this one: change them there, not here.\nconst maxExcerptLength = 500; // four excerpts and the fixed lines stay under Telegram's 4096-character limit\nconst timeFormat = \"yyyy-MM-dd HH:mm 'GMT'ZZ\";\n\nconst escapeHtml = (text) =>\n  String(text ?? '')\n    .replaceAll('&', '&amp;')\n    .replaceAll('<', '&lt;')\n    .replaceAll('>', '&gt;')\n    .replaceAll('\"', '&quot;');\nconst truncate = (text, maxLength) =>\n  text.length > maxLength ? `${text.slice(0, maxLength - 1)}…` : text;\nconst excerpt = (text) => escapeHtml(truncate(String(text ?? ''), maxExcerptLength));\nconst byAuthor = (author) => ` by ${escapeHtml(author?.username)}`;\n\n// One entry per target type: the moderation route (none for a user, who is never hidden), the snapshot, and its lines.\nconst targetTypes = {\n  Post: {\n    route: 'posts',\n    snapshotOf: (data) => data.post,\n    describe: (post) => ({\n      suffix: byAuthor(post.author),\n      details: [`<b>Title:</b> ${excerpt(post.title)}`, `<b>Text:</b> ${excerpt(post.postContent)}`],\n    }),\n  },\n  Comment: {\n    route: 'comments',\n    snapshotOf: (data) => data.comment,\n    describe: (comment) => ({\n      suffix: byAuthor(comment.author),\n      details: [\n        `<b>On post:</b> #${comment.postId} ${excerpt(comment.postTitle)}`,\n        `<b>Text:</b> ${excerpt(comment.content)}`,\n      ],\n    }),\n  },\n  User: {\n    route: null,\n    snapshotOf: (data) => data.user,\n    describe: (user) => ({\n      suffix: ` ${escapeHtml(user.username)}`,\n      details: user.bio ? [`<b>Bio:</b> ${excerpt(user.bio)}`] : [],\n    }),\n  },\n};\n\n// What was reported, as lines of HTML: the first names the target, the rest come from its snapshot when there is one.\nconst describeTarget = (data, targetType) => {\n  const snapshot = targetType.snapshotOf(data);\n  const { suffix, details } = snapshot ? targetType.describe(snapshot) : { suffix: '', details: [] };\n  return [`<b>Reported:</b> ${data.targetType.toLowerCase()} #${data.targetId}${suffix}`, ...details];\n};\n\nreturn $input.all().map((item) => {\n  const { reportsToHide, windowHours } = item.json;\n  const event = item.json.body;\n  const data = event.data;\n  const targetType = targetTypes[data.targetType];\n  const product = escapeHtml($env.WEBCITY_PRODUCT_NAME);\n  const reportsUrl = escapeHtml(`${$env.WEBCITY_FRONTEND_URL}/admin/reports`);\n  const reportedAt = DateTime.fromISO(event.occurredAt);\n  const windowStart = reportedAt.minus({ hours: windowHours });\n  const pendingTimes = data.pendingReportTimes ?? [];\n  const recentCount = pendingTimes.filter((time) => DateTime.fromISO(time) > windowStart).length;\n\n  const isContent = targetType.route !== null;\n  const isAlreadyHidden = Boolean(targetType.snapshotOf(data)?.isHidden);\n  const shouldHide = isContent && !isAlreadyHidden && recentCount >= reportsToHide;\n\n  const targetLines = describeTarget(data, targetType);\n  const alertText = [\n    `<b>${product}: new report</b>`,\n    ...targetLines,\n    `<b>Reason:</b> ${excerpt(data.reason)}`,\n    `<b>Reporter:</b> ${escapeHtml(data.reporterUsername)} (#${data.reporterId})`,\n    `<b>When:</b> ${escapeHtml(reportedAt.setZone($env.GENERIC_TIMEZONE).toFormat(timeFormat))}`,\n    `<b>Pending reports:</b> ${pendingTimes.length}, ${recentCount} in the last ${windowHours} hours`,\n  ].join('\\n');\n\n  const hiddenTitle = `${data.targetType.toLowerCase()} #${data.targetId} hidden by reports`;\n  const hiddenSummary = `It reached ${recentCount} pending reports within ${windowHours} hours (the limit is ${reportsToHide}). The reports are still pending: decide them in the reports list.`;\n  const hiddenText = [\n    `<b>${product}: ${escapeHtml(hiddenTitle)}</b>`,\n    ...targetLines,\n    `<b>Last reason:</b> ${excerpt(data.reason)}`,\n    escapeHtml(hiddenSummary),\n    `<a href=\"${reportsUrl}\">Open the reports list</a>`,\n  ].join('\\n');\n  const hiddenHtml = [\n    '<div style=\"font-family: Arial, Helvetica, sans-serif; font-size: 16px; line-height: 1.5; color: #222;\">',\n    `<h2>${product}: ${escapeHtml(hiddenTitle)}</h2>`,\n    ...targetLines.map((line) => `<p>${line}</p>`),\n    `<p><b>Last reason:</b> ${excerpt(data.reason)}</p>`,\n    `<p>${escapeHtml(hiddenSummary)}</p>`,\n    `<p><a href=\"${reportsUrl}\">Open the reports list</a></p>`,\n    '</div>',\n  ].join('\\n');\n\n  return {\n    json: {\n      alertText,\n      shouldHide,\n      targetRoute: targetType.route ?? '',\n      targetId: data.targetId,\n      hiddenText,\n      hiddenSubject: `${$env.WEBCITY_PRODUCT_NAME}: ${hiddenTitle}`,\n      hiddenHtml,\n    },\n  };\n});\n"
+      },
+      "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4f07",
+      "name": "Write the messages",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1100,
+        -100
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_ADMINISTRATORS_CHAT_ID }}",
+        "text": "={{ $json.alertText }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "disable_web_page_preview": true,
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4f08",
+      "name": "Alert the administrators",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1320,
+        -300
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "telegramApi": {
+          "id": "wcTelegramBot001",
+          "name": "Ezzo Telegram bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4f23",
+              "leftValue": "={{ $json.shouldHide }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4f09",
+      "name": "Enough reports to hide?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1320,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "={{ $env.WEBCITY_BACKEND_URL }}/api/admin/{{ $json.targetRoute }}/{{ $json.targetId }}/moderation",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{ \"status\": \"Hidden\" }",
+        "options": {
+          "allowUnauthorizedCerts": true,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
+      },
+      "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4f10",
+      "name": "Set Hidden",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1540,
+        0
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "wcAutomationKey1",
+          "name": "Ezzo automation API key"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4f24",
+              "leftValue": "={{ $json.statusCode }}",
+              "rightValue": 200,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4f11",
+      "name": "Hidden?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1760,
+        0
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_ADMINISTRATORS_CHAT_ID }}",
+        "text": "={{ $('Write the messages').item.json.hiddenText }}",
+        "additionalFields": {
+          "appendAttribution": false,
+          "disable_web_page_preview": true,
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4f12",
+      "name": "Tell the administrators it is hidden",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1980,
+        -100
+      ],
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput",
+      "credentials": {
+        "telegramApi": {
+          "id": "wcTelegramBot001",
+          "name": "Ezzo Telegram bot"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fromEmail": "={{ $env.WEBCITY_SENDER_NAME }} <{{ $env.WEBCITY_SENDER_EMAIL }}>",
+        "toEmail": "={{ $env.WEBCITY_ADMINISTRATOR_EMAIL }}",
+        "subject": "={{ $('Write the messages').item.json.hiddenSubject }}",
+        "emailFormat": "html",
+        "html": "={{ $('Write the messages').item.json.hiddenHtml }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4f13",
+      "name": "Email the administrator",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1980,
+        60
+      ],
+      "credentials": {
+        "smtp": {
+          "id": "wcSmtpAccount001",
+          "name": "Ezzo SMTP"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4f25",
+              "leftValue": "={{ $json.statusCode }}",
+              "rightValue": 404,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4f14",
+      "name": "Content gone?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1980,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "errorMessage": "=The backend refused to hide it: {{ $json.statusCode }} {{ $json.body?.message ?? $json.statusMessage }}"
+      },
+      "id": "5f0c3a52-8a4e-4c1b-9d2f-0e6b1a7c4f15",
+      "name": "Hiding failed",
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        2200,
+        320
+      ]
+    }
+  ],
+  "connections": {
+    "Event: report-created": {
+      "main": [
+        [
+          {
+            "node": "Sign the raw body",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sign the raw body": {
+      "main": [
+        [
+          {
+            "node": "Signature matches?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Signature matches?": {
+      "main": [
+        [
+          {
+            "node": "Answer 200",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Answer 401",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Answer 200": {
+      "main": [
+        [
+          {
+            "node": "Settings: hide after N reports",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settings: hide after N reports": {
+      "main": [
+        [
+          {
+            "node": "Write the messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write the messages": {
+      "main": [
+        [
+          {
+            "node": "Alert the administrators",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Enough reports to hide?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enough reports to hide?": {
+      "main": [
+        [
+          {
+            "node": "Set Hidden",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Hidden": {
+      "main": [
+        [
+          {
+            "node": "Hidden?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hidden?": {
+      "main": [
+        [
+          {
+            "node": "Tell the administrators it is hidden",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Email the administrator",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Content gone?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Content gone?": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Hiding failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {}
+}

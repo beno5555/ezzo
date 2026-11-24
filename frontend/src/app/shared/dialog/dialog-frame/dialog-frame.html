@@ -13,7 +13,7 @@
         [attr.aria-label]="text().shared.dialog.closeButton"
         (click)="close()"
       >
-        <svg class="size-5" lucideX aria-hidden="true"></svg>
+        <svg class="size-5" [appIcon]="icons.x" aria-hidden="true"></svg>
       </button>
     }
   </div>

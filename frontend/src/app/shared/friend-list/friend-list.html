@@ -1,0 +1,51 @@
+<div class="flex flex-col gap-4">
+  @if (hasRows()) {
+    <ul
+      class="divide-y divide-border overflow-hidden rounded-lg border border-border bg-surface-raised"
+    >
+      @for (friendship of list().items(); track keyOf(friendship)) {
+        <li
+          appUserRow
+          [userId]="friendship.otherUser.id"
+          [username]="friendship.otherUser.username"
+          [actions]="actions()"
+          [canMessage]="canMessage()"
+          [isWaiting]="isWaiting(friendship)"
+          [isFading]="isFading(friendship)"
+          (action)="action.emit({ action: $event, friendship })"
+        ></li>
+      }
+    </ul>
+  }
+
+  @switch (list().status()) {
+    @case (PageLoadStatus.Idle) {
+      <!-- Also with no rows: the user may have answered every loaded one while more wait on the server. -->
+      <div appScrollSentinel (reached)="more.emit()"></div>
+    }
+    @case (PageLoadStatus.Loading) {
+      <p class="py-4 text-center text-sm text-ink-muted" role="status">
+        {{ hasRows() ? texts().loadingMore : texts().loading }}
+      </p>
+    }
+    @case (PageLoadStatus.Failed) {
+      <app-load-failure
+        [message]="list().failureMessage() ?? ''"
+        [retryLabel]="retryLabel()"
+        (retry)="more.emit()"
+      />
+    }
+    @case (PageLoadStatus.Ended) {
+      @if (!hasRows()) {
+        <app-empty-state
+          class="rounded-lg border border-border bg-surface-raised"
+          [heading]="texts().emptyTitle"
+          [message]="texts().emptyMessage"
+          [headingLevel]="3"
+        >
+          <svg class="size-8 text-ink-muted" [appIcon]="icons.users" aria-hidden="true"></svg>
+        </app-empty-state>
+      }
+    }
+  }
+</div>

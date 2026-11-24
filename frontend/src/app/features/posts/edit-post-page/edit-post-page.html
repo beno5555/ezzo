@@ -1,0 +1,89 @@
+@switch (status()) {
+  @case (PostPageStatus.Loading) {
+    <p class="py-4 text-center text-sm text-ink-muted" role="status">
+      {{ text().posts.edit.loading }}
+    </p>
+  }
+  @case (PostPageStatus.NotFound) {
+    <app-not-found-page />
+  }
+  @case (PostPageStatus.Failed) {
+    <app-load-failure
+      [message]="failureMessage() ?? ''"
+      [retryLabel]="text().posts.edit.retryButton"
+      (retry)="retry()"
+    />
+  }
+  @case (PostPageStatus.Ready) {
+    <div class="flex flex-col gap-6">
+      <h1 class="font-display text-2xl text-ink-strong">{{ text().pages.editPost }}</h1>
+
+      <form
+        class="flex flex-col gap-4 rounded-lg border border-border bg-surface-raised p-4"
+        [attr.aria-label]="text().pages.editPost"
+        [formGroup]="form"
+        (ngSubmit)="save()"
+      >
+        <app-form-field
+          fieldId="edit-post-title"
+          [label]="text().posts.edit.titleLabel"
+          [control]="form.controls.title"
+          [length]="written().title.length"
+          [maxLength]="titleMaxLength"
+        >
+          <input
+            appTextInput
+            id="edit-post-title"
+            type="text"
+            autocomplete="off"
+            formControlName="title"
+            [attr.maxlength]="titleMaxLength"
+          />
+        </app-form-field>
+
+        <app-form-field
+          fieldId="edit-post-content"
+          [label]="text().posts.edit.contentLabel"
+          [control]="form.controls.content"
+          [length]="written().content.length"
+          [maxLength]="contentMaxLength"
+        >
+          <textarea
+            appTextInput
+            id="edit-post-content"
+            rows="4"
+            formControlName="content"
+            [attr.maxlength]="contentMaxLength"
+          ></textarea>
+        </app-form-field>
+
+        @if (photos().length > 0) {
+          <div class="flex flex-col gap-2">
+            <p class="text-sm font-semibold text-ink-strong">{{ text().posts.edit.photosLabel }}</p>
+            <ul class="grid grid-cols-3 gap-2 md:grid-cols-5">
+              @for (photo of photos(); track photo.id; let index = $index) {
+                <li class="aspect-square overflow-hidden rounded-md bg-surface-sunken">
+                  <img
+                    class="size-full object-cover"
+                    [src]="photo.address"
+                    [alt]="text().shared.photos.photoDescription(index + 1, photos().length)"
+                  />
+                </li>
+              }
+            </ul>
+            <p class="text-sm text-ink-muted">{{ text().posts.edit.photosHint }}</p>
+          </div>
+        }
+
+        <div class="flex flex-wrap justify-end gap-2 border-t border-border pt-4">
+          <a appButton look="quiet" [routerLink]="postAddress()">
+            {{ text().posts.edit.cancelButton }}
+          </a>
+          <button appButton look="primary" type="submit" [disabled]="!canSave()">
+            {{ text().posts.edit.saveButton }}
+          </button>
+        </div>
+      </form>
+    </div>
+  }
+}

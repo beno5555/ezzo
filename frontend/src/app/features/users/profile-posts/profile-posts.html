@@ -1,0 +1,83 @@
+<ng-template #writeButton let-extraClass>
+  <a
+    appButton
+    look="primary"
+    [class]="extraClass"
+    [routerLink]="newPostAddress"
+    [state]="profileOrigin"
+  >
+    <svg class="size-5" [appIcon]="icons.plus" aria-hidden="true"></svg>
+    {{ text().users.profile.posts.writeButton }}
+  </a>
+</ng-template>
+
+<div class="flex flex-col gap-6">
+  <!-- The writer's own profile has the feed's button at the top end of the list; a profile with no posts has
+       it under the empty message instead, so the page never shows two. -->
+  @if (isOwn() && isListShown()) {
+    <div class="flex justify-end">
+      <ng-container *ngTemplateOutlet="writeButton; context: { $implicit: '' }" />
+    </div>
+  }
+
+  @if (isListShown()) {
+    <ul class="flex flex-col gap-4">
+      @for (post of pendingPosts(); track post.id) {
+        <li>
+          <app-post-card [post]="post" [isUploading]="true" [hasOwnMark]="false" />
+        </li>
+      }
+      @for (post of shownPosts(); track post.id) {
+        <li>
+          <app-post-card
+            [post]="post"
+            [hasOwnMark]="false"
+            (likeToggle)="toggleLike(post)"
+            (postDelete)="deletePost(post)"
+          />
+        </li>
+      }
+    </ul>
+  }
+
+  @switch (posts.status()) {
+    @case (PageLoadStatus.Idle) {
+      @if (hasPosts()) {
+        <div appScrollSentinel (reached)="loadMore()"></div>
+      }
+    }
+    @case (PageLoadStatus.Loading) {
+      <p class="py-4 text-center text-sm text-ink-muted" role="status">
+        {{
+          hasPosts() ? text().users.profile.posts.loadingMore : text().users.profile.posts.loading
+        }}
+      </p>
+    }
+    @case (PageLoadStatus.Failed) {
+      <app-load-failure
+        [message]="posts.failureMessage() ?? ''"
+        [retryLabel]="text().users.profile.posts.retryButton"
+        (retry)="loadMore()"
+      />
+    }
+    @case (PageLoadStatus.Ended) {
+      @if (!hasPosts() && pendingPosts().length === 0) {
+        <app-empty-state
+          class="rounded-lg border border-border bg-surface-raised"
+          [heading]="text().users.profile.posts.emptyTitle"
+          [message]="
+            isOwn()
+              ? text().users.profile.posts.emptyOwnMessage
+              : text().users.profile.posts.emptyMessage
+          "
+          [headingLevel]="3"
+        >
+          <svg class="size-8 text-ink-muted" [appIcon]="icons.newspaper" aria-hidden="true"></svg>
+          @if (isOwn()) {
+            <ng-container *ngTemplateOutlet="writeButton; context: { $implicit: 'mt-2' }" />
+          }
+        </app-empty-state>
+      }
+    }
+  }
+</div>

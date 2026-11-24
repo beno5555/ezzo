@@ -62,4 +62,21 @@ describe('AppValidators', () => {
       expect(at(noon)(new FormControl(''))).toBeNull();
     });
   });
+
+  describe('sameAs', () => {
+    const password = new FormControl('secret1', { nonNullable: true });
+    const sameAsPassword = AppValidators.sameAs(password);
+
+    it('accepts the same text', () => {
+      expect(sameAsPassword(new FormControl('secret1'))).toBeNull();
+    });
+
+    it('refuses a different text', () => {
+      expect(sameAsPassword(new FormControl('secret2'))).toEqual({ passwordMismatch: true });
+    });
+
+    it('leaves an empty field to required', () => {
+      expect(sameAsPassword(new FormControl(''))).toBeNull();
+    });
+  });
 });

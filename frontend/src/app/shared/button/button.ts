@@ -1,4 +1,6 @@
 import { Component, computed, input } from '@angular/core';
+import LucideTrash2 from 'lucide/dist/esm/icons/trash.mjs';
+import { Icon } from '../icon/icon';
 import { ButtonLook } from './button-look';
 
 // Every look a button shares: at least 44 px high (a touch target), the md radius, the focus ring
@@ -22,6 +24,10 @@ const lookClasses: Record<ButtonLook, string> = {
   [ButtonLook.Danger]:
     'border-danger bg-surface-raised text-danger ' +
     'not-disabled:hover:bg-surface-sunken not-disabled:active:bg-surface-sunken',
+  // No edge, so a column of them stays calm; the trash icon and the colour still mark it.
+  [ButtonLook.DangerText]:
+    'border-transparent bg-transparent text-danger ' +
+    'not-disabled:hover:bg-surface-sunken not-disabled:active:bg-surface-sunken',
 };
 
 // The app's one button look. It sits on a native <button>, so type, disabled, form submission and
@@ -29,14 +35,22 @@ const lookClasses: Record<ButtonLook, string> = {
 //   <button appButton look="primary" type="submit" [disabled]="form.invalid">...</button>
 // On an <a routerLink> it gives a link that is a screen's main action the same look.
 // An icon goes inside, beside the text. An icon that is the only content needs an aria-label.
+// The danger look adds a trash icon before the text by itself, so a destructive action never rests
+// on its colour alone (DESIGN.md, Components).
 @Component({
   selector: 'button[appButton], a[appButton]',
+  imports: [Icon],
   templateUrl: './button.html',
   styleUrl: './button.css',
   host: { '[class]': 'classes()' },
 })
 export class Button {
+  protected readonly icons = { trash2: LucideTrash2 };
+
   readonly look = input.required<ButtonLook>();
 
   protected readonly classes = computed(() => `${sharedClasses} ${lookClasses[this.look()]}`);
+  protected readonly isDanger = computed(
+    () => this.look() === ButtonLook.Danger || this.look() === ButtonLook.DangerText,
+  );
 }

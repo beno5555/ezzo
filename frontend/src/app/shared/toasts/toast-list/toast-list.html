@@ -1,3 +1,59 @@
+<!-- What a toast shows, so that it can be read at a glance: a person's picture with a badge for what they
+     did (a green dot for a friend who is online), or, for a toast about no one, a round icon for what
+     happened. The picture and the badge are decoration: the words carry the meaning for a screen reader. -->
+<ng-template #content let-toast>
+  <span class="relative flex shrink-0" aria-hidden="true">
+    @if (toast.person; as person) {
+      <app-avatar [userId]="person.id" />
+      @if (toast.look === ToastLook.Online) {
+        <span
+          class="absolute -end-1 -bottom-1 size-3.5 rounded-full bg-success ring-2 ring-surface-raised"
+        ></span>
+      } @else {
+        <span
+          class="absolute -end-1 -bottom-1 flex size-5 items-center justify-center rounded-full text-on-accent ring-2 ring-surface-raised"
+          [class]="badgeColorOf(toast.look)"
+        >
+          @switch (toast.look) {
+            @case (ToastLook.Like) {
+              <svg class="size-3" [appIcon]="icons.heart" aria-hidden="true"></svg>
+            }
+            @case (ToastLook.Comment) {
+              <svg class="size-3" [appIcon]="icons.messageSquareText" aria-hidden="true"></svg>
+            }
+            @default {
+              <svg class="size-3" [appIcon]="icons.messageCircle" aria-hidden="true"></svg>
+            }
+          }
+        </span>
+      }
+    } @else {
+      <span class="flex size-10 items-center justify-center rounded-full bg-surface-sunken">
+        @switch (toast.look) {
+          @case (ToastLook.Success) {
+            <svg class="size-5 text-success" [appIcon]="icons.circleCheck" aria-hidden="true"></svg>
+          }
+          @case (ToastLook.Uploading) {
+            <svg class="size-5 text-accent" [appIcon]="icons.cloudUpload" aria-hidden="true"></svg>
+          }
+          @default {
+            <svg class="size-5 text-danger" [appIcon]="icons.circleX" aria-hidden="true"></svg>
+          }
+        }
+      </span>
+    }
+  </span>
+
+  @if (toast.person; as person) {
+    <span class="flex min-w-0 flex-1 flex-col">
+      <span class="font-semibold wrap-anywhere text-ink-strong">{{ person.username }}</span>
+      <span class="text-sm wrap-break-word text-ink-muted">{{ toast.message }}</span>
+    </span>
+  } @else {
+    <span class="min-w-0 flex-1 wrap-break-word">{{ toast.message }}</span>
+  }
+</ng-template>
+
 <section
   class="pointer-events-none fixed inset-x-0 top-0 z-10 flex flex-col items-center gap-2 p-4 md:top-auto md:bottom-0 md:items-end"
   aria-live="polite"
@@ -5,20 +61,35 @@
 >
   @for (toast of toasts(); track toast.id) {
     <div
-      class="pointer-events-auto w-full max-w-96 overflow-hidden rounded-lg border border-border bg-surface-raised text-ink-strong shadow-overlay"
+      class="pointer-events-auto flex w-full max-w-96 animate-toast-in-top items-stretch overflow-hidden rounded-lg border border-border bg-surface-raised text-ink-strong shadow-overlay motion-reduce:animate-none md:animate-toast-in-end"
     >
       @if (toast.link; as link) {
         <a
-          class="flex min-h-11 items-center gap-3 px-4 py-3 transition-colors hover:bg-surface-sunken focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus motion-reduce:transition-none"
+          class="flex min-h-11 min-w-0 flex-1 items-center gap-3 py-3 ps-4 transition-colors hover:bg-surface-sunken focus-visible:outline-2 focus-visible:-outline-offset-2 focus-visible:outline-focus motion-reduce:transition-none"
           [routerLink]="link"
-          (click)="dismissFollowed(toast)"
+          (click)="dismiss(toast)"
         >
-          <span class="min-w-0 flex-1 wrap-break-word">{{ toast.message }}</span>
-          <svg class="size-5 shrink-0 text-ink-muted" lucideChevronRight aria-hidden="true"></svg>
+          <ng-container *ngTemplateOutlet="content; context: { $implicit: toast }" />
+          <svg
+            class="size-5 shrink-0 text-ink-muted"
+            [appIcon]="icons.chevronRight"
+            aria-hidden="true"
+          ></svg>
         </a>
       } @else {
-        <p class="px-4 py-3 wrap-break-word">{{ toast.message }}</p>
+        <p class="flex min-h-11 min-w-0 flex-1 items-center gap-3 py-3 ps-4">
+          <ng-container *ngTemplateOutlet="content; context: { $implicit: toast }" />
+        </p>
       }
+      <button
+        appIconButton
+        type="button"
+        class="m-1 self-center"
+        [attr.aria-label]="text().shared.toasts.dismiss"
+        (click)="dismiss(toast)"
+      >
+        <svg class="size-5" [appIcon]="icons.x" aria-hidden="true"></svg>
+      </button>
     </div>
   }
 </section>

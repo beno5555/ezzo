@@ -1,9 +1,15 @@
 import { Router, UrlTree } from '@angular/router';
 import { appAddresses, returnAddressParameter } from './app-addresses';
+import { routePath } from './route-path';
 
-// The sign-in page, remembering the address the user wanted, so that sign-in can return there.
+// A request for home can already carry a return address. Keep it instead of wrapping home in another
+// returnUrl.
 export function signInAddress(router: Router, wantedAddress: string): UrlTree {
-  return router.createUrlTree([appAddresses.signIn], {
-    queryParams: { [returnAddressParameter]: wantedAddress },
-  });
+  const isHome = routePath(wantedAddress) === appAddresses.home;
+
+  return isHome
+    ? router.parseUrl(wantedAddress)
+    : router.createUrlTree([appAddresses.home], {
+        queryParams: { [returnAddressParameter]: wantedAddress },
+      });
 }

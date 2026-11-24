@@ -2,6 +2,7 @@
 using aspnetproject.Common.ProjectConstants;
 using aspnetproject.Data.Models;
 using aspnetproject.Data.Repositories;
+using aspnetproject.Infrastructure.Dtos.Friendships;
 using aspnetproject.Infrastructure.Dtos.Users;
 using aspnetproject.Infrastructure.Mappers;
 using aspnetproject.Infrastructure.Queries;
@@ -12,14 +13,17 @@ namespace aspnetproject.Infrastructure.Services.BusinessLogic.Users;
 
 public class UserService : BaseService
 {
-    private readonly UserRepository _userRepository;
+    private readonly UserRepository       _userRepository;
+    private readonly FriendshipRepository _friendshipRepository;
 
     public UserService(
         UserRepository userRepository,
+        FriendshipRepository friendshipRepository,
         DatabaseLogger dbLogger
         ) : base(dbLogger)
     {
         _userRepository = userRepository;
+        _friendshipRepository = friendshipRepository;
     }
 
     public async Task<ApplicationResponse<StandardUserDto>> GetById(int id)
@@ -79,17 +83,39 @@ public class UserService : BaseService
         return response;
     }
     
-    public async Task<ListResponse<MinimalUserDto>> SearchUsersAsync(string usernameInput, int? pageNumber = null, int? pageSize = null)
+    // callerId is null for a guest. A signed-in caller gets their friendship with each result, for the buttons.
+    public async Task<ListResponse<SearchUserDto>> SearchUsersAsync(string usernameInput, int? callerId, int? pageNumber = null, int? pageSize = null)
     {
-        var response = new ListResponse<MinimalUserDto>();
-        
-        var users    = await _userRepository.SearchByUsernameAsync(usernameInput, pageNumber, pageSize);
-        var userDtos = users.Select(UserMapper.ToMinimalDisplay).ToList();
-        
+        var response = new ListResponse<SearchUserDto>();
+
+        var users         = await _userRepository.SearchByUsernameAsync(usernameInput, pageNumber, pageSize);
+        var relationships = await GetRelationshipsWithAsync(callerId, users);
+        var userDtos      = users.Select(user => UserMapper.ToSearchDisplay(user, relationships.GetValueOrDefault(user.Id))).ToList();
+
         response.Ok(userDtos, ResponseMessages.SearchResultsForUsername(usernameInput));
         await LogResultAsync(response.Succeeded, nameof(SearchUsersAsync), nameof(User), null, null);
-        
+
         return response;
+    }
+
+    // The caller's friendship with each of the users, by that user's id, read in one query. A guest has none.
+    private async Task<Dictionary<int, RelationshipDto>> GetRelationshipsWithAsync(int? callerId, List<User> users)
+    {
+        var relationships = new Dictionary<int, RelationshipDto>();
+
+        var isSignedInWithResults = callerId is not null && users.Count > 0;
+        if (isSignedInWithResults)
+        {
+            var friendships = await _friendshipRepository.GetFriendshipsWithAsync(callerId!.Value, users.Select(user => user.Id).ToList());
+
+            foreach (var friendship in friendships)
+            {
+                var otherUserId = friendship.RequesterUserId == callerId ? friendship.AddresseeUserId : friendship.RequesterUserId;
+                relationships.TryAdd(otherUserId, FriendshipMapper.ToRelationship(friendship, callerId.Value));
+            }
+        }
+
+        return relationships;
     }
 
     // Administrator-only. A successful read writes no Log row, unlike SearchUsersAsync.
@@ -101,6 +127,29 @@ public class UserService : BaseService
         var accountDtos = accounts.Select(UserMapper.ToAdminDisplay).ToList();
 
         response.Ok(accountDtos, ResponseMessages.AccountsRetrieved);
+
+        return response;
+    }
+
+    // The caller's own switch. Returns the own shape, so a client can refresh what it shows.
+    public async Task<ApplicationResponse<FullUserDto>> SetDigestEmailAsync(int userId, bool enabled)
+    {
+        var response = new ApplicationResponse<FullUserDto>();
+
+        var user = await _userRepository.GetUserByIdAsync(userId);
+        if (user is not null)
+        {
+            await _userRepository.SetDigestEmailAsync(user, enabled);
+            var userDto = UserMapper.ToFullDisplay(user);
+
+            response.Ok(userDto, ResponseMessages.DigestEmailUpdated);
+            await LogResultAsync(response.Succeeded, nameof(SetDigestEmailAsync), nameof(User), null, userId);
+        }
+        else
+        {
+            response.Fail(ResponseMessages.UserNotFound);
+            await LogResultAsync(response.Succeeded, nameof(SetDigestEmailAsync), nameof(User), response.Message, null);
+        }
 
         return response;
     }

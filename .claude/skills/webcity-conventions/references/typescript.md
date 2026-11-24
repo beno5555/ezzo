@@ -264,20 +264,21 @@ export class MyProfilePage implements OnInit {
 - The refresh token is an HttpOnly cookie that frontend code never reads. The access token lives only in memory, in `SessionStore`. Never write a token to `localStorage` or `sessionStorage`.
 - Every page load restores the session by calling `POST /api/auth/refresh` before the first route activates.
 - One tested function decodes the signed-in user's id, username and roles, and the token's expiry, from the access token. It must handle the claim names `nameid`, `unique_name`, `role` and `exp`; a `role` that is missing, a string or an array; and a base64url, UTF-8 payload. Decoded values decide only what the UI shows.
-- One interceptor adds the `Authorization` header to `/api` calls. On a `401` from any endpoint except login and refresh, it refreshes once and retries the call once. Simultaneous `401`s share one refresh. If the refresh is refused (a `401`), it clears the session and navigates to sign-in. A refresh that gets no answer, or any other failure (offline, a `502` from the proxy, a `429`), keeps the session, so a later attempt can refresh.
+- One interceptor adds the `Authorization` header to `/api` calls. On a `401` from any endpoint except login and refresh, it refreshes once and retries the call once. Simultaneous `401`s share one refresh. If the refresh is refused (a `401`), it clears the session and navigates to the sign-in form on the landing page. A refresh that gets no answer, or any other failure (offline, a `502` from the proxy, a `429`), keeps the session, so a later attempt can refresh.
 - Refresh tokens rotate, so tabs take turns refreshing through the Web Locks API (`navigator.locks`).
 - Calls are same-origin, so the cookie travels without `withCredentials`. Never fix a cookie problem with CORS settings (ADR 0001).
 
 ### Routing
 
-- Every page is lazy (`loadComponent`) and names its title by dictionary key. The route table ends with a not-found route.
-- There are three guards: `authGuard` (signed in), `guestGuard` (signed out, for sign-in and register) and `adminGuard`. They are a convenience for the user; the backend enforces access.
+- Every page is lazy (`loadComponent`) and names its title by dictionary key (the landing page has none, so its tab says only the app's name). The route table ends with a not-found route.
+- There are three guards: `authGuard` (signed in), `guestGuard` (signed out, for register) and `adminGuard`. `/` holds two pages, and `signedInMatch` picks the feed or the landing page. They are a convenience for the user; the backend enforces access.
 - Route parameters arrive as component inputs (`withComponentInputBinding()`), not through `ActivatedRoute` subscriptions.
 
 ### Forms
 
 - Use typed reactive forms built with `NonNullableFormBuilder`. Never put `ngModel` or a second binding on the same control.
 - Validators take their limits from `LIMITS`.
+- A text box with a length limit also stops taking characters at it and shows the count: give its `<app-form-field>` `[length]` and `[maxLength]` (it draws the shared `CharacterCounter` beside the label) and the control `[attr.maxlength]`. Where a label would not fit, as in the comment box, place `<app-character-counter>` yourself. Never draw a counter of your own.
 - Disable the submit button while the form is invalid, and guard the handler as well.
 - Show a field's error once the field has been touched. After a failed submit, put the server's `fieldErrors` on the matching controls.
 
@@ -291,7 +292,7 @@ export class MyProfilePage implements OnInit {
 ### Text and languages
 
 - The UI has a language switch. English and Georgian come first. Russian and Spanish are one file each, added later.
-- All text the frontend owns comes from a dictionary: one TypeScript file per language in `core/`. English is the source and every other language is typed against it, so a missing key fails the build.
+- Frontend text comes from one TypeScript dictionary per language in `core/`. English defines the dictionary shape. Keep the language switch's names in `language.ts` so it can name every language before downloading their dictionaries.
 - `LanguageStore` holds the current language as a signal, remembers it in `localStorage` and exposes the current dictionary as `text()`. Templates read `text().feed.title`. Write no literal UI text in a template or component.
 - An entry that needs a number or a plural form is a function. Use `Intl.PluralRules` for plurals.
 - Text from the backend (failure and validation messages) is shown as it arrives, in English. Never translate it by matching strings.
@@ -316,7 +317,7 @@ export class MyProfilePage implements OnInit {
 **Toolset**
 
 - Tailwind v4 gives every look, and Angular CDK gives behaviour: overlays, dialogs, menus, focus trapping (ADR 0007). Install no component kit.
-- Icons come from `@lucide/angular` and from nowhere else.
+- Import individual Lucide SVG data modules and render them with the shared `Icon` component (`frontend/CLAUDE.md`).
 - Fonts are served by the app. Load nothing from another origin.
 
 **Design tokens**
@@ -326,37 +327,35 @@ export class MyProfilePage implements OnInit {
 - The design tokens live in the Tailwind theme block, `frontend/src/design-tokens.css`, which the build reads, and in `DESIGN.md`. Change a design token in both in the same commit. The theme block switches Tailwind's own colours, type sizes, radii, shadows and breakpoints off, so only design token classes exist.
 - Write no literal colour, size or space: no hex code, no colour function such as `rgb(`, no bracketed Tailwind value (`p-[13px]`) and no inline style (`style="..."`, `[style.width.px]`). Under `src/app`, `npm run lint` fails on each of these, on a `dark:` class and on an `@apply`. It does not catch a named colour (`red`) or a `px` length in a component `.css` file, so write neither.
 - Light and dark are two sets of values for the same names. A component never names a theme: write no `dark:` class.
-- Until the product's name is settled, no component carries a brand metaphor. The brand lives in design token values and the logo component.
 
 **Where styles go**
 
-- Tailwind classes go in the template. A look that is used twice becomes a component in `shared/`.
-- A shared component that dresses a native element takes an attribute selector, so the element keeps its own behaviour: `Button` is `<button appButton look="primary">` (or `quiet`, `danger`), and also sits on an `<a routerLink>` that is a screen's main action.
+- Tailwind classes go in the template. A look that is used twice becomes a component in `shared/`. Two known exceptions stay as two copies until a third use appears: the admin card shell (`features/admin/flagged-item`, `report-card`) and the two moderation panels (`admin-moderation-page`). Whoever needs a third copy of either extracts the shared piece first, in the same change, and never writes the copy.
+- A shared component that dresses a native element takes an attribute selector, so the element keeps its own behaviour: `Button` is `<button appButton look="primary">` (or `quiet`, `danger`, `danger-text`), and also sits on an `<a routerLink>` that is a screen's main action.
 - Never build a class with `@apply`. A component's `.css` file stays nearly empty.
 - Write no global element styles beyond a reset.
 
 **Type**
 
-- Every font role's stack must cover Latin, Cyrillic and Georgian. The body role uses one family that covers all three; the display role may pair a Latin face with one Georgian partner.
+- Every font role's stack must cover Latin, Cyrillic and Georgian, except the wordmark's, which only ever sets the Latin "ezzo" (DESIGN.md, Typography). The body role uses one family that covers all three; the display role may pair a Latin face with one Georgian partner.
 - Do not carry meaning with capital letters. Georgian has none in everyday writing.
 
 **Responsive**
 
 - Fluid by default: maximum widths, never fixed widths; rows wrap; images shrink.
 - Write the phone layout first. The shell changes at 768 px (`md:`).
-- A page with a real second column (chat, the admin panel) may change again at 1024 px (`lg:`). No other breakpoint is used.
+- A page with a real second column (chat, the admin panel, the landing page) may change again at 1024 px (`lg:`). No other breakpoint is used.
 - Nothing scrolls sideways at 360 px. On a phone, the rows of an admin table become stacked cards.
 - Check every page at 360, 768 and 1280 px, in both themes, when you build it.
 
 **Motion and accessibility**
 
-- Motion only answers a user's action, lasts at most 200 ms and is off under `prefers-reduced-motion`.
+- Motion only answers a user's action, lasts at most 200 ms and is off under `prefers-reduced-motion`. The exceptions are the "Deleting…" spinner and the toast's slide-in (`DESIGN.md`, Do's and Don'ts).
 - Text contrast is at least 4.5 to 1 in both themes. Keyboard focus is always visible. A touch target is at least 44 px high on a phone.
 
 **Profile pictures**
 
-- One `Avatar` component in `shared/` shows a user's profile picture everywhere. Without a picture it draws the default: the user's initials on a disc.
-- The disc's colour is one of the eight disc design tokens, chosen by the user's id. A username in two parts gives both first letters; any other gives its first two letters. An unavailable account gets the grey disc with no letters.
+Use the shared `Avatar` component. An unavailable account shows the default silhouette with a grey ring even when a picture address is supplied. The design brief defines the [default picture and ring colours](../../../../DESIGN.md#components).
 
 **When a design skill and these documents disagree**
 

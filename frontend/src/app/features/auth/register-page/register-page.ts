@@ -1,4 +1,5 @@
 import { Component, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterLink } from '@angular/router';
 import { LanguageStore } from '../../../core/languages/language-store';
@@ -11,15 +12,17 @@ import { AppValidators } from '../../../shared/form-field/app-validators';
 import { applyFieldErrors, setServerErrors } from '../../../shared/form-field/apply-field-errors';
 import { FormField } from '../../../shared/form-field/form-field';
 import { FormMessage } from '../../../shared/form-message/form-message';
+import { PasswordToggle } from '../../../shared/password-toggle/password-toggle';
 import { TextInput } from '../../../shared/text-input/text-input';
 import { TextLink } from '../../../shared/text-link/text-link';
+import { bioOrNull } from '../../users/bio-or-null';
+import { userRefusalField } from '../../users/user-refusal-field';
 import { AuthApi } from '../auth-api';
 import { AuthFrame } from '../auth-frame/auth-frame';
 import { AuthLink } from '../auth-frame/auth-link';
 import { RegisterDto } from '../register-dto';
-import { SignInNotice } from '../sign-in-page/sign-in-notice';
-import { SignInPageState } from '../sign-in-page/sign-in-page-state';
-import { registerRefusalFields } from './register-refusal-fields';
+import { SignInNotice } from '../landing-page/sign-in-notice';
+import { LandingPageState } from '../landing-page/landing-page-state';
 
 // The register page. The register endpoint hands out no session, so a successful registration signs in
 // with the same credentials and goes on to the feed (spec, Auth pages). If that sign-in fails, the user
@@ -34,6 +37,7 @@ import { registerRefusalFields } from './register-refusal-fields';
     Button,
     FormField,
     FormMessage,
+    PasswordToggle,
     TextInput,
     TextLink,
   ],
@@ -49,18 +53,27 @@ export class RegisterPage {
   protected readonly addresses = appAddresses;
   protected readonly limits = LIMITS.users;
 
-  protected readonly form = inject(NonNullableFormBuilder).group({
+  private readonly formBuilder = inject(NonNullableFormBuilder);
+  private readonly password = this.formBuilder.control('', FieldRules.password);
+
+  // The password typed a second time stays in the browser: the register endpoint takes one password.
+  protected readonly form = this.formBuilder.group({
     username: ['', FieldRules.username],
     email: ['', FieldRules.email],
-    password: ['', FieldRules.password],
-    dateOfBirth: [
-      '',
-      [Validators.required, AppValidators.ageBetween(LIMITS.users.minAge, LIMITS.users.maxAge)],
-    ],
-    bio: ['', [Validators.maxLength(LIMITS.users.bioMaxLength)]],
+    password: this.password,
+    confirmPassword: ['', [Validators.required, AppValidators.sameAs(this.password)]],
+    dateOfBirth: ['', FieldRules.dateOfBirth],
+    bio: ['', FieldRules.bio],
   });
   protected readonly isSubmitting = signal(false);
   protected readonly failureMessage = signal<string | null>(null);
+
+  constructor() {
+    // A change to the password can make the repeated one match, or stop matching.
+    this.password.valueChanges.pipe(takeUntilDestroyed()).subscribe(() => {
+      this.form.controls.confirmPassword.updateValueAndValidity();
+    });
+  }
 
   async register(): Promise<void> {
     if (this.form.invalid || this.isSubmitting()) {
@@ -79,8 +92,8 @@ export class RegisterPage {
     }
 
     this.isSubmitting.set(false);
-    const refusedField = registerRefusalFields[result.message];
-    if (refusedField !== undefined) {
+    const refusedField = userRefusalField(result.message);
+    if (refusedField !== null) {
       setServerErrors(this.form.controls[refusedField], [result.message]);
       return;
     }
@@ -93,18 +106,17 @@ export class RegisterPage {
     const result = await this.sessionStore.signIn({ uniqueIdentifier: username, password });
 
     if (result.succeeded) {
-      await this.router.navigateByUrl(appAddresses.feed);
+      await this.router.navigateByUrl(appAddresses.home);
       return;
     }
 
-    const state: SignInPageState = { identifier: username, notice: SignInNotice.AccountCreated };
-    await this.router.navigateByUrl(appAddresses.signIn, { state });
+    const state: LandingPageState = { identifier: username, notice: SignInNotice.AccountCreated };
+    await this.router.navigateByUrl(appAddresses.home, { state });
   }
 
-  // An empty bio is sent as none, since the backend refuses an empty one.
   private toRegisterDto(): RegisterDto {
-    const { bio, ...account } = this.form.getRawValue();
-    const hasBio = bio.trim() !== '';
-    return { ...account, bio: hasBio ? bio : null };
+    const { username, email, password, dateOfBirth, bio } = this.form.getRawValue();
+
+    return { username, email, password, dateOfBirth, bio: bioOrNull(bio) };
   }
 }

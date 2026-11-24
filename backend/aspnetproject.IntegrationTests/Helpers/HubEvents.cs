@@ -7,21 +7,27 @@ public static class HubEvents
     public const string ReceiveMessage = "ReceiveMessage";
     public const string MessageSeen    = "MessageSeen";
     public const string MessageEdited  = "MessageEdited";
+    public const string MessageDeleted = "MessageDeleted";
     public const string ReceiveComment = "ReceiveComment";
     public const string PostLiked      = "PostLiked";
     public const string UserOnline     = "UserOnline";
     public const string UserOffline    = "UserOffline";
     public const string UserTyping     = "UserTyping";
 
+    // Sent when the automation asks for it (POST /api/internal/notifications).
+    public const string ReceiveNotification = "ReceiveNotification";
+
     public static readonly string[] All =
     [
         ReceiveMessage,
         MessageSeen,
         MessageEdited,
+        MessageDeleted,
         ReceiveComment,
         PostLiked,
         UserOnline,
         UserOffline,
-        UserTyping
+        UserTyping,
+        ReceiveNotification
     ];
 }

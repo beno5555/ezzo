@@ -1,7 +1,37 @@
 import { provideHttpClient } from '@angular/common/http';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { TestBed } from '@angular/core/testing';
+import { georgian } from '../../core/languages/georgian';
+import { initialLanguage } from '../../core/languages/initial-language';
+import { Language } from '../../core/languages/language';
+import { LanguageSelection } from '../../core/languages/language-selection';
 import { AuthApi } from './auth-api';
+
+describe('AuthApi refresh during startup', () => {
+  it('sends the request before the dictionary loads and translates a failure when it is ready', async () => {
+    let resolveDictionary!: (selection: LanguageSelection) => void;
+    const dictionary = new Promise<LanguageSelection>((resolve) => {
+      resolveDictionary = resolve;
+    });
+    TestBed.configureTestingModule({
+      providers: [provideHttpClient(), provideHttpClientTesting()],
+    });
+    TestBed.overrideProvider(initialLanguage, { useValue: dictionary });
+    const api = TestBed.inject(AuthApi);
+    const http = TestBed.inject(HttpTestingController);
+    const pending = api.refresh();
+
+    http.expectOne('/api/auth/refresh').flush(null, { status: 401, statusText: 'Unauthorized' });
+    resolveDictionary({ language: Language.Georgian, text: georgian });
+
+    expect(await pending).toEqual({
+      succeeded: false,
+      message: georgian.httpFailures.unauthorized,
+      status: 401,
+    });
+    http.verify();
+  });
+});
 
 describe('AuthApi', () => {
   let authApi: AuthApi;

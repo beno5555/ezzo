@@ -1,0 +1,7 @@
+<div class="relative flex flex-col gap-6">
+  <app-back-link [label]="text().posts.page.backLink" />
+
+  <h1 class="font-display text-2xl text-ink-strong">{{ text().pages.newPost }}</h1>
+
+  <app-post-composer (send)="publish($event)" />
+</div>

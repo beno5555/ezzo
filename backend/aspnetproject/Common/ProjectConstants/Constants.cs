@@ -55,11 +55,25 @@ public static class Constants
     public const int    ExceptionEventStackTraceLines = 15;
     public const string FingerprintSeparator          = "|";
 
+    // The automation calling the backend (docs/backend/auth.md): the header that carries its key, and the name a Log row gives it.
+    public const string AutomationApiKeyHeader = "X-Api-Key";
+    public const string AutomationActorName    = "Automation";
+
+    // The internal routes (docs/backend/automation.md). In a year without 29 February, a birthday on that day falls on the 28th.
+    public const int February                       = 2;
+    public const int LeapDay                        = 29;
+    public const int LastDayOfFebruaryInACommonYear = LeapDay - 1;
+    public const int MaxNotificationRecipients      = 100;
+
     public static readonly TimeSpan EditMessageWindow = TimeSpan.FromMinutes(20);
 
     // The two windows of the administrator's activity counts; both end now.
     public static readonly TimeSpan StatisticsShortWindow = TimeSpan.FromDays(7);
     public static readonly TimeSpan StatisticsLongWindow  = TimeSpan.FromDays(30);
+
+    // The weekly digest (GET /api/internal/digest): how far back a friend's post counts, and how many a row carries.
+    public static readonly TimeSpan DigestPostWindow = TimeSpan.FromDays(7);
+    public const int                DigestPostLimit  = 3;
 
     public const string EmailRegexPattern    = @"^[^@\s]+@[^@\s]+\.[^@\s]+$";
     // No dots: a username is an address segment (/users/:username), and a dot makes it look like a file name.

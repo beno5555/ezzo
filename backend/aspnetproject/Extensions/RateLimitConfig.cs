@@ -2,12 +2,15 @@
 using System.Threading.RateLimiting;
 using aspnetproject.Common.Domain;
 using aspnetproject.Common.ProjectConstants;
+using aspnetproject.Infrastructure.Services.Automation.Authentication;
 using Microsoft.AspNetCore.RateLimiting;
 
 namespace aspnetproject.Extensions;
 
 public static class RateLimitConfig
 {
+    private const string AutomationBucketName = "automation";
+
     public static class Policies
     {
         #region Admin
@@ -19,6 +22,12 @@ public static class RateLimitConfig
         public const string AdminModerateComment     = "AdminModerateComment";
         public const string AdminReadFlaggedPosts    = "AdminReadFlaggedPosts";
         public const string AdminReadFlaggedComments = "AdminReadFlaggedComments";
+        #endregion
+
+        #region Internal
+        public const string ReadDigest                = "ReadDigest";
+        public const string InternalReadBirthdays     = "InternalReadBirthdays";
+        public const string InternalSendNotifications = "InternalSendNotifications";
         #endregion
 
         #region Auth
@@ -94,6 +103,7 @@ public static class RateLimitConfig
         public const string SearchUsers      = "SearchUsers";
         public const string UpdateOwnProfile = "UpdateOwnProfile";
         public const string AdminUpdateUser  = "AdminUpdateUser";
+        public const string SetDigestEmail   = "SetDigestEmail";
         #endregion
     }
 
@@ -284,6 +294,24 @@ public static class RateLimitConfig
 
             options.AddPolicy(Policies.AdminUpdateUser, httpContext =>
                 PerUserSlidingWindow(httpContext, 30, TimeSpan.FromHours(1)));
+
+            // One flip of a switch per request; a user toggling it back and forth on the settings page stays well inside.
+            options.AddPolicy(Policies.SetDigestEmail, httpContext =>
+                PerUserSlidingWindow(httpContext, 30, TimeSpan.FromHours(1)));
+            #endregion
+
+            #region Internal (only the API key opens these, so they count in the automation's bucket: AutomationPartitionKey)
+            // The automation pages through the whole list once a week; this leaves room for a large user base at full pages.
+            options.AddPolicy(Policies.ReadDigest, httpContext =>
+                PerUserSlidingWindow(httpContext, 120, TimeSpan.FromMinutes(1)));
+
+            // Read once a day, a page at a time.
+            options.AddPolicy(Policies.InternalReadBirthdays, httpContext =>
+                PerUserSlidingWindow(httpContext, 30, TimeSpan.FromMinutes(1)));
+
+            // A call per recipient or per batch, each naming up to Constants.MaxNotificationRecipients users.
+            options.AddPolicy(Policies.InternalSendNotifications, httpContext =>
+                PerUserSlidingWindow(httpContext, 60, TimeSpan.FromMinutes(1)));
             #endregion
             
             #region Global
@@ -301,6 +329,17 @@ public static class RateLimitConfig
         response.Fail(ResponseMessages.TooManyRequests);
 
         await context.HttpContext.Response.WriteAsJsonAsync(response, cancellationToken);
+    }
+
+    // The automation has no user id, and UseAuthentication has not run its scheme by now (only the default, JWT, runs there), so the
+    // limiter asks the key validator itself. Only a valid key gets the bucket: a wrong key falls back to the address, so a stranger
+    // cannot use up the automation's budget. The key never equals a user id or an address, so the buckets cannot collide.
+    private static string? AutomationPartitionKey(HttpContext httpContext)
+    {
+        var  keyValidator = httpContext.RequestServices.GetRequiredService<AutomationKeyValidator>();
+        bool isAutomation = keyValidator.HasKeyHeader(httpContext.Request) && keyValidator.IsValid(httpContext.Request);
+
+        return isAutomation ? AutomationBucketName : null;
     }
 
     private static RateLimitPartition<string> PerIpSlidingWindow(HttpContext httpContext, int permitLimit, TimeSpan window)
@@ -321,6 +360,7 @@ public static class RateLimitConfig
     private static RateLimitPartition<string> PerUserSlidingWindow(HttpContext httpContext, int permitLimit, TimeSpan window, int segments = 4)
     {
         var partitionKey = httpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value
+            ?? AutomationPartitionKey(httpContext)
             ?? httpContext.Connection.RemoteIpAddress?.ToString()
             ?? "unknown";
 

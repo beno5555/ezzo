@@ -29,6 +29,6 @@ describe('adminGuard', () => {
       '/admin/logs',
     );
 
-    expect(decision).toBe('/sign-in?returnUrl=%2Fadmin%2Flogs');
+    expect(decision).toBe('/?returnUrl=%2Fadmin%2Flogs');
   });
 });

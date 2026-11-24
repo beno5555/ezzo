@@ -1,0 +1,68 @@
+<section class="flex flex-col gap-4" [attr.aria-label]="text().comments.heading">
+  <!-- Only for screen readers: the post card above already shows the comment count. -->
+  <h2 class="sr-only">{{ text().comments.heading }}</h2>
+
+  @if (hasComments()) {
+    <ul class="flex flex-col gap-3">
+      @for (shown of thread.shown(); track shown.comment.id) {
+        <li>
+          <app-comment-item [shown]="shown" [postAuthorId]="postAuthorId()" />
+        </li>
+      }
+    </ul>
+  }
+
+  @switch (thread.list.status()) {
+    @case (PageLoadStatus.Idle) {
+      <div appScrollSentinel (reached)="loadMore()"></div>
+    }
+    @case (PageLoadStatus.Loading) {
+      <p class="py-2 text-center text-sm text-ink-muted" role="status">
+        {{ hasComments() ? text().comments.loadingMore : text().comments.loading }}
+      </p>
+    }
+    @case (PageLoadStatus.Failed) {
+      <app-load-failure
+        [message]="thread.list.failureMessage() ?? ''"
+        [retryLabel]="text().comments.retryButton"
+        (retry)="loadMore()"
+      />
+    }
+    @case (PageLoadStatus.Ended) {
+      @if (!hasComments()) {
+        <p class="flex items-center justify-center gap-2 py-2 text-center text-ink-muted">
+          <svg class="size-5 shrink-0" [appIcon]="icons.messageCircle" aria-hidden="true"></svg>
+          {{ text().comments.emptyMessage }}
+        </p>
+      }
+    }
+  }
+</section>
+
+<!-- The form (or, for a guest, the way to sign in) is pinned to the bottom of the screen, above the phone's
+     bottom bar (h-16), so a reader can write without scrolling to the end of the comments. It sits outside
+     the section on purpose: a sticky element stays inside its parent, and the parent here is the page's
+     column (the host is display: contents), so the form stays pinned from the first screen on. -->
+@if (isSignedIn()) {
+  <div
+    class="sticky bottom-16 rounded-lg border border-border bg-surface-raised p-2 shadow-raised md:bottom-4 md:p-3"
+  >
+    <app-comment-form
+      [isCompact]="true"
+      fieldId="new-comment"
+      [label]="text().comments.form.label"
+      [contentLabel]="text().comments.form.contentLabel"
+      [submitLabel]="text().comments.form.submitButton"
+      (send)="send($event)"
+    />
+  </div>
+} @else {
+  <div
+    class="sticky bottom-0 md:bottom-4 flex flex-wrap items-center justify-between gap-2 rounded-lg border border-border bg-surface-raised p-2 shadow-raised md:p-3"
+  >
+    <p class="text-ink-strong">{{ text().comments.guest.message }}</p>
+    <a appButton look="primary" [routerLink]="signInAddress" [queryParams]="signInParameters()">
+      {{ text().comments.guest.signInLink }}
+    </a>
+  </div>
+}

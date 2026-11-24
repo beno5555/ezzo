@@ -1,8 +1,14 @@
-<app-top-bar />
+<!-- The landing page draws its own big name, so the stamp would show the logo's bubble twice. -->
+@if (!onLandingPage()) {
+  <app-shell-stamp />
+}
 
-<main class="mx-auto w-full max-w-column px-4 py-8">
+<!-- On a phone, one conversation hides both bars; its back arrow leads to the list (isInConversation). -->
+<app-top-bar [class]="inConversation() ? 'hidden md:block' : 'block'" />
+
+<main [class]="mainClass()">
   <router-outlet />
 </main>
 
-<app-bottom-bar />
+<app-bottom-bar [class.hidden]="inConversation()" />
 <app-toast-list />

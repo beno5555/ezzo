@@ -3,7 +3,7 @@ import { Router, provideRouter } from '@angular/router';
 import { MockInstance } from 'vitest';
 import { AppResult } from '../../../core/http/app-result';
 import { AccountActivationApi } from '../../accounts/account-activation-api';
-import { SignInNotice } from '../sign-in-page/sign-in-notice';
+import { SignInNotice } from '../landing-page/sign-in-notice';
 import { ReactivateAccountPage } from './reactivate-account-page';
 
 // Class-level tests: the page is created with a stubbed API, and the tests read its calls and its navigation,
@@ -86,7 +86,7 @@ describe('ReactivateAccountPage', () => {
       await page.reactivate();
 
       expect(activationApi.activate).toHaveBeenCalledWith('the-token');
-      expect(navigateByUrl).toHaveBeenCalledWith('/sign-in', {
+      expect(navigateByUrl).toHaveBeenCalledWith('/', {
         state: { notice: SignInNotice.AccountReactivated },
       });
     });

@@ -1,4 +1,8 @@
 ﻿using System.Text;
+using aspnetproject.Common.ProjectConstants.Enums;
+using aspnetproject.Infrastructure.Services.Automation.Authentication;
+using aspnetproject.Infrastructure.Services.Automation.Configuration;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 
@@ -40,6 +44,33 @@ public static class AuthenticationExtensions
                     }
                 };
             });
+
+        return services;
+    }
+
+    // The automation's second scheme, beside JWT, and the two policies that name it. JWT stays the default scheme, so a route
+    // that names no scheme never runs the API-key handler and a request with only the key gets 401 there.
+    public static IServiceCollection AddAutomationAuthentication(this IServiceCollection services, IConfiguration configuration)
+    {
+        services.Configure<AutomationApiConfiguration>(configuration.GetSection(AutomationApiConfiguration.SectionName));
+        services.AddSingleton<AutomationKeyValidator>();
+
+        services.AddAuthentication()
+            .AddScheme<AuthenticationSchemeOptions, ApiKeyAuthenticationHandler>(AutomationAuth.Scheme, null);
+
+        services.AddAuthorizationBuilder()
+            .AddPolicy(AutomationAuth.Policies.AutomationOnly, policy => policy
+                .AddAuthenticationSchemes(AutomationAuth.Scheme)
+                .RequireAssertion(context => AutomationAuth.IsAutomation(context.User)))
+            .AddPolicy(AutomationAuth.Policies.AdministratorOrAutomation, policy => policy
+                .AddAuthenticationSchemes(JwtBearerDefaults.AuthenticationScheme, AutomationAuth.Scheme)
+                .RequireAssertion(context =>
+                {
+                    bool isAdministrator = context.User.IsInRole(nameof(RoleName.Administrator));
+                    bool isAutomation    = AutomationAuth.IsAutomation(context.User);
+
+                    return isAdministrator || isAutomation;
+                }));
 
         return services;
     }

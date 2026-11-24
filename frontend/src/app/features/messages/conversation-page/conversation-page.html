@@ -1,0 +1,191 @@
+<section
+  class="flex min-h-0 flex-1 flex-col border-border bg-surface-raised md:rounded-lg md:border"
+  aria-labelledby="conversation-heading"
+>
+  <header class="flex min-h-16 items-center gap-2 border-b border-border px-2 py-2 md:px-4">
+    <!-- On a phone the list is the screen before this one. -->
+    <a
+      class="inline-flex size-11 shrink-0 items-center justify-center rounded-md text-ink-muted hover:bg-surface-sunken hover:text-ink-strong focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus md:hidden"
+      [routerLink]="listAddress"
+      [attr.aria-label]="text().messages.conversation.backLink"
+    >
+      <svg class="size-5" [appIcon]="icons.arrowLeft" aria-hidden="true"></svg>
+    </a>
+
+    @if (friend(); as shownFriend) {
+      <!-- The avatar, the name and the presence are one link to the profile, so the name needs no 44 px
+           of its own and the presence sits right under it. -->
+      <a
+        class="group flex min-h-11 min-w-0 items-center gap-3 rounded-md py-1 pe-2 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-focus"
+        [routerLink]="profileAddress()"
+      >
+        <app-avatar [userId]="shownFriend.id" />
+        <span class="flex min-w-0 flex-col gap-0.5">
+          <h2
+            id="conversation-heading"
+            class="truncate font-semibold text-ink-strong underline-offset-2 group-hover:underline"
+          >
+            {{ shownFriend.username }}
+          </h2>
+          <!-- "typing…" takes the place of the presence while the friend writes; the wrapper stays, so
+               screen readers hear the change. -->
+          <span aria-live="polite">
+            @if (isFriendTyping()) {
+              <span class="text-xs text-ink-muted">{{ text().messages.conversation.typing }}</span>
+            } @else {
+              <app-presence-label [lastActiveAt]="shownFriend.lastActiveAt" />
+            }
+          </span>
+        </span>
+      </a>
+    } @else {
+      <h2 id="conversation-heading" class="min-w-0 truncate font-semibold text-ink-strong">
+        {{ username() }}
+      </h2>
+    }
+  </header>
+
+  @switch (status()) {
+    @case (ConversationOpenStatus.Loading) {
+      <p class="flex flex-1 items-center justify-center p-4 text-sm text-ink-muted" role="status">
+        {{ text().messages.conversation.loading }}
+      </p>
+    }
+    @case (ConversationOpenStatus.NotFound) {
+      <app-empty-state
+        class="flex-1 justify-center"
+        [heading]="text().messages.conversation.notFoundTitle"
+        [message]="text().messages.conversation.notFoundMessage(username())"
+        [headingLevel]="3"
+      >
+        <svg class="size-8 text-ink-muted" [appIcon]="icons.userX" aria-hidden="true"></svg>
+        <!-- On a phone the list is a screen away; beside it, on a wider screen, it needs no link. -->
+        <a appTextLink class="md:hidden" [routerLink]="listAddress">{{
+          text().messages.conversation.listLink
+        }}</a>
+      </app-empty-state>
+    }
+    @case (ConversationOpenStatus.NotFriend) {
+      <app-empty-state
+        class="flex-1 justify-center"
+        [heading]="text().messages.conversation.notFriendTitle"
+        [message]="text().messages.conversation.notFriendMessage(username())"
+        [headingLevel]="3"
+      >
+        <svg class="size-8 text-ink-muted" [appIcon]="icons.userRoundX" aria-hidden="true"></svg>
+        <!-- The profile is where a friend request is sent (ticket 14). -->
+        <a appTextLink [routerLink]="profileAddress()">{{
+          text().messages.conversation.profileLink
+        }}</a>
+        <!-- On a phone the list is a screen away; beside it, on a wider screen, it needs no link. -->
+        <a appTextLink class="md:hidden" [routerLink]="listAddress">{{
+          text().messages.conversation.listLink
+        }}</a>
+      </app-empty-state>
+    }
+    @case (ConversationOpenStatus.Failed) {
+      <app-load-failure
+        class="flex-1 justify-center px-4"
+        [message]="conversation()?.failureMessage ?? ''"
+        [retryLabel]="text().messages.conversation.retryButton"
+        (retry)="retryOpen()"
+      />
+    }
+    @case (ConversationOpenStatus.Ready) {
+      @if (conversation(); as shown) {
+        @if (shown.historyStatus === PageLoadStatus.Ended && !hasMessages()) {
+          <app-empty-state
+            class="flex-1 justify-center"
+            [heading]="text().messages.conversation.emptyTitle"
+            [message]="text().messages.conversation.emptyMessage"
+            [headingLevel]="3"
+          >
+            <svg
+              class="size-8 text-ink-muted"
+              [appIcon]="icons.messageCircleDashed"
+              aria-hidden="true"
+            ></svg>
+          </app-empty-state>
+        } @else {
+          <!-- Reversed, so it opens at the newest message and keeps its place when older ones are added
+               on top (see the class comment). -->
+          <div #history class="flex min-h-0 flex-1 flex-col-reverse overflow-y-auto">
+            <div class="flex flex-col gap-3 p-4">
+              @switch (shown.historyStatus) {
+                @case (PageLoadStatus.Idle) {
+                  @if (hasMessages()) {
+                    <div
+                      appScrollSentinel
+                      [scrollArea]="history"
+                      [side]="SentinelSide.Above"
+                      (reached)="loadOlder()"
+                    ></div>
+                  }
+                }
+                @case (PageLoadStatus.Loading) {
+                  <p class="py-2 text-center text-sm text-ink-muted" role="status">
+                    {{
+                      hasMessages()
+                        ? text().messages.conversation.loadingOlder
+                        : text().messages.conversation.loading
+                    }}
+                  </p>
+                }
+                @case (PageLoadStatus.Failed) {
+                  <app-load-failure
+                    [message]="shown.historyFailure ?? ''"
+                    [retryLabel]="text().messages.conversation.retryButton"
+                    (retry)="loadOlder()"
+                  />
+                }
+                @case (PageLoadStatus.Ended) {
+                  <p class="py-2 text-center text-sm text-ink-muted">
+                    {{ text().messages.conversation.start }}
+                  </p>
+                }
+              }
+
+              @if (hasMessages()) {
+                <!-- A run's messages sit close together; the time under its last one parts it from the next. -->
+                <ol
+                  class="flex flex-col gap-1"
+                  [attr.aria-label]="text().messages.conversation.historyLabel(username())"
+                >
+                  @for (message of shown.messages; track message.id) {
+                    <li>
+                      @let mark = marks().get(message.id);
+                      @if (mark?.startsDay || mark?.followsLongPause) {
+                        <p class="pt-4 pb-2 text-center text-xs text-ink-muted">
+                          <time [attr.datetime]="message.sentAt">{{
+                            mark?.startsDay
+                              ? text().messages.conversation.dayHeading(
+                                  dateFormatter.day(message.sentAt),
+                                  dateFormatter.clockTime(message.sentAt)
+                                )
+                              : dateFormatter.clockTime(message.sentAt)
+                          }}</time>
+                        </p>
+                      }
+                      <app-message-item
+                        [message]="message"
+                        [isOwn]="message.sender.id === signedInUserId()"
+                        [showsTime]="mark?.showsTime ?? true"
+                        [isSending]="shown.sendingIds.has(message.id)"
+                        [isWaitingToDelete]="shown.waitingIds.has(message.id)"
+                        [isFading]="shown.fadingIds.has(message.id)"
+                        [isLastSeen]="message.id === lastSeenOwnId()"
+                      />
+                    </li>
+                  }
+                </ol>
+              }
+            </div>
+          </div>
+        }
+        @if (shown.friend; as shownFriend) {
+          <app-message-form [friendId]="shownFriend.id" (send)="send($event)" />
+        }
+      }
+    }
+  }
+</section>

@@ -1,0 +1,71 @@
+<app-settings-section
+  headingId="settings-profile"
+  [heading]="text().users.settings.profile.heading"
+>
+  <p class="text-sm text-ink-muted">
+    {{ text().users.settings.profile.created(dates.date(profile().registeredAt)) }}
+  </p>
+
+  <form class="flex flex-col gap-5" [formGroup]="form" (ngSubmit)="save()">
+    <app-form-field
+      fieldId="settings-username"
+      [label]="text().auth.register.usernameLabel"
+      [hint]="usernameHint()"
+      [control]="form.controls.username"
+    >
+      <input
+        appTextInput
+        id="settings-username"
+        type="text"
+        autocomplete="username"
+        autocapitalize="none"
+        spellcheck="false"
+        formControlName="username"
+      />
+    </app-form-field>
+
+    <app-form-field
+      fieldId="settings-date-of-birth"
+      [label]="text().auth.register.dateOfBirthLabel"
+      [control]="form.controls.dateOfBirth"
+    >
+      <input
+        appTextInput
+        id="settings-date-of-birth"
+        type="date"
+        autocomplete="bday"
+        formControlName="dateOfBirth"
+      />
+    </app-form-field>
+
+    <app-form-field
+      fieldId="settings-bio"
+      [label]="text().auth.register.bioLabel"
+      [control]="form.controls.bio"
+      [length]="written().bio.length"
+      [maxLength]="limits.bioMaxLength"
+    >
+      <textarea
+        appTextInput
+        id="settings-bio"
+        rows="3"
+        formControlName="bio"
+        [attr.maxlength]="limits.bioMaxLength"
+      ></textarea>
+    </app-form-field>
+
+    @if (failureMessage(); as message) {
+      <app-form-message tone="danger" [message]="message" />
+    }
+
+    <button
+      appButton
+      look="primary"
+      type="submit"
+      class="md:self-start"
+      [disabled]="form.invalid || isSubmitting()"
+    >
+      {{ text().users.settings.profile.submitButton }}
+    </button>
+  </form>
+</app-settings-section>

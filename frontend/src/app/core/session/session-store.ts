@@ -26,6 +26,9 @@ export class SessionStore {
   private readonly session = signal<Session | null>(null);
   // The refresh in flight in this tab, shared by every caller that asks for one meanwhile.
   private pendingRefresh: Promise<boolean> | null = null;
+  // The usernames (lower case) the signed-in user had earlier in this visit, kept from one renaming to the
+  // next and dropped when another user signs in.
+  private formerUsernames = new Set<string>();
 
   readonly accessToken = computed(() => this.session()?.accessToken ?? null);
   readonly user = computed<SessionUser | null>(() => toUser(this.session()));
@@ -116,9 +119,36 @@ export class SessionStore {
     }
   }
 
+  // The signed-in user's current username when the one given is a name they had earlier in this visit (they
+  // renamed themselves), else null. It lets a page opened under the old name lead to the new one.
+  currentUsernameOf(formerUsername: string): string | null {
+    const user = this.user();
+    const isFormerName = user !== null && this.formerUsernames.has(formerUsername.toLowerCase());
+
+    return isFormerName ? user.username : null;
+  }
+
   private start(accessToken: string): void {
     const claims = decodeAccessToken(accessToken);
+    this.updateFormerUsernames(claims);
     this.session.set(claims !== null ? { accessToken, claims } : null);
+  }
+
+  // A token for the same user under another username means a renaming, and the old name is kept; any other
+  // change of user starts the memory again.
+  private updateFormerUsernames(newClaims: AccessTokenClaims | null): void {
+    const previous = this.session()?.claims;
+    const isSameUser = previous !== undefined && newClaims !== null && previous.id === newClaims.id;
+
+    if (isSameUser) {
+      const isRenamed = previous.username !== newClaims.username;
+
+      if (isRenamed) {
+        this.formerUsernames.add(previous.username.toLowerCase());
+      }
+    } else {
+      this.formerUsernames = new Set();
+    }
   }
 
   private inTurn<T>(work: () => Promise<T>): Promise<T> {

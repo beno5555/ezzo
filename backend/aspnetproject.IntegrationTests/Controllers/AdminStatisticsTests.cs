@@ -15,11 +15,11 @@ namespace aspnetproject.IntegrationTests.Controllers;
 
 // GET api/admin/statistics. sandro_beno (1) is the only administrator; alice (2) is an ordinary user.
 // Seeded counts, by what the seeder gives each table:
-//   accounts: 1-5 active, erin_deactivated (6) deactivated, frank_deleted (7) soft-deleted; all created "now"
-//   posts 13: ids 1-5 created now, ids 6-13 on 2026-09-06 (more than 30 days ago)
+//   accounts: 1-5, 8 and 9 active, erin_deactivated (6) deactivated, frank_deleted (7) soft-deleted; all created "now"
+//   posts 19: ids 1-5 created now, 14-18 hours ago, 6-13 on 2026-09-06 and 19 on 2026-09-01 (more than 30 days ago)
 //   comments 6: ids 1-5 created now, id 6 on 2026-09-06
 //   messages 5: ids 1-4 created now, id 5 on 2026-09-01
-//   likes 5, all on 2026-09-06
+//   likes 22, all on 2026-09-06
 //   reports 6: ids 1, 2, 4, 5 pending, id 3 resolved, id 6 rejected
 // The seeder cannot put a row 7 to 30 days old (see testing.md §6), so a window test backdates seeded rows itself
 // with a time taken at that moment, well away from both window edges.
@@ -137,10 +137,10 @@ public class AdminStatisticsTests : IClassFixture<DatabaseFixture>, IAsyncLifeti
 
         var statistics = await GetStatisticsAsync();
 
-        Assert.Equal(13, statistics.Totals.Posts);
+        Assert.Equal(19, statistics.Totals.Posts);
         Assert.Equal(6, statistics.Totals.Comments);
         Assert.Equal(5, statistics.Totals.Messages);
-        Assert.Equal(5, statistics.Totals.Likes);
+        Assert.Equal(22, statistics.Totals.Likes);
     }
 
     [Fact]
@@ -151,7 +151,7 @@ public class AdminStatisticsTests : IClassFixture<DatabaseFixture>, IAsyncLifeti
         var statistics = await GetStatisticsAsync();
 
         // The soft-deleted account (7) is in neither count.
-        Assert.Equal(5, statistics.Totals.ActiveAccounts);
+        Assert.Equal(7, statistics.Totals.ActiveAccounts);
         Assert.Equal(1, statistics.Totals.DeactivatedAccounts);
     }
 
@@ -165,7 +165,7 @@ public class AdminStatisticsTests : IClassFixture<DatabaseFixture>, IAsyncLifeti
 
         var statistics = await GetStatisticsAsync();
 
-        Assert.Equal(13, statistics.Totals.Posts);
+        Assert.Equal(19, statistics.Totals.Posts);
         Assert.Equal(6, statistics.Totals.Comments);
     }
 
@@ -209,12 +209,13 @@ public class AdminStatisticsTests : IClassFixture<DatabaseFixture>, IAsyncLifeti
         var statistics = await GetStatisticsAsync();
 
         // The soft-deleted account (7) is not a counted sign-up; rows with fixed September times are outside both windows.
-        Assert.Equal(6, statistics.Activity.Last7Days.Accounts);
-        Assert.Equal(5, statistics.Activity.Last7Days.Posts);
+        // Posts: 1-5 and heidi's 14-18, which are hours old.
+        Assert.Equal(8, statistics.Activity.Last7Days.Accounts);
+        Assert.Equal(10, statistics.Activity.Last7Days.Posts);
         Assert.Equal(5, statistics.Activity.Last7Days.Comments);
         Assert.Equal(4, statistics.Activity.Last7Days.Messages);
-        Assert.Equal(6, statistics.Activity.Last30Days.Accounts);
-        Assert.Equal(5, statistics.Activity.Last30Days.Posts);
+        Assert.Equal(8, statistics.Activity.Last30Days.Accounts);
+        Assert.Equal(10, statistics.Activity.Last30Days.Posts);
         Assert.Equal(5, statistics.Activity.Last30Days.Comments);
         Assert.Equal(4, statistics.Activity.Last30Days.Messages);
     }
@@ -242,9 +243,10 @@ public class AdminStatisticsTests : IClassFixture<DatabaseFixture>, IAsyncLifeti
 
         var statistics = await GetStatisticsAsync();
 
-        // Posts 3, 4, 5 are inside 7 days and post 1 joins them inside 30; post 2 and the September posts are outside both.
-        Assert.Equal(3, statistics.Activity.Last7Days.Posts);
-        Assert.Equal(4, statistics.Activity.Last30Days.Posts);
+        // Posts 3, 4, 5 and 14-18 are inside 7 days and post 1 joins them inside 30; post 2 and the September posts (6-13, 19)
+        // are outside both.
+        Assert.Equal(8, statistics.Activity.Last7Days.Posts);
+        Assert.Equal(9, statistics.Activity.Last30Days.Posts);
 
         // Comments 4, 5 are inside 7 days; 1 and 2 join them inside 30; comment 3 and comment 6 are outside both.
         Assert.Equal(2, statistics.Activity.Last7Days.Comments);
@@ -254,9 +256,9 @@ public class AdminStatisticsTests : IClassFixture<DatabaseFixture>, IAsyncLifeti
         Assert.Equal(2, statistics.Activity.Last7Days.Messages);
         Assert.Equal(3, statistics.Activity.Last30Days.Messages);
 
-        // Accounts 1, 4, 5, 6 are inside 7 days; 2 joins them inside 30; account 3 is outside both, account 7 is soft-deleted.
-        Assert.Equal(4, statistics.Activity.Last7Days.Accounts);
-        Assert.Equal(5, statistics.Activity.Last30Days.Accounts);
+        // Accounts 1, 4, 5, 6, 8, 9 are inside 7 days; 2 joins them inside 30; account 3 is outside both, account 7 is soft-deleted.
+        Assert.Equal(6, statistics.Activity.Last7Days.Accounts);
+        Assert.Equal(7, statistics.Activity.Last30Days.Accounts);
     }
 
     // ---------- Online now ----------

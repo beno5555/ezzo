@@ -1,13 +1,14 @@
 import { Component, inject } from '@angular/core';
 import { RouterLink } from '@angular/router';
+import { LogoMark } from '../../../shared/logo-mark/logo-mark';
 import { LanguageStore } from '../../languages/language-store';
 import { appAddresses } from '../../routing/app-addresses';
 
-// The product's name as a link to the home address. Until the name and the brand are chosen, the brand
-// lives here and in the design token values only (DESIGN.md, Overview), so a new name changes one file.
+// The logo as a link to the home address. The name is read to screen readers only; it comes from the
+// dictionary.
 @Component({
   selector: 'app-logo',
-  imports: [RouterLink],
+  imports: [LogoMark, RouterLink],
   templateUrl: './logo.html',
   styleUrl: './logo.css',
 })

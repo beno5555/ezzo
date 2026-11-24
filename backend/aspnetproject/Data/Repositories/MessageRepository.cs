@@ -64,37 +64,26 @@ public class MessageRepository : BaseEntityRepository<Message>
         await DeleteWhereAsync(InConversation(userA, userB));
     }
 
+    // Marks incoming messages as read across all pages, even when the caller fetched just one.
+    // Reopening a conversation with no unread messages sends no MessageSeen event.
     public async Task<(bool marked, DateTime seenAt)> MarkConversationAsReadAsync(int readerId, int otherUserId)
     {
-        bool executedSeen = false;
-        var  seenAt       = DateTime.UtcNow;
-        
-        var lastMessage = await _dbSet
-            .Where(InConversation(readerId, otherUserId))
-            .OrderByDescending(message => message.CreatedAt)
-            .FirstOrDefaultAsync();
-        
+        var seenAt = DateTime.UtcNow;
 
-        if (lastMessage is not null &&
-            lastMessage.SenderUserId == otherUserId &&
-            lastMessage.ReceiverUserId == readerId &&
-            !lastMessage.Seen)
-        {
-            await _dbSet
-                .Where(message =>
-                    message.SenderUserId   == otherUserId &&
-                    message.ReceiverUserId == readerId &&
-                    !message.Seen
-                )
-                .ExecuteUpdateAsync(setter => setter
-                    .SetProperty(message => message.Seen,          true)
-                    .SetProperty(message => message.SeenAt,        seenAt)
-                    .SetProperty(message => message.LastUpdatedAt, seenAt));
-            
-            executedSeen = true;
-        }
+        // LastUpdatedAt stays as it is: it marks an edit (Message.IsEdited), and reading is not one.
+        int markedCount = await _dbSet
+            .Where(message =>
+                message.SenderUserId   == otherUserId &&
+                message.ReceiverUserId == readerId &&
+                !message.Seen
+            )
+            .ExecuteUpdateAsync(setter => setter
+                .SetProperty(message => message.Seen,   true)
+                .SetProperty(message => message.SeenAt, seenAt));
 
-        return (executedSeen, seenAt);
+        bool marked = markedCount > 0;
+
+        return (marked, seenAt);
     }
 
     public async Task<int> GetUnreadConversationsCount(int userId)
@@ -106,7 +95,6 @@ public class MessageRepository : BaseEntityRepository<Message>
             .CountAsync();
     }
 
-    // Either direction between the two users.
     private Expression<Func<Message, bool>> InConversation(int userA, int userB)
     {
         return message => (message.SenderUserId == userA && message.ReceiverUserId == userB) ||

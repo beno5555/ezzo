@@ -208,15 +208,19 @@ public class PostControllerTests : IClassFixture<DatabaseFixture>, IAsyncLifetim
     // ---------- GET /posts/{id} ----------
 
     [Fact]
-    public async Task GetById_Anonymous_ReturnsPostWithComments()
+    public async Task GetById_Anonymous_ReturnsPostWithItsCommentCountButNotItsComments()
     {
+        // The comments come by pages from GET api/comments/post/{postId}; a post read must not carry them all.
         var response = await _client.GetAsync("api/posts/2"); // Bob Post, has 3 comments
 
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
 
         var body = await response.Content.ReadAsStringAsync();
         Assert.Contains("Bob Post", body);
-        Assert.Contains("Alice comments on Bob's post.", body);
+        Assert.DoesNotContain("Alice comments on Bob's post.", body);
+        Assert.DoesNotContain("\"comments\"", body, StringComparison.OrdinalIgnoreCase);
+        var post = await ResponseReader.ReadDataAsync<FullPostDisplayDto>(response);
+        Assert.Equal(3, post.CommentCount);
     }
 
     [Fact]
@@ -248,17 +252,6 @@ public class PostControllerTests : IClassFixture<DatabaseFixture>, IAsyncLifetim
 
         var body = await response.Content.ReadAsStringAsync();
         Assert.Contains("Frank Deleted Post", body);
-    }
-
-    [Fact]
-    public async Task GetById_OrphanedComment_ShowsNullOrAnonymizedAuthor()
-    {
-        var response = await _client.GetAsync("api/posts/1"); // Alice Post, has the orphaned comment
-
-        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
-
-        var body = await response.Content.ReadAsStringAsync();
-        Assert.Contains("Orphaned comment with no active author.", body);
     }
 
     // ---------- GET /posts/user/{userId} ----------

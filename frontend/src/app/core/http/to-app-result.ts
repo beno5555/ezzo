@@ -1,10 +1,11 @@
 import { HttpErrorResponse, HttpStatusCode } from '@angular/common/http';
-import { Observable, catchError, firstValueFrom, map, of, throwError } from 'rxjs';
+import { Observable, catchError, firstValueFrom, from, map, of, throwError } from 'rxjs';
 import { Dictionary } from '../languages/dictionary';
 import { AppResult, FieldErrors, fail, ok } from './app-result';
 import { ApplicationResponse } from './application-response';
 
 type HttpFailureTexts = Dictionary['httpFailures'];
+type FailureTextsSource = HttpFailureTexts | (() => Promise<HttpFailureTexts>);
 
 // failureTexts come from the current dictionary, passed in by the …Api method, which can inject LanguageStore.
 export function toAppResult<T>(
@@ -18,7 +19,7 @@ export function toAppResult<T>(
 // and logout (an empty body). Their failures still arrive as the envelope or bodiless.
 export function toAppResultWithoutEnvelope<T>(
   request: Observable<T>,
-  failureTexts: HttpFailureTexts,
+  failureTexts: FailureTextsSource,
 ): Promise<AppResult<T>> {
   return settle(request, (body) => ok(body), failureTexts);
 }
@@ -26,14 +27,22 @@ export function toAppResultWithoutEnvelope<T>(
 function settle<TBody, T>(
   request: Observable<TBody>,
   toSuccess: (body: TBody) => AppResult<T>,
-  failureTexts: HttpFailureTexts,
+  failureTexts: FailureTextsSource,
 ): Promise<AppResult<T>> {
   return firstValueFrom(
     request.pipe(
       map(toSuccess),
       catchError((error: unknown) => {
         const isHttpFailure = error instanceof HttpErrorResponse;
-        return isHttpFailure ? of(toFailure<T>(error, failureTexts)) : throwError(() => error);
+        let failure: Observable<AppResult<T>> = throwError(() => error);
+        if (isHttpFailure) {
+          failure =
+            typeof failureTexts === 'function'
+              ? from(failureTexts()).pipe(map((texts) => toFailure<T>(error, texts)))
+              : of(toFailure<T>(error, failureTexts));
+        }
+
+        return failure;
       }),
     ),
   );

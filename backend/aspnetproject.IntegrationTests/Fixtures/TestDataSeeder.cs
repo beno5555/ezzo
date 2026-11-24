@@ -68,6 +68,19 @@ public static class TestDataSeeder
                     PasswordSalt = sharedPasswordSalt,
                     AccountDeletedAt = new DateTime(2026, 8, 12, 12, 0, 0, DateTimeKind.Utc),
                     CreatedAt = DateTime.UtcNow
+                },
+                // The digest's friends' posts (DigestTests): grace's accepted friends are heidi and erin_deactivated, nobody else's.
+                new User
+                {
+                    Id = 8, Username = "grace", Email = "grace@example.com", Bio = "Digest recipient",
+                    DateOfBirth = new DateTime(2000, 1, 1), PasswordHash = sharedPasswordHash,
+                    PasswordSalt = sharedPasswordSalt, CreatedAt = DateTime.UtcNow
+                },
+                new User
+                {
+                    Id = 9, Username = "heidi", Email = "heidi@example.com", Bio = "Writes the posts in grace's digest",
+                    DateOfBirth = new DateTime(2000, 1, 1), PasswordHash = sharedPasswordHash,
+                    PasswordSalt = sharedPasswordSalt, CreatedAt = DateTime.UtcNow
                 }
             );
 
@@ -129,6 +142,17 @@ public static class TestDataSeeder
                 new Friendship
                 {
                     Id = 5, RequesterUserId = 3, AddresseeUserId = 5, FriendshipStatus = FriendshipStatus.Accepted,
+                    SentAt = DateTime.UtcNow, LastUpdatedAt = DateTime.UtcNow
+                },
+                // grace is the requester of one and the addressee of the other, so the digest reads both directions.
+                new Friendship
+                {
+                    Id = 6, RequesterUserId = 8, AddresseeUserId = 9, FriendshipStatus = FriendshipStatus.Accepted,
+                    SentAt = DateTime.UtcNow, LastUpdatedAt = DateTime.UtcNow
+                },
+                new Friendship
+                {
+                    Id = 7, RequesterUserId = 6, AddresseeUserId = 8, FriendshipStatus = FriendshipStatus.Accepted,
                     SentAt = DateTime.UtcNow, LastUpdatedAt = DateTime.UtcNow
                 }
             );
@@ -210,6 +234,43 @@ public static class TestDataSeeder
                 {
                     Id = 13, UserId = 4, PostTitle = "Charlie Twin Post", PostContent = "Scores the same as the quiet post.",
                     CreatedAt = new DateTime(2026, 9, 6, 8, 0, 0, DateTimeKind.Utc)
+                },
+                // heidi's, for grace's digest. The fresh ones sit hours before the seed, well inside the digest's 7 days: an
+                // offset, not now minus the window, so a change of the window cannot move them across it. Likes are below.
+                //   14: 3 likes, 3 hours old
+                //   15 and 16: 1 like each, a tie; 15 is the newer (1 hour against 2), and the lower id
+                //   17: no likes, the newest, so it is fourth and left out
+                //   18: 4 likes, the most; DigestTests hides it through the moderation route
+                //   19: 4 likes, but at a fixed past time, outside the window
+                new Post
+                {
+                    Id = 14, UserId = 9, PostTitle = "Heidi Top Post", PostContent = "Three likes this week.",
+                    CreatedAt = DateTime.UtcNow.AddHours(-3)
+                },
+                new Post
+                {
+                    Id = 15, UserId = 9, PostTitle = "Heidi Newer Tie Post", PostContent = "One like, an hour old.",
+                    CreatedAt = DateTime.UtcNow.AddHours(-1)
+                },
+                new Post
+                {
+                    Id = 16, UserId = 9, PostTitle = "Heidi Older Tie Post", PostContent = "One like, two hours old.",
+                    CreatedAt = DateTime.UtcNow.AddHours(-2)
+                },
+                new Post
+                {
+                    Id = 17, UserId = 9, PostTitle = "Heidi Unliked Post", PostContent = "No likes yet.",
+                    CreatedAt = DateTime.UtcNow.AddMinutes(-30)
+                },
+                new Post
+                {
+                    Id = 18, UserId = 9, PostTitle = "Heidi Popular Post", PostContent = "Four likes this week.",
+                    CreatedAt = DateTime.UtcNow.AddHours(-4)
+                },
+                new Post
+                {
+                    Id = 19, UserId = 9, PostTitle = "Heidi Old Post", PostContent = "Four likes, long ago.",
+                    CreatedAt = new DateTime(2026, 9, 1, 12, 0, 0, DateTimeKind.Utc)
                 }
             );
 
@@ -300,7 +361,26 @@ public static class TestDataSeeder
                 new PostLike { Id = 2, PostId = 2, UserId = 4, CreatedAt = new DateTime(2026, 9, 6, 10, 1, 0, DateTimeKind.Utc) },
                 new PostLike { Id = 3, PostId = 2, UserId = 6, CreatedAt = new DateTime(2026, 9, 6, 10, 2, 0, DateTimeKind.Utc) },
                 new PostLike { Id = 4, PostId = 1, UserId = 3, CreatedAt = new DateTime(2026, 9, 6, 10, 3, 0, DateTimeKind.Utc) },
-                new PostLike { Id = 5, PostId = 9, UserId = 5, CreatedAt = new DateTime(2026, 9, 6, 10, 4, 0, DateTimeKind.Utc) }
+                new PostLike { Id = 5, PostId = 9, UserId = 5, CreatedAt = new DateTime(2026, 9, 6, 10, 4, 0, DateTimeKind.Utc) },
+                // For grace's digest: heidi's posts 14 to 19 (see Posts), and four on erin's post 4, so a deactivated friend's
+                // post would outrank everything if it were not left out.
+                new PostLike { Id = 6,  PostId = 14, UserId = 2, CreatedAt = new DateTime(2026, 9, 6, 10, 5, 0, DateTimeKind.Utc) },
+                new PostLike { Id = 7,  PostId = 14, UserId = 3, CreatedAt = new DateTime(2026, 9, 6, 10, 6, 0, DateTimeKind.Utc) },
+                new PostLike { Id = 8,  PostId = 14, UserId = 4, CreatedAt = new DateTime(2026, 9, 6, 10, 7, 0, DateTimeKind.Utc) },
+                new PostLike { Id = 9,  PostId = 15, UserId = 2, CreatedAt = new DateTime(2026, 9, 6, 10, 8, 0, DateTimeKind.Utc) },
+                new PostLike { Id = 10, PostId = 16, UserId = 3, CreatedAt = new DateTime(2026, 9, 6, 10, 9, 0, DateTimeKind.Utc) },
+                new PostLike { Id = 11, PostId = 18, UserId = 1, CreatedAt = new DateTime(2026, 9, 6, 10, 10, 0, DateTimeKind.Utc) },
+                new PostLike { Id = 12, PostId = 18, UserId = 2, CreatedAt = new DateTime(2026, 9, 6, 10, 11, 0, DateTimeKind.Utc) },
+                new PostLike { Id = 13, PostId = 18, UserId = 3, CreatedAt = new DateTime(2026, 9, 6, 10, 12, 0, DateTimeKind.Utc) },
+                new PostLike { Id = 14, PostId = 18, UserId = 4, CreatedAt = new DateTime(2026, 9, 6, 10, 13, 0, DateTimeKind.Utc) },
+                new PostLike { Id = 15, PostId = 19, UserId = 1, CreatedAt = new DateTime(2026, 9, 6, 10, 14, 0, DateTimeKind.Utc) },
+                new PostLike { Id = 16, PostId = 19, UserId = 2, CreatedAt = new DateTime(2026, 9, 6, 10, 15, 0, DateTimeKind.Utc) },
+                new PostLike { Id = 17, PostId = 19, UserId = 3, CreatedAt = new DateTime(2026, 9, 6, 10, 16, 0, DateTimeKind.Utc) },
+                new PostLike { Id = 18, PostId = 19, UserId = 4, CreatedAt = new DateTime(2026, 9, 6, 10, 17, 0, DateTimeKind.Utc) },
+                new PostLike { Id = 19, PostId = 4,  UserId = 1, CreatedAt = new DateTime(2026, 9, 6, 10, 18, 0, DateTimeKind.Utc) },
+                new PostLike { Id = 20, PostId = 4,  UserId = 2, CreatedAt = new DateTime(2026, 9, 6, 10, 19, 0, DateTimeKind.Utc) },
+                new PostLike { Id = 21, PostId = 4,  UserId = 3, CreatedAt = new DateTime(2026, 9, 6, 10, 20, 0, DateTimeKind.Utc) },
+                new PostLike { Id = 22, PostId = 4,  UserId = 5, CreatedAt = new DateTime(2026, 9, 6, 10, 21, 0, DateTimeKind.Utc) }
             );
 
             await db.SaveChangesAsync();
@@ -393,12 +473,12 @@ public static class TestDataSeeder
             await db.SaveChangesAsync();
         });
 
-        await db.Database.ExecuteSqlRawAsync("DBCC CHECKIDENT ('Users', RESEED, 7)");
-        await db.Database.ExecuteSqlRawAsync("DBCC CHECKIDENT ('Friendships', RESEED, 5)");
-        await db.Database.ExecuteSqlRawAsync("DBCC CHECKIDENT ('Posts', RESEED, 13)");
+        await db.Database.ExecuteSqlRawAsync("DBCC CHECKIDENT ('Users', RESEED, 9)");
+        await db.Database.ExecuteSqlRawAsync("DBCC CHECKIDENT ('Friendships', RESEED, 7)");
+        await db.Database.ExecuteSqlRawAsync("DBCC CHECKIDENT ('Posts', RESEED, 19)");
         await db.Database.ExecuteSqlRawAsync("DBCC CHECKIDENT ('Messages', RESEED, 5)");
         await db.Database.ExecuteSqlRawAsync("DBCC CHECKIDENT ('Comments', RESEED, 6)");
-        await db.Database.ExecuteSqlRawAsync("DBCC CHECKIDENT ('PostLikes', RESEED, 5)");
+        await db.Database.ExecuteSqlRawAsync("DBCC CHECKIDENT ('PostLikes', RESEED, 22)");
         await db.Database.ExecuteSqlRawAsync("DBCC CHECKIDENT ('Logs', RESEED, 5)");
         await db.Database.ExecuteSqlRawAsync("DBCC CHECKIDENT ('Reports', RESEED, 6)");
     }

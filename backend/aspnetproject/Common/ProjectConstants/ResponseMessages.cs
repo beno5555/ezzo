@@ -73,6 +73,8 @@ public static class ResponseMessages
     public const string ProfileRetrieved = $"Profile {Retrieved} {Successfully}";
     public const string ProfileEdited    = $"Profile {Edited} {Successfully}";
 
+    public const string DigestEmailUpdated = $"Digest email setting {Updated} {Successfully}";
+
     public const string CouldNotDeactivateAccount    = $"{CouldNot} {Deactivate} Account";
     public const string ReactivationTokenSentOnEmail = $"Reativation token {Sent} on Email";
 
@@ -91,12 +93,22 @@ public static class ResponseMessages
 
     public const string LogsRetrieved     = $"Logs {Retrieved} {Successfully}";
     public const string AccountsRetrieved = $"Accounts {Retrieved} {Successfully}";
+    public const string DigestRetrieved   = $"Digest recipients {Retrieved} {Successfully}";
     public const string InvalidDateRange  = "The start of the date range must not be after its end";
 
     public const string StatisticsRetrieved = $"Statistics {Retrieved} {Successfully}";
 
     public const string ModerationStatusUpdated  = $"Moderation status {Updated} {Successfully}";
     public const string ModerationQueueRetrieved = $"Moderation queue {Retrieved} {Successfully}";
+
+    public const string AutomationMayOnlyRaiseModerationStatus = "The automation may only raise a moderation status";
+
+    #endregion
+
+    #region Internal
+
+    public const string BirthdaysRetrieved = $"Birthdays {Retrieved} {Successfully}";
+    public const string NotificationSent   = "Notification sent to every recipient who is connected";
 
     #endregion
     
