@@ -28,7 +28,7 @@ Every command below runs from the repo root. It needs Docker Desktop running (`d
    ```
 
    It creates `n8n/.env` and `n8n/credentials.json` from their examples if they are missing, generates n8n's encryption key once, and generates the signing secret and the automation's API key. It writes both into `n8n/credentials.json` (the Crypto credential `wcSigningSecret1`, the header credential `wcAutomationKey1`) and into the backend's development settings (`AutomationEvents:SigningSecret`, `AutomationApi:Key`), and turns events on there with n8n's address (`AutomationEvents:Enabled`, `AutomationEvents:BaseUrl`). It prints which values it kept, generated or copied, never a value. Running it again changes nothing. When the two sides disagree, the backend's value wins.
-3. **Fill in the remaining `change-me` values.** In `n8n/.env`: `TELEGRAM_DEVELOPERS_CHAT_ID`, `TELEGRAM_ADMINISTRATORS_CHAT_ID`, and the addresses. In `n8n/credentials.json`: the Telegram bot's `accessToken`, and the SMTP and OpenAI entries once a workflow needs them.
+3. **Fill in the remaining `change-me` values.** In `n8n/.env`: `TELEGRAM_DEVELOPERS_CHAT_ID`, `TELEGRAM_ADMINISTRATORS_CHAT_ID`, and the addresses. In `n8n/credentials.json`: the Telegram bot's `accessToken`, and the SMTP and OpenAI entries once a workflow needs them. **Chat ids:** a private chat's id is your own user id (`@userinfobot` tells it), and the bot can write there only after you pressed Start in its chat. For a group, add the bot, send `/start` in the group (a bot in a group sees only commands by default), and open `https://api.telegram.org/bot<token>/getUpdates`: the group's id is the negative `chat.id`. If Telegram turns the group into a supergroup, its id changes to one that starts with `-100` (`migrate_to_chat_id` in `getUpdates`).
 4. **Start n8n:**
 
    ```powershell
@@ -52,6 +52,7 @@ Every command below runs from the repo root. It needs Docker Desktop running (`d
 
   A new workflow gets its fixed id in its file before its first import (16 letters and digits, the shape of n8n's own ids, e.g. `wcExceptionAlert`), and `-File <name>.json` on its first export.
 - **Never change `N8N_ENCRYPTION_KEY`** once n8n has started with it. The volume's credentials are encrypted with it, and n8n refuses to start with another key. To start over: `docker compose -f n8n/compose.yaml down -v` (this deletes the volume: the owner account and the run history), then `up -d`.
+- **One n8n for every checkout.** The compose file fixes the project name (`ezzo-n8n`), so the main checkout and every worktree share one container and one volume. Run `setup.ps1`, `up -d` and the backend from the same folder. Setup in a second checkout generates a second encryption key that the volume refuses; copy the first checkout's `n8n/.env`, `n8n/credentials.json` and the `AutomationEvents` and `AutomationApi` sections of `appsettings.Development.json` there instead.
 - **What a crash does.** n8n has `restart: unless-stopped`: Docker starts it again when its process dies, and the import does not run again. `docker kill` and `docker stop` count as stopping it by hand, so after either one it stays down until the next `up -d`.
 
 ## Addresses
