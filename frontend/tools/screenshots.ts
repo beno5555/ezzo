@@ -1,7 +1,4 @@
-// The screenshot command (docs/agents/screenshots.md). From the repo root:
-//   npm run screenshots --prefix frontend -- / /register              as a guest: 12 images per app address
-//   npm run screenshots --prefix frontend -- /admin/users --signed-in signed in as the development account
-//   npm run screenshots --prefix frontend -- https://example.com      an outside address: 3 images
+// See docs/agents/screenshots.md for commands and account setup.
 // Playwright takes the pictures. This script exists because the app rotates its refresh token on every page
 // load, so a saved sign-in lasts one page: the script signs in once and keeps one browser for every image.
 import { existsSync, mkdirSync } from 'node:fs';

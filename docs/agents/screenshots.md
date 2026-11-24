@@ -5,7 +5,7 @@ Two tools let an agent see the frontend; both are built on Playwright.
 - **The screenshot command** (`frontend/tools/screenshots.ts`, one script) photographs a list of addresses at every width, theme and language a page must be checked in (`frontend/CLAUDE.md`, `DESIGN.md` Layout). Use it to check a page you built and to hand the owner pictures to approve.
 - **The Playwright MCP server** gives both agents browser tools to open a page, click, type, read the page, and take a screenshot. Use it for a flow or a state that the screenshot command cannot reach, such as an open menu or a form with an error.
 
-For single screenshots, favour the dark theme about 80 % of the time (`frontend/CLAUDE.md`).
+Use the [frontend theme guidance](../../frontend/CLAUDE.md#hard-rules) for single screenshots.
 
 The Claude in Chrome extension is the fallback when the server is not available ("Running the app" in the root `CLAUDE.md`).
 
@@ -15,7 +15,7 @@ Start the backend and the frontend first ("Running the app"), then, from the rep
 
 ```bash
 npm run screenshots --prefix frontend -- / /register                # as a guest
-npm run screenshots --prefix frontend -- / /admin/users --signed-in # signed in as the development account
+npm run screenshots --prefix frontend -- / /friends --signed-in      # signed in as the development account
 npm run screenshots --prefix frontend -- https://example.com        # an outside address
 ```
 
@@ -41,7 +41,7 @@ A signed-in run signs in through the app's real sign-in form as a development ac
 
 Set them in the environment, or put them in `frontend/.env` (gitignored), one `NAME=value` per line; a variable already set in the environment wins. The command never prints them: any message that would contain one shows `[hidden]` instead.
 
-Register the account through the dev backend's register endpoint and write its name and password to `frontend/.env` in the main checkout. The first one, registered on 2026-11-18, was lost on 2026-11-19 along with its worktree's `.env`, so the next signed-in run starts by registering a new one. A new worktree does not get that file, so copy it in by hand. **Before you remove a worktree, copy its `frontend/.env` to the main checkout if the main checkout has none:** `git worktree remove --force` deletes gitignored files too, and they exist nowhere else. A fresh development database needs a new account.
+Register a development account for the database you use and save its credentials in `frontend/.env` in the main checkout. Copy the file into any worktree that needs a signed-in run. Before removing a worktree, copy its `frontend/.env` to the main checkout if the worktree has the only copy. Removing the worktree deletes its gitignored files.
 
 **An administrator account** for checking the administrator's side of a page lives beside it in the same file: `WEBCITY_ADMIN_USER` and `WEBCITY_ADMIN_PASSWORD`. The screenshot command does not read them; sign in with them through the sign-in form. A new development database needs a new one: register the account, then give it the role with the `INSERT INTO UserRoles` statement in `cloud-backend.md` (for the local database: `sqlcmd -S localhost -d SocialMediaWebApiDb -E -C`).
 

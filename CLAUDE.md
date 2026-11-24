@@ -34,15 +34,14 @@ The backend has no linter or formatter. **Frontend:** run from `frontend/` (Node
 
 ### Config prerequisites
 
-`appsettings.json`, `appsettings.Development.json` and `appsettings.Testing.json` are **gitignored**, live in `backend/aspnetproject/`, and have no example template, so a fresh clone will not run until they exist. Required: `ConnectionStrings:DefaultConnection`, `Jwt:{Key,AccessTokenMinutes,RefreshTokenDays}`, `EmailConfiguration:*` (`Enabled` defaults to true), `PasswordConfiguration:ResetTokenMinutes`, `CleanupConfiguration:{RefreshTokens,SoftDeletedUsers,OldLogs}`, `Cors:AllowedOrigins`. The rest (`ImageStorage`, `CleanupConfiguration:OrphanImages`, `PasswordConfiguration:HashIterations`, `AutomationEvents`, `AutomationApi:Key`) is optional: defaults are in each `*Configuration` class, and startup checks in the area doc; `pwsh -File n8n/setup.ps1` writes the automation settings and the key into `appsettings.Development.json`. Never print or commit their values.
+Use the [development setup](README.md#running-it) for local appsettings and the [test settings guide](docs/backend/testing.md#local-test-settings) for direct test runs. Keep appsettings files in `backend/aspnetproject/` and never print or commit their secret values.
 
 ### Integration tests
 
-- They need a **real local SQL Server** (Windows authentication). Linux and cloud sessions run `scripts/test-linux.sh` instead, which needs Docker and the .NET 10 SDK; a cloud session without a prepared environment installs the SDK first with `apt-get update && apt-get install -y dotnet-sdk-10.0`.
-- Write tests by the `webcity-conventions` skill's `references/testing.md`. Tests rely on the deterministic ids of `Fixtures/TestDataSeeder`.
-- `CustomWebApplicationFactory` lets nothing leave the process: it records mail (`factory.EmailRecorder.Emails`) and, on a host made with `recordEvents: true`, automation events; it runs no hosted job (a test runs one through `RunOnceAsync`); its constructor takes setting overrides for one host. Seeded users sign in only on Testing hosts.
+- The suite needs SQL Server. On Linux, `scripts/test-linux.sh` sets up SQL Server in Docker and needs the .NET 10 SDK. A cloud session without the SDK installs it with `apt-get update && apt-get install -y dotnet-sdk-10.0`.
+- Use the [testing conventions](.claude/skills/webcity-conventions/references/testing.md) and the deterministic ids from `Fixtures/TestDataSeeder`.
 - Whenever you report a test run to the owner, include how long it took: the `Duration:` from the summary line that `dotnet test` and `scripts/test-linux.sh` print.
-- The database pool, parallel classes, the recorded seed and the factory in full: `docs/backend/testing.md`.
+- See [integration test infrastructure](docs/backend/testing.md) for the database pool, recorded seed and test host.
 
 ## Architecture
 
@@ -55,7 +54,7 @@ All application code lives in `backend/aspnetproject/`. Dependencies point one w
 - **Account states.** A global query filter on `User` hides deactivated and soft-deleted users from normal reads. `LastUpdatedAt` is nullable, stamped by services, and carries meaning (`Message.IsEdited`).
 - **Real-time.** One hub, `MessageHub`. Services push through `IHubContext` in the same method that mutates the data, and hubs do no validation. Details: `signalr.md`.
 - **Auth.** `BaseController` provides `GetUserId()`, `GetUsername()` and `IsAdministrator()`. `[Authorize]` is set per controller, with `[AllowAnonymous]` overrides. Nearly every action has `[EnableRateLimiting(RateLimitConfig.Policies.X)]`: per-IP before login, per-user after. `UseRateLimiter` sits between `UseAuthentication` and `UseAuthorization`; keep it there, or every per-user limit silently falls back to the IP.
-- **Allowed origins.** `Cors:AllowedOrigins` drives both the `OriginPolicy` CORS policy (with credentials) and `UrlSecurityService`'s check of the return addresses in password-reset and reactivation emails. With no origins configured, every redirect URL is rejected, so in development it must list `http://localhost:4200`. Details: `auth.md`.
+- **Allowed origins.** `Cors:AllowedOrigins` drives both the `OriginPolicy` CORS policy with credentials and the [return-address allowlist](docs/backend/auth.md#return-address-redirecturl-on-the-reset-and-reactivation-requests) for password reset and reactivation. See [development setup](README.md#running-it) for the frontend origin.
 - **Files.** `ImageStorage` (`Infrastructure/Services/Storage`) is the only code that touches uploaded files; the database stores each image's relative address under `/api/images/`. Details: Images in `controllers.md`.
 - **DTO tiers.** Output DTOs come in Minimal, Standard and Full tiers by audience, built by static mappers in `Infrastructure/Mappers`. Entities are never returned.
 

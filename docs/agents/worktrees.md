@@ -1,6 +1,6 @@
 # Parallel local sessions in worktrees
 
-Two local Claude sessions can implement two tickets at once, each in its own git worktree on its own branch. The main checkout stays on `master`.
+Give each parallel lane its own ticket branch and git worktree. Use the main checkout to integrate finished lanes.
 
 ## Start a lane
 
@@ -16,8 +16,8 @@ Pick tickets that touch different files. The ticket's "What to build" names the 
 
 ## What differs inside a worktree
 
-- **Test databases.** With `ConnectionStrings__DefaultConnection` unset, the suite's pool of test databases is named after the worktree folder: `TestSocialMediaWebApiDb_<name>_1` to `_4`, with any character other than a letter or digit turned into `_` (`TestDatabaseNames`). Each test class borrows one, and its `CustomWebApplicationFactory` gives the app under test that database's connection string. The first run creates and migrates them. The main checkout's pool is `TestSocialMediaWebApiDb_1` to `_4`. Every name ends in its number, so two checkouts' suites never share a database.
-- **Sync.** Skip CLAUDE.md's "pull on `master`" step: `master` is checked out in the main checkout, and the worktree already starts from a fresh `origin/master`.
+- **Test databases.** By default, a linked worktree gets a pool named after its folder. See [database pool and connection overrides](../backend/testing.md#the-database-pool).
+- **Sync.** Fetch from the worktree. The [pull on `master`](../../CLAUDE.md#agent-workflow) applies to the main checkout.
 - **Skills.** The worktree has its own copy of `.claude/skills/`, separate from the junctions in `~/.claude/skills/` (see `skills.md`). Editing a skill there is fine: the edit is committed on the lane's branch and reaches the shared copy with that branch.
 
 ## Finish a lane
