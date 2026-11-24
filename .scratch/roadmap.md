@@ -56,7 +56,7 @@ Backend lane: n8n 08 and 11 are finished on their worktree branches and parked: 
 8. [x] **Sat 21: admin panel.** Users (create, edit, deactivate, restore, delete, grant and remove the administrator role), delete any post or comment, logs, statistics, the reports list, the moderation queue. F22 to F24 are merged.
 9. [ ] **n8n, late: Tue 24 and the night into Wed 25.** The owner's windows (2026-11-24): Tue 8 to 10 am, Tue 4 to 8 pm, and after midnight into Wed 25, as far as usage allows. The limit is the owner: a workflow ticket is done only when the owner has run its checklist.
    - Merged: the backend tickets 01, 03 and 04, and the setup (02).
-   - Ticket 02 is done: the owner ran its checklist (2026-11-24).
+   - Tickets 02, 05, 06 and 07 are done: the owner ran their checklists (2026-11-24).
    - Order: 02's checklist, then 05 (welcome email), then 07 (report alert, hiding after five reports), then 06 (AI moderation) only if the OpenAI key is ready. Then the owner reviews and merges the parked backend branches 08 and 11, then 09 with 10 (digest) or 12 with 13 (birthdays). Alert grouping (14) is last; 15 is after the deadline.
    - Realistic count: 02, 05 and 07 firm; 06 if the key is ready; one of the digest or birthday pairs if the evening goes well. What is left stays under Last in line.
    - Needs from the owner: the Telegram bot token and the chat ids, the OpenAI key (before ticket 06), and the administrator address. n8n uses the same SMTP account as the backend's `EmailConfiguration`.
