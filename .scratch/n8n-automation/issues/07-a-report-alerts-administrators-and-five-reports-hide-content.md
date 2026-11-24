@@ -76,3 +76,10 @@ Ticket 01 built the backend's sending side (`EventPublisher`, `docs/backend/auto
     2. `docker compose -f n8n/compose.yaml up -d`. `docker compose -f n8n/compose.yaml logs n8n-import` shows `Publishing workflow with ID: wcReportHandling`.
     3. `dotnet run --project backend/aspnetproject --launch-profile https` and `npm start --prefix frontend`.
     4. Go through "Report handling" in `n8n/README.md` with five accounts besides the author, plus an administrator.
+- **2026-11-24, the owner's decisions before the review (Opus 5.5, in ticket 06's session).** A fresh `/revise` session runs the review; it copies these into its round heading.
+  - **`escapeHtml` and the other copied helpers stay copied.** The exception is written under "n8n Code nodes" in the conventions skill's `references/other-languages.md`. It is no longer an open item.
+  - **The session runs the whole checklist itself,** through the backend's API, not the owner. The owner only looks at the Telegram chat at the end.
+    - *Accounts:* register six test accounts in the owner's dev database: `n8n-author` and `n8n-reporter-1` to `n8n-reporter-5`. The addresses are the app's Gmail with a plus tag (`webcity280+n8n-author@gmail.com`, ...), so their welcome emails (ticket 05) land in the app's own inbox. The accounts stay afterwards. Registration allows 10 per hour per IP.
+    - *Proof:* Telegram and email delivery are read from n8n's run log. The node output shows Telegram's and Gmail's answer, as ticket 06's revision did: `node:sqlite` and `flatted` inside the `n8n` container, on `/home/node/.n8n/database.sqlite`. A hide is checked as another user through the API. Pending reports are read from the dev database (`sqlcmd`, Windows authentication, read-only). That an administrator can decide them is covered by `ReportControllerTests`.
+    - *The settings box:* the session lowers `reportsToHide`, proves it, sets it back and loads it again.
+    - *Already running:* the backend on 7102 (this worktree's build) and n8n.
