@@ -40,6 +40,13 @@ public class UserConfiguration : IEntityTypeConfiguration<User>
         builder.Property(user => user.Bio)
             .HasMaxLength(Constants.BioMaxLength);
 
+        // The database default gives existing users the digest when the column is added. The sentinel is true, so EF Core
+        // leaves the column out of an insert only when the value is true and always writes false; with the CLR default
+        // (false) as the sentinel, a user saved with the switch off would get the database's true instead.
+        builder.Property(user => user.DigestEmailEnabled)
+            .HasDefaultValue(true)
+            .HasSentinel(true);
+
         builder.Property(user => user.ResetTokenHash)
             .IsRequired(false)
             .HasMaxLength(44);

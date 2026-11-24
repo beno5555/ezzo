@@ -247,15 +247,18 @@ Route: `api/users`. Inherits `BaseController`. `[Authorize]` at controller level
 | GET    | `api/users/mine`       | Required        | Caller's own full profile, `FullUserDto` (includes email + roles)                                |
 | GET    | `api/users/search`     | Anonymous       | Username-substring search, `SearchUserQuery`, `ListResponse<SearchUserDto>`; a signed-in caller also gets their friendship with each result (`SearchUserDto`, under DTO tiers) |
 | PUT    | `api/users/mine`       | Required        | Edit own profile (username, DOB, bio)                                                            |
+| PUT    | `api/users/mine/digest-email` | Required | Switch the weekly digest on or off, `SetDigestEmailDto` (`{ "enabled": bool }`, required), returns `FullUserDto`. Policy `SetDigestEmail` (30/hour) |
 | PUT    | `api/users/{id:int}`   | `Administrator` | Edit another user's profile                                                                      |
 
 **`POST api/users` reuses `AuthService.RegisterAsync`** rather than a separate admin-create path in `AccountManagementService` — unlike the earlier design note that anticipated keeping admin-create and self-registration deliberately separate, they now share one code path; admin-vs-self distinction is only the route/authorization, not the underlying service call.
 
 **DTO tiers**, shape-by-audience:
-- `FullUserDto` — Id, Username, Email, Bio, `Roles` (list of role names), RegisteredAt, DateOfBirth, `UsernameLastChangedAt` (null when the username was never changed). Only returned for the caller's own profile or a freshly-registered account.
+- `FullUserDto` — Id, Username, Email, Bio, `Roles` (list of role names), RegisteredAt, DateOfBirth, `UsernameLastChangedAt` (null when the username was never changed), `DigestEmailEnabled`. Only returned for the caller's own profile or a freshly-registered account (and by the two administrator routes that reuse it, `POST api/users` and `PUT api/users/{id:int}`).
 - `StandardUserDto` — Id, Username, Bio, DateOfBirth (no email, no roles, **no joined date**). Public single-fetch, by id and by username. The joined date is private: only the user (in `FullUserDto`) and administrators (`AdminUserDto.RegisteredAt`) see it.
 - `MinimalUserDto` — nullable Id + Username. Lists of people (likers, friends).
 - `SearchUserDto` — Id (never null: the search skips deactivated and deleted accounts), Username, and `Relationship` (`RelationshipDto`: `Status`, and `IsRequester`, true when the caller sent the request). `Relationship` is null for a guest, for the caller's own row, and for a user the caller has no friendship with. One query reads the friendships of the whole page (`FriendshipRepository.GetFriendshipsWithAsync`), so the search page can show the right friendship button on each row without a call per row. A declined request is reported as `Declined`, as `GET api/friendships/{id}` does.
+
+**The digest switch.** `User.DigestEmailEnabled`, on for every account until its owner turns it off. Only `PUT api/users/mine/digest-email` changes it: it is not a field of `EditUserDto`, because that edit replaces the whole profile, and a client that did not know the field would switch the digest off without meaning to. So neither the user's own profile edit nor an administrator's edit touches it. The change writes a `Log` row (`UserService.SetDigestEmailAsync`).
 
 **Username change cooldown.** `User.UsernameLastChangedAt` (nullable, null = never changed), returned to its owner in `FullUserDto.UsernameLastChangedAt` so the settings page can show when the username can change again. `EditUserProfileAsync` only blocks the edit if the username itself changed and the cooldown (`Constants.UsernameChangeCooldownDays`, 20 days) hasn't elapsed; a bio/DOB-only edit never touches this field or the cooldown. Collapses into the same mixed-meaning `BadRequest` bucket ("not found" vs. "cooldown active" aren't told apart at the HTTP layer).
 
@@ -344,3 +347,18 @@ Route: `api/admin`, the same as `AdminController`, but its own class: an `[Autho
 | Hidden | `403` | succeeds, no change | `403` |
 
 A refusal is `403` with the failure envelope (`ResponseMessages.AutomationMayOnlyRaiseModerationStatus`), written by the controller from `ModerationResponse.Refused`, so a client can tell it from a missing post (`404`). The status is unchanged afterwards. Setting the status the content already has succeeds and changes nothing. An id that does not exist answers `404` whatever the automation sends, which the workflows treat as nothing to do. The routes still do not touch reports. A refusal writes a failed `Log` row, and every row for the automation follows the rule in `auth.md` (no user id, authorized, names the automation).
+
+### `InternalController`
+
+Route: `api/internal`, in `Controllers/Automation`. `[Authorize(Policy = AutomationAuth.Policies.AutomationOnly)]`: only the automation's API key opens it. A guest, a wrong key and any user's token, an administrator's included, get `401`.
+
+| Method | Route                 | Notes                                                                                                                       |
+|--------|-----------------------|-----------------------------------------------------------------------------------------------------------------------------|
+| GET    | `api/internal/digest` | Who gets the weekly digest and what it says, `PageQuery`, `ListResponse<DigestRecipientDto>`, ordered by user id. Policy `ReadDigest` (120/minute) |
+
+**The digest list** (`DigestService`, `UserRepository.GetDigestRecipientsAsync`, one query). A row is a user with `DigestEmailEnabled` on and something to report; a user with nothing gets no row. Each row carries `id`, `username`, `email`, and:
+- `unreadConversationCount`: distinct senders of the user's unseen messages, the count the app's badge shows (`MessageRepository.GetUnreadConversationsCount`).
+- `pendingFriendRequestCount`: pending requests the user received.
+- `posts`: up to `Constants.DigestPostLimit` (3) posts by the user's accepted friends, either direction of the friendship, created in the last `Constants.DigestPostWindow` (7 days) and not `Hidden` (`Flagged` ones stay in). Most-liked first, newer first on a tie. Each is `DigestPostDto`: `id`, `title`, `authorUsername`, `likeCount` (every like, as the post reads count them).
+
+Deactivated and soft-deleted users are left out as recipients and as authors by the `User` query filter. The author check goes through the filtered user set, not `post.User`: the filter turns that navigation into a LEFT JOIN, so a hidden author would read as null and pass a check on its dates. A successful read writes no `Log` row, like the administrator's account list.

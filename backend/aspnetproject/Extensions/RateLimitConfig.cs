@@ -24,6 +24,10 @@ public static class RateLimitConfig
         public const string AdminReadFlaggedComments = "AdminReadFlaggedComments";
         #endregion
 
+        #region Internal
+        public const string ReadDigest = "ReadDigest";
+        #endregion
+
         #region Auth
         public const string Register             = "Register";
         public const string Login                = "Login";
@@ -97,6 +101,7 @@ public static class RateLimitConfig
         public const string SearchUsers      = "SearchUsers";
         public const string UpdateOwnProfile = "UpdateOwnProfile";
         public const string AdminUpdateUser  = "AdminUpdateUser";
+        public const string SetDigestEmail   = "SetDigestEmail";
         #endregion
     }
 
@@ -287,6 +292,16 @@ public static class RateLimitConfig
 
             options.AddPolicy(Policies.AdminUpdateUser, httpContext =>
                 PerUserSlidingWindow(httpContext, 30, TimeSpan.FromHours(1)));
+
+            // One flip of a switch per request; a user toggling it back and forth on the settings page stays well inside.
+            options.AddPolicy(Policies.SetDigestEmail, httpContext =>
+                PerUserSlidingWindow(httpContext, 30, TimeSpan.FromHours(1)));
+            #endregion
+
+            #region Internal
+            // The automation pages through the whole list once a week; this leaves room for a large user base at full pages.
+            options.AddPolicy(Policies.ReadDigest, httpContext =>
+                PerUserSlidingWindow(httpContext, 120, TimeSpan.FromMinutes(1)));
             #endregion
             
             #region Global

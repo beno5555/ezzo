@@ -693,6 +693,147 @@ public class UserControllerTests : IClassFixture<DatabaseFixture>, IAsyncLifetim
         Assert.Equal(HttpStatusCode.OK, response.StatusCode);
     }
 
+    // ---------- The digest switch in each shape ----------
+    // Every seeded user has the switch on. It is returned in the own shape (GET /users/mine) only.
+
+    [Fact]
+    public async Task Register_NewUser_HasTheDigestSwitchOn()
+    {
+        await _client.PostAsJsonAsync("api/auth/register", new
+        {
+            Username = "digest_newcomer",
+            Email = "digest_newcomer@example.com",
+            Password = "SomeValidPassword1!",
+            DateOfBirth = new DateTime(2000, 1, 1)
+        });
+        var token = await AuthTestHelper.LoginAsync(_client, "digest_newcomer", "SomeValidPassword1!");
+        AuthTestHelper.AttachToken(_client, token);
+
+        var mine = ReadData(await (await _client.GetAsync("api/users/mine")).Content.ReadAsStringAsync());
+
+        Assert.True(mine.GetProperty("digestEmailEnabled").GetBoolean());
+    }
+
+    [Fact]
+    public async Task GetUserSearchAndAccounts_AsAdministrator_DoNotReturnTheDigestSwitch()
+    {
+        var token = await AuthTestHelper.LoginAsync(_client, "sandro_beno", TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(_client, token);
+
+        var standard = await (await _client.GetAsync("api/users/2")).Content.ReadAsStringAsync();              // alice, StandardUserDto
+        var search   = await (await _client.GetAsync("api/users/search?username=alice")).Content.ReadAsStringAsync(); // MinimalUserDto
+        var accounts = await (await _client.GetAsync("api/admin/accounts")).Content.ReadAsStringAsync();       // AdminUserDto
+
+        Assert.DoesNotContain("digestEmailEnabled", standard, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("digestEmailEnabled", search, StringComparison.OrdinalIgnoreCase);
+        Assert.DoesNotContain("digestEmailEnabled", accounts, StringComparison.OrdinalIgnoreCase);
+    }
+
+    // ---------- PUT /users/mine/digest-email ----------
+
+    [Fact]
+    public async Task SetDigestEmail_WithoutToken_ReturnsUnauthorized()
+    {
+        var response = await _client.PutAsJsonAsync("api/users/mine/digest-email", new { Enabled = false });
+
+        Assert.Equal(HttpStatusCode.Unauthorized, response.StatusCode);
+    }
+
+    [Fact]
+    public async Task SetDigestEmail_Off_TurnsItOffForTheCallerOnly()
+    {
+        var token = await AuthTestHelper.LoginAsync(_client, "alice", TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(_client, token);
+
+        var response = await _client.PutAsJsonAsync("api/users/mine/digest-email", new { Enabled = false });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.False(await ReadOwnDigestSwitchAsync());
+        Assert.True(await ReadDigestSwitchAsync("bob"));
+    }
+
+    [Fact]
+    public async Task SetDigestEmail_OffThenOn_TurnsItBackOn()
+    {
+        var token = await AuthTestHelper.LoginAsync(_client, "alice", TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(_client, token);
+        await _client.PutAsJsonAsync("api/users/mine/digest-email", new { Enabled = false });
+
+        var response = await _client.PutAsJsonAsync("api/users/mine/digest-email", new { Enabled = true });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.True(await ReadOwnDigestSwitchAsync());
+    }
+
+    [Fact]
+    public async Task SetDigestEmail_WithoutTheBoolean_ReturnsBadRequest()
+    {
+        var token = await AuthTestHelper.LoginAsync(_client, "alice", TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(_client, token);
+
+        var response = await _client.PutAsJsonAsync("api/users/mine/digest-email", new { });
+
+        Assert.Equal(HttpStatusCode.BadRequest, response.StatusCode);
+        Assert.True(await ReadOwnDigestSwitchAsync());
+    }
+
+    [Fact]
+    public async Task UpdateMine_ProfileWithoutTheSwitch_LeavesItOff()
+    {
+        var token = await AuthTestHelper.LoginAsync(_client, "alice", TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(_client, token);
+        await _client.PutAsJsonAsync("api/users/mine/digest-email", new { Enabled = false });
+
+        var response = await _client.PutAsJsonAsync("api/users/mine", new
+        {
+            Username = "alice",
+            DateOfBirth = new DateTime(2000, 1, 1),
+            Bio = "a client that does not know the switch"
+        });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.False(await ReadOwnDigestSwitchAsync());
+    }
+
+    [Fact]
+    public async Task UpdateOther_AsAdmin_LeavesTheSwitchAsItWas()
+    {
+        var token = await AuthTestHelper.LoginAsync(_client, "alice", TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(_client, token);
+        await _client.PutAsJsonAsync("api/users/mine/digest-email", new { Enabled = false });
+        var adminToken = await AuthTestHelper.LoginAsync(_client, "sandro_beno", TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(_client, adminToken);
+
+        var response = await _client.PutAsJsonAsync("api/users/2", new // alice
+        {
+            Username = "alice",
+            DateOfBirth = new DateTime(2000, 1, 1),
+            Bio = "edited by admin"
+        });
+
+        Assert.Equal(HttpStatusCode.OK, response.StatusCode);
+        Assert.False(await ReadDigestSwitchAsync("alice"));
+    }
+
+    private async Task<bool> ReadOwnDigestSwitchAsync()
+    {
+        var body = await (await _client.GetAsync("api/users/mine")).Content.ReadAsStringAsync();
+
+        return ReadData(body).GetProperty("digestEmailEnabled").GetBoolean();
+    }
+
+    // Signs in as the user on a client of its own, so the test's client keeps its token.
+    private async Task<bool> ReadDigestSwitchAsync(string username)
+    {
+        using var client = _factory.CreateClient();
+        var token = await AuthTestHelper.LoginAsync(client, username, TestDataSeeder.SharedPlaintextPassword);
+        AuthTestHelper.AttachToken(client, token);
+
+        var body = await (await client.GetAsync("api/users/mine")).Content.ReadAsStringAsync();
+
+        return ReadData(body).GetProperty("digestEmailEnabled").GetBoolean();
+    }
+
     private static JsonElement ReadData(string body)
     {
         return JsonDocument.Parse(body).RootElement.GetProperty("data");

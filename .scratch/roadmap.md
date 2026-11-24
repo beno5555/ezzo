@@ -33,7 +33,7 @@ Two worktree lanes at a time (`docs/agents/worktrees.md`), each taking frontend 
 | 14    | F17, the settings page (merged)                   | F41, the landing page with sign-in (merged) |
 | 15    | F31, the default picture's silhouette (merged)    |                                            |
 
-Backend lane: n8n 08 and 11 are finished on their worktree branches and parked: the frontend pages come first, so their merge waited until the pages were done (owner, 2026-11-22). The pages are done: the merge comes after workflow 07 in step 9, once the owner has looked at them. Until then a session lists the two branches as parked, not as work to merge. Readiness 07 is left out: it matters only if the demo moves to a host.
+Backend lane: n8n 08 is merged. 11 is finished on its worktree branch and merges next, after it takes in `master`: it needs 08's `DigestEmailEnabled` column. The settings page's digest switch is added only if time allows. Readiness 07 is left out: it matters only if the demo moves to a host.
 
 1. [ ] **Design.** The name was still open, so the design session fixed the structure and left the brand for later. The frontend setup (tickets 27 to 29) is merged.
    - [ ] **Frontend ticket 30: Impeccable.** Merged, and the owner kept the hook on after its trial on F10. Open only for box 6, a cloud session's run of the launcher. No ticket waits for it.

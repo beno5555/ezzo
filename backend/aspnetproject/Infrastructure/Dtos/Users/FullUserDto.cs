@@ -11,4 +11,7 @@ public class FullUserDto
     public DateTime  RegisteredAt          { get; set; }
     public DateTime  DateOfBirth           { get; set; }
     public DateTime? UsernameLastChangedAt { get; set; } // null = the username was never changed
+
+    // The user's own shape only: no other DTO carries it.
+    public bool DigestEmailEnabled { get; set; }
 }

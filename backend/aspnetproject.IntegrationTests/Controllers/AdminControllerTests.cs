@@ -183,7 +183,7 @@ public class AdminControllerTests : IClassFixture<DatabaseFixture>, IAsyncLifeti
 
         var accounts = await GetAccountsAsync();
 
-        Assert.Equal([1, 2, 3, 4, 5, 6, 7], accounts.Select(account => account.Id));
+        Assert.Equal([1, 2, 3, 4, 5, 6, 7, 8, 9], accounts.Select(account => account.Id));
 
         var admin = accounts.Single(account => account.Id == 1);
         Assert.Equal("sandro_beno", admin.Username);
@@ -227,11 +227,11 @@ public class AdminControllerTests : IClassFixture<DatabaseFixture>, IAsyncLifeti
     }
 
     [Theory]
-    [InlineData("state=Active", new[] { 1, 2, 3, 4, 5 })]
+    [InlineData("state=Active", new[] { 1, 2, 3, 4, 5, 8, 9 })]
     [InlineData("state=Deactivated", new[] { 6 })]
     [InlineData("state=SoftDeleted", new[] { 7 })]
     [InlineData("username=frank", new[] { 7 })]
-    [InlineData("username=a&state=Active", new[] { 1, 2, 4, 5 })]
+    [InlineData("username=a&state=Active", new[] { 1, 2, 4, 5, 8 })] // grace has an a
     public async Task GetAccounts_WithFilters_ReturnsOnlyMatchingAccounts(string filters, int[] expectedIds)
     {
         await SignInAsync("sandro_beno");

@@ -66,7 +66,8 @@ public static class UserMapper
             Roles = user.UserRoles.Select(userRole => userRole.Role).Select(role => role!.Name).ToList(),
             RegisteredAt = user.CreatedAt,
             DateOfBirth = user.DateOfBirth,
-            UsernameLastChangedAt = user.UsernameLastChangedAt
+            UsernameLastChangedAt = user.UsernameLastChangedAt,
+            DigestEmailEnabled    = user.DigestEmailEnabled
         };
     }
 
