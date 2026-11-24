@@ -17,7 +17,7 @@ Decisions are under "The six workflows" in `.scratch/n8n-automation/spec.md`. Re
 
 **Blocked by:** 02 (n8n starts from the repository and sends that failure to Telegram), 03 (The automation calls the backend with its own key and can only raise a moderation status), 04 (The backend tells the automation about new accounts, content and reports)
 
-**Status:** in-progress
+**Status:** done
 
 **Difficulty:** routine (Opus 5.5 medium): it copies the patterns of tickets 02 and 06, but no test catches a broken workflow; it is proven only by running it.
 
@@ -32,15 +32,15 @@ No test catches a broken workflow, so this ticket is proven by running it, and t
 5. Tick only the boxes the session proved. The status stays `in-progress` until the owner has run the checklist; never set `done`. The build and the full test suite are not needed when no backend file changed.
 6. Commit to the current branch (the author and the `Co-Authored-By` line follow `CLAUDE.md`). Do not merge.
 
-- [ ] A report of a post, of a comment and of a user each send one Telegram message with the target, the reason and the reporter
-- [ ] Four reports of one post by four accounts leave it visible
-- [ ] The fifth report within 24 hours hides it: another user no longer sees it, and one Telegram message and one email say it was hidden by reports
-- [ ] The five reports are still pending in the administrator's reports list, and an administrator can decide them
-- [ ] Five reports of one user send five alerts and leave the account active
-- [ ] Changing the number in the workflow's settings node changes when content is hidden, with no backend change
+- [x] A report of a post, of a comment and of a user each send one Telegram message with the target, the reason and the reporter
+- [x] Four reports of one post by four accounts leave it visible
+- [x] The fifth report within 24 hours hides it: another user no longer sees it, and one Telegram message and one email say it was hidden by reports
+- [x] The five reports are still pending in the administrator's reports list, and an administrator can decide them
+- [x] Five reports of one user send five alerts and leave the account active
+- [x] Changing the number in the workflow's settings node changes when content is hidden, with no backend change
 - [x] A post to the webhook with a wrong signature gets `401` and sends nothing
 - [x] The workflow file is committed with a fixed id and no pinned data; the README's checklist is written
-- [ ] The owner ran the checklist on their machine
+- [x] The owner ran the checklist on their machine (run by the session on the owner's machine, as the owner decided)
 
 ## Known limits from ticket 01
 
@@ -83,3 +83,18 @@ Ticket 01 built the backend's sending side (`EventPublisher`, `docs/backend/auto
     - *Proof:* Telegram and email delivery are read from n8n's run log. The node output shows Telegram's and Gmail's answer, as ticket 06's revision did: `node:sqlite` and `flatted` inside the `n8n` container, on `/home/node/.n8n/database.sqlite`. A hide is checked as another user through the API. Pending reports are read from the dev database (`sqlcmd`, Windows authentication, read-only). That an administrator can decide them is covered by `ReportControllerTests`.
     - *The settings box:* the session lowers `reportsToHide`, proves it, sets it back and loads it again.
     - *Already running:* the backend on 7102 (this worktree's build) and n8n.
+- **2026-11-24, round 1: revision (Opus 5.5).**
+  - **The owner's decisions:** the ones in the comment above (`escapeHtml` stays copied; the session runs the whole checklist through the backend's API with six test accounts and reads the deliveries from n8n's run log; the owner only looks at the Telegram chat at the end), and: keep the backend on 7102 and n8n running, and close the ticket if everything passes.
+  - **Changed:** nothing in the workflow, the README or the backend. Only this ticket changed. `reportsToHide` was lowered for the settings box and set back to 5. The committed file is byte-for-byte the build's, and the loaded workflow reads `reportsToHide=5 windowHours=24`.
+  - **Run against the real n8n 2.47.7 and this worktree's backend,** with real reports made through the API. Six accounts were registered in the dev database and stay there: `n8n-author` (#1393) and `n8n-reporter-1` to `-5` (#1394 to #1398), all on `webcity280+<name>@gmail.com`. The author wrote post #1563 (`Test`), post #1564 (`Test 2`) and comment #3651 on #1563, all clean text, so AI moderation left them alone. Deliveries are read from n8n's run log, executions 97 to 110.
+    - *Box 1:* `n8n-reporter-1` reported the post, the comment and the user. Three runs, each with Telegram `ok=true` (messages 24, 25, 26) and the target, its snapshot, the reason, the reporter, the time in Tbilisi time and the pending counts. The reason `Spam <b>test</b> & check` arrived as plain text.
+    - *Box 2:* reporters 2 to 4 reported post #1563 (pending 2, 3, 4; messages 27 to 29, no `Set Hidden`). `n8n-reporter-5` still read it (`GET /api/posts/1563`: `200`).
+    - *Box 3:* the fifth report (run 103, pending 5). `Set Hidden` was answered `Moderation status Updated Successfully`, followed by the alert (message 30), the moderation alert (message 31, "post #1563 hidden by reports") and the email (Gmail `250 2.0.0 OK`). Afterwards `n8n-reporter-1` got `404` for the post and no longer saw it in the author's post list, while the author still read it. The database shows #1563 `Hidden`.
+    - *Box 4:* reports 16 to 22 are all `Pending` in the dev database, with no reviewer. That an administrator can decide them is covered by `ReportControllerTests` (`Decide_*`). `SetModerationStatusAsync` matches by id alone, so hiding content that is already Hidden still succeeds.
+    - *Box 5:* reporters 2 to 5 reported `n8n-author` (runs 104 to 107, messages 32 to 35, together with run 99: five alerts). None of them ran `Set Hidden`. The account is still readable through the API, and `AccountDeactivatedAt` and `AccountDeletedAt` are NULL.
+    - *Box 6:* `reportsToHide` was set to 2 in the file and loaded with `up -d`. Post #1564 stayed visible after one report and was hidden by the second (run 110: messages 37 and 38, email `250 OK`, another user then got `404`). The value was set back to 5 and loaded again.
+    - *Box 7:* 64 zeros as the signature answered `401`, and run 108 ended at `Answer 401`.
+  - **Departure in the run:** the backend allows 20 logins per 15 minutes per IP, and the session's script used them up. On the owner's instruction, the backend was restarted on port 7202 (`--urls https://localhost:7202`, from this worktree's existing build). For box 6 only, `WEBCITY_BACKEND_URL` in `n8n/.env` was pointed at 7202, then set back to 7102 and loaded. The backend is still running on 7202, and n8n's calls go to 7102, so start the backend on 7102 again before the next n8n run that writes to the backend.
+  - **Spec review:** not run. Nothing changed since this round's starting commit except this ticket, so there was no code or doc to review.
+  - **Checks:** no backend or frontend file changed, so the build and the test suite were not run (step 5 of "How to work this ticket").
+  - **For the owner:** open the administrators' Telegram chat. It should hold 15 messages from this run, 24 to 38: 13 "new report" alerts and 2 "hidden by reports" messages (posts #1563 and #1564). `webcity280@gmail.com` should hold two "hidden by reports" emails and six welcome emails for the test accounts.
