@@ -212,6 +212,24 @@ export class AdminLogsPage {
   }
 }
 
+// angular.json emits this global stylesheet without injecting it. The router caches the page once
+// loaded, and waits for the calendar's styles before making the date fields available.
+export async function loadAdminLogsPage(document: Document): Promise<typeof AdminLogsPage> {
+  await new Promise<void>((resolve, reject) => {
+    const stylesheet = document.createElement('link');
+    stylesheet.rel = 'stylesheet';
+    stylesheet.href = 'admin-calendar.css';
+    stylesheet.onload = () => resolve();
+    stylesheet.onerror = () => {
+      stylesheet.remove();
+      reject(new Error('Could not load the admin calendar stylesheet.'));
+    };
+    document.head.append(stylesheet);
+  });
+
+  return AdminLogsPage;
+}
+
 // A filter as one comparable text, whatever the order its values were written in.
 function addressOf(filter: LogFilter): string {
   return JSON.stringify(Object.entries(logFilterToParams(filter)).sort());

@@ -1,3 +1,4 @@
+import { DOCUMENT, inject } from '@angular/core';
 import { Route, Routes } from '@angular/router';
 import { adminGuard } from './core/routing/admin-guard';
 import { formerHomePaths } from './core/routing/app-addresses';
@@ -165,8 +166,13 @@ export const routes: Routes = [
       {
         path: 'logs',
         title: 'adminLogs',
-        loadComponent: () =>
-          import('./features/admin/admin-logs-page/admin-logs-page').then((m) => m.AdminLogsPage),
+        loadComponent: () => {
+          const document = inject(DOCUMENT);
+
+          return import('./features/admin/admin-logs-page/admin-logs-page').then((m) =>
+            m.loadAdminLogsPage(document),
+          );
+        },
       },
       {
         path: 'statistics',
