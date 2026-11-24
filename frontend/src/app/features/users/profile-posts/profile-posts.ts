@@ -1,6 +1,7 @@
+import { NgTemplateOutlet } from '@angular/common';
 import { Component, DestroyRef, OnInit, computed, inject, input } from '@angular/core';
-import { Router } from '@angular/router';
-import { LucideNewspaper } from '@lucide/angular';
+import { Router, RouterLink } from '@angular/router';
+import { LucideNewspaper, LucidePlus } from '@lucide/angular';
 import { LanguageStore } from '../../../core/languages/language-store';
 import { LIMITS } from '../../../core/limits';
 import { PageLoadStatus } from '../../../core/paging/page-load-status';
@@ -8,10 +9,12 @@ import { PagedList } from '../../../core/paging/paged-list';
 import { appAddresses } from '../../../core/routing/app-addresses';
 import { signInAddress } from '../../../core/routing/sign-in-address';
 import { SessionStore } from '../../../core/session/session-store';
+import { Button } from '../../../shared/button/button';
 import { EmptyState } from '../../../shared/empty-state/empty-state';
 import { LoadFailure } from '../../../shared/load-failure/load-failure';
 import { PostCard } from '../../../shared/post-card/post-card';
 import { ScrollSentinel } from '../../../shared/scroll-sentinel/scroll-sentinel';
+import { profileOrigin } from '../../posts/new-post-origin';
 import { NewPostStore } from '../../posts/new-post-store';
 import { PostApi } from '../../posts/post-api';
 import { PostEditStore } from '../../posts/post-edit-store';
@@ -28,7 +31,17 @@ import { StandardUserDto } from '../standard-user-dto';
 // A guest's click on the like button leads to sign-in and back, as on a post's own page.
 @Component({
   selector: 'app-profile-posts',
-  imports: [EmptyState, LoadFailure, PostCard, ScrollSentinel, LucideNewspaper],
+  imports: [
+    Button,
+    EmptyState,
+    LoadFailure,
+    NgTemplateOutlet,
+    PostCard,
+    RouterLink,
+    ScrollSentinel,
+    LucideNewspaper,
+    LucidePlus,
+  ],
   templateUrl: './profile-posts.html',
   styleUrl: './profile-posts.css',
 })
@@ -43,6 +56,8 @@ export class ProfilePosts implements OnInit {
   protected readonly postLikes = inject(PostLikeStore);
   protected readonly newPosts = inject(NewPostStore);
   protected readonly PageLoadStatus = PageLoadStatus;
+  protected readonly newPostAddress = appAddresses.newPost;
+  protected readonly profileOrigin = profileOrigin;
   protected readonly posts = new PagedList<StandardPostDisplayDto>({
     loadPage: async (query) => {
       const result = await this.postApi.getByUser(this.user().id, query);

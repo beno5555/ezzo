@@ -128,6 +128,15 @@ export const english = {
     },
     toasts: {
       regionLabel: 'Notifications',
+      dismiss: 'Dismiss',
+      // The live toasts (core/hub/live-toast-store). The toast shows the person's name above these lines, as
+      // its own highlighted line, so none of them holds the name. A message toast's line is the start of
+      // the message, or messages.list.photo.
+      live: {
+        comment: 'commented on your post',
+        like: 'liked your post',
+        online: 'is online',
+      },
     },
     // Whether a friend is online, or when they last were (shared/presence-label, shared/presence-dot).
     // time is DateFormatter.timeSince: "5 minutes ago", "yesterday", "Nov 19".
@@ -553,6 +562,7 @@ export const english = {
         emptyTitle: 'No posts yet',
         emptyMessage: 'Posts written by this user show up here.',
         emptyOwnMessage: 'Posts you write show up here.',
+        writeButton: 'Write a post',
         retryButton: 'Try again',
       },
       friends: {
@@ -643,6 +653,7 @@ export const english = {
       heading: 'Friends',
       tabsLabel: 'Friend lists',
       myFriendsTab: 'My friends',
+      findFriendsButton: 'Find friends',
       incomingTab: 'Requests',
       sentTab: 'Sent',
       retryButton: 'Try again',
@@ -719,8 +730,7 @@ export const english = {
     },
     // A post's own page (/posts/:postId, features/posts/post-page).
     page: {
-      // The link above a post, which goes back to the page the reader came from, and above the composer,
-      // which leads to the feed.
+      // The Back link above a post and above the composer (shared/back-link).
       backLink: 'Back',
       loading: 'Loading the post…',
       retryButton: 'Try again',

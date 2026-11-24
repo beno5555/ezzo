@@ -1,4 +1,5 @@
 import { TestBed } from '@angular/core/testing';
+import { ToastLook } from './toast-look';
 import { ToastStore } from './toast-store';
 
 describe('ToastStore', () => {
@@ -56,12 +57,24 @@ describe('ToastStore', () => {
   });
 
   it('carries a link that a click on the toast opens, and none when it is given none', () => {
-    toastStore.show('alice sent you a message', '/chat/alice');
+    toastStore.show('alice sent you a message', { link: '/chat/alice' });
     toastStore.show('Could not like the post.');
 
     expect(toastStore.visible()).toEqual([
-      { id: expect.any(Number), message: 'alice sent you a message', link: '/chat/alice' },
-      { id: expect.any(Number), message: 'Could not like the post.', link: null },
+      {
+        id: expect.any(Number),
+        message: 'alice sent you a message',
+        link: '/chat/alice',
+        look: ToastLook.Failure,
+        person: null,
+      },
+      {
+        id: expect.any(Number),
+        message: 'Could not like the post.',
+        link: null,
+        look: ToastLook.Failure,
+        person: null,
+      },
     ]);
   });
 
@@ -89,14 +102,29 @@ describe('ToastStore', () => {
     expect(shownMessages()).toEqual(['fourth']);
   });
 
+  it('shows a toast of the same words and link for another person, such as a second like on a post', () => {
+    const link = '/posts/12';
+    toastStore.show('liked your post', { link, person: { id: 4, username: 'bob' } });
+    toastStore.show('liked your post', { link, person: { id: 4, username: 'bob' } });
+    toastStore.show('liked your post', { link, person: { id: 5, username: 'carol' } });
+
+    expect(toastStore.visible().map(({ person }) => person?.username)).toEqual(['bob', 'carol']);
+  });
+
   it('shows a toast again once its equal has left, and a toast with another link as its own', () => {
-    toastStore.show('alice sent you a message', '/chat/alice');
-    toastStore.show('alice sent you a message', '/chat/alice-2');
+    toastStore.show('alice sent you a message', { link: '/chat/alice' });
+    toastStore.show('alice sent you a message', { link: '/chat/alice-2' });
     vi.advanceTimersByTime(5000);
-    toastStore.show('alice sent you a message', '/chat/alice');
+    toastStore.show('alice sent you a message', { link: '/chat/alice' });
 
     expect(toastStore.visible()).toEqual([
-      { id: expect.any(Number), message: 'alice sent you a message', link: '/chat/alice' },
+      {
+        id: expect.any(Number),
+        message: 'alice sent you a message',
+        link: '/chat/alice',
+        look: ToastLook.Failure,
+        person: null,
+      },
     ]);
   });
 
@@ -117,7 +145,7 @@ describe('ToastStore', () => {
   });
 
   it('keeps the next toast its full time when a followed link toast later reaches its own end', () => {
-    toastStore.show('alice sent you a message', '/chat/alice');
+    toastStore.show('alice sent you a message', { link: '/chat/alice' });
     toastStore.show('second');
     toastStore.show('third');
     toastStore.show('fourth');
@@ -150,10 +178,19 @@ describe('ToastStore', () => {
       toastStore.show('third');
       vi.advanceTimersByTime(30_000);
 
-      toastStore.replace(id, 'Your post is published.', '/posts/12');
+      toastStore.replace(id, 'Your post is published.', {
+        link: '/posts/12',
+        look: ToastLook.Success,
+      });
 
       expect(toastStore.visible()).toEqual([
-        { id, message: 'Your post is published.', link: '/posts/12' },
+        {
+          id,
+          message: 'Your post is published.',
+          link: '/posts/12',
+          look: ToastLook.Success,
+          person: null,
+        },
       ]);
       vi.advanceTimersByTime(4999);
       expect(shownMessages()).toEqual(['Your post is published.']);
@@ -178,7 +215,10 @@ describe('ToastStore', () => {
       vi.advanceTimersByTime(60_000);
       expect(shownMessages()).toEqual(['Uploading your post…']);
 
-      toastStore.replace(id, 'Your post is published.', '/posts/12');
+      toastStore.replace(id, 'Your post is published.', {
+        link: '/posts/12',
+        look: ToastLook.Success,
+      });
       vi.advanceTimersByTime(5000);
       expect(shownMessages()).toEqual([]);
     });
@@ -190,7 +230,10 @@ describe('ToastStore', () => {
       const id = toastStore.showLasting('Uploading your post…');
       vi.advanceTimersByTime(1000);
 
-      toastStore.replace(id, 'Your post is published.', '/posts/12');
+      toastStore.replace(id, 'Your post is published.', {
+        link: '/posts/12',
+        look: ToastLook.Success,
+      });
       vi.advanceTimersByTime(4000); // the first three leave; the replaced toast shows now
 
       expect(shownMessages()).toEqual(['Your post is published.']);
@@ -219,8 +262,80 @@ describe('ToastStore', () => {
       toastStore.replace(id, 'Could not publish your post.');
 
       expect(toastStore.visible()).toEqual([
-        { id: expect.any(Number), message: 'Could not publish your post.', link: null },
+        {
+          id: expect.any(Number),
+          message: 'Could not publish your post.',
+          link: null,
+          look: ToastLook.Failure,
+          person: null,
+        },
       ]);
+    });
+
+    it('looks like an upload under way', () => {
+      toastStore.showLasting('Uploading your post…');
+
+      expect(toastStore.visible()[0].look).toBe(ToastLook.Uploading);
+    });
+  });
+
+  describe('the look and the person of a toast', () => {
+    it('is a failure unless the caller says otherwise', () => {
+      toastStore.show('Could not like the post.');
+      toastStore.show('Copied.', { look: ToastLook.Success });
+
+      expect(toastStore.visible().map((toast) => toast.look)).toEqual([
+        ToastLook.Failure,
+        ToastLook.Success,
+      ]);
+    });
+
+    it('carries the person a live toast is about, and none for any other', () => {
+      const alice = { id: 7, username: 'alice' };
+      toastStore.show('liked your post', { look: ToastLook.Like, person: alice });
+      toastStore.show('Could not like the post.');
+
+      expect(toastStore.visible().map((toast) => toast.person)).toEqual([alice, null]);
+    });
+  });
+
+  describe('clearing', () => {
+    it('removes the toasts on screen, the waiting ones and the lasting ones', () => {
+      toastStore.show('first');
+      toastStore.show('second');
+      toastStore.showLasting('Uploading your post…');
+      toastStore.show('fourth, waiting');
+
+      toastStore.clear();
+
+      expect(shownMessages()).toEqual([]);
+      vi.advanceTimersByTime(60_000);
+      expect(shownMessages()).toEqual([]);
+    });
+
+    it('shows nothing when an upload that clear() took down ends, but shows the next upload`s outcome', () => {
+      const cleared = toastStore.showLasting('Uploading your post…');
+      toastStore.clear();
+
+      toastStore.replace(cleared, 'Your post is published.');
+
+      expect(shownMessages()).toEqual([]);
+
+      const next = toastStore.showLasting('Uploading your post…');
+      toastStore.replace(next, 'Your post is published.');
+
+      expect(shownMessages()).toEqual(['Your post is published.']);
+    });
+
+    it('lets a toast shown afterwards have its full 5 seconds', () => {
+      toastStore.show('before');
+      vi.advanceTimersByTime(4000);
+      toastStore.clear();
+
+      toastStore.show('after');
+      vi.advanceTimersByTime(4999);
+
+      expect(shownMessages()).toEqual(['after']);
     });
   });
 });

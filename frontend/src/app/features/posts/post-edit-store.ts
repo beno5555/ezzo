@@ -3,6 +3,7 @@ import { LanguageStore } from '../../core/languages/language-store';
 import { appAddresses } from '../../core/routing/app-addresses';
 import { ConfirmationOpener } from '../../shared/confirmation/confirmation-opener';
 import { DeleteFade } from '../../shared/fade-out/delete-fade';
+import { ToastLook } from '../../shared/toasts/toast-look';
 import { ToastStore } from '../../shared/toasts/toast-store';
 import { PostApi } from './post-api';
 import { PostEdit } from './post-edit';
@@ -115,10 +116,15 @@ export class PostEditStore {
         for (const show of this.listeners) {
           show(result.data);
         }
-        this.toastStore.replace(toastId, this.text().posts.edit.savedToast, address);
+        this.toastStore.replace(toastId, this.text().posts.edit.savedToast, {
+          link: address,
+          look: ToastLook.Success,
+        });
       } else {
         this.refusedEdits.update((edits) => new Map(edits).set(post.id, written));
-        this.toastStore.replace(toastId, result.message, appAddresses.editPost(post.id).join('/'));
+        this.toastStore.replace(toastId, result.message, {
+          link: appAddresses.editPost(post.id).join('/'),
+        });
       }
     }
   }
@@ -144,7 +150,7 @@ export class PostEditStore {
 
         if (result.succeeded) {
           whenGone();
-          this.toastStore.show(this.text().posts.deletedToast);
+          this.toastStore.show(this.text().posts.deletedToast, { look: ToastLook.Success });
         } else {
           this.toastStore.show(result.message);
         }

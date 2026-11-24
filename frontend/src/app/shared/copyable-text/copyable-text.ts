@@ -2,6 +2,7 @@ import { Component, inject, input } from '@angular/core';
 import { LucideCopy } from '@lucide/angular';
 import { LanguageStore } from '../../core/languages/language-store';
 import { IconButton } from '../icon-button/icon-button';
+import { ToastLook } from '../toasts/toast-look';
 import { ToastStore } from '../toasts/toast-store';
 
 // A short piece of text, such as a username or an email, that is cut with an ellipsis when its place is
@@ -27,7 +28,7 @@ export class CopyableText {
 
     try {
       await navigator.clipboard.writeText(this.value());
-      this.toastStore.show(texts.copied);
+      this.toastStore.show(texts.copied, { look: ToastLook.Success });
     } catch {
       this.toastStore.show(texts.failed);
     }

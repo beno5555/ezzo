@@ -132,6 +132,28 @@
   --text-shadow-*: initial;
   --shadow-raised: 0 1px 2px rgb(0 0 0 / 0.08);
   --shadow-overlay: 0 8px 24px rgb(0 0 0 / 0.16);
+
+  /*
+   * Motion, from "Do's and Don'ts" in DESIGN.md. A toast slides in from the edge it sits at while it
+   * fades in: from above on a phone (toast-in-top), from the side from 768 px (toast-in-end). Used with
+   * motion-reduce:animate-none. Tailwind's own animate-spin stays for the "Deleting…" spinner.
+   */
+  --animate-toast-in-top: toast-in-top 300ms ease-out;
+  --animate-toast-in-end: toast-in-end 300ms ease-out;
+
+  @keyframes toast-in-top {
+    from {
+      opacity: 0;
+      transform: translateY(-1.5rem);
+    }
+  }
+
+  @keyframes toast-in-end {
+    from {
+      opacity: 0;
+      transform: translateX(2rem);
+    }
+  }
 }
 
 /*

@@ -163,12 +163,12 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 97. As a user, I want a toast when a friend sends me a message while I am elsewhere, so that I do not miss it.
 98. As a user, I want no toast for a message in the conversation I am looking at, so that I am not told what I can already see.
 99. As a post author, I want a toast when someone comments on my post, so that I can answer.
-100. As a post author, I want a toast when someone likes my post, so that I know it was noticed.
-101. As a user, I want a toast when a friend comes online, at most once per friend in 5 minutes, so that I am informed without being flooded.
-102. As a user, I want a click on a toast to open the chat or the post it is about, so that I can act on it.
-103. As a user, I want a toast to leave after 5 seconds and at most three on screen, so that they never cover the page.
-104. As a user, I want the unread count and the online dots to change without a reload, so that what I see is current.
-105. As a user, I want the live connection to come back by itself after my network drops, so that I do not reload the page.
+100.  As a post author, I want a toast when someone likes my post, so that I know it was noticed.
+101.  As a user, I want a toast when a friend comes online, at most once per friend in 5 minutes, so that I am informed without being flooded.
+102.  As a user, I want a click on a toast to open the chat or the post it is about, so that I can act on it.
+103.  As a user, I want a toast to leave after 5 seconds, or sooner when I close it with its close button, and at most three on screen, so that they never cover the page.
+104.  As a user, I want the unread count and the online dots to change without a reload, so that what I see is current.
+105.  As a user, I want the live connection to come back by itself after my network drops, so that I do not reload the page.
 
 ### Settings
 
@@ -248,24 +248,24 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 
 ### Addresses
 
-| Address | Page | Access |
-|---|---|---|
-| `/` | A guest: the landing page with the sign-in form. A signed-in user: the feed, with a Write a post button | anyone |
-| `/feed`, `/sign-in` | Former addresses; both lead to `/`, keeping the query | anyone |
-| `/posts/new` | The composer | signed in |
-| `/posts/:postId/edit` | Where an author edits a post | signed in |
-| `/register` | Register | signed out only |
-| `/forgot-password` | Ask for a reset link | anyone |
-| `/reset-password?token=…` | Choose a new password | anyone |
-| `/reactivate-account` (`?token=…` from the email) | Ask for a link; opened from it, reactivate with one button | anyone |
-| `/posts/:postId` | One post and its comments | anyone |
-| `/users/:username` | Profile | anyone |
-| `/search?q=…` | User search | anyone |
-| `/settings` | Settings | signed in |
-| `/friends` | Friends, incoming, sent | signed in |
-| `/messages`, `/messages/:username` | Chat | signed in |
-| `/admin/users`, `/admin/reports`, `/admin/moderation`, `/admin/logs`, `/admin/statistics` | Admin panel | administrator |
-| anything else | Not found | anyone |
+| Address                                                                                   | Page                                                                                                    | Access          |
+| ----------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | --------------- |
+| `/`                                                                                       | A guest: the landing page with the sign-in form. A signed-in user: the feed, with a Write a post button | anyone          |
+| `/feed`, `/sign-in`                                                                       | Former addresses; both lead to `/`, keeping the query                                                   | anyone          |
+| `/posts/new`                                                                              | The composer                                                                                            | signed in       |
+| `/posts/:postId/edit`                                                                     | Where an author edits a post                                                                            | signed in       |
+| `/register`                                                                               | Register                                                                                                | signed out only |
+| `/forgot-password`                                                                        | Ask for a reset link                                                                                    | anyone          |
+| `/reset-password?token=…`                                                                 | Choose a new password                                                                                   | anyone          |
+| `/reactivate-account` (`?token=…` from the email)                                         | Ask for a link; opened from it, reactivate with one button                                              | anyone          |
+| `/posts/:postId`                                                                          | One post and its comments                                                                               | anyone          |
+| `/users/:username`                                                                        | Profile                                                                                                 | anyone          |
+| `/search?q=…`                                                                             | User search                                                                                             | anyone          |
+| `/settings`                                                                               | Settings                                                                                                | signed in       |
+| `/friends`                                                                                | Friends, incoming, sent                                                                                 | signed in       |
+| `/messages`, `/messages/:username`                                                        | Chat                                                                                                    | signed in       |
+| `/admin/users`, `/admin/reports`, `/admin/moderation`, `/admin/logs`, `/admin/statistics` | Admin panel                                                                                             | administrator   |
+| anything else                                                                             | Not found                                                                                               | anyone          |
 
 - **People are addressed by username,** in profiles and in chat. The backend resolves a username to a user with its public read by username; chat endpoints and hub events use the id, so the chat page resolves the username first, from the conversation list when it is loaded and from the backend otherwise.
 - **Never put a fixed word beside a `:username` segment.** A username could equal it.
@@ -348,7 +348,8 @@ A **guest** reads and searches and does nothing else. English and Georgian ship 
 
 - **Four live toasts:** a new message (not when that conversation is open), a comment on my post, a like on my post, a friend coming online.
 - **Each is a link:** to the chat, to the post, to the post, to the chat.
-- **Rules:** 5 seconds on screen, at most three at once, and at most one online toast per friend in 5 minutes.
+- **Look** (owner, 2026-11-24): every toast shows its news by its picture, name and badge, and slides in; a live toast from an account that is gone shows nothing. Signing out takes the toasts down. The look is in `DESIGN.md`.
+- **Rules:** 5 seconds on screen, or sooner when the user closes the toast with its close button (owner, 2026-11-24); at most three at once; and at most one online toast per friend in 5 minutes.
 - **Upload toasts** for a post (under "Across the whole frontend"): the uploading toast stays until the upload ends, outside the 5-second rule, and the published or saved toast that follows it keeps the rule.
 - **Failures of actions outside a form** use the same toast component (conventions, Errors).
 - **There is no notification history,** because the backend stores none.

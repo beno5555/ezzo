@@ -8,6 +8,7 @@ import { SessionStore } from '../../core/session/session-store';
 import { ConfirmationOpener } from '../../shared/confirmation/confirmation-opener';
 import { DeleteFade } from '../../shared/fade-out/delete-fade';
 import { PreviewAddressMaker } from '../../shared/photos/preview-address-maker';
+import { ToastLook } from '../../shared/toasts/toast-look';
 import { ToastStore } from '../../shared/toasts/toast-store';
 import { AcceptedFriendshipDto } from '../friendships/accepted-friendship-dto';
 import { DisplayFriendDto } from '../friendships/display-friend-dto';
@@ -531,7 +532,7 @@ export class ConversationsStore {
   private async settleDeleted(message: StandardMessageDto, result: AppResult<void>): Promise<void> {
     if (result.succeeded) {
       const isStillOpen = this.holdsMessage(message.id);
-      this.toastStore.show(this.text().messages.deletedToast);
+      this.toastStore.show(this.text().messages.deletedToast, { look: ToastLook.Success });
 
       if (isStillOpen) {
         this.removeFromOpened(message.id);

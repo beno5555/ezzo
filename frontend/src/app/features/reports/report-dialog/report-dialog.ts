@@ -11,6 +11,7 @@ import { applyFieldErrors } from '../../../shared/form-field/apply-field-errors'
 import { FormField } from '../../../shared/form-field/form-field';
 import { FormMessage } from '../../../shared/form-message/form-message';
 import { TextInput } from '../../../shared/text-input/text-input';
+import { ToastLook } from '../../../shared/toasts/toast-look';
 import { ToastStore } from '../../../shared/toasts/toast-store';
 import { canSendReport } from '../can-send-report';
 import { ReportApi } from '../report-api';
@@ -74,7 +75,7 @@ export class ReportDialog {
       });
 
       if (result.succeeded) {
-        this.toastStore.show(this.text().reports.sentToast);
+        this.toastStore.show(this.text().reports.sentToast, { look: ToastLook.Success });
         this.dialogRef.close(true);
       } else {
         this.isSubmitting.set(false);

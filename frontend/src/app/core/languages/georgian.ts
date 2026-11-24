@@ -107,6 +107,12 @@ export const georgian: Dictionary = {
     },
     toasts: {
       regionLabel: 'შეტყობინებები',
+      dismiss: 'დახურვა',
+      live: {
+        comment: 'შენს პოსტზე დააკომენტარა',
+        like: 'შენი პოსტი მოიწონა',
+        online: 'ახლა ონლაინ არის',
+      },
     },
     presence: {
       online: 'ახლა აქტიურია',
@@ -475,6 +481,7 @@ export const georgian: Dictionary = {
         emptyTitle: 'პოსტები ჯერ არ არის',
         emptyMessage: 'ამ მომხმარებლის დაწერილი პოსტები აქ გამოჩნდება.',
         emptyOwnMessage: 'თქვენი დაწერილი პოსტები აქ გამოჩნდება.',
+        writeButton: 'პოსტის დაწერა',
         retryButton: 'თავიდან ცდა',
       },
       friends: {
@@ -557,6 +564,7 @@ export const georgian: Dictionary = {
       heading: 'მეგობრები',
       tabsLabel: 'მეგობრების სიები',
       myFriendsTab: 'მეგობრები',
+      findFriendsButton: 'მეგობრების პოვნა',
       incomingTab: 'შემოსული',
       sentTab: 'გასული',
       retryButton: 'თავიდან ცდა',

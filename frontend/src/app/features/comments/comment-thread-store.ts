@@ -5,6 +5,7 @@ import { PagedList } from '../../core/paging/paged-list';
 import { SessionStore } from '../../core/session/session-store';
 import { ConfirmationOpener } from '../../shared/confirmation/confirmation-opener';
 import { DeleteFade } from '../../shared/fade-out/delete-fade';
+import { ToastLook } from '../../shared/toasts/toast-look';
 import { ToastStore } from '../../shared/toasts/toast-store';
 import { CommentApi } from './comment-api';
 import { ShownComment } from './shown-comment';
@@ -142,7 +143,7 @@ export class CommentThreadStore {
         if (result.succeeded) {
           this.list.leave(comment.id);
           this.onCountChange(-1);
-          this.toastStore.show(this.text().comments.deletedToast);
+          this.toastStore.show(this.text().comments.deletedToast, { look: ToastLook.Success });
         } else {
           this.toastStore.show(result.message);
         }
