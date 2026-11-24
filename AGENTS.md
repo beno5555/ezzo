@@ -12,8 +12,8 @@ This file is for agents other than Claude Code, such as OpenAI's Codex. Claude C
 ## Claude Code terms and what to do instead
 
 - **Skills:** Discover project skills through `.agents/skills/`, which links to their shared instructions in `.claude/skills/`. Only the owner starts an explicit-only workflow, using `$<skill-name>` in Codex. When an invoked workflow calls Claude Code's Skill tool, read the named linked skill and follow its instructions. An explicit invocation covers the steps of that workflow, including the grilling interview in `$grill-with-docs`.
-- **Subagents** (for example, the two parallel reviews in `spec-review`): do each part yourself, one after another.
-- **Claude in Chrome and the Playwright MCP server:** if you have no browser tool, use the screenshot command (`npm run screenshots` in `frontend/CLAUDE.md`). If neither exists, say the page was not checked in a browser. Never claim it was.
+- **Reviews:** Use `gpt-6.2-sol` at `high` effort for Codex reviews. When a skill calls for subagents, give them fresh contexts. For `spec-review`, run Standards and Spec in parallel.
+- **Browser checks:** Use the project's Playwright MCP server for interactive checks and the screenshot command in `frontend/CLAUDE.md` for the required captures. If the server is unavailable, use the screenshot command. If neither is available, report that browser verification is pending.
 - **`claude --worktree`:** a Codex lane makes its own worktree under `.claude/worktrees/` (steps in `docs/agents/codex.md`).
 - **Commit attribution:** the owner is the author, as `CLAUDE.md` says. End the message with `Co-Authored-By: Codex <noreply@openai.com>` instead of the Claude line, and add nothing after it.
 
@@ -36,4 +36,4 @@ Claude Code keeps these in a memory you cannot read. They apply to you too.
 
 - Claude and you share no memory. What one of you knows reaches the other only through commits, `.scratch/` tickets and the roadmap, and the docs. Write down there anything the other needs.
 - Never edit a branch that another session has checked out. `git worktree list` shows them.
-- **As a reviewer:** report findings and change nothing, unless the owner asks for fixes. The house style is deliberate: concrete classes with no interfaces, one `return` per method outside controllers, the `ApplicationResponse` wrapper and the rest of `webcity-conventions`. Never report it as a defect. Report a rule broken by the code, not a rule you would prefer.
+- **As a reviewer:** report findings and change nothing, unless the owner asks for fixes. For each bug, include a file and line, a concrete failing scenario, and a severity. The house style is deliberate: concrete classes with no interfaces, one `return` per method outside controllers, the `ApplicationResponse` wrapper and the rest of `webcity-conventions`. Never report it as a defect. Report a rule broken by the code, not a rule you would prefer.
