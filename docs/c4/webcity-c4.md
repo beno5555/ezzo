@@ -1,6 +1,6 @@
 # WebCity — პროგრამული უზრუნველყოფის არქიტექტურა (C4 მოდელი)
 
-მდგომარეობა: 2026 წლის 20 ნოემბერი
+მდგომარეობა: 2026 წლის 25 ნოემბერი
 
 ## შესავალი
 
@@ -12,15 +12,15 @@ WebCity მცირე სოციალური პლატფორმა�
 
 ### პროექტის მიმდინარე მდგომარეობა
 
-დიაგრამები აჩვენებს სისტემის სრულ არქიტექტურას. ცხრილში მითითებულია, რომელი ნაწილია რეალიზებული და რომელი რეალიზაციის პროცესშია. კომპონენტის დიაგრამებზე დაგეგმილი კომპონენტები წყვეტილი კონტურით არის მონიშნული.
+დიაგრამები აჩვენებს სისტემის სრულ არქიტექტურას. ცხრილში მითითებულია, რომელი ნაწილია რეალიზებული და რა დარჩა.
 
 | ნაწილი | მდგომარეობა |
 |---|---|
-| API Application (backend) | აშენებულია: ყველა endpoint, SignalR hub, background job-ები, ფოტოების შენახვა, ელფოსტა, ავტომატიზაციისთვის მოვლენების გაგზავნა. დარჩენილია: ავტომატიზაციის API key, შიდა (internal) endpoint-ები, digest-ის გადამრთველი |
+| API Application (backend) | აშენებულია: ყველა endpoint, მათ შორის ავტომატიზაციის შიდა (internal) endpoint-ები და მისი API key, SignalR hub, background job-ები, ფოტოების შენახვა, ელფოსტა, ავტომატიზაციისთვის მოვლენების გაგზავნა |
 | Database | აშენებულია (EF Core migration-ები) |
 | File Storage | აშენებულია |
-| Single-Page Application | აშენებულია: გარსი (shell), ავტორიზაციის გვერდები, feed, მომხმარებლების ძიება, ადმინისტრატორის მომხმარებლების სია, ორი ენა, ორი თემა, live კავშირი. დანარჩენი გვერდები მზადდება; მანამდე მათ მისამართზე დროებითი გვერდი იტვირთება |
-| Automation (n8n) | backend-ის მხარე მზადაა (ხელმოწერილი მოვლენები). თავად n8n და მისი ექვსი workflow მზადდება |
+| Single-Page Application | აშენებულია: ყველა გვერდი (ავტორიზაცია, feed და პოსტები, პროფილი, მეგობრები, ძიება, ჩატი, პარამეტრები, ადმინისტრატორის პანელი), ორი ენა, ორი თემა, live კავშირი და შეტყობინებები (toast). დარჩენილია: digest-ის გადამრთველი პარამეტრებში და დაბადების დღის შეტყობინება |
+| Automation (n8n) | n8n Docker-ში ეშვება და ოთხი workflow მუშაობს: AI მოდერაცია, რეპორტების დამუშავება, მისალმების ელფოსტა, შეცდომების შეტყობინებები. დარჩენილია ორი: ყოველკვირეული digest და დაბადების დღეები; მათი backend-ის მხარე მზადაა |
 | Web Server | development-ში ამ როლს Angular-ის dev server-ი ასრულებს; production-ის nginx კონფიგურაცია ჯერ არ არის |
 
 ---
@@ -93,14 +93,14 @@ WebCity მცირე სოციალური პლატფორმა�
 | User controllers | `AuthController`, `UserController`, `FriendshipController`, `AccountManagementController`, `AccountActivationController` | რეგისტრაცია, შესვლა, ტოკენის განახლება, პაროლის აღდგენა, პროფილები, ძიება, მეგობრობა, ანგარიშის დეაქტივაცია, აღდგენა და წაშლა |
 | Content controllers | `PostController`, `PostLikeController`, `CommentController`, `MessageController`, `ReportController` | პოსტები და მათი ფოტოები, მოწონებები, კომენტარები, შეტყობინებები, რეპორტები |
 | MessageHub | SignalR hub | თითო მომხმარებელს თავისი ჯგუფი აქვს; hub აღრიცხავს კავშირებს და იღებს `SendTyping` გამოძახებას. თავად არაფერს ამოწმებს |
-| Admin controller | `AdminController` | ლოგები, სტატისტიკა, ანგარიშების სია, მოდერაციის სტატუსი და მოდერაციის რიგი |
-| Internal controller (დაგეგმილი) | | digest-ისა და დაბადების დღეების სიები და შეტყობინებების გაგზავნა; მხოლოდ ავტომატიზაციისთვის |
+| Admin controllers | `AdminController`, `ModerationController` | ლოგები, სტატისტიკა, ანგარიშების მართვა და მოდერაციის რიგი; პოსტისა და კომენტარის მოდერაციის სტატუსი |
+| Internal controller | `InternalController` | digest-ისა და დაბადების დღეების სიები და შეტყობინებების გაგზავნა; მხოლოდ ავტომატიზაციისთვის |
 | Background jobs | `RefreshTokenCleanupService`, `SoftDeletedUsersCleanupService`, `OldLogsCleanupService`, `OrphanImagesCleanupService`, `PresenceResetService` | ვადაგასული refresh token-ების, ძველი ლოგების და ობოლი ფოტოების წაშლა; წაშლილი ანგარიშების საბოლოო გასუფთავება retention-ის ვადის შემდეგ; გაშვებისას ყველას ოფლაინად მონიშვნა |
 | User services | `AuthService`, `UserService`, `FriendshipService`, `AccountManagementService`, `AccountActivationService` და დამხმარეები (`PasswordHasher`, `TokenGenerator`, `AccountSecurityService`, `UrlSecurityService`) | მომხმარებლებისა და ანგარიშების ბიზნეს-ლოგიკა |
 | Content services | `PostService`, `PostLikeService`, `CommentService`, `MessageService`, `ReportService`, `ModerationService` | კონტენტის ბიზნეს-ლოგიკა; live მოვლენებს `IHubContext`-ით იმავე მეთოდში აგზავნის, რომელიც მონაცემს ცვლის |
 | Real-time services | `PresenceService`, `TypingService`, `UserConnectionTracker` (singleton) | ონლაინ/ოფლაინ სტატუსი მეგობრებისთვის და „typing“ სიგნალი |
 | Admin services | `LogService`, `StatisticsService` | ლოგების გვერდებად წაკითხვა და სისტემის სტატისტიკა |
-| Internal services (დაგეგმილი) | | digest-ისა და დაბადების დღეების სიების აგება, შეტყობინებების გაგზავნა hub-ით |
+| Internal services | `DigestService`, `BirthdayService`, `NotificationService` | digest-ისა და დაბადების დღეების სიების აგება, შეტყობინებების გაგზავნა hub-ით |
 | Repositories | `BaseRepository<T>`, `BaseEntityRepository<T>` და თითო კლასი ყოველ aggregate-ზე | მონაცემებზე წვდომა EF Core-ით; საერთო pagination და ტრანზაქციები ერთ scoped `ApplicationDbContext`-ზე |
 
 ხედზე არ ჩანს, მაგრამ ყველა მოთხოვნაზე ვრცელდება:

@@ -5,10 +5,10 @@ import { boundary, element, legend, relation, render } from './c4.mjs';
 
 const DATE = 'November 2026';
 
-function component(x, y, w, h, name, technology, description, planned = false) {
+function component(x, y, w, h, name, technology, description) {
   return element({
-    kind: 'component', x, y, w, h, name, planned,
-    type: `Component: ${technology}${planned ? ' (planned)' : ''}`,
+    kind: 'component', x, y, w, h, name,
+    type: `Component: ${technology}`,
     description,
   });
 }
@@ -18,7 +18,6 @@ const componentLegend = (x, y, extra = []) =>
     [
       ...extra,
       { kind: 'component', name: 'Component' },
-      { kind: 'component', name: 'Component, planned', planned: true },
       { kind: 'container', name: 'Container' },
       { kind: 'container', shape: 'database', name: 'Container, database' },
       { kind: 'relation' },
@@ -53,10 +52,10 @@ export function apiRequests() {
     'Posts and their photos, likes, comments, messages, reports.');
   const hub = component(L[2], R1, W, 160, 'MessageHub', 'SignalR hub, /hubs/messages',
     'Keeps one group per user, tracks connections, receives SendTyping.');
-  const adminController = component(L[3], R1, W, 160, 'Admin controller', 'ASP.NET Core controller',
-    'Logs, statistics, account list, moderation status and the moderation queue.');
+  const adminController = component(L[3], R1, W, 160, 'Admin controllers', 'ASP.NET Core controllers',
+    'AdminController: logs, statistics, accounts, the moderation queue. ModerationController: moderation status.');
   const internalController = component(L[4], R1, W, 160, 'Internal controller', 'ASP.NET Core controller',
-    'Digest list, birthday list and notifications, for the automation only.', true);
+    'InternalController: digest list, birthday list and notifications, for the automation only.');
   const jobs = component(L[5], R1, W, 160, 'Background jobs', 'Hosted services',
     'Delete expired refresh tokens, purge soft-deleted users, old log rows and orphaned photos; reset presence at startup.');
 
@@ -69,7 +68,7 @@ export function apiRequests() {
   const adminServices = component(L[3], R2, W, 160, 'Admin services', 'C# services',
     'LogService, StatisticsService.');
   const internalServices = component(L[4], R2, W, 160, 'Internal services', 'C# services',
-    'Build the digest and birthday lists, push notifications.', true);
+    'DigestService, BirthdayService, NotificationService: the lists, and notifications pushed through IHubContext.');
 
   const repositories = component(40, 880, 1620, 90, 'Repositories', 'EF Core, BaseRepository<T>, BaseEntityRepository<T>',
     'One class per aggregate. Shared paging and transactions over one scoped ApplicationDbContext.');
