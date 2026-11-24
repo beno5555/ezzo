@@ -3,7 +3,8 @@
 //   detail:        an optional sentence under it, such as what cannot be undone
 //   confirmButton: the confirm button's text, such as "Delete"
 //   isDestructive: the confirm button takes the danger look rather than the primary one
-//   typedWord:     the typed variant: the confirm button works only once this word is typed
+//   typedWord:     the typed variant: the confirm button works only once this word is typed (or a whole
+//                  sentence, typed exactly as shown)
 export type ConfirmationQuestion = {
   question: string;
   detail?: string;

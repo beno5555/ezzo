@@ -63,6 +63,10 @@ Backend lane: n8n 08 and 11 are finished on their worktree branches and parked: 
 10. [ ] **Tue 24: buffer and finish.** Responsive pass on a phone width. Walk the document top to bottom against the running app and fix what fails. Update `README.md` (monorepo ticket 04) and `docs/backend/*.md` for everything added.
 11. [ ] **Wed 25: hand in.**
 
+### Before the presentation
+
+- [ ] **Allow the app's origin for emailed links.** Add `http://localhost:4200` to `Cors:AllowedOrigins` in `backend/aspnetproject/appsettings.Development.json` (the file is gitignored: edit the copy of the checkout the backend runs from), then restart the backend. Today the list holds only the two `:5500` origins, so forgot-password and reactivation answer "url link is not allowed". Whatever origin serves the frontend in the demo must be on the list.
+
 ### Days the owner is away
 
 The owner expects to lose more than a day, which is more than the buffer. Work that is covered by tests can run without the owner, in a cloud session, and be reviewed afterwards: the frontend's plumbing tickets (unit-tested, with no visual part) and the n8n backend tickets. The pages cannot, because someone has to look at them, and neither can a workflow ticket, because someone has to run its checklist.
@@ -84,4 +88,5 @@ On the frontend, in this order from the end: the default picture's new look (a r
 - Translated server text, which needs a stable code on every backend failure (ADR 0006).
 - **A topic check for posts:** the automation flags, never hides, a post that is not something its author made, with a paid chat-model call beside ticket 06's moderation. It needs a spec first.
 - **The profile of a deactivated account** (found in frontend ticket 22). `GET api/users/{id}` and `PUT api/users/{id}` go through the `User` query filter, so the backend can neither read nor edit a deactivated account's bio and date of birth. The admin panel lists such an account (the admin list ignores the filter), greyed, and offers Restore and Delete only; to edit it, an administrator restores it first (owner, 2026-11-22). Whether an administrator should be able to read or edit a deactivated profile is a backend decision to discuss. No ticket yet.
+- **Extract the tail of `save()`** (found in frontend ticket 17, owner, 2026-11-24). The same nine lines end `save()` in `register-page.ts`, `create-account-dialog.ts`, `edit-profile-dialog.ts` and `profile-settings.ts`: `isSubmitting.set(false)`, `userRefusalField`, `setServerErrors`, `applyFieldErrors`, `failureMessage.set`. Two forms accept a username or an email refusal, two only a username. One helper next to `userRefusalField`, which sets the error on the control only if the form has it, removes both variants. No ticket yet.
 - **Georgian dates in Chrome** (found in frontend ticket 09). Desktop Chrome has no Georgian locale data, so `DateFormatter` falls back to English month names on the Georgian interface; the time zone is right. The fix is a locale polyfill (`@formatjs/intl-datetimeformat` with `ka` data) or our own Georgian month names. No ticket yet; the owner accepts the English dates until then. Also worth doing in spare time before the deadline.

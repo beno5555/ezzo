@@ -99,7 +99,13 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./features/users/user-search-page/user-search-page').then((m) => m.UserSearchPage),
   },
-  { ...placeholderPage('settings', 'settings'), canActivate: [authGuard] },
+  {
+    path: 'settings',
+    title: 'settings',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import('./features/users/settings-page/settings-page').then((m) => m.SettingsPage),
+  },
   {
     path: 'friends',
     title: 'friends',

@@ -291,6 +291,10 @@ export const english = {
       notices: {
         accountCreated: 'Your account was created. Sign in to continue.',
         accountReactivated: 'Your account is active again. Sign in to continue.',
+        accountDeactivated:
+          'Your account is deactivated. To come back, ask for a reactivation link by email with the link under the form.',
+        accountDeleted:
+          'Your account is deleted. Its data is removed for good after the retention period.',
         passwordReset: 'Your password was changed. Sign in with the new one.',
       },
     },
@@ -568,6 +572,65 @@ export const english = {
         retryButton: 'Try again',
       },
     },
+    // The settings page at /settings (features/users/settings-page). The profile form reuses the labels
+    // and hints of registration (auth.register).
+    settings: {
+      heading: 'Settings',
+      // The link above the page that leads back to the page the user came from.
+      backLink: 'Back',
+      loading: 'Loading your settings…',
+      retryButton: 'Try again',
+      profile: {
+        heading: 'Profile',
+        // Under the username: the rule, then when it was last changed, then when it can change again.
+        usernameRule: (days: number) =>
+          pluralize(Language.English, days, {
+            one: `Your username can change once in ${days} day.`,
+            other: `Your username can change once in ${days} days.`,
+          }),
+        usernameNeverChanged: 'You have not changed it yet.',
+        usernameLastChanged: (date: string) => `You last changed it on ${date}.`,
+        usernameChangeableFrom: (date: string) => `You can change it again on ${date}.`,
+        usernameChangeableNow: 'You can change it now.',
+        created: (date: string) => `Your account was created on ${date}.`,
+        submitButton: 'Save changes',
+        savedToast: 'Your profile is saved.',
+      },
+      language: {
+        heading: 'Language',
+        description: 'Choose the language of the interface.',
+      },
+      password: {
+        heading: 'Password',
+        description: 'We email you a link to choose a new password.',
+        requestButton: 'Email me a reset link',
+        sent: (email: string) =>
+          `The email is on its way to ${email}. Open its link to choose a new password.`,
+      },
+      dangerZone: {
+        heading: 'Danger zone',
+        deactivate: {
+          heading: 'Deactivate your account',
+          description:
+            'You are signed out and your account is hidden. You can reactivate it any time with a link we email you.',
+          button: 'Deactivate account',
+          question: 'Deactivate your account?',
+          detail: 'You are signed out at once. A link by email brings the account back.',
+          confirmButton: 'Deactivate',
+        },
+        delete: {
+          heading: 'Delete your account',
+          description:
+            'You are signed out and your account is deleted. Its data is removed for good after the retention period.',
+          button: 'Delete account',
+          question: 'Delete your account?',
+          detail: 'You are signed out at once, and the account cannot be brought back.',
+          // The sentence to type to confirm, with the username as it is now.
+          typedSentence: (username: string) => `I am ${username} and I want to delete my account`,
+          confirmButton: 'Delete',
+        },
+      },
+    },
   },
   // The friendship buttons on a profile and what they ask (features/friendships).
   friendships: {
@@ -666,7 +729,8 @@ export const english = {
     },
     // A post's own page (/posts/:postId, features/posts/post-page).
     page: {
-      // The link above a post and above the composer that leads back to the feed.
+      // The link above a post, which goes back to the page the reader came from, and above the composer,
+      // which leads to the feed.
       backLink: 'Back',
       // The same link when the composer was opened from the user's own profile.
       backToProfileLink: 'Back to your profile',

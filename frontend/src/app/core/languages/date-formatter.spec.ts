@@ -44,6 +44,26 @@ describe('DateFormatter', () => {
     });
   });
 
+  describe('date', () => {
+    it('writes the day of a moment with its year, in the local time zone', () => {
+      const dates = startFormatter('Asia/Tbilisi', Language.English);
+
+      expect(dates.date('2026-11-15T14:30:00Z')).toBe('Nov 15, 2026');
+    });
+
+    it('moves to the next day when the local time zone is already there', () => {
+      const dates = startFormatter('Asia/Tbilisi', Language.English);
+
+      expect(dates.date('2026-11-15T21:30:00Z')).toBe('Nov 16, 2026');
+    });
+
+    it('writes the date in Georgian', () => {
+      const dates = startFormatter('Asia/Tbilisi', Language.Georgian);
+
+      expect(dates.date('2026-11-15T14:30:00Z')).toBe('15 ნოე, 2026');
+    });
+  });
+
   describe('shortTime', () => {
     // 18:30 on 15 November in Tbilisi.
     const now = new Date('2026-11-15T14:30:00Z');
