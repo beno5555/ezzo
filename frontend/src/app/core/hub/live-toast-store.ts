@@ -20,7 +20,7 @@ const messagePreviewLength = 60;
 
 const ellipsis = '…';
 
-// The rules that turn a hub event into a toast ("Toasts" in .scratch/frontend/spec.md), in one place and
+// The rules that turn a hub event into a toast ("Toasts" in planning/frontend/spec.md), in one place and
 // with no template. HubClient calls one method per event; what each event means is decided here.
 //   - A message shows a toast unless its conversation is the open one, which the user can already see.
 //   - A comment and a like on the user's post each show a toast that opens the post.

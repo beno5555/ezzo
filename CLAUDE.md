@@ -2,7 +2,7 @@
 
 **Ezzo** is a small social platform: posts, comments, friendships, direct messages, presence. This repo is a monorepo: the ASP.NET Core Web API (`net10.0`) lives in `backend/`, the Angular 22 frontend in `frontend/`, and the n8n automation in `n8n/`. The backend uses EF Core with SQL Server, JWT auth with rotating refresh tokens, SignalR, MailKit email and background cleanup jobs. The restructure happened **inside** the current root folder: never rename or relocate the root itself, because Claude Code's project memory is keyed to its path.
 
-**The former name.** The product was called WebCity until 2026-11-25, and the names that something else reads keep it until a later rename ("After the deadline" in `.scratch/roadmap.md`), so never "fix" them: the `X-WebCity-Signature` header; the `WEBCITY_*` variables of n8n, the screenshot command and `frontend/.env`; the browser storage keys `webcity.theme` and `webcity.language`; the session lock `webcity-refresh-cookie`; the frontend package and Angular project `webcity`; the ESLint plugin `webcity/...`; the test hosts `*.webcity.test`, the test upload folder `webcity-test-uploads` and the probe origin `webcity.invalid`; the Linux test script's `~/.webcity-test` and `webcity-test-sql`, and the cloud database `WebCityDev`; and the `webcity-conventions` skill.
+**The former name.** The product was called WebCity until 2026-11-25, and the names that something else reads keep it until a later rename ("After the deadline" in `planning/roadmap.md`), so never "fix" them: the `X-WebCity-Signature` header; the `WEBCITY_*` variables of n8n, the screenshot command and `frontend/.env`; the browser storage keys `webcity.theme` and `webcity.language`; the session lock `webcity-refresh-cookie`; the frontend package and Angular project `webcity`; the ESLint plugin `webcity/...`; the test hosts `*.webcity.test`, the test upload folder `webcity-test-uploads` and the probe origin `webcity.invalid`; the Linux test script's `~/.webcity-test` and `webcity-test-sql`, and the cloud database `WebCityDev`; and the `webcity-conventions` skill.
 
 ## About this file
 
@@ -36,7 +36,7 @@ The backend has no linter or formatter. **Frontend:** run from `frontend/` (Node
 
 ### Config prerequisites
 
-Use the [development setup](backend/README.md#running-it) for local appsettings and the [test settings guide](docs/backend/testing.md#local-test-settings) for direct test runs. Keep appsettings files in `backend/aspnetproject/` and never print or commit their secret values.
+Use [Getting started](README.md#getting-started) for local appsettings and the [test settings guide](docs/backend/testing.md#local-test-settings) for direct test runs. Keep appsettings files in `backend/aspnetproject/` and never print or commit their secret values.
 
 ### Integration tests
 
@@ -84,6 +84,6 @@ Follow the project skill `.claude/skills/webcity-conventions` (it overrides the 
 - **Running the app:** look at a page through the Playwright MCP server (`.mcp.json`; **Temporary**: on trial, see "Ending the trial" in `docs/agents/screenshots.md`), or, when its tools are not available, through the owner's Chrome with the Claude in Chrome extension (call `tabs_context_mcp` first). Photograph it with the screenshot command (`docs/agents/screenshots.md`). If a page needs data, start the backend as well (`dotnet run --project aspnetproject --launch-profile https` from `backend/`). A cloud session has no database or settings yet: `docs/agents/cloud-backend.md`. Before you report, stop every server you started and confirm ports 4200 and 7102 are free (`netstat -ano | grep LISTENING`). On Windows, stopping the background `npm start` task can leave its `ng serve` child holding 4200; end it with `taskkill //PID <pid> //T //F`.
 - **Commands for the owner** assume the owner is at the repo root. Write each command so it runs from there as written: no "in `frontend/`, run ..." steps.
 - **Skills:** `~/.claude/skills/` links into `.claude/skills/` by Windows junctions, and `.agents/skills/` holds git symlinks for Codex. Never remove a link with `rm -rf` (it can delete the repo copy); read `docs/agents/skills.md` before touching either folder.
-- **Issue tracker:** issues and specs live as local markdown files under `.scratch/<feature>/`. See `docs/agents/issue-tracker.md`.
+- **Issue tracker:** issues and specs live as local markdown files under `planning/<feature>/`. See `docs/agents/issue-tracker.md`.
 - **Domain docs:** single-context, one `GLOSSARY.md` and `docs/adr/` at the repo root, created lazily. See `docs/agents/domain.md`.
 - **Codex** reviews branches and can run a lane (`docs/agents/codex.md`). It reads `AGENTS.md`, which repeats the owner's rules from your project memory: when you add or change a memory rule that applies to every agent, update that list in the same task.

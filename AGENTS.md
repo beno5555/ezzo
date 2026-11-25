@@ -35,6 +35,6 @@ Claude Code keeps these in a memory you cannot read. They apply to you too.
 - **After a ticket,** end your report with every file you changed, grouped by kind (services, tests, docs, ...), with new files marked.
 ## Working beside Claude Code
 
-- Claude and you share no memory. What one of you knows reaches the other only through commits, `.scratch/` tickets and the roadmap, and the docs. Write down there anything the other needs.
+- Claude and you share no memory. What one of you knows reaches the other only through commits, `planning/` tickets and the roadmap, and the docs. Write down there anything the other needs.
 - Never edit a branch that another session has checked out. `git worktree list` shows them.
 - **As a reviewer:** report findings and change nothing, unless the owner asks for fixes. For each bug, include a file and line, a concrete failing scenario, and a severity. The house style is deliberate: concrete classes with no interfaces, one `return` per method outside controllers, the `ApplicationResponse` wrapper and the rest of `webcity-conventions`. Never report it as a defect. Report a rule broken by the code, not a rule you would prefer.

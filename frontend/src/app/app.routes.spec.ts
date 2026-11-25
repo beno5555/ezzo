@@ -7,7 +7,7 @@ import { guestGuard } from './core/routing/guest-guard';
 
 type Access = 'anyone' | 'auth' | 'guest' | 'admin';
 
-// The address table in .scratch/frontend/spec.md ("Addresses"), path by path.
+// The address table in planning/frontend/spec.md ("Addresses"), path by path.
 const addressTable: Record<string, Access> = {
   register: 'guest',
   'forgot-password': 'anyone',

@@ -172,26 +172,18 @@ Folders are grouped by domain area, not by REST noun, and the grouping repeats a
 
 ## Running it
 
-Use the .NET 10 SDK and a SQL Server instance. Create the gitignored appsettings files you need in `backend/aspnetproject/`. A fresh clone supplies no template. For local development, set the following in `appsettings.Development.json`.
+The first setup (prerequisites, the settings file `appsettings.Development.json`, the database and the start commands) is under [Getting started](../README.md#getting-started). The appsettings files are gitignored and stay in `backend/aspnetproject/`; a fresh clone has none. What the settings in that guide are for:
 
-- `ConnectionStrings:DefaultConnection` for the development database.
-- `Jwt:Key`, `Jwt:AccessTokenMinutes`, `Jwt:RefreshTokenDays`, and `PasswordConfiguration:ResetTokenMinutes` for account flows. Keep the signing key and connection credentials out of Git.
-- `EmailConfiguration` for SMTP, or `EmailConfiguration:Enabled` set to `false` for local development without mail delivery. `EmailConfiguration:SenderName` is the sender's name users see on the backend's emails.
+- `ConnectionStrings:DefaultConnection`: the development database.
+- `Jwt:Key`, `Jwt:AccessTokenMinutes`, `Jwt:RefreshTokenDays` and `PasswordConfiguration:ResetTokenMinutes`: the account flows. Keep the signing key and connection credentials out of Git.
+- `EmailConfiguration:Enabled` set to `false` sends no mail. To send it, leave it out and set `SmtpHost`, `SmtpPort`, `SenderEmail`, `Username` and `Password` for an SMTP account; `SenderName` is the sender's name users see on the backend's emails.
 - `Cors:AllowedOrigins`, including `http://localhost:4200` when running the frontend, so password reset and reactivation accept links back to it.
-
-Apply the database migrations before the first dev run. Run these commands from `backend/` with the `dotnet-ef` tool installed.
-
-```bash
-dotnet build aspnetproject.slnx
-dotnet ef database update --project aspnetproject -- --environment Development
-dotnet run --project aspnetproject --launch-profile https
-```
 
 Under either launch profile the backend listens on `https://localhost:7102`, the address the frontend's proxy uses, and on `http://localhost:5045`; the profiles differ only in which comes first ([launchSettings.json](aspnetproject/Properties/launchSettings.json)).
 
 See the settings for [cleanup jobs](../docs/backend/background-jobs.md), [image storage](../docs/backend/controllers.md#postcontroller), [password hashing](../docs/backend/auth.md#authentication--authorization), [automation events](../docs/backend/automation.md#settings), and [automation API access](../docs/backend/auth.md#the-automations-api-key-second-scheme).
 
-For a presentation, `dotnet run --project aspnetproject --launch-profile https -- seed-demo` (Development only) empties the database except the administrator (Id 1), seeds a small named cast with posts, chats, friend requests and moderation work, removes every uploaded file, and exits instead of serving. Every password becomes `password123`. Times are relative to the run, so run it again on the morning of a demo. `Data/Seed/DemoDataSeeder.cs` describes what it writes.
+For a presentation, the demo seed (`seed-demo`, step 3 of [Getting started](../README.md#getting-started); Development only) empties the database except the administrator (Id 1), seeds a small named cast with posts, chats, friend requests and moderation work, removes every uploaded file, and exits instead of serving. Every password becomes `password123`. Times are relative to the run, so run it again on the morning of a demo. `Data/Seed/DemoDataSeeder.cs` describes what it writes.
 
 For direct test runs, prepare the [local test settings](../docs/backend/testing.md#local-test-settings) and run `dotnet test aspnetproject.IntegrationTests` from `backend/`. On Linux, run [`scripts/test-linux.sh`](../scripts/test-linux.sh) from the repository root to provision SQL Server in Docker and run the suite.
 

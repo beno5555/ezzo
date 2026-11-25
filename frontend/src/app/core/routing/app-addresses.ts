@@ -1,5 +1,5 @@
 // The app's own addresses that code and the shell link to (the table under "Addresses" in
-// .scratch/frontend/spec.md). app.routes.ts holds the patterns; this file holds the addresses.
+// planning/frontend/spec.md). app.routes.ts holds the patterns; this file holds the addresses.
 export const appAddresses = {
   // The home address: the feed for a signed-in user, the landing page with the sign-in form for a guest.
   home: '/',

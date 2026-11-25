@@ -37,4 +37,4 @@ When working from a ticket, append a round report to it before you commit, under
 
 Point to the ticket or an earlier comment rather than repeat it. Test durations and the changed files go only in the chat report, which covers the rest too.
 
-Copy the screenshots you looked at to `.scratch/<feature>/shots/<ticket number>/` in the main checkout. Git ignores it, and it outlives the session and a lane's worktree. From a worktree, the main checkout is `$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")`.
+Copy the screenshots you looked at to `planning/<feature>/shots/<ticket number>/` in the main checkout. Git ignores it, and it outlives the session and a lane's worktree. From a worktree, the main checkout is `$(dirname "$(git rev-parse --path-format=absolute --git-common-dir)")`.

@@ -13,7 +13,7 @@ The copies in `~/.claude/skills/` with the same names are **Windows directory ju
 Codex discovers project skills through **Git symlinks** (mode `120000`) in `.agents/skills/`. Both harnesses use the same `SKILL.md` files under `.claude/skills/`.
 
 - Codex can select `webcity-conventions`, `tdd`, `codebase-design`, `domain-modeling`, `frontend-design`, `spec-review` and `impeccable`.
-- Start the owner-invoked workflows with `$implement`, `$revise`, `$to-spec`, `$to-tickets`, `$handoff`, `$grill-with-docs`, `$grilling` or `$setup-matt-pocock-skills`. For example, type `$implement .scratch/<feature>/issues/<ticket>.md` in Codex. The Codex policy is `allow_implicit_invocation: false` in each skill's `agents/openai.yaml`. Claude Code uses its existing frontmatter and slash commands.
+- Start the owner-invoked workflows with `$implement`, `$revise`, `$to-spec`, `$to-tickets`, `$handoff`, `$grill-with-docs`, `$grilling` or `$setup-matt-pocock-skills`. For example, type `$implement planning/<feature>/issues/<ticket>.md` in Codex. The Codex policy is `allow_implicit_invocation: false` in each skill's `agents/openai.yaml`. Claude Code uses its existing frontmatter and slash commands.
 - Follow `AGENTS.md` for Claude-specific steps in a shared skill, including the two passes in `spec-review`.
 
 - A Windows checkout needs `git config core.symlinks true` (and Windows Developer Mode, which is on). Without it, git writes each link as a small text file holding the path, and Codex finds no skills. Linux and cloud checkouts need nothing.

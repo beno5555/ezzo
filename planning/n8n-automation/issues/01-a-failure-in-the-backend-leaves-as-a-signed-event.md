@@ -1,0 +1,59 @@
+# 01: A failure in the backend leaves as a signed event
+
+**What to build:** When a request or a background job fails with an unhandled exception, the backend posts a signed `exception-occurred` event to the automation's address. This ticket builds the one module every later event goes through, and proves it with the first event. Nothing on the n8n side is built here: the test host records what leaves.
+
+- **The publisher.** One module with one call: an event name and a data object. It builds the envelope (a unique id, the event name, the UTC time, `data`), writes JSON the way the API does, signs the exact bytes of the body, and posts to `{base URL}/webhook/{event name}`. It never throws.
+- **The signature.** The header `X-WebCity-Signature` holds the lower-case hex of HMAC-SHA256 over the body, keyed with the signing secret.
+- **One awaited attempt,** with a timeout of 3 seconds by default. No retry. A failure (unreachable, timeout, any answer that is not a success) writes one `Log` row through the database logger and changes nothing else.
+- **Settings,** in an options class with defaults: on or off (off by default), the base URL, the signing secret, the timeout. When events are on and the base URL or the secret is missing, the app refuses to start. When events are off, publishing does nothing and writes no log.
+- **`exception-occurred`** is sent from the global exception handler and from a background job's failed cycle. Its data: the exception type, the message, the first 15 lines of the stack trace, the kind of place (request or job), the place (the HTTP method and the path without the query string, or the job's name), and a fingerprint made of the type and the place. It never carries a request body, a header, the query string or user data. The answer the caller gets does not change.
+- **No loop.** A failure inside the publisher is caught there and never produces another event.
+- **A route that throws on purpose,** mapped only in Development, as Swagger is. No existing route can be made to fail on request, and the tests, ticket 02's checklist and the demo all need one.
+- **The test seam.** The test host can turn events on, point them at an address that does not exist, and swap the HTTP handler behind the publisher for a recorder that a test can read and can tell to fail or to time out. Later tickets use the same recorder.
+
+Decisions are under "Events" and "Testing Decisions" in `planning/n8n-automation/spec.md`. The words Automation and Alert are defined in `GLOSSARY.md`.
+
+**Blocked by:** None (can start immediately).
+
+**Status:** done
+
+**Difficulty:** tricky: the first outgoing HTTP call in this backend, with a signature, a rule that it never throws or loops, and a pattern that tickets 04 onward copy.
+
+- [x] A request to the throwing route produces one recorded event at `/webhook/exception-occurred`, with the envelope and the data listed above
+- [x] The recorded signature equals HMAC-SHA256 of the recorded bytes with the test secret, computed again in the test
+- [x] The event's place carries the method and the path, and never the query string, when the failing request had one
+- [x] A background job built in the test that throws, run once through `RunOnceAsync`, produces one event with the job's name; its `Log` row is still written
+- [x] With the recorder failing, and with it timing out, the caller still gets the usual exception answer, one `Log` row records the failed delivery, and no second event appears
+- [x] With events off, nothing is recorded and no log row is written
+- [x] A host with events on and no base URL, or no signing secret, fails at startup with an error that names the setting
+- [x] The throwing route does not exist outside Development
+- [x] A new `docs/backend/automation.md` describes the publisher, the envelope, the signature and the event; `background-jobs.md` says a failed cycle sends an event; the settings list in `CLAUDE.md` (Config prerequisites) names the new settings and their defaults
+- [x] The full suite passes, and its `Duration` is recorded in this ticket's comments
+
+## Comments
+
+**2026-11-17, implementation (cloud session, branch `claude/kind-fermi-rgzhwf`).**
+
+- Full suite through `scripts/test-linux.sh`: 564 passed, 0 failed, `Duration: 36 s` (baseline before the ticket: 542 passed, `Duration: 27 s`). 22 new tests in `Automation/ExceptionOccurredEventTests` and `Automation/EventPublisherStartupTests`.
+- `/spec-review` ran on Opus 5.5 at high effort; Fable 5.2 was unavailable (usage limit). Standards: no hard violations. Spec: nothing missing. Fixed after the review: the negative `if` in `EventPublisher.SendAsync`, an unused test constant, and the log-details truncation, which was duplicated in `EventPublisher` and `PeriodicHostedService` and now lives in `Logging/LogDetails`. `automation.md` now says that `occurredAt` is taken at send time, because each event is published in the same method as the thing it reports.
+- Additions beyond the ticket:
+  - startup also fails when `AutomationEvents:Timeout` is zero or less, because `HttpClient` throws on such a value and the publisher must never throw;
+  - the throwing route has its own per-IP rate-limit policy (`ThrowOnPurpose`, 30 a minute), as every new action does;
+  - a failed delivery's `Log` row is written through a scope of its own, so a `DbUpdateException` left in the request's `DbContext` cannot block it.
+- Not tested: the event for the conflict answer (a `DbUpdateException`). It goes through the same code before the status branch in `GlobalExceptionHandler`, but no test forces one.
+- **Correction to the merge note first written here.** It said `origin/master` had been force-pushed and that the container's `master` (`685d7e6`) held commits found nowhere else. Both claims were wrong. The cloud clone was shallow, so `git fetch` reported a "forced update" and found no merge base. After `git fetch --unshallow`, `685d7e6` is an ancestor of `origin/master`. CLAUDE.md now describes this trap and forbids force-pushing `master`.
+- Merged into `master` with `--no-ff` after `master` was fast-forwarded to `origin/master` (`1978158`, which includes ticket 25). The full suite was run again on the merge before the push; its result is in the merge report.
+
+**2026-11-17, after the merge: weak links, and the tickets they are written into.** Each affected ticket has a "Known limits from ticket 01" section; this is the index.
+
+1. **The fingerprint split one failure by id.** Fixed: a request's fingerprint now uses the matched route's template (`GET /api/posts/{id:int}`), and `place` keeps the address. The throwing route takes an optional id to test it. Spec and `automation.md` updated. Written into 02 and 14.
+2. **SignalR hub exceptions, startup failures and `4xx` answers send no event.** Decided (owner, 2026-11-17): hub failures do not alert. The hub only runs presence and typing; messages, comments and likes go through HTTP and alert there. Written into 02 and 14.
+3. **Could `message` carry user input?** Checked against the code (2026-11-17): no. The backend throws only the dev route's exception; every save of user text (posts, comments, private messages, profiles) fails as EF's `DbUpdateException`, whose top-level message is fixed text, and the database's own error, which can quote a value, stays in the inner exception, which the event never sends. Bulk updates and raw SQL write only statuses, times and ids. To keep it so, `webcity-conventions` (error-handling.md §4) now forbids user data in exception messages. Written into 02 and 14.
+4. **The awaited send slows a request when n8n hangs**, by up to `AutomationEvents:Timeout` (3 seconds). Written into 04 (user-facing actions; test with a timeout) and into 02, 05, 06 and 07 (answer straight after the signature check).
+5. **Events are lost while n8n is down**; the `Log` row names the event but not the entity. Written into 02, 04, 05, 06, 07 and 14. Ticket 02 now gives n8n a restart policy, and ticket 15 (after the deadline) stores failed events and sends them again.
+6. **The signature covers the exact bytes and has no timestamp.** Verify the raw body; replays are possible (out of scope). Written into 02, 05, 06 and 07.
+7. **Nothing ties an event's name to its data**, and enums are text only through an attribute on the DTO. Written into 04.
+8. **`occurredAt` is the send time.** Publish right after the commit, never inside a transaction delegate. Written into 04.
+9. **The conflict answer's event is untested.** Not written elsewhere; a test would have to force a `DbUpdateException` through HTTP.
+
+Tickets 03, 08, 09, 10, 11, 12 and 13 receive no events and are not affected.
