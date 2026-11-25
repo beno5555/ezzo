@@ -2,6 +2,8 @@
 
 Ezzo is a small social platform for people who make things as a hobby: they post what they made, get feedback in the comments, become friends and message each other in real time. The name comes from the Georgian word for a courtyard (ეზო), the shared yard where neighbours meet. The product and its audience are described in [PRODUCT.md](PRODUCT.md).
 
+Until November 2026 the project was called WebCity, which is why some names still use it: the `X-WebCity-Signature` header, the `WEBCITY_*` settings, the frontend package `webcity` and a few others. They will be renamed later.
+
 ## Repository layout
 
 ```
