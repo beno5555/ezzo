@@ -103,23 +103,32 @@ The automation (the welcome email, AI moderation and Telegram alerts) is optiona
 
 ## Features
 
-**Accounts.** People register with an email, a username and a password, and stay signed in between visits. A forgotten password is reset through an emailed link. An account can be deactivated, which hides it from everyone until it is reactivated through an emailed link, or deleted.
+**Accounts.** People register with an email, a username and a password, and stay signed in between visits. A forgotten password is reset through an emailed link. On the settings page, people edit their profile, choose the language, ask for a password reset link, and deactivate or delete their account. A deactivated account is hidden from everyone until it is reactivated through an emailed link. A deleted one is removed for good, with its posts, messages and photos, after a waiting period.
 
-**Posts and the feed.** A post has text and up to ten photos. The feed shows everyone's posts, not only friends', ranked by how close you are to the author, how much activity the post has and how new it is, so friends' posts come first. Posts collect likes and comments, and authors can edit or delete their own. Guests can read profiles and posts without an account.
+**Posts and the feed.** A post has text and up to ten photos. The feed shows everyone's posts, not only friends', ranked by how close you are to the author, how much activity the post has and how new it is, so friends' posts come first. Posts collect likes and comments, and authors can edit or delete their own. A comment can be deleted by its author, by the post's author or by an administrator. Guests can read profiles and posts without an account.
 
-**People.** A profile shows the person's bio and posts. Search finds people by username. A friend request is accepted or declined, and either side can end the friendship later.
+**People.** A profile shows the person's bio, posts and friends. Search finds people by username. A friend request is accepted or declined, and either side can end the friendship later.
 
 **Chat.** Friends message each other in real time, photos included. A message can be edited for 20 minutes after it is sent, and deleted. Read receipts, a typing indicator and who is online (or when they were last seen) update live, and small pop-ups announce new messages, comments, likes and friends coming online.
 
-**Reports and moderation.** Anyone signed in can report a post, a comment or a user. An administrator reviews each report in the admin panel and either hides what was reported or rejects the report. The panel also manages accounts, holds the queue of flagged content, and shows the logs and statistics.
+**Reports and moderation.** Anyone signed in can report a post, a comment or a user. An administrator reviews each report in the admin panel and either hides what was reported or rejects the report. An administrator can also delete any post or comment, or hide it from its "…" menu and make it visible again; hidden content stays visible to its author and to administrators. The admin panel creates, edits, deactivates, reactivates and deletes accounts, gives or removes the administrator role, holds the queue of flagged content, and shows the logs and statistics.
 
 **Automation** (optional). New accounts get a welcome email. AI moderation checks new and edited posts and comments, and flags or hides harmful ones. Five reports within 24 hours hide a post or comment. Administrators get a Telegram message for every report, developers for every server error.
 
 **Interface.** English and Georgian, light and dark themes, from a phone to a desktop.
 
+**Planned:**
+
+- **A weekly digest email.** The backend part is done: it lists who gets the digest and what it says, and lets a user switch it off. The n8n workflow that sends it and the switch on the settings page are not started.
+- **Birthday notifications.** The backend part is done: it lists the users with a friend whose birthday is today, and delivers a notification to those who are online. The n8n workflow that sends them and the pop-up that shows them are not started.
+- **Who liked a post.** The API lists the people who liked a post; the page that shows them is not started.
+- **Hidden content in the moderation page, and flagging from the "…" menu.** Not started.
+
 ## How it is built
 
 Ezzo has two halves: the backend, an ASP.NET Core Web API ([backend/README.md](backend/README.md)), and the frontend, an Angular single-page app ([frontend/README.md](frontend/README.md)). The browser reaches both from one origin ([ADR 0001](docs/adr/0001-single-origin-for-frontend-and-backend.md)). The automation is n8n in Docker: the backend sends it signed events, and it calls the backend back with its own API key ([n8n/README.md](n8n/README.md)).
+
+Nearly every endpoint is rate-limited: by IP address before sign-in, by user after it, with one global limit over all requests on top ([docs/backend/auth.md](docs/backend/auth.md#rate-limiting)).
 
 ## More
 

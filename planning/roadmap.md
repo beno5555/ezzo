@@ -1,10 +1,8 @@
 # What's next
 
-The order of work toward the full-stack deadline, 2026-11-25. A ticket's own `Status:` line is the truth about it; this file only holds the order, the open decisions and what is still missing. Decisions live in the specs, `docs/adr/` and `DESIGN.md`, rules in the conventions skill, and what waits for the owner's eyes in `planning/review-queue.md`.
+What is ahead for Ezzo now that the full-stack deadline (2026-11-25) is behind it. A ticket's own `Status:` line is the truth about it; this file only holds the order, the open decisions and what is still missing. Decisions live in the specs, `docs/adr/` and `DESIGN.md`, rules in the conventions skill, and what waits for the owner's eyes in `planning/review-queue.md`.
 
-**Keep this file about what is ahead.** When a step or round is done, tick it or say "merged" and delete its detail: no merge dates, test durations or review notes. Git history, the ticket and the review queue hold those. Every repeated fact is one more line to go stale.
-
-**Scope is fixed.** The documentation sent to the academy (`webcity-documentation.md` at the repo root) is the commitment: everything in it is due on the 25th. The schedule has one buffer day (Tue 24) and no other slack. If a day slips, the items under **Last in line** move, not the pages.
+**Keep this file about what is ahead.** When a step is done, delete it: no merge dates, test durations or review notes. Git history, the ticket and the review queue hold those. Every repeated fact is one more line to go stale.
 
 ## Settled
 
@@ -13,83 +11,41 @@ Each decision is recorded where the work reads it: the name session in `PRODUCT.
 - **An unexpected server error keeps the failure envelope.** The document says `ProblemDetails`; the owner accepts the difference (readiness ticket 02 and ADR 0003 stand).
 - **The moderation queue is two routes,** `GET /api/admin/moderation-queue/posts` and `/comments`, where the document lists one.
 
-## Now
+## Open tickets
 
-Dates are the day a step should finish. **Steps 5 to 8, the pages, are done.** Every hour lost from here is taken from Last in line.
+In the suggested order. Every one is `ready-for-agent` unless it says otherwise.
 
-### Lanes: which tickets run in parallel
+1. **Hidden content, and flagging from the menu** (owner, 2026-11-23). An administrator can restore hidden content only through the "…" menu of the item itself, and cannot flag from the menu at all. Backend ticket 14 (documented-backend-features) lists hidden posts and comments; frontend ticket 43 adds a Hidden tab to the moderation page (and extracts the shared panel); frontend ticket 44 adds Flag to the menu. Ticket 43 waits for 14.
+2. **The weekly digest:** n8n ticket 09 (the workflow) with ticket 10 (the switch on the settings page). The backend part, ticket 08, is merged.
+3. **Birthday notifications:** n8n ticket 12 (the workflow) with ticket 13 (the toast). The backend part, ticket 11, is merged. Ticket 12 must send `data` as `{ friends }` and stay under 60 calls a minute.
+4. **Grouping repeated exception alerts:** n8n ticket 14.
+5. **The feed comes back as the reader left it:** frontend ticket 35.
+6. **Whether the CDK can load only when a dialog or menu opens:** frontend ticket 38, an investigation that may end with no change.
+7. **Retried events:** an outbox table and a job that resends an event the automation did not receive (n8n ticket 15). Until then an event sent while n8n is down is lost.
+8. **Dropped for now** (owner, 2026-11-24): F39 (save a photo from the viewer) and F40 (save a message's or post's photos together) are a new feature; F42 (a three-field date of birth replacing the browser date picker in register and both admin dialogs) is polish.
+9. **Frontend ticket 30, Impeccable** (`in-progress`). Merged, and the hook stays on. Open only for box 6, a cloud session's run of the launcher. No ticket waits for it.
 
-Two worktree lanes at a time (`docs/agents/worktrees.md`), each taking frontend tickets from **different feature areas**, so that the only shared files are the routes and the two dictionaries. A lane that finishes early takes the next ticket in its own column. "F" is a frontend ticket. Rounds 0 to 14 are merged. F39 and F40 (saving photos to the device) are dropped, and F42 moves after the deadline (owner, 2026-11-24): see **After the deadline**.
+## Hosting
 
-| Round | Lane 1                                            | Lane 2                                     |
-| ----- | ------------------------------------------------- | ------------------------------------------ |
-| 7     | F10, write a post (merged)                        | F18, chat: list and reading (merged)       |
-| 8     | F11, the post page (merged)                       | F22, admin: layout and users (merged)      |
-| 9     | F12, edit and delete a post (merged)              | F19, chat: send and receive live (merged)  |
-| 10    | F13, reports from the normal pages (merged)       | F20, chat: edit, delete, typing (merged)   |
-| 11    | F14, the profile page (merged)                    | F23, admin: reports and the queue (merged) |
-| 12    | F16, user search (merged)                         | F24, admin: logs and statistics (merged)   |
-| 13    | F15, the friends page (merged)                    | F21, live toasts (merged)                  |
-| 14    | F17, the settings page (merged)                   | F41, the landing page with sign-in (merged) |
-| 15    | F31, the default picture's silhouette (merged)    |                                            |
+Ezzo runs only on the owner's machine (shared for the demo through a tunnel). To host it:
 
-Backend lane: n8n 08 and 11 are merged. The settings page's digest switch is added only if time allows. Readiness 07 is left out: it matters only if the demo moves to a host.
+- **nginx in front, per ADR 0001:** it serves the built frontend with long caching for the hashed files and `no-cache` for `index.html`, compresses, and forwards `/api` and `/hubs` (with the WebSocket upgrade) to the backend. No ticket yet.
+- **Readiness ticket 07:** the per-IP rate limits see the real client IP behind the proxy. Without it, every visitor shares the proxy's limit.
+- **A setup script** that prepares a fresh clone (settings file, database, demo data) for a newcomer. The owner runs `/to-tickets` for it. Its rules: never overwrite an existing settings file, never touch `appsettings.json`, never run `seed-demo` on a database it did not create, avoid port clashes, never stop a running app. It must also not get in the way of hosting.
 
-1. [ ] **Design.** The name was still open, so the design session fixed the structure and left the brand for later. The frontend setup (tickets 27 to 29) is merged.
-   - [ ] **Frontend ticket 30: Impeccable.** Merged, and the owner kept the hook on after its trial on F10. Open only for box 6, a cloud session's run of the launcher. No ticket waits for it.
-   - [x] **The name session.** The product is Ezzo (`PRODUCT.md`).
-   - [x] **The brand session** (worktree `brand`). The owner chose skin A, **Balcony** (2026-11-23), revised after a second review: the painted balconies over Tbilisi's courtyards, a cool plaster page with a balcony-blue accent (moved off teal so it stays apart from `success` in hue and lightness), Bricolage Grotesque narrow and heavy for display, Noto Sans stays the body. The values below passed the contrast check in both themes. The session waits for F13 and F20 to reach `master`, merges `master` into its branch, then:
-     - Replaces the provisional values in `DESIGN.md` and the token file, and adds the scrollbar rule (`border-strong` on `surface-page`). Light: page `#ecf1f2`, raised `#ffffff`, sunken `#dce5e8`, ink `#12202a`, muted `#485b63`, border `#c9d6da`, border-strong `#6a8088`, accent `#1d6a8e`, accent-strong `#134d68`, on-accent `#ffffff`, success `#24561a`. Dark: page `#0f1a20`, raised `#1e2f38`, sunken `#060c10`, ink `#e5eef1`, muted `#9db1b9`, border `#33474f`, border-strong `#6d8791`, accent `#9bd3f2`, accent-strong `#c2e4f7`, on-accent `#05263a`, success `#74bd52`. Danger and warning keep their values; focus equals accent.
-     - The display stack is Bricolage (weight and width axes, Latin plus Latin Extended), then Noto Sans (Cyrillic), then the variable Noto Sans Georgian, so Georgian headings get the same narrow, heavy look; Georgian headings drop the Latin letter spacing. Body Noto Sans serves its Latin Extended and Cyrillic subsets (₾, ş, ł, ґ). `DESIGN.md`'s typography names the Cyrillic partner.
-     - The logo is the wordmark "ezzo" drawn as an SVG, with the balcony fretwork (hanging teeth with drilled holes on a rail) only beside it on the sign-in and landing pages; the browser tab gets a compact mark. The owner picks from two or three tab marks before anything goes in.
-     - The discs are redrawn from the Balcony palette, white letters at 4.5 to 1 or more, still chosen by id: `#1f6b62`, `#2f6a47`, `#566a1d`, `#3d5788`, `#4c4f8c`, `#8a4925`, `#69513a`, `#6d3c69`; unavailable `#686c6e`.
-     - The active link in the bars changes from a sunken pill to accent text with a bar along the edge (`active-bar-link.ts`). Every danger button carries a trash icon. Chat bubbles keep the app's look (own on sunken, the other person's on a bordered page surface).
-     - Every on-screen "WebCity" becomes Ezzo: the two dictionaries, the browser-tab title and its spec.
-     - Then a full screenshot run (360, 768, 1280; both themes; signed out and in; English and Georgian) and Impeccable's `critique` on the real pages. Check by eye: the liked state of a post (filled heart and `aria-pressed`), Georgian and Russian headings, discs beside the accent, dark toasts and menus against the page.
-     - **Applied on `worktree-brand` (2026-11-23)**, all of the above except the tab mark. The wordmark is live text in the display face (`tracking-logo`, `text-logo` on the sign-in pages), not an SVG; the fretwork and tagline stand under it in `auth-frame`. Screenshots and the critique ran. Revised the same day: the logo is the "zz" speech bubble (top bar and tab icon), the name is not written on the page, and the tagline, welcome line and fretwork left sign-in. Ticket 41, the landing page merged with sign-in at `/`, is merged.
-2. [x] **Write the tickets.** Of the n8n tickets, 01, 03, 04, 08 and 11 are backend work proven by integration tests; 02, 05, 06, 07, 09, 12 and 14 are workflows, open until the owner has run their checklist; 10 and 13 are visual frontend work.
-3. [x] **The backend gaps** (documented-backend-features), the last of them ticket 04.
-4. [x] **Shell and auth.**
-5. [x] **Tue 17: feed, posts and comments.** Feed with pagination, create a post with photos, edit and delete, like, comment, edit and delete a comment, report a post or comment. F09 to F13 are merged. F09's `PagedList` (`core/paging/`) is the paging pattern the later lists copy.
-6. [x] **Wed 18: profile, friends and search.** Profile page (bio, posts, friends), edit profile, user search, friend requests (send, accept, decline, remove; the three lists), account settings (deactivate, delete, digest opt-out), the guest view.
-7. [x] **Fri 20: chat and live notifications.** The SignalR service and the central state for the session, conversations, online friends and unread count. Conversation list with last message, conversation with photos, edit and delete, seen, typing, presence and last active. Toasts for a new message, comment, like and a friend coming online. F18 to F21 are merged.
-8. [x] **Sat 21: admin panel.** Users (create, edit, deactivate, restore, delete, grant and remove the administrator role), delete any post or comment, logs, statistics, the reports list, the moderation queue. F22 to F24 are merged.
-9. [ ] **n8n, late: Tue 24 and the night into Wed 25.** The owner's windows (2026-11-24): Tue 8 to 10 am, Tue 4 to 8 pm, and after midnight into Wed 25, as far as usage allows. The limit is the owner: a workflow ticket is done only when the owner has run its checklist.
-   - Merged: the backend tickets 01, 03, 04, 08 and 11, and the setup (02).
-   - Tickets 02, 05, 06 and 07 are done: the owner ran their checklists (2026-11-24).
-   - Order: 02's checklist, then 05 (welcome email), then 07 (report alert, hiding after five reports), then 06 (AI moderation) only if the OpenAI key is ready. Then 09 with 10 (digest) or 12 with 13 (birthdays). Alert grouping (14) is last; 15 is after the deadline.
-   - Realistic count: 02, 05 and 07 firm; 06 if the key is ready; one of the digest or birthday pairs if the evening goes well. What is left stays under Last in line.
-   - Needs from the owner: the Telegram bot token and the chat ids, the OpenAI key (before ticket 06), and the administrator address. n8n uses the same SMTP account as the backend's `EmailConfiguration`.
-10. [ ] **Tue 24 and the night into Wed 25: buffer and finish.** Responsive pass on a phone width. Walk the document top to bottom against the running app and fix what fails. Update the READMEs and `docs/backend/*.md` for everything added (documentation-update ticket 01, which also renames WebCity to Ezzo in prose). Frontend ticket 31 runs as a worktree lane beside the n8n work, and is cut first if usage runs short. Suggested split: the morning window takes the responsive pass, the document walk and 02's checklist with 05; the evening takes 07, 06 and one more pair; after midnight is the README and docs, a last walk and the full test run.
-11. [ ] **Wed 25: hand in.**
+## No ticket yet
 
-### Before the presentation
-
-- [ ] **Check the demo's origin is allowed for emailed links.** `Cors:AllowedOrigins` in `backend/aspnetproject/appsettings.Development.json` (gitignored; edit the copy of the checkout the backend runs from) already holds `http://localhost:4200`, `:4300` and the two `:5500` origins. If the demo opens the app from any other origin (`127.0.0.1:4200`, a host), add it and restart the backend, or forgot-password and reactivation answer "url link is not allowed".
-
-### Days the owner is away
-
-The owner expects to lose more than a day, which is more than the buffer. Work that is covered by tests can run without the owner, in a cloud session, and be reviewed afterwards: the frontend's plumbing tickets (unit-tested, with no visual part) and the n8n backend tickets. The pages cannot, because someone has to look at them, and neither can a workflow ticket, because someone has to run its checklist.
-
-### Last in line
-
-If time runs short, these are finished last, in this order from the end: the weekly digest, birthday notifications, grouping of repeated exception alerts, automatic hiding after several reports, the activity part of the statistics page.
-
-On the frontend, in this order from the end: choosing a profile picture (the default picture is built either way), the dark theme (its switch is hidden if it is not checked on every page), the account history in settings (needs a new table, because `AccountDeactivatedAt` is cleared on reactivation), live friend requests (a new hub event, a live badge and incoming list on `/friends`, and their own toast), and the dialog that lists who liked a post.
-
-## After the deadline
-
-**First, if the documentation session finishes in time** (owner, 2026-11-24): the two bugs below, before the deadline.
+**First, the two bugs below.**
 
 - **The tab title reads the dictionary before it loads** (found in the review of the cleanup merge, which brought frontend ticket 37). Every page load logs `ERROR Error: The startup dictionary has not finished loading.` in the console: the effect in `PageTitleStrategy` reads `LanguageStore.text()` before the startup dictionary arrives, and `LanguageStore.selection()` throws. The title corrects itself once the dictionary lands (checked in English and Georgian), so only the console shows it. The unit tests miss it because `src/test-setup.ts` supplies the English dictionary up front. Fix sketch: `LanguageStore` exposes a loaded signal, the title effect sets nothing until it holds, and a spec starts the store without a dictionary. No ticket yet.
 - **Back from editing your own post loses the profile** (found by the owner, 2026-11-24). Profile → Posts → edit one of your own posts: the Back button does not work properly, and the only ways out are the feed or another page; nothing leads back to the profile. The cause is not looked at yet. The place to start is `edit-post-page.ts`, which replaces its history entry with the post page after a save (`replaceUrl`), and the post page's Back link. No ticket yet.
-- **Dropped frontend tickets** (owner, 2026-11-24). F39 (save a photo from the viewer) and F40 (save a message's or post's photos together) are a new feature with no time left. F42 (a three-field date of birth replacing the browser date picker in register and both admin dialogs) is polish and waits. All three stay `ready-for-agent`.
-- **Ticket 24 was not spec-reviewed** (owner, 2026-11-24, to save usage). It was looked at by eye over two rounds. A standards pass on its diff is the cheap one to run later.
 
-- **Hidden content, and flagging from the menu** (owner, 2026-11-23). An administrator can restore hidden content only through the "…" menu of the item itself, and cannot flag from the menu at all. Backend ticket 14 lists hidden posts and comments; frontend ticket 43 adds a Hidden tab to the moderation page (and extracts the shared panel); frontend ticket 44 adds Flag to the menu. Ticket 43 waits for 14.
+- **Email failures are invisible** (found while writing Getting started, 2026-11-25). `EmailSender` catches every exception and returns `false` without logging it, so a wrong SMTP password shows only as "could not send the email" on reset and reactivation, and as nothing at all on the other emails. Fix sketch: write a `Log` row (or a `SystemLogger` entry) with the exception before returning `false`.
+- **`EmailConfiguration:Enabled: false` reports links as sent.** With email off, the reset and reactivation requests still answer that the link was sent. Either say so in the answer, or log the link in Development so it can be opened by hand.
+- **Frontend features left out before the deadline,** in no set order: choosing a profile picture (the default picture is built); the dialog that lists who liked a post (the API route exists); the account history in settings (needs a new table, because `AccountDeactivatedAt` is cleared on reactivation); live friend requests (a new hub event, a live badge and incoming list on `/friends`, and their own toast).
+- **Ticket 24 was not spec-reviewed** (owner, 2026-11-24, to save usage). It was looked at by eye over two rounds. A standards pass on its diff is the cheap one to run later.
 - A few end-to-end test flows (sign in, post, message). They come before component tests.
 - **Stored notifications:** a table, a list with an unread count, a mark-as-read route, and a bell with a badge. Until then a notification reaches only a user who is connected.
-- **Retried events:** an outbox table and a job that resends an event the automation did not receive (n8n ticket 15). Until then an event sent while n8n is down is lost.
 - **A signed event can be replayed** (found in the review of n8n ticket 01, owner, 2026-11-24). The workflows check only that the signature matches the body; they ignore the envelope's `id` and `occurredAt`, so a captured request is accepted again (a replayed fifth report re-hides content an administrator restored). The traffic stays on the owner's machine (`127.0.0.1:5678`), so it waits. Fix sketch: the signature check also refuses an `occurredAt` older than a few minutes, and n8n remembers recent `id`s; ticket 15's resend must then send a fresh time. The signature comparison is a plain string equals, not constant time; fix it in the same change. No ticket yet.
 - Images on AWS S3. Until then they stay on local disk.
 - Russian and Spanish dictionary files (ADR 0006).
