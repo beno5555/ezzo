@@ -1,0 +1,353 @@
+{
+  "version": "4.0.0",
+  "darkMode": true,
+  "gridEnabling": false,
+  "currentViewName": null,
+  "defaultView": {
+    "detailLevel": "All",
+    "relationshipMode": "All",
+    "tablePositions": [
+      {
+        "name": "Roles",
+        "schemaName": "public",
+        "x": 12,
+        "y": 602
+      },
+      {
+        "name": "Users",
+        "schemaName": "public",
+        "x": 12,
+        "y": 12
+      },
+      {
+        "name": "Friendships",
+        "schemaName": "public",
+        "x": 569.240234375,
+        "y": 12
+      },
+      {
+        "name": "Logs",
+        "schemaName": "public",
+        "x": 569.240234375,
+        "y": 314
+      },
+      {
+        "name": "Messages",
+        "schemaName": "public",
+        "x": 569.240234375,
+        "y": 712
+      },
+      {
+        "name": "Posts",
+        "schemaName": "public",
+        "x": 569.240234375,
+        "y": 1047
+      },
+      {
+        "name": "RefreshTokens",
+        "schemaName": "public",
+        "x": 569.240234375,
+        "y": 1349
+      },
+      {
+        "name": "Reports",
+        "schemaName": "public",
+        "x": 569.240234375,
+        "y": 1651
+      },
+      {
+        "name": "UserRoles",
+        "schemaName": "public",
+        "x": 569.240234375,
+        "y": 2050
+      },
+      {
+        "name": "MessageImages",
+        "schemaName": "public",
+        "x": 1161.90576171875,
+        "y": 12
+      },
+      {
+        "name": "Comments",
+        "schemaName": "public",
+        "x": 1161.90576171875,
+        "y": 282
+      },
+      {
+        "name": "PostImages",
+        "schemaName": "public",
+        "x": 1161.90576171875,
+        "y": 584
+      },
+      {
+        "name": "PostLikes",
+        "schemaName": "public",
+        "x": 1161.90576171875,
+        "y": 854
+      }
+    ],
+    "tableGroupCollapseStates": [],
+    "stickyNoteLayouts": [],
+    "referencePaths": [
+      {
+        "firstFieldNames": [
+          "Id"
+        ],
+        "firstTableName": "Users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "AddresseeUserId"
+        ],
+        "secondTableName": "Friendships",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "Id"
+        ],
+        "firstTableName": "Users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "RequesterUserId"
+        ],
+        "secondTableName": "Friendships",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "Id"
+        ],
+        "firstTableName": "Users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "UserId"
+        ],
+        "secondTableName": "Logs",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "Id"
+        ],
+        "firstTableName": "Users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "ReceiverUserId"
+        ],
+        "secondTableName": "Messages",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "Id"
+        ],
+        "firstTableName": "Users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "SenderUserId"
+        ],
+        "secondTableName": "Messages",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "Id"
+        ],
+        "firstTableName": "Users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "UserId"
+        ],
+        "secondTableName": "Posts",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "Id"
+        ],
+        "firstTableName": "Users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "UserId"
+        ],
+        "secondTableName": "RefreshTokens",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "Id"
+        ],
+        "firstTableName": "Users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "ReporterUserId"
+        ],
+        "secondTableName": "Reports",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "Id"
+        ],
+        "firstTableName": "Users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "ReviewedByUserId"
+        ],
+        "secondTableName": "Reports",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "Id"
+        ],
+        "firstTableName": "Roles",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "RoleId"
+        ],
+        "secondTableName": "UserRoles",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "Id"
+        ],
+        "firstTableName": "Users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "UserId"
+        ],
+        "secondTableName": "UserRoles",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "Id"
+        ],
+        "firstTableName": "Messages",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "MessageId"
+        ],
+        "secondTableName": "MessageImages",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "Id"
+        ],
+        "firstTableName": "Posts",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "PostId"
+        ],
+        "secondTableName": "Comments",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "Id"
+        ],
+        "firstTableName": "Users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "CommenterUserId"
+        ],
+        "secondTableName": "Comments",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "Id"
+        ],
+        "firstTableName": "Posts",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "PostId"
+        ],
+        "secondTableName": "PostImages",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "Id"
+        ],
+        "firstTableName": "Posts",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "PostId"
+        ],
+        "secondTableName": "PostLikes",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      },
+      {
+        "firstFieldNames": [
+          "Id"
+        ],
+        "firstTableName": "Users",
+        "firstSchemaName": "public",
+        "firstRelation": "1",
+        "secondFieldNames": [
+          "UserId"
+        ],
+        "secondTableName": "PostLikes",
+        "secondSchemaName": "public",
+        "secondRelation": "*",
+        "checkPoints": []
+      }
+    ],
+    "elementPositions": [],
+    "groupCollapseStates": [],
+    "linkPaths": []
+  },
+  "views": {}
+}
