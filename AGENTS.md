@@ -30,6 +30,7 @@ Claude Code keeps these in a memory you cannot read. They apply to you too.
 - **When advice conflicts with a project document,** give both arguments and let the owner decide. A document does not win by default.
 - **Stop every browser and script you started** before you report, not only the servers `CLAUDE.md` names.
 - **When you change a rule in the docs,** also look for what the change makes obsolete or contradicts, and remove it in the same edit. Don't only add.
+- **Never edit an appsettings file while the backend runs** (ports 7102, 5045) without asking the owner first. The backend reloads settings live: a changed `Jwt:Key` signs new tokens with a key the validator rejects, and every request gets `401` until a restart. Check which file supplies a value by its full section path, not by a bare key name.
 - **Favour the dark theme** in single screenshots and in tests that set a theme: about 80 % dark, 20 % light (`frontend/CLAUDE.md`).
 - **After a ticket,** end your report with every file you changed, grouped by kind (services, tests, docs, ...), with new files marked.
 ## Working beside Claude Code
