@@ -122,9 +122,10 @@ aspnetproject.slnx
         ...
     /Seed
         BulkDataSeed.cs
+        DemoDataSeeder.cs, DemoSeedSummary.cs
         DeterministicFixtureSeed.cs
 /Extensions
-    ApplicationServicesExtensions.cs, AuthenticationExtensions.cs, CorsExtensions.cs,
+    ApplicationServicesExtensions.cs, AuthenticationExtensions.cs, CorsExtensions.cs, DemoSeedExtensions.cs,
     DevelopmentEndpointsExtensions.cs, GlobalExceptionHandler.cs, ImageStorageExtensions.cs, RateLimitConfig.cs,
     SwaggerExtensions.cs, TestSeedExtensions.cs, UtcTimeJsonExtensions.cs
 /Hubs
@@ -189,6 +190,8 @@ dotnet run --project aspnetproject --launch-profile https
 Under either launch profile the backend listens on `https://localhost:7102`, the address the frontend's proxy uses, and on `http://localhost:5045`; the profiles differ only in which comes first ([launchSettings.json](aspnetproject/Properties/launchSettings.json)).
 
 See the settings for [cleanup jobs](../docs/backend/background-jobs.md), [image storage](../docs/backend/controllers.md#postcontroller), [password hashing](../docs/backend/auth.md#authentication--authorization), [automation events](../docs/backend/automation.md#settings), and [automation API access](../docs/backend/auth.md#the-automations-api-key-second-scheme).
+
+For a presentation, `dotnet run --project aspnetproject --launch-profile https -- seed-demo` (Development only) empties the database except the administrator (Id 1), seeds a small named cast with posts, chats, friend requests and moderation work, removes every uploaded file, and exits instead of serving. Every password becomes `password123`. Times are relative to the run, so run it again on the morning of a demo. `Data/Seed/DemoDataSeeder.cs` describes what it writes.
 
 For direct test runs, prepare the [local test settings](../docs/backend/testing.md#local-test-settings) and run `dotnet test aspnetproject.IntegrationTests` from `backend/`. On Linux, run [`scripts/test-linux.sh`](../scripts/test-linux.sh) from the repository root to provision SQL Server in Docker and run the suite.
 

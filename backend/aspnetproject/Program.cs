@@ -65,7 +65,14 @@ public partial class Program
 
             app.MapHub<MessageHub>("hubs/messages");
 
-            app.Run();
+            if (args.IsDemoSeedRequested())
+            {
+                app.SeedDemoData();
+            }
+            else
+            {
+                app.Run();
+            }
         }
     }
 }
