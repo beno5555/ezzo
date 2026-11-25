@@ -19,6 +19,9 @@ riderModule.iml
 # Screenshots kept per ticket for the owner's review (implement skill, "The round report")
 /.scratch/*/shots/
 
+# The owner's presentation of the project, kept out of the repo
+/ezzo-presentation.pptx
+
 #postman
 *.postman_environment.json
 /postman/
