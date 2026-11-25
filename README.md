@@ -54,7 +54,7 @@ Run every command below from the repository root.
      "ConnectionStrings": {
        "DefaultConnection": "Server=localhost;Database=Ezzo;Trusted_Connection=True;TrustServerCertificate=True"
      },
-     "Jwt": { "Key": "<signing key>", "AccessTokenMinutes": 15, "RefreshTokenDays": 7 },
+     "Jwt": { "Key": "<signing key>", "AccessTokenMinutes": 5, "RefreshTokenDays": 7 },
      "PasswordConfiguration": { "ResetTokenMinutes": 15 },
      "EmailConfiguration": {
        "SmtpHost": "smtp.gmail.com",
