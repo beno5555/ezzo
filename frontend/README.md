@@ -44,6 +44,6 @@ The refresh token is a `SameSite=Strict` cookie, so the browser must see the pag
 
 ## Commands
 
-Start the [backend](../backend/README.md#running-it) first. The commands (install, the dev server on <http://localhost:4200>, unit tests, lint, build, formatting, screenshots) are under Commands in [CLAUDE.md](CLAUDE.md#commands).
+Start the backend first ([Getting started](../README.md#getting-started)). The commands (install, the dev server on <http://localhost:4200>, unit tests, lint, build, formatting, screenshots) are under Commands in [CLAUDE.md](CLAUDE.md#commands).
 
 Password reset and reactivation links come back to the app only if its origin is in the backend's `Cors:AllowedOrigins` ([backend settings](../backend/README.md#running-it)).

@@ -51,7 +51,7 @@ The bodies of `request-password-reset` (`ForgotPasswordDto`) and `request-activa
 
 ### The automation's API key (second scheme)
 
-The automation (n8n, `GLOSSARY.md`) calls the backend with a key, not a token. It is a second authentication scheme beside JWT, and the decisions are under "The automation's identity" in `.scratch/n8n-automation/spec.md`.
+The automation (n8n, `GLOSSARY.md`) calls the backend with a key, not a token. It is a second authentication scheme beside JWT, and the decisions are under "The automation's identity" in `planning/n8n-automation/spec.md`.
 
 - **The key.** The request carries it in the `X-Api-Key` header (`Constants.AutomationApiKeyHeader`). It is one setting, `AutomationApi:Key` (`AutomationApiConfiguration`), with no default, a secret that is never printed or committed. The same value is the API-key credential in n8n.
 - **The scheme.** `ApiKeyAuthenticationHandler`, registered as `AutomationAuth.Scheme` (`"ApiKey"`) by `AddAutomationAuthentication`. A request without the header is left alone (no result). A request whose header is wrong, empty or in another letter case of the key fails. A request with the configured key succeeds, as an identity with no claims at all: no id, no name, no role.

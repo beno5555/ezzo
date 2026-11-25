@@ -7,7 +7,7 @@ import { guestGuard } from './core/routing/guest-guard';
 import { landingPageMark } from './core/routing/landing-page-mark';
 import { signedInMatch } from './core/routing/signed-in-match';
 
-// The address table in .scratch/frontend/spec.md ("Addresses"); app.routes.spec.ts holds this file to it.
+// The address table in planning/frontend/spec.md ("Addresses"); app.routes.spec.ts holds this file to it.
 // Every page loads lazily, and its title is a key of the dictionary's pages group (PageTitleStrategy).
 
 export const routes: Routes = [

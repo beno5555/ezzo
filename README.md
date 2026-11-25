@@ -2,46 +2,124 @@
 
 Ezzo is a small social platform for people who make things as a hobby: they post what they made, get feedback in the comments, become friends and message each other in real time. The name comes from the Georgian word for a courtyard (ეზო), the shared yard where neighbours meet. The product and its audience are described in [PRODUCT.md](PRODUCT.md).
 
+## Repository layout
+
+```
+/backend
+    /aspnetproject                    the Web API (backend/README.md)
+        /Controllers, /Hubs           the HTTP endpoints, and the SignalR hub that pushes live updates
+        /Infrastructure               services (business logic, background jobs, email, file storage, automation), DTOs, mappers
+        /Data                         entities, EF Core configurations, repositories and seed data
+        /Migrations                   the database schema, one migration per change
+        /Common                       constants, response messages, enums and the result wrapper every layer shares
+        /Extensions                   startup: services, authentication, rate limits, CORS, error handling
+    /aspnetproject.IntegrationTests   integration tests against a real SQL Server
+/frontend                             the Angular app (frontend/README.md)
+    /src/app/core                     what the whole app uses once: HTTP, the session, routing, live updates, themes, languages
+    /src/app/features                 one folder per area (posts, messages, admin, ...) with its pages and API services
+    /src/app/shared                   components used by several areas: buttons, dialogs, the post card, toasts
+/n8n                                  the automation (n8n/README.md)
+    /workflows                        the n8n workflows, imported when n8n starts
+    compose.yaml, setup.ps1           n8n in Docker, and the script that generates its shared secrets
+/docs
+    /backend                          per-area backend docs: auth, controllers, data, signalr, background-jobs, automation, testing
+    /adr                              architecture decision records
+    /c4                               the C4 architecture document (Georgian), its diagrams and their build scripts
+    /agents                           notes for coding agents
+/scripts                              test-linux.sh: the integration tests against a throwaway SQL Server in Docker
+/.github                              CI: the integration tests and the frontend's checks
+/planning                             the specs, tickets, roadmap and review queue used during development, one folder per feature
+DESIGN.md                             the frontend's visual brief: design tokens, themes, layout
+PRODUCT.md                            who the product is for, its name and its voice
+GLOSSARY.md                           domain terms
+CLAUDE.md                             instructions for coding agents (AGENTS.md for others)
+```
+
+## Getting started
+
+Ezzo is not hosted yet, so it runs on your own machine. Hosting is planned on a single server, where nginx serves the built frontend and forwards the API to the backend ([ADR 0001](docs/adr/0001-single-origin-for-frontend-and-backend.md)).
+
+You need:
+
+- the [.NET 10 SDK](https://dotnet.microsoft.com/download) and [Node.js 24](https://nodejs.org/);
+- SQL Server, installed and running;
+- the Entity Framework tool, installed once with `dotnet tool install --global dotnet-ef`.
+
+Run every command below from the repository root.
+
+1. **Create the settings file** `backend/aspnetproject/appsettings.Development.json`. Git ignores it, so it never leaves your machine.
+
+   ```json
+   {
+     "ConnectionStrings": {
+       "DefaultConnection": "Server=localhost;Database=Ezzo;Trusted_Connection=True;TrustServerCertificate=True"
+     },
+     "Jwt": { "Key": "<signing key>", "AccessTokenMinutes": 15, "RefreshTokenDays": 7 },
+     "PasswordConfiguration": { "ResetTokenMinutes": 15 },
+     "EmailConfiguration": {
+       "SmtpHost": "smtp.gmail.com",
+       "SmtpPort": 587,
+       "SenderEmail": "<your email address>",
+       "SenderName": "Ezzo",
+       "Username": "<your email address>",
+       "Password": "<your app password>"
+     },
+     "Cors": { "AllowedOrigins": [ "http://localhost:4200" ] }
+   }
+   ```
+
+   - **Connection string:** your local SQL Server, signed in with your Windows account. Step 2 creates the database `Ezzo`.
+   - **Signing key:** generate one with `node -e "console.log(require('crypto').randomBytes(64).toString('base64'))"`. Anyone who knows it can sign in as any user.
+   - **Email:** your own account, so password reset and reactivation links arrive. For Gmail, turn on 2-Step Verification and create an [app password](https://myaccount.google.com/apppasswords); other providers work if they accept STARTTLS on port 587. Without email, use `"EmailConfiguration": { "Enabled": false }`: nothing is sent, though the app still reports the links as sent.
+
+2. **Create the database** with its tables and an administrator account:
+
+   ```bash
+   dotnet ef database update --project backend/aspnetproject -- --environment Development
+   ```
+
+3. **Add demo data (optional).** This empties the database, keeps the administrator, adds sample people, posts, chats and reports, and exits:
+
+   ```bash
+   dotnet run --project backend/aspnetproject --launch-profile https -- seed-demo
+   ```
+
+4. **Start the backend** and leave it running. If it reports a missing HTTPS development certificate, run `dotnet dev-certs https` once and start it again.
+
+   ```bash
+   dotnet run --project backend/aspnetproject --launch-profile https
+   ```
+
+5. **Start the frontend** in a second terminal. The first command is needed only once:
+
+   ```bash
+   npm --prefix frontend ci
+   npm --prefix frontend start
+   ```
+
+6. **Open <http://localhost:4200>** and sign in as the administrator, `sandro_beno` with the password `password123`, or register a new account. The demo accounts from step 3 use the same password.
+
+The automation (the welcome email, AI moderation and Telegram alerts) is optional; the app runs without it. To add it, follow [n8n/README.md](n8n/README.md#setup). To run the tests, see [backend/README.md](backend/README.md#running-it) and [frontend/README.md](frontend/README.md#commands).
+
 ## Features
 
-- **Accounts:** register, sign in, reset a forgotten password through an emailed link, deactivate an account and reactivate it through an emailed link, delete an account.
-- **Posts:** text and photos, a ranked feed of friends' and other people's posts, likes, comments, editing and deleting your own.
-- **People:** profiles with a bio, search by username, friend requests, friend lists.
-- **Chat** between friends: photos, editing a message shortly after it is sent, deleting it, read receipts, a typing indicator, who is online, and live toasts for new messages, comments, likes and friends coming online.
-- **Reports and moderation:** anyone signed in can report a post, a comment or a user. Administrators have a panel for accounts, reports, the moderation queue, logs and statistics.
-- **Automation:** a welcome email, AI moderation of new and edited posts and comments, hiding content after several reports, and Telegram alerts for administrators and developers.
-- **Interface** in English and Georgian, light and dark themes, from a phone to a desktop. A guest can read profiles and posts.
+**Accounts.** People register with an email, a username and a password, and stay signed in between visits. A forgotten password is reset through an emailed link. An account can be deactivated, which hides it from everyone until it is reactivated through an emailed link, or deleted.
+
+**Posts and the feed.** A post has text and up to ten photos. The feed shows everyone's posts, not only friends', ranked by how close you are to the author, how much activity the post has and how new it is, so friends' posts come first. Posts collect likes and comments, and authors can edit or delete their own. Guests can read profiles and posts without an account.
+
+**People.** A profile shows the person's bio and posts. Search finds people by username. A friend request is accepted or declined, and either side can end the friendship later.
+
+**Chat.** Friends message each other in real time, photos included. A message can be edited for 20 minutes after it is sent, and deleted. Read receipts, a typing indicator and who is online (or when they were last seen) update live, and small pop-ups announce new messages, comments, likes and friends coming online.
+
+**Reports and moderation.** Anyone signed in can report a post, a comment or a user. An administrator reviews each report in the admin panel and either hides what was reported or rejects the report. The panel also manages accounts, holds the queue of flagged content, and shows the logs and statistics.
+
+**Automation** (optional). New accounts get a welcome email. AI moderation checks new and edited posts and comments, and flags or hides harmful ones. Five reports within 24 hours hide a post or comment. Administrators get a Telegram message for every report, developers for every server error.
+
+**Interface.** English and Georgian, light and dark themes, from a phone to a desktop.
 
 ## How it is built
 
 Ezzo has two halves: the backend, an ASP.NET Core Web API ([backend/README.md](backend/README.md)), and the frontend, an Angular single-page app ([frontend/README.md](frontend/README.md)). The browser reaches both from one origin ([ADR 0001](docs/adr/0001-single-origin-for-frontend-and-backend.md)). The automation is n8n in Docker: the backend sends it signed events, and it calls the backend back with its own API key ([n8n/README.md](n8n/README.md)).
-
-## Repository layout
-
-```
-/backend          the Web API and its integration tests (backend/README.md)
-/frontend         the Angular app (frontend/README.md)
-/n8n              the automation: compose file, workflows, setup scripts (n8n/README.md)
-/docs
-    /backend      per-area backend docs: auth, controllers, data, signalr, background-jobs, automation, testing
-    /adr          architecture decision records
-    /c4           the C4 architecture document (Georgian), its diagrams and their build scripts
-    /agents       notes for coding agents
-/scripts          test-linux.sh: the integration tests against a throwaway SQL Server in Docker
-/.github          CI: the integration tests and the frontend's checks
-DESIGN.md         the frontend's visual brief: design tokens, themes, layout
-PRODUCT.md        who the product is for, its name and its voice
-GLOSSARY.md       domain terms
-CLAUDE.md         instructions for coding agents (AGENTS.md for others)
-```
-
-## Running it
-
-Start the parts in this order:
-
-1. **The backend.** Settings, the database and the start command: [backend/README.md](backend/README.md#running-it).
-2. **The frontend.** Install once, then start the dev server: [frontend/README.md](frontend/README.md#commands). Open <http://localhost:4200>.
-3. **The automation**, if you need its emails, moderation and alerts: [n8n/README.md](n8n/README.md#setup). The app runs without it.
 
 ## More
 
