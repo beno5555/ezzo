@@ -39,6 +39,14 @@ For atomic multistep writes, the service wraps its operations in `ExecuteInTrans
 
 ## Entities
 
+`schema.dbml` (next to this doc) is a diagram of the tables, viewed with the dbdiagram VS Code extension ("Open Preview to the Side"); `schema.dbdiagram` keeps the tables' positions in it. It is a snapshot: after a migration, regenerate it from the repo root:
+
+```bash
+dotnet ef dbcontext script --project backend/aspnetproject -o docs/backend/schema.sql
+npx -p @dbml/cli sql2dbml --mssql docs/backend/schema.sql -o docs/backend/schema.dbml
+rm docs/backend/schema.sql
+```
+
 | Entity       | Key properties                                                                                                                                                                                                                                                                                  |
 |--------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
 | User         | Username, Email, PasswordHash, PasswordSalt, Bio, DateOfBirth, `DigestEmailEnabled`, `UsernameLastChangedAt`, `LastOnlineAt` (null = online), `ResetTokenHash`/`ResetTokenExpiresAt` (shared by password-reset and account-activation flows), `AccountDeactivatedAt`, `AccountDeletedAt`, computed `IsAccountEnabled` |
